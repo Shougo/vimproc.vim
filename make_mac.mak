@@ -2,7 +2,7 @@
 
 TARGET=autoload/proc.so
 SRC=autoload/proc.c
-CFLAGS=-W -Wall -Wno-unused -ansi -pedantic -bundle -fPIC
+CFLAGS=-W -Wall -Wno-unused -ansi -pedantic -bundle -fPIC -arch i386 -arch x86_64 -arch ppc -arch ppc64
 LDFLAGS+=-lutil
 
 all: $(TARGET)
