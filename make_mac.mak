@@ -10,3 +10,6 @@ all: $(TARGET)
 $(TARGET): $(SRC) autoload/vimstack.c
 	gcc $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
 
+.PHONY : clean
+clean:
+	-rm -f $(TARGET)

@@ -17,6 +17,9 @@
 /* for forkpty() */
 #ifdef __linux__ || __APPLE__ 
 # include <pty.h>
+# ifdef __APPLE__ 
+#  include <util.h>
+# endif
 #else
 # include <sys/types.h>
 # include <sys/ioctl.h>
