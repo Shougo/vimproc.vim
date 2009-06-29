@@ -15,15 +15,20 @@
 #include <poll.h>
 
 /* for forkpty() */
-#ifdef __linux__
+#if defined __linux__
 # include <pty.h>
-#elif __APPLE__ 
+#elif defined __APPLE__ 
 # include <util.h>
 #else
 # include <sys/types.h>
 # include <sys/ioctl.h>
 # include <termios.h>
 # include <libutil.h>
+#endif
+
+/* for ioctl() */
+#ifdef __APPLE__ 
+# include <sys/ioctl.h>
 #endif
 
 /* for tc* and ioctl */
