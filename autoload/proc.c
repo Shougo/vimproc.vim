@@ -487,7 +487,7 @@ vp_pty_open(char *args)
                 strerror(errno));
     }
 
-    pid_t pid = fork();
+    pid = fork();
 #endif
     if (pid < 0) {
         return vp_stack_return_error(&_result, "forkpty() error: %s",
@@ -500,7 +500,7 @@ vp_pty_open(char *args)
         close(slave);
         if (execv(argv[0], argv) < 0) {
             /* error */
-            write(fdm, strerror(errno), strlen(strerror(errno)));
+            write(master, strerror(errno), strlen(strerror(errno)));
             _exit(EXIT_FAILURE);
         }
     } else {
