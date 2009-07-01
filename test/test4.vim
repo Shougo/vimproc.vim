@@ -1,7 +1,7 @@
 
 let proc = proc#import()
 
-let sub = proc.popen2(["cat.exe"])
+let sub = proc.popen2(["cat"])
 let lis = range(256)
 let hd = proc.list2hd(lis)
 call proc.api.vp_pipe_write(sub.stdin.fd, hd, -1)
