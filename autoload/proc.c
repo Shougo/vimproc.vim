@@ -490,11 +490,10 @@ vp_pty_open(char *args)
     pid = fork();
 #endif
     if (pid < 0) {
-        return vp_stack_return_error(&_result, "forkpty() error: %s",
+        return vp_stack_return_error(&_result, "fork() error: %s",
                 strerror(errno));
     } else if (pid == 0) {
         /* child */
-        close(master);
         /* Create file descryptor. */
         dup2(slave, 0); dup2(slave, 1); dup2(slave, 2);
         close(slave);
