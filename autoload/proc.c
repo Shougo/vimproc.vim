@@ -346,7 +346,7 @@ vp_pipe_open(char *args)
     int npipe;
     int argc;
     char *argv[VP_ARGC_MAX];
-    int fd[2][3];
+    int fd[3][2];
     pid_t pid;
     int i;
 
