@@ -12,7 +12,11 @@
 #include <fcntl.h>
 
 /* for poll() */
+#if defined __APPLE__
+#include "fakepoll.h"
+#else
 #include <poll.h>
+#endif
 
 /* for forkpty() */
 #if defined __linux__
@@ -242,8 +246,9 @@ vp_file_read(char *args)
     while (nr != 0) {
         n = poll(&pfd, 1, timeout);
         if (n == -1) {
-            return vp_stack_return_error(&_result, "poll() error: %s",
-                    strerror(errno));
+            /* eof or error */
+            vp_stack_push_num(&_result, "%d", 1);
+            return vp_stack_return(&_result);
         } else if (n == 0) {
             /* timeout */
             break;
@@ -494,23 +499,26 @@ vp_pty_open(char *args)
                 strerror(errno));
     } else if (pid == 0) {
         /* child */
+        setsid();
+        ioctl(slave, TIOCSCTTY, 0);
+        close(master);
+
         /* Create file descryptor. */
         dup2(slave, 0); dup2(slave, 1); dup2(slave, 2);
         close(slave);
         if (execv(argv[0], argv) < 0) {
             /* error */
-            write(master, strerror(errno), strlen(strerror(errno)));
             _exit(EXIT_FAILURE);
         }
     } else {
         /* parent */
-        close(slave);
         vp_stack_push_num(&_result, "%d", pid);
         vp_stack_push_num(&_result, "%d", master);
-        vp_stack_push_str(&_result, ttyname(master));
+        vp_stack_push_str(&_result, ttyname(slave));
+        close(slave);
         return vp_stack_return(&_result);
     }
-    /* DO NOT REACH HEAR */
+    /* DO NOT REACH HERE */
     return NULL;
 }
 
