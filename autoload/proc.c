@@ -499,9 +499,11 @@ vp_pty_open(char *args)
                 strerror(errno));
     } else if (pid == 0) {
         /* child */
+#if defined(__APPLE__)
         setsid();
         ioctl(slave, TIOCSCTTY, 0);
         close(master);
+#endif
 
         /* Create file descryptor. */
         dup2(slave, 0); dup2(slave, 1); dup2(slave, 2);
