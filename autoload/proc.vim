@@ -1,4 +1,7 @@
 " 2006-08-19
+" FILE:   proc.c
+" AUTHOR: Yukihiro Nakadaira <http://yukihiro.nakadaira.googlepages.com/#vimproc> (original)
+"         Nico Raffo <nicoraffo@gmail.com> (modified)
 
 scriptencoding utf-8
 
@@ -87,7 +90,7 @@ function! s:lib.fdopen(fd, f_close, f_read, f_write)
 endfunction
 
 function! s:lib.ptyopen(args)
-  let [pid, fd, ttyname] = self.api.vp_pty_open(&winwidth, &winheight, s:getfilename(a:args))
+  let [pid, fd, ttyname] = self.api.vp_pty_open(winwidth(0) - 5, winheight(0) - 2, s:getfilename(a:args))
 
   let proc =  self.fdopen(fd, self.api.vp_pty_close, self.api.vp_pty_read, self.api.vp_pty_write)
   let proc.pid = pid

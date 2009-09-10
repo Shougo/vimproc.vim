@@ -1,4 +1,9 @@
 /* vim:set sw=4 sts=4 et: */
+/**
+ * FILE:   proc.c
+ * AUTHOR: Yukihiro Nakadaira <http://yukihiro.nakadaira.googlepages.com/#vimproc> (original)
+ *         Nico Raffo <nicoraffo@gmail.com> (modified)
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -452,13 +457,11 @@ vp_pty_open(char *args)
     vp_stack_t stack;
     int argc;
     char *argv[VP_ARGC_MAX];
-    /*int fdm;*/
+    int fdm;
     pid_t pid;
     struct winsize ws = {0, 0, 0, 0};
     struct termios ti;
     int i;
-
-    int master, slave;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_col)));
@@ -478,46 +481,24 @@ vp_pty_open(char *args)
                 strerror(errno));
     pid = forkpty(&fdm, NULL, &ti, &ws);
 #else
-    /*pid = forkpty(&fdm, NULL, NULL, &ws);*/
-
-    /* Get current termios. */
-    tcgetattr(0, &ti);
-
-    /* Get current winsize. */
-    ioctl(0, TIOCGWINSZ, (char*)&ws);
-
-    /* Open pty. */
-    if (openpty(&master, &slave, NULL, &ti, &ws) == -1) {
-        return vp_stack_return_error(&_result, "openpty() error: %s",
-                strerror(errno));
-    }
-
-    pid = fork();
+    pid = forkpty(&fdm, NULL, NULL, &ws);
 #endif
     if (pid < 0) {
-        return vp_stack_return_error(&_result, "fork() error: %s",
+        return vp_stack_return_error(&_result, "forkpty() error: %s",
                 strerror(errno));
     } else if (pid == 0) {
         /* child */
-#if defined(__APPLE__)
-        setsid();
-        ioctl(slave, TIOCSCTTY, 0);
-        close(master);
-#endif
-
-        /* Create file descryptor. */
-        dup2(slave, 0); dup2(slave, 1); dup2(slave, 2);
-        close(slave);
         if (execv(argv[0], argv) < 0) {
             /* error */
+            write(fdm, strerror(errno), strlen(strerror(errno)));
             _exit(EXIT_FAILURE);
         }
     } else {
         /* parent */
         vp_stack_push_num(&_result, "%d", pid);
-        vp_stack_push_num(&_result, "%d", master);
-        vp_stack_push_str(&_result, ttyname(slave));
-        close(slave);
+        vp_stack_push_num(&_result, "%d", fdm);
+        /* XXX - ttyname(fdm) breaks in OS X */
+        vp_stack_push_str(&_result, "unused");
         return vp_stack_return(&_result);
     }
     /* DO NOT REACH HERE */
