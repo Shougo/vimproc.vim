@@ -1,8 +1,3 @@
-" 2006-08-19
-" FILE:   proc.c
-" AUTHOR: Yukihiro Nakadaira <http://yukihiro.nakadaira.googlepages.com/#vimproc> (original)
-"         Nico Raffo <nicoraffo@gmail.com> (modified)
-
 scriptencoding utf-8
 
 function! proc#import()
@@ -90,7 +85,7 @@ function! s:lib.fdopen(fd, f_close, f_read, f_write)
 endfunction
 
 function! s:lib.ptyopen(args)
-  let [pid, fd, ttyname] = self.api.vp_pty_open(winwidth(0) - 5, winheight(0) - 2, s:getfilename(a:args))
+  let [pid, fd, ttyname] = self.api.vp_pty_open(&winwidth, &winheight, s:getfilename(a:args))
 
   let proc =  self.fdopen(fd, self.api.vp_pty_close, self.api.vp_pty_read, self.api.vp_pty_write)
   let proc.pid = pid
@@ -138,12 +133,17 @@ function! s:getfilename(args)
         " Command search.
         if has('win32') || has('win64')
             let l:path = substitute($PATH, '\\\?;', ',', 'g')
-            for ext in ['', '.bat', '.cmd', '.exe']
-                let l:files = globpath(l:path, a:args[0].ext)
-                if !empty(l:files)
-                    break
-                endif
-            endfor
+            let l:ext = fnamemodify(a:args[0], ':e')
+            if l:ext != ''
+                let l:files = globpath(l:path, a:args[0])
+            else
+                for ext in ['.bat', '.cmd', '.exe']
+                    let l:files = globpath(l:path, a:args[0].ext)
+                    if !empty(l:files)
+                        break
+                    endif
+                endfor
+            endif
             let l:args = insert(a:args[1:], split(l:files, '\n')[0])
         else
             let l:path = substitute($PATH, '/\?:', ',', 'g')

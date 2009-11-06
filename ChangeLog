@@ -1,0 +1,19 @@
+2009-11-06 Shougo Matsushita
+    * Fixed command search bug on Windows.
+    
+
+2009-09-09 Shougo Matsushita
+    * Mark as ver.1.22.
+    * Use forkpty().
+    
+    * Modified for Mac OS X(Thanks Nico!).
+
+2009-07-09 Shougo Matsushita
+    * Mark as ver.1.21.
+    
+    * Fixed pty_open() bug in Linux.
+
+2009-07-08 Shougo Matsushita
+    * Mark as ver.1.20.
+    
+    * Modified for Mac OS X(Thanks splhack!).
