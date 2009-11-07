@@ -137,7 +137,7 @@ function! s:getfilename(args)
             if l:ext != ''
                 let l:files = globpath(l:path, a:args[0])
             else
-                for ext in ['.bat', '.cmd', '.exe']
+                for ext in split($PATHEXT, ';')
                     let l:files = globpath(l:path, a:args[0].ext)
                     if !empty(l:files)
                         break
