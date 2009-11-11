@@ -134,12 +134,17 @@ function! s:getfilename(args)
         if has('win32') || has('win64')
             let l:path = substitute($PATH, '\\\?;', ',', 'g')
             let l:ext = fnamemodify(a:args[0], ':e')
-            if l:ext != ''
+            if l:ext ==? 'lnk'
+                let l:files = iconv(resolve(split(globpath(l:path, a:args[0]), '\n')[0]), 'cp932', &encoding)
+            elseif l:ext != ''
                 let l:files = globpath(l:path, a:args[0])
             else
-                for ext in split($PATHEXT, ';')
-                    let l:files = globpath(l:path, a:args[0].ext)
+                for l:ext in split($PATHEXT . ';.LNK', ';')
+                    let l:files = globpath(l:path, a:args[0] . l:ext)
                     if !empty(l:files)
+                        if l:ext ==? 'lnk'
+                            let l:files = iconv(resolve(split(l:files, '\n')[0]), 'cp932', &encoding)
+                        endif
                         break
                     endif
                 endfor
