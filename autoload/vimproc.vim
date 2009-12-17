@@ -110,6 +110,8 @@ function! vimproc#ptyopen(args)
     let l:proc.ttyname = l:ttyname
     let l:proc.get_winsize = s:funcref('vp_pty_get_winsize')
     let l:proc.set_winsize = s:funcref('vp_pty_set_winsize')
+    let l:proc.kill = s:funcref('vp_kill')
+    let l:proc.waitpid = s:funcref('vp_waitpid')
     
     return l:proc
 endfunction
