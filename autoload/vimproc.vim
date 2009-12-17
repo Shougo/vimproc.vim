@@ -273,24 +273,13 @@ function! s:libcall(func, args)
     return l:result[:-2]
 endfunction
 
-function! s:get_script_id(fname)
-    let l:fname = substitute(a:fname, '\\', '/', 'g')
-    let snlist = ''
-    redir => snlist
-    silent! scriptnames
-    redir END
-
-    for line in split(tolower(substitute(snlist, '\\', '/', 'g')), "\n")
-        if line =~? '\V' . l:fname . '\$'
-            echomsg a:fname
-            return matchstr(line, '^\s*\zs\d\+')
-        endif
-    endfor
+function! s:SID_PREFIX()
+    return matchstr(expand('<sfile>'), '<SNR>\d\+_\zeSID_PREFIX$')
 endfunction
 
 " Get funcref.
 function! s:funcref(funcname)
-    return function(s:sid.a:funcname)
+    return function(s:SID_PREFIX().a:funcname)
 endfunction
 
 function! s:finalize()
@@ -414,6 +403,5 @@ endfunction
 " Initialize.
 if !exists('s:dlhandle')
     let s:dll_handle = s:vp_dlopen(s:dll_path)
-    let s:sid = '<SNR>'.s:get_script_id(split(globpath(&runtimepath, 'autoload/vimproc.vim'), '\n')[0]).'_'
 endif
 
