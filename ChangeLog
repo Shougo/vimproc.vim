@@ -1,3 +1,8 @@
+2009-12-22 Shougo Matsushita
+    * Implemented Windows pty.
+    * Supported MinGW.
+    
+
 2009-12-17 Shougo Matsushita
     * Reimplemented vimproc.vim.
     * Changed tests.

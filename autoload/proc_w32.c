@@ -1,6 +1,23 @@
-/* 2006-06-23
- * vim:set sw=4 sts=4 et:
- */
+/*-----------------------------------------------------------------------------
+ * Copyright (c) 2009       
+ * Kazuo Ishii        - <k-ishii at wb4.so-net.ne.jp> original version(ckw)
+ * Yukihiro Nakadaira - <yukihiro.nakadaira at gmail.com> original version(vimproc)
+ * Shougo Matsushita  - <Shougo.Matsu at gmail.com> modified version
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *---------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,10 +88,13 @@ lasterror()
     return lpMsgBuf;
 }
 
-# define open _open
-# define close _close
-# define read _read
-# define write _write
+#define open _open
+#define close _close
+#define read _read
+#define write _write
+
+#define CSI_WndCols(csi) ((csi)->srWindow.Right - (csi)->srWindow.Left +1)
+#define CSI_WndRows(csi) ((csi)->srWindow.Bottom - (csi)->srWindow.Top +1)
 
 static vp_stack_t _result = VP_STACK_NULL;
 
@@ -500,37 +520,170 @@ vp_pipe_write(char *args)
 const char *
 vp_pty_open(char *args)
 {
-    return "vp_pty_open() is not available";
+    vp_stack_t stack;
+    int cols, rows;
+    char *cmdline;
+    
+    SECURITY_ATTRIBUTES sa;
+    
+    PROCESS_INFORMATION pi;
+    STARTUPINFOA si;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &cols));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &rows));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &cmdline));
+    
+    sa.nLength = sizeof(sa);
+    sa.lpSecurityDescriptor = NULL;
+    sa.bInheritHandle = TRUE;
+
+    /* Clear. */
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdInput  = CreateFile(L"CONIN$",  GENERIC_READ|GENERIC_WRITE,
+            FILE_SHARE_READ|FILE_SHARE_WRITE,
+            &sa, OPEN_EXISTING, 0, NULL);
+    si.hStdOutput = CreateFile(L"CONOUT$",  GENERIC_READ|GENERIC_WRITE,
+            FILE_SHARE_READ|FILE_SHARE_WRITE,
+            &sa, OPEN_EXISTING, 0, NULL);
+    si.hStdError  = CreateFile(L"CONOUT$",  GENERIC_READ|GENERIC_WRITE,
+            FILE_SHARE_READ|FILE_SHARE_WRITE,
+            &sa, OPEN_EXISTING, 0, NULL);
+
+    if(!CreateProcessA(NULL, cmdline, NULL, NULL, TRUE,
+                0, NULL, NULL, &si, &pi)) {
+        /* Error. */
+        return vp_stack_return_error(&_result, "CreateProcessA() error: %s",
+                lasterror());
+    }
+    if (!CloseHandle(pi.hThread)) {
+        return vp_stack_return_error(&_result, "CloseHandle() error: %s",
+                lasterror());
+    }
+    
+    vp_stack_push_num(&_result, "%p", pi.hProcess);
+    vp_stack_push_num(&_result, "%d", _open_osfhandle((long)si.hStdInput, 0));
+    vp_stack_push_num(&_result, "%d", _open_osfhandle((long)si.hStdOutput, _O_RDONLY));
+    vp_stack_push_str(&_result, "unused");
+    return vp_stack_return(&_result);
 }
 
 const char *
 vp_pty_close(char *args)
 {
-    return "vp_pty_close() is not available";
+    return vp_pipe_close(args);
 }
 
 const char *
 vp_pty_read(char *args)
 {
-    return "vp_pty_read() is not available";
+    vp_stack_t stack;
+    int fd;
+    int nr;
+    int timeout;
+    int nleft;
+    char buf[VP_READ_BUFSIZE];
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &nr));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
+    
+    vp_stack_push_str(&_result, ""); /* initialize */
+    
+    if (!ReadFile((HANDLE)_get_osfhandle(fd), buf, (VP_READ_BUFSIZE < nr) ? VP_READ_BUFSIZE : nr, &nleft, NULL)) {
+        /* Error. */
+        return vp_stack_return_error(&_result, "ReadFile() error: %s",
+                lasterror());
+    }
+
+    vp_stack_push_num(&_result, "%zu", nleft);
+    return vp_stack_return(&_result);
 }
 
 const char *
 vp_pty_write(char *args)
 {
-    return "vp_pty_write() is not available";
+    vp_stack_t stack;
+    int fd;
+    char *buf;
+    size_t size;
+    size_t nleft;
+    int timeout;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
+    VP_RETURN_IF_FAIL(vp_stack_pop_bin(&stack, &buf, &size));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
+    
+    if (!WriteFile((HANDLE)_get_osfhandle(fd), buf, size, &nleft, NULL)) {
+        /* Error. */
+        return vp_stack_return_error(&_result, "WriteFile() error: %s",
+                lasterror());
+    }
+
+    vp_stack_push_num(&_result, "%zu", nleft);
+    return vp_stack_return(&_result);
 }
 
 const char *
 vp_pty_get_winsize(char *args)
 {
-    return "vp_pty_get_winsize() is not available";
+    vp_stack_t stack;
+    int fd;
+    CONSOLE_SCREEN_BUFFER_INFO csi;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
+    
+    GetConsoleScreenBufferInfo((HANDLE)_get_osfhandle(fd), &csi);
+
+    vp_stack_push_num(&_result, "%hu", CSI_WndCols(&csi));
+    vp_stack_push_num(&_result, "%hu", CSI_WndRows(&csi));
+    return vp_stack_return(&_result);
 }
 
 const char *
 vp_pty_set_winsize(char *args)
 {
-    return "vp_pty_set_winsize() is not available";
+    vp_stack_t stack;
+    int fd;
+    int cols, rows;
+    SMALL_RECT tmp = { 0,0,0,0 };
+    
+    CONSOLE_SCREEN_BUFFER_INFO csi;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &cols));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &rows));
+    
+    GetConsoleScreenBufferInfo((HANDLE)_get_osfhandle(fd), &csi);
+
+    if (cols == CSI_WndCols(&csi) && rows == CSI_WndRows(&csi))
+        return NULL;
+
+    SetConsoleWindowInfo((HANDLE)_get_osfhandle(fd), TRUE, &tmp);
+
+    csi.dwSize.X = (SHORT)cols;
+    csi.srWindow.Left = 0;
+    csi.srWindow.Right = (SHORT)(cols -1);
+
+    if(csi.dwSize.Y < rows || csi.dwSize.Y == CSI_WndRows(&csi))
+        csi.dwSize.Y = (SHORT)rows;
+
+    csi.srWindow.Bottom += (SHORT)(rows - CSI_WndRows(&csi));
+    if(csi.dwSize.Y <= csi.srWindow.Bottom) {
+        csi.srWindow.Top -= csi.srWindow.Bottom - csi.dwSize.Y +1;
+        csi.srWindow.Bottom = csi.dwSize.Y -1;
+    }
+
+    SetConsoleScreenBufferSize((HANDLE)_get_osfhandle(fd), csi.dwSize);
+    SetConsoleWindowInfo((HANDLE)_get_osfhandle(fd), TRUE, &csi.srWindow);
+    
+    return NULL;
 }
 
 const char *
@@ -563,7 +716,7 @@ vp_waitpid(char *args)
                 "GetExitCodeProcess() error: %s", lasterror());
 
     vp_stack_push_str(&_result, (exitcode == STILL_ACTIVE) ? "run" : "exit");
-    vp_stack_push_num(&_result, "%u", &exitcode);
+    vp_stack_push_num(&_result, "%u", exitcode);
     return vp_stack_return(&_result);
 }
 
@@ -580,7 +733,6 @@ vp_socket_open(char *args)
     char *host;
     char *port;
     int port_nr;
-    char *p;
     int n;
     unsigned short nport;
     int sock;
@@ -743,3 +895,6 @@ vp_socket_write(char *args)
     return vp_stack_return(&_result);
 }
 
+/* 
+ * vim:set sw=4 sts=4 et:
+ */

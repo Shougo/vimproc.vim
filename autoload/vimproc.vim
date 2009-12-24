@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 17 Dec 2009
+" Last Modified: 22 Dec 2009
 " Usage: Just source this file.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
@@ -24,13 +24,19 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 1.00, for Vim 7.0
+" Version: 1.01, for Vim 7.0
 "-----------------------------------------------------------------------------
 " ChangeLog: "{{{
-"   1.00: Initial version.
+"   1.01: 
+"        - Supported Windows pty.
+"
+"   1.00: 
+"        - Initial version.
 " }}}
 "=============================================================================
 scriptencoding utf-8
+
+let s:is_win = has('win32') || has('win64')
 
 "-----------------------------------------------------------
 " API
@@ -103,9 +109,16 @@ function! vimproc#socket_open(host, port)
 endfunction
 
 function! vimproc#ptyopen(args)
-    let [l:pid, l:fd, l:ttyname] = s:vp_pty_open(&winwidth, &winheight, s:convert_args(a:args))
+    if s:is_win
+        let [l:pid, l:fd_stdin, l:fd_stdout, l:ttyname] = s:vp_pty_open(&winwidth, &winheight, s:convert_args(a:args))
+        
+        let l:proc = s:fdopen_pty(l:fd_stdin, l:fd_stdout, 'vp_pty_close', 'vp_pty_read', 'vp_pty_write')
+    else
+        let [l:pid, l:fd, l:ttyname] = s:vp_pty_open(&winwidth, &winheight, s:convert_args(a:args))
+        
+        let l:proc = s:fdopen(l:fd, 'vp_pty_close', 'vp_pty_read', 'vp_pty_write')
+    endif
 
-    let l:proc = s:fdopen(l:fd, 'vp_pty_close', 'vp_pty_read', 'vp_pty_write')
     let l:proc.pid = l:pid
     let l:proc.ttyname = l:ttyname
     let l:proc.get_winsize = s:funcref('vp_pty_get_winsize')
@@ -138,6 +151,14 @@ endfunction
 function! s:fdopen(fd, f_close, f_read, f_write)
     return {
                 \'fd' : a:fd, 'eof' : 0, 
+                \'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
+                \'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write')
+                \}
+endfunction
+
+function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write)
+    return {
+                \'fd_stdin' : a:fd_stdin, 'fd_stdout' : a:fd_stdout, 'eof' : 0, 
                 \'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
                 \'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write')
                 \}
@@ -189,14 +210,14 @@ function! s:convert_args(args)"{{{
 endfunction"}}}
 
 function! s:getfilename(command)"{{{
-    let l:PATH_SEPARATOR = (has('win32') || has('win64')) ? '/\\' : '/'
+    let l:PATH_SEPARATOR = s:is_win ? '/\\' : '/'
     let l:pattern = printf('[/~]\?\f\+[%s]\f*$', l:PATH_SEPARATOR)
     if a:command =~ l:pattern
         return a:command
     endif
     
     " Command search.
-    if has('win32') || has('win64')
+    if s:is_win
         let l:path = substitute($PATH, '\\\?;', ',', 'g')
         if fnamemodify(a:command, ':e') != ''
             let l:files = globpath(l:path, a:command)
@@ -242,7 +263,7 @@ let s:lasterr = []
 let s:read_timeout = 100
 let s:write_timeout = 100
 
-if has("win32")
+if s:is_win
     let s:dll_path = expand("<sfile>:p:h") . "/proc.dll"
 else
     let s:dll_path = expand("<sfile>:p:h") . "/proc.so"
@@ -263,9 +284,9 @@ function! s:libcall(func, args)
     " let result = split(stack_buf, EOV, 1)
     let l:result = split(l:stack_buf, '[\xFF]', 1)
     if !empty(l:result) && l:result[-1] != ''
-        let s:lasterr = l:reults
+        let s:lasterr = l:result
         let l:msg = string(l:result)
-        if has('iconv') && (has('win32') || has('win64'))
+        if has('iconv') && s:is_win
             " Kernel error message is encoded with system codepage.
             " XXX: other normal error message may be encoded with &enc.
             let l:msg = iconv(l:msg, 'default', &enc)
@@ -317,12 +338,12 @@ function! s:vp_file_write(hd, timeout) dict
 endfunction
 
 function! s:vp_pipe_open(npipe, argv)
-    if has("win32")
+    if s:is_win
         let l:cmdline = ''
         for arg in a:argv
             let l:cmdline .= '"' . substitute(arg, '"', '\\"', 'g') . '" '
         endfor
-        let [l:pid; l:fdlist] = s:libcall('vp_pipe_open', [a:npipe, cmdline])
+        let [l:pid; l:fdlist] = s:libcall('vp_pipe_open', [a:npipe, l:cmdline])
     else
         let [l:pid; l:fdlist] = s:libcall('vp_pipe_open',
                     \ [a:npipe, len(a:argv)] + a:argv)
@@ -345,34 +366,73 @@ function! s:vp_pipe_write(hd, timeout) dict
     return l:nleft
 endfunction
 
-function! s:vp_pty_open(width, height, argv)
-    let [l:pid, l:fd, l:ttyname] = s:libcall("vp_pty_open",
-                \ [a:width, a:height, len(a:argv)] + a:argv)
-    return [l:pid, l:fd, l:ttyname]
-endfunction
+if s:is_win
+    " For Windows.
+    function! s:vp_pty_open(width, height, argv)
+        let l:cmdline = ''
+        for arg in a:argv
+            let l:cmdline .= '"' . substitute(arg, '"', '\\"', 'g') . '" '
+        endfor
+        let [l:pid, l:fd_stdin, l:fd_stdout, l:ttyname] = s:libcall("vp_pty_open",
+                    \ [a:width, a:height, l:cmdline])
+        return [l:pid, l:fd_stdin, l:fd_stdout, l:ttyname]
+    endfunction
 
-function! s:vp_pty_close() dict
-    call s:libcall('vp_pty_close', [self.fd])
-endfunction
+    function! s:vp_pty_close() dict
+        call s:libcall('vp_pty_close', [self.fd_stdin])
+        call s:libcall('vp_pty_close', [self.fd_stdout])
+    endfunction
 
-function! s:vp_pty_read(number, timeout) dict
-    let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd, a:number, a:timeout])
-    return [l:hd, l:eof]
-endfunction
+    function! s:vp_pty_read(number, timeout) dict
+        let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd_stdout, a:number, a:timeout])
+        return [l:hd, l:eof]
+    endfunction
 
-function! s:vp_pty_write(hd, timeout) dict
-    let [l:nleft] = s:libcall('vp_pty_write', [self.fd, a:hd, a:timeout])
-    return l:nleft
-endfunction
+    function! s:vp_pty_write(hd, timeout) dict
+        let [l:nleft] = s:libcall('vp_pty_write', [self.fd_stdin, a:hd, a:timeout])
+        return l:nleft
+    endfunction
 
-function! s:vp_pty_get_winsize() dict
-    let [width, height] = s:libcall('vp_pty_get_winsize', [self.fd])
-    return [width, height]
-endfunction
+    function! s:vp_pty_get_winsize() dict
+        let [width, height] = s:libcall('vp_pty_get_winsize', [self.fd_stdout])
+        return [width, height]
+    endfunction
 
-function! s:vp_pty_set_winsize(width, height) dict
-    call s:libcall('vp_pty_set_winsize', [self.fd, a:width, a:height])
-endfunction
+    function! s:vp_pty_set_winsize(width, height) dict
+        call s:libcall('vp_pty_set_winsize', [self.fd_stdout, a:width, a:height])
+    endfunction
+    
+else
+    function! s:vp_pty_open(width, height, argv)
+        let [l:pid, l:fd, l:ttyname] = s:libcall("vp_pty_open",
+                    \ [a:width, a:height, len(a:argv)] + a:argv)
+        return [l:pid, l:fd, l:ttyname]
+    endfunction
+    
+    function! s:vp_pty_close() dict
+        call s:libcall('vp_pty_close', [self.fd])
+    endfunction
+
+    function! s:vp_pty_read(number, timeout) dict
+        let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd, a:number, a:timeout])
+        return [l:hd, l:eof]
+    endfunction
+
+    function! s:vp_pty_write(hd, timeout) dict
+        let [l:nleft] = s:libcall('vp_pty_write', [self.fd, a:hd, a:timeout])
+        return l:nleft
+    endfunction
+
+    function! s:vp_pty_get_winsize() dict
+        let [width, height] = s:libcall('vp_pty_get_winsize', [self.fd])
+        return [width, height]
+    endfunction
+
+    function! s:vp_pty_set_winsize(width, height) dict
+        call s:libcall('vp_pty_set_winsize', [self.fd, a:width, a:height])
+    endfunction
+    
+endif
 
 function! s:vp_kill(sig) dict
     call s:libcall('vp_kill', [self.pid, a:sig])
