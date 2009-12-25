@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 Dec 2009
+" Last Modified: 25 Dec 2009
 " Usage: Just source this file.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
@@ -29,6 +29,9 @@
 " ChangeLog: "{{{
 "   1.01: 
 "        - Supported Windows pty.
+"        - Newline convert.
+"        - vimproc#system supported input.
+"        - Implemented vimproc#get_last_status() instead of v:shell_error.
 "
 "   1.00: 
 "        - Initial version.
@@ -37,6 +40,7 @@
 scriptencoding utf-8
 
 let s:is_win = has('win32') || has('win64')
+let s:last_status = 0
 
 "-----------------------------------------------------------
 " API
@@ -57,7 +61,7 @@ function! vimproc#system(command, ...)"{{{
         let l:output .= l:subproc.stdout.read(-1, 40)
     endwhile
 
-    let [l:cond, l:status] = l:subproc.waitpid()
+    let [l:cond, s:last_status] = l:subproc.waitpid()
     if l:cond != 'exit'
         try
             " Kill process.
@@ -73,7 +77,17 @@ function! vimproc#system(command, ...)"{{{
         let l:output = iconv(l:output, &termencoding, &encoding)
     endif
 
+    " Newline convert.
+    if has('mac')
+        let l:output = substitute(l:output, '\r', '\n', 'g')
+    elseif has('win32') || has('win64')
+        let l:output = substitute(l:output, '\r\n', '\n', 'g')
+    endif
+
     return l:output
+endfunction"}}}
+function! vimproc#get_last_status()"{{{
+    return s:last_status
 endfunction"}}}
 
 function! vimproc#open(path, flags, ...)

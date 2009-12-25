@@ -1,3 +1,10 @@
+2009-12-25 Shougo Matsushita
+    * Fixed Makefile.
+    * Newline convert.
+    * vimproc#system supported input.
+    * Implemented vimproc#get_last_status() instead of v:shell_error.
+    
+
 2009-12-22 Shougo Matsushita
     * Implemented Windows pty.
     * Supported MinGW.
