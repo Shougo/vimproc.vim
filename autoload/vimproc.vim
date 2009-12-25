@@ -41,12 +41,16 @@ let s:is_win = has('win32') || has('win64')
 "-----------------------------------------------------------
 " API
 
-function! vimproc#system(command)"{{{
+function! vimproc#system(command, ...)"{{{
     let l:command_args = (type(a:command) == type(""))? split(a:command, '\\\@<!\s') : a:command
 
     " Open pipe.
     let l:subproc = vimproc#popen2(l:command_args)
 
+    if !empty(a:000)
+        " Write input.
+        call l:subproc.stdin.write(a:1)
+    endif
     call l:subproc.stdin.close()
     let l:output = ''
     while !l:subproc.stdout.eof
