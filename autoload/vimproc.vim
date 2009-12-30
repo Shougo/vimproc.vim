@@ -128,7 +128,9 @@ endfunction
 
 function! vimproc#ptyopen(args)
     if s:is_win
-        let [l:pid, l:fd_stdin, l:fd_stdout, l:ttyname] = s:vp_pty_open(&winwidth, &winheight, s:convert_args(a:args))
+        let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(a:args))
+        "let [l:pid, l:fd_stdin, l:fd_stdout, l:ttyname] = s:vp_pty_open(&winwidth, &winheight, s:convert_args(a:args))
+        let l:ttyname = ''
         
         let l:proc = s:fdopen_pty(l:fd_stdin, l:fd_stdout, 'vp_pty_close', 'vp_pty_read', 'vp_pty_write')
     else
@@ -402,12 +404,14 @@ if s:is_win
     endfunction
 
     function! s:vp_pty_read(number, timeout) dict
-        let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd_stdout, a:number, a:timeout])
+        "let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd_stdout, a:number, a:timeout])
+        let [l:hd, l:eof] = s:libcall('vp_pipe_read', [self.fd_stdout, a:number, a:timeout])
         return [l:hd, l:eof]
     endfunction
 
     function! s:vp_pty_write(hd, timeout) dict
-        let [l:nleft] = s:libcall('vp_pty_write', [self.fd_stdin, a:hd, a:timeout])
+        "let [l:nleft] = s:libcall('vp_pty_write', [self.fd_stdin, a:hd, a:timeout])
+        let [l:nleft] = s:libcall('vp_pipe_write', [self.fd_stdin, a:hd, a:timeout])
         return l:nleft
     endfunction
 

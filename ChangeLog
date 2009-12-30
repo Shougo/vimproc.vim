@@ -1,3 +1,8 @@
+2009-12-30 Shougo Matsushita
+    * Fixed Makefile.
+    * Improved Windows pty support.
+    
+
 2009-12-25 Shougo Matsushita
     * Fixed Makefile.
     * Newline convert.

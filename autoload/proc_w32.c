@@ -25,6 +25,10 @@
 #include <stddef.h>
 #include <errno.h>
 
+/* For GetConsoleWindow() for Windows 2000 or later. */
+#define WINVER        0x0500
+#define _WIN32_WINNT  0x0500
+
 #include <windows.h>
 #if 0
 # include <winsock2.h>
@@ -73,6 +77,7 @@ EXPORT const char *vp_socket_open(char *args); /* [socket] (host, port) */
 EXPORT const char *vp_socket_close(char *args);/* [] (socket) */
 EXPORT const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
 EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
+
 /* --- */
 
 #define VP_ARGC_MAX 20
@@ -520,170 +525,37 @@ vp_pipe_write(char *args)
 const char *
 vp_pty_open(char *args)
 {
-    vp_stack_t stack;
-    int cols, rows;
-    char *cmdline;
-    
-    SECURITY_ATTRIBUTES sa;
-    
-    PROCESS_INFORMATION pi;
-    STARTUPINFOA si;
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &cols));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &rows));
-    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &cmdline));
-    
-    sa.nLength = sizeof(sa);
-    sa.lpSecurityDescriptor = NULL;
-    sa.bInheritHandle = TRUE;
-
-    /* Clear. */
-    memset(&si, 0, sizeof(si));
-    si.cb = sizeof(si);
-    si.dwFlags = STARTF_USESTDHANDLES;
-    si.hStdInput  = CreateFile(L"CONIN$",  GENERIC_READ|GENERIC_WRITE,
-            FILE_SHARE_READ|FILE_SHARE_WRITE,
-            &sa, OPEN_EXISTING, 0, NULL);
-    si.hStdOutput = CreateFile(L"CONOUT$",  GENERIC_READ|GENERIC_WRITE,
-            FILE_SHARE_READ|FILE_SHARE_WRITE,
-            &sa, OPEN_EXISTING, 0, NULL);
-    si.hStdError  = CreateFile(L"CONOUT$",  GENERIC_READ|GENERIC_WRITE,
-            FILE_SHARE_READ|FILE_SHARE_WRITE,
-            &sa, OPEN_EXISTING, 0, NULL);
-
-    if(!CreateProcessA(NULL, cmdline, NULL, NULL, TRUE,
-                0, NULL, NULL, &si, &pi)) {
-        /* Error. */
-        return vp_stack_return_error(&_result, "CreateProcessA() error: %s",
-                lasterror());
-    }
-    if (!CloseHandle(pi.hThread)) {
-        return vp_stack_return_error(&_result, "CloseHandle() error: %s",
-                lasterror());
-    }
-    
-    vp_stack_push_num(&_result, "%p", pi.hProcess);
-    vp_stack_push_num(&_result, "%d", _open_osfhandle((long)si.hStdInput, 0));
-    vp_stack_push_num(&_result, "%d", _open_osfhandle((long)si.hStdOutput, _O_RDONLY));
-    vp_stack_push_str(&_result, "unused");
-    return vp_stack_return(&_result);
+    return "vp_pty_open() is not available";
 }
 
 const char *
 vp_pty_close(char *args)
 {
-    return vp_pipe_close(args);
+    return "vp_pty_close() is not available";
 }
 
 const char *
 vp_pty_read(char *args)
 {
-    vp_stack_t stack;
-    int fd;
-    int nr;
-    int timeout;
-    int nleft;
-    char buf[VP_READ_BUFSIZE];
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &nr));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
-    
-    vp_stack_push_str(&_result, ""); /* initialize */
-    
-    if (!ReadFile((HANDLE)_get_osfhandle(fd), buf, (VP_READ_BUFSIZE < nr) ? VP_READ_BUFSIZE : nr, &nleft, NULL)) {
-        /* Error. */
-        return vp_stack_return_error(&_result, "ReadFile() error: %s",
-                lasterror());
-    }
-
-    vp_stack_push_num(&_result, "%zu", nleft);
-    return vp_stack_return(&_result);
+    return "vp_pty_read() is not available";
 }
 
 const char *
 vp_pty_write(char *args)
 {
-    vp_stack_t stack;
-    int fd;
-    char *buf;
-    size_t size;
-    size_t nleft;
-    int timeout;
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
-    VP_RETURN_IF_FAIL(vp_stack_pop_bin(&stack, &buf, &size));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
-    
-    if (!WriteFile((HANDLE)_get_osfhandle(fd), buf, size, &nleft, NULL)) {
-        /* Error. */
-        return vp_stack_return_error(&_result, "WriteFile() error: %s",
-                lasterror());
-    }
-
-    vp_stack_push_num(&_result, "%zu", nleft);
-    return vp_stack_return(&_result);
+    return "vp_pty_write() is not available";
 }
 
 const char *
 vp_pty_get_winsize(char *args)
 {
-    vp_stack_t stack;
-    int fd;
-    CONSOLE_SCREEN_BUFFER_INFO csi;
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
-    
-    GetConsoleScreenBufferInfo((HANDLE)_get_osfhandle(fd), &csi);
-
-    vp_stack_push_num(&_result, "%hu", CSI_WndCols(&csi));
-    vp_stack_push_num(&_result, "%hu", CSI_WndRows(&csi));
-    return vp_stack_return(&_result);
+    return "vp_pty_get_winsize() is not available";
 }
 
 const char *
 vp_pty_set_winsize(char *args)
 {
-    vp_stack_t stack;
-    int fd;
-    int cols, rows;
-    SMALL_RECT tmp = { 0,0,0,0 };
-    
-    CONSOLE_SCREEN_BUFFER_INFO csi;
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &cols));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &rows));
-    
-    GetConsoleScreenBufferInfo((HANDLE)_get_osfhandle(fd), &csi);
-
-    if (cols == CSI_WndCols(&csi) && rows == CSI_WndRows(&csi))
-        return NULL;
-
-    SetConsoleWindowInfo((HANDLE)_get_osfhandle(fd), TRUE, &tmp);
-
-    csi.dwSize.X = (SHORT)cols;
-    csi.srWindow.Left = 0;
-    csi.srWindow.Right = (SHORT)(cols -1);
-
-    if(csi.dwSize.Y < rows || csi.dwSize.Y == CSI_WndRows(&csi))
-        csi.dwSize.Y = (SHORT)rows;
-
-    csi.srWindow.Bottom += (SHORT)(rows - CSI_WndRows(&csi));
-    if(csi.dwSize.Y <= csi.srWindow.Bottom) {
-        csi.srWindow.Top -= csi.srWindow.Bottom - csi.dwSize.Y +1;
-        csi.srWindow.Bottom = csi.dwSize.Y -1;
-    }
-
-    SetConsoleScreenBufferSize((HANDLE)_get_osfhandle(fd), csi.dwSize);
-    SetConsoleWindowInfo((HANDLE)_get_osfhandle(fd), TRUE, &csi.srWindow);
-    
-    return NULL;
+    return "vp_pty_set_winsize() is not available";
 }
 
 const char *
