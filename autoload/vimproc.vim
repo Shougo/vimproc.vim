@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 25 Dec 2009
+" Last Modified: 04 Jan 2009
 " Usage: Just source this file.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
@@ -24,9 +24,12 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 1.01, for Vim 7.0
+" Version: 1.02, for Vim 7.0
 "-----------------------------------------------------------------------------
 " ChangeLog: "{{{
+"   1.02: 
+"        - Added g:vimproc_dll_path option.
+"
 "   1.01: 
 "        - Supported Windows pty.
 "        - Newline convert.
@@ -41,6 +44,12 @@ scriptencoding utf-8
 
 let s:is_win = has('win32') || has('win64')
 let s:last_status = 0
+
+if exists('g:vimproc_dll_path')
+    let s:dll_path = g:vimproc_dll_path
+else
+    let s:dll_path = expand("<sfile>:p:h") . (s:is_win? '/proc.dll' : '/proc.so')
+endif
 
 "-----------------------------------------------------------
 " API
@@ -282,12 +291,6 @@ augroup END
 let s:lasterr = []
 let s:read_timeout = 100
 let s:write_timeout = 100
-
-if s:is_win
-    let s:dll_path = expand("<sfile>:p:h") . "/proc.dll"
-else
-    let s:dll_path = expand("<sfile>:p:h") . "/proc.so"
-endif
 
 if has('iconv')
     " Dll path should be encoded with default encoding.  Vim does not convert

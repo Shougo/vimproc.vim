@@ -1,3 +1,7 @@
+2010-01-04 Shougo Matsushita
+    * Added g:vimproc_dll_path option.
+    
+
 2009-12-30 Shougo Matsushita
     * Fixed Makefile.
     * Improved Windows pty support.
