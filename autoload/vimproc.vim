@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 04 Jan 2009
+" Last Modified: 14 Jan 2010
 " Usage: Just source this file.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
@@ -24,11 +24,17 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 1.02, for Vim 7.0
+" Version: 1.03, for Vim 7.0
 "-----------------------------------------------------------------------------
 " ChangeLog: "{{{
+"   1.03: 
+"        - Deleted convert encoding in vimproc#system.
+"        - Use popen3 in vimproc#system.
+"        - Implemented vimproc#get_last_errmsg().
+"
 "   1.02: 
 "        - Added g:vimproc_dll_path option.
+"        - Fixed pty close error.
 "
 "   1.01: 
 "        - Supported Windows pty.
@@ -58,7 +64,7 @@ function! vimproc#system(command, ...)"{{{
     let l:command_args = (type(a:command) == type(""))? split(a:command, '\\\@<!\s') : a:command
 
     " Open pipe.
-    let l:subproc = vimproc#popen2(l:command_args)
+    let l:subproc = vimproc#popen3(l:command_args)
 
     if !empty(a:000)
         " Write input.
@@ -68,6 +74,10 @@ function! vimproc#system(command, ...)"{{{
     let l:output = ''
     while !l:subproc.stdout.eof
         let l:output .= l:subproc.stdout.read(-1, 40)
+    endwhile
+    let s:last_errmsg = ''
+    while !l:subproc.stderr.eof
+        let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
     endwhile
 
     let [l:cond, s:last_status] = l:subproc.waitpid()
@@ -81,11 +91,6 @@ function! vimproc#system(command, ...)"{{{
         endtry
     endif
     
-    if &termencoding != '' && &encoding != &termencoding
-        " Convert encoding.
-        let l:output = iconv(l:output, &termencoding, &encoding)
-    endif
-
     " Newline convert.
     if has('mac')
         let l:output = substitute(l:output, '\r', '\n', 'g')
@@ -97,6 +102,9 @@ function! vimproc#system(command, ...)"{{{
 endfunction"}}}
 function! vimproc#get_last_status()"{{{
     return s:last_status
+endfunction"}}}
+function! vimproc#get_last_errmsg()"{{{
+    return s:last_errmsg
 endfunction"}}}
 
 function! vimproc#open(path, flags, ...)
@@ -402,18 +410,16 @@ if s:is_win
     endfunction
 
     function! s:vp_pty_close() dict
-        call s:libcall('vp_pty_close', [self.fd_stdin])
-        call s:libcall('vp_pty_close', [self.fd_stdout])
+        call s:libcall('vp_pipe_close', [self.fd_stdin])
+        call s:libcall('vp_pipe_close', [self.fd_stdout])
     endfunction
 
     function! s:vp_pty_read(number, timeout) dict
-        "let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd_stdout, a:number, a:timeout])
         let [l:hd, l:eof] = s:libcall('vp_pipe_read', [self.fd_stdout, a:number, a:timeout])
         return [l:hd, l:eof]
     endfunction
 
     function! s:vp_pty_write(hd, timeout) dict
-        "let [l:nleft] = s:libcall('vp_pty_write', [self.fd_stdin, a:hd, a:timeout])
         let [l:nleft] = s:libcall('vp_pipe_write', [self.fd_stdin, a:hd, a:timeout])
         return l:nleft
     endfunction

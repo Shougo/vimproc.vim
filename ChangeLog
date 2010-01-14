@@ -1,3 +1,9 @@
+2010-01-14 Shougo Matsushita
+    * Deleted convert encoding in vimproc#system.
+    * Use popen3 in vimproc#system.
+    * Implemented vimproc#get_last_errmsg().
+    
+
 2010-01-04 Shougo Matsushita
     * Added g:vimproc_dll_path option.
     
