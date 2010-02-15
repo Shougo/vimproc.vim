@@ -1,0 +1,185 @@
+*vimproc.txt*	Vim用非同期実行ライブラリ
+
+Version: 3.00
+Author : Shougo <Shougo.Matsu@gmail.com>
+License: MIT license  {{{
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}}}
+
+CONTENTS					*vimproc-contents*
+
+Introduction		|vimproc-introduction|
+Install			|vimproc-install|
+Interface		|vimproc-interface|
+  Functions		  |vimproc-functions|
+  Variables		  |vimproc-variables|
+Examples		|vimproc-examples|
+ToDo			|vimproc-todo|
+Bugs			|vimproc-bugs|
+Changelog		|vimproc-changelog|
+
+==============================================================================
+INTRODUCTION					*vimproc-introduction*
+
+vimprocとはYukihiro Nakadairaさんが開発し、現在私が保守作業を行っている、
+優れた非同期実行ライブラリです。
+vimprocでは外部のシェルを使わず、外部DLLを用いて非同期実行処理を実装しています。
+Python等の外部インタフェースを使う場合と比較して、マルチスレッド化はできませんが、
+安定性に優れ、外部のインタプリタのバージョンに依存しません。
+
+==============================================================================
+INSTALL						*vimproc-install*
+
+まず、vimprocをリポジトリから取ってきます。
+[http://github.com/Shougo/vimproc/tree/master](http://github.com/Shougo/vimproc/tree/master)
+
+そしてproc.soをmakeします。
+
+Make方法
+Mingw: >
+	$ make -f make_mingw.mak
+Mac: >
+	$ make -f make_mac.mak
+Linux BSD: >
+	$ make -f make_gcc.mak
+Visual Studio: >
+	$ make -f make_msvc.mak
+
+コンパイルが通ったら、autoloadにあるproc.vimとproc.soを.vimのautoloadディレクトリにコピーします。
+doc/にあるのはヘルプファイルです。
+
+vimshellから使用するには、.vimrc上で >
+	let g:VimShell_EnableInteractive = 1
+とすると、非同期実行が有効になります。
+vimshellは非同期実行のとき、Vimのシェル設定を利用しません。
+
+==============================================================================
+INTERFACE					*vimproc-interface*
+
+------------------------------------------------------------------------------
+FUNCTIONS 					*vimproc-functions*
+
+vimproc#system({expr} [, {input}])		*vimproc#system*
+		標準の|system()|を置き換えるための関数です。 Windows上で
+		|system()|を使用すると、DOS窓が出てきてしまいます。 しかし、
+		|vimproc#system()|ではそのようなことがありません。 ただしシェ
+		ルを起動しないので、シェルの内部コマンドは動作しません。 リ
+		ダイレクトも動かないので注意してください。 リダイレクトにつ
+		いては、今後実装予定があります。
+
+vimproc#get_last_status()			*vimproc#get_last_status()*
+		前回の|vimproc#system()|の実行において得られた、戻り値を取得する。
+
+vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
+		前回の|vimproc#system()|の実行において、標準エラー出力に出力された
+		エラーメッセージを取得する。
+
+vimproc#open({path}, {flags} [, {mode}])	*vimproc#open*
+		{path}で指定されるファイルを開きます。
+
+vimproc#popen2({args})				*vimproc#popen2*
+		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+		パイプも解釈されます。
+
+vimproc#popen3({args})				*vimproc#popen3*
+		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+		パイプも解釈されます。
+
+vimproc#ptyopen({args})				*vimproc#ptyopen*
+		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+		パイプは解釈されません。
+
+vimproc#kill({pid}, {sig})			*vimproc#kill*
+		{pid}で指定されるプロセスに対し、{sig}のシグナルを送信します。
+
+------------------------------------------------------------------------------
+VARIABLES 					*vimproc-variables*
+
+						*g:vimproc_dll_path*
+g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/proc.dll"
+					others: "$VIMRUNTIME/autoload/proc.so")
+		vimprocが利用するproc.soへのパスを指定する。
+
+==============================================================================
+EXAMPLES					*vimproc-examples*
+>
+	" File open test.
+	let file = vimproc#open("./test1.vim", "O_RDONLY", 0)
+	let res = file.read()
+	call file.close()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n'))
+	
+	" Pipe open test.
+	let sub = vimproc#popen2('ls')
+	let res = ''
+	while !sub.stdout.eof
+	let res .= sub.stdout.read()
+	endwhile
+	let [cond, status] = sub.waitpid()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n') + [string([cond, status])])
+	
+	" Socket open test.
+	let sock = vimproc#socket_open('www.yahoo.com', 80)
+	call sock.write("GET / HTTP/1.0\r\n\r\n")
+	let res = ''
+	while !sock.eof
+	let res .= sock.read()
+	endwhile
+	call sock.close()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n'))
+<
+==============================================================================
+TODO						*vimproc-todo*
+
+==============================================================================
+BUGS						*vimproc-bugs*
+
+==============================================================================
+CHANGELOG					*vimproc-changelog*
+
+   3.00: 
+	- Improved argument parse in vimproc#system.
+	- Fixed vimproc#socket_open() error.
+	- Improved close.
+	- Test revised.
+	- Added vimproc#kill() function.
+
+   1.03: 
+	- Deleted convert encoding in vimproc#system.
+	- Use popen3 in vimproc#system.
+	- Implemented vimproc#get_last_errmsg().
+
+   1.02: 
+	- Added g:vimproc_dll_path option.
+	- Fixed pty close error.
+
+   1.01: 
+	- Supported Windows pty.
+	- Newline convert.
+	- vimproc#system supported input.
+	- Implemented vimproc#get_last_status() instead of v:shell_error.
+
+   1.00: 
+	- Initial version.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:fdm=marker:
