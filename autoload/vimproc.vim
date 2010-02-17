@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Feb 2010
+" Last Modified: 17 Feb 2010
 " Usage: Just source this file.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
@@ -331,12 +331,7 @@ function! s:getfilename(command)"{{{
 endfunction"}}}
 
 function! s:split_args(script)"{{{
-  " Substitute modifier.
-  let l:script = ''
-  for val in split(a:script)
-    let l:modify = split(val, ':[/\\]\@!')
-    let l:script .= ' ' . fnamemodify(l:modify[0], ':' . join(l:modify[1:], ':'))
-  endfor
+  let l:script = a:script
   let l:max = len(l:script)
   let l:args = []
   let l:arg = ''
@@ -370,9 +365,15 @@ function! s:split_args(script)"{{{
       let l:i = l:end
     elseif l:script[l:i] == '`'
       " Back quote.
-      let l:quote = matchstr(l:script, '^`\zs[^`]*\ze`', l:i)
-      let l:end = matchend(l:script, '^`[^`]*`', l:i)
-      let l:arg .= substitute(system(l:quote), '\n', ' ', 'g')
+      if l:script[l:i :] =~ '^`='
+        let l:quote = matchstr(l:script, '^`=\zs[^`]*\ze`', l:i)
+        let l:end = matchend(l:script, '^`=[^`]*`', l:i)
+        let l:arg .= string(eval(l:quote))
+      else
+        let l:quote = matchstr(l:script, '^`\zs[^`]*\ze`', l:i)
+        let l:end = matchend(l:script, '^`[^`]*`', l:i)
+        let l:arg .= substitute(system(l:quote), '\n', ' ', 'g')
+      endif
       if l:arg == ''
         call add(l:args, '')
       endif
@@ -410,7 +411,18 @@ function! s:split_args(script)"{{{
     call add(l:args, l:arg)
   endif
 
-  return l:args
+  " Substitute modifier.
+  let l:ret = []
+  for l:arg in l:args
+    if l:arg =~ '\%(:[p8~.htre]\)\+$'
+      let l:modify = matchstr(l:arg, '\%(:[p8~.htre]\)\+$')
+      let l:arg = fnamemodify(l:arg[: -len(l:modify)-1], l:modify)
+    endif
+    
+    call add(l:ret, l:arg)
+  endfor
+
+  return l:ret
 endfunction"}}}
 function! s:split_pipe(script)"{{{
   let l:script = ''
