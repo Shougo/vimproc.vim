@@ -1,5 +1,5 @@
-let sub = vimproc#popen2(["/bin/ls"])
-let res = ""
+let sub = vimproc#popen2('ls')
+let res = ''
 while !sub.stdout.eof
   let res .= sub.stdout.read()
 endwhile
