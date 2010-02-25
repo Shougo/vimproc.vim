@@ -156,6 +156,13 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-02-25
+    * Fixed Cygwin Makefile.
+    * Fixed for Cygwin.
+
+2010-02-20
+    * Added Cygwin Makefile.
+
 2010-02-17
     * Fixed modifier parse bug.
 

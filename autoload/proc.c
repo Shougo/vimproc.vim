@@ -26,6 +26,8 @@
 /* for forkpty() */
 #if defined __linux__
 # include <pty.h>
+#elif defined __CYGWIN__
+# include <pty.h>
 #elif defined __APPLE__ 
 # include <util.h>
 #else

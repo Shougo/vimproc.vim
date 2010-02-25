@@ -1,7 +1,22 @@
 /*-----------------------------------------------------------------------------
  * Copyright (c) 2009       
+ * Kazuo Ishii        - <k-ishii at wb4.so-net.ne.jp> original version(ckw)
  * Yukihiro Nakadaira - <yukihiro.nakadaira at gmail.com> original version(vimproc)
  * Shougo Matsushita  - <Shougo.Matsu at gmail.com> modified version
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *---------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -82,6 +97,9 @@ lasterror()
 #define close _close
 #define read _read
 #define write _write
+
+#define CSI_WndCols(csi) ((csi)->srWindow.Right - (csi)->srWindow.Left +1)
+#define CSI_WndRows(csi) ((csi)->srWindow.Bottom - (csi)->srWindow.Top +1)
 
 static vp_stack_t _result = VP_STACK_NULL;
 
