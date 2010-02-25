@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 17 Feb 2010
+" Last Modified: 25 Feb 2010
 " Usage: Just source this file.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
@@ -34,7 +34,7 @@ let s:last_status = 0
 if exists('g:vimproc_dll_path')
   let s:dll_path = g:vimproc_dll_path
 else
-  let s:dll_path = expand("<sfile>:p:h") . (s:is_win? '/proc.dll' : '/proc.so')
+  let s:dll_path = expand("<sfile>:p:h") . (s:is_win || exists('$WINDIR')? '/proc.dll' : '/proc.so')
 endif
 
 "-----------------------------------------------------------

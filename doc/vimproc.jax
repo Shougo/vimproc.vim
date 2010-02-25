@@ -159,6 +159,7 @@ CHANGELOG					*vimproc-changelog*
 2010-02-25
     * Fixed Cygwin Makefile.
     * Fixed for Cygwin.
+    * Supported Cygwin platform.
 
 2010-02-20
     * Added Cygwin Makefile.
