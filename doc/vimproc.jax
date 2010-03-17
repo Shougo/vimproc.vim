@@ -156,6 +156,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-03-17
+    * Fixed s:split_pipe() bug.
+
 2010-02-25
     * Fixed Cygwin Makefile.
     * Fixed for Cygwin.

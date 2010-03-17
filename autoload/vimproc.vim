@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 25 Feb 2010
+" Last Modified: 17 Mar 2010
 " Usage: Just source this file.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
@@ -24,7 +24,7 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 3.00, for Vim 7.0
+" Version: 3.01, for Vim 7.0
 "=============================================================================
 scriptencoding utf-8
 
@@ -425,6 +425,10 @@ function! s:split_args(script)"{{{
   return l:ret
 endfunction"}}}
 function! s:split_pipe(script)"{{{
+  if type(a:script) == type([])
+    return [a:script]
+  endif
+  
   let l:script = ''
 
   let l:i = 0
