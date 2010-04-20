@@ -25,7 +25,6 @@
 " }}}
 " Version: 4.0, for Vim 7.0
 "=============================================================================
-scriptencoding utf-8
 
 let s:is_win = has('win32') || has('win64')
 let s:last_status = 0
@@ -36,12 +35,26 @@ else
   let s:dll_path = expand("<sfile>:p:h") . (s:is_win || exists('$WINDIR')? '/proc.dll' : '/proc.so')
 endif
 
+if has('iconv')
+  " Dll path should be encoded with default encoding.  Vim does not convert
+  " it from &enc to default encoding.
+  let s:dll_path = iconv(s:dll_path, &encoding, "default")
+endif
+
 "-----------------------------------------------------------
 " API
 
-function! vimproc#system(command, ...)"{{{
+function! vimproc#version()"{{{
+  return '4.0'
+endfunction"}}}
+
+function! vimproc#system(cmdline, ...)"{{{
+  if type(a:cmdline) == type('')
+    return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
+  endif
+  
   " Open pipe.
-  let l:subproc = vimproc#popen3(a:command)
+  let l:subproc = vimproc#popen3(a:cmdline)
 
   if !empty(a:000)
     " Write input.
@@ -84,18 +97,31 @@ function! vimproc#get_last_errmsg()"{{{
   return s:last_errmsg
 endfunction"}}}
 
-function! vimproc#open(path, flags, ...)
+function! vimproc#open(path, flags, ...)"{{{
   let l:mode = get(a:000, 0, 0)
   let l:fd = s:vp_file_open(a:path, a:flags, l:mode)
   return s:fdopen(l:fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
-endfunction
+endfunction"}}}
 
-function! vimproc#popen2(args)
+function! vimproc#popen2(args)"{{{
+  let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(a:args))
+  let l:proc = {}
+  let l:proc.pid = l:pid
+  let l:proc.stdin = l:fd_stdin
+  let l:proc.stdout = l:fd_stdout
+  let l:proc.kill = s:funcref('vp_pipe_kill')
+  let l:proc.waitpid = s:funcref('vp_waitpid')
+  let l:proc.is_valid = 1
+
+  return proc
+endfunction"}}}
+function! vimproc#plineopen2(commands)"{{{
   let l:pid_list = []
   let l:stdin_list = []
   let l:stdout_list = []
-  for l:command in s:split_pipe(a:args)
-    let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(a:args))
+  for l:command in a:commands
+    let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(l:command.args))
+    
     call add(l:pid_list, l:pid)
     call add(l:stdin_list, s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     call add(l:stdout_list, s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
@@ -123,15 +149,29 @@ function! vimproc#popen2(args)
   let l:proc.is_valid = 1
 
   return proc
-endfunction
+endfunction"}}}
 
-function! vimproc#popen3(args)
+function! vimproc#popen3(args)"{{{
+  let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = s:vp_pipe_open(3, s:convert_args(a:args))
+  let l:proc = {}
+  let l:proc.pid = l:pid
+  let l:proc.stdin = l:fd_stdin
+  let l:proc.stdout = l:fd_stdout
+  let l:proc.stderr = l:fd_stderr
+  let l:proc.kill = s:funcref('vp_pipe_kill')
+  let l:proc.waitpid = s:funcref('vp_waitpid')
+  let l:proc.is_valid = 1
+
+  return proc
+endfunction"}}}
+function! vimproc#plineopen3(commands)"{{{
   let l:pid_list = []
   let l:stdin_list = []
   let l:stdout_list = []
   let l:stderr_list = []
-  for l:command in s:split_pipe(a:args)
-    let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = s:vp_pipe_open(3, s:convert_args(l:command))
+  for l:command in a:commands
+    let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = s:vp_pipe_open(3, s:convert_args(l:command.args))
+    
     call add(l:pid_list, l:pid)
     call add(l:stdin_list, s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     call add(l:stdout_list, s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
@@ -163,14 +203,14 @@ function! vimproc#popen3(args)
   let l:proc.is_valid = 1
 
   return proc
-endfunction
+endfunction"}}}
 
-function! vimproc#socket_open(host, port)
+function! vimproc#socket_open(host, port)"{{{
   let l:fd = s:vp_socket_open(a:host, a:port)
   return s:fdopen(l:fd, 'vp_socket_close', 'vp_socket_read', 'vp_socket_write')
-endfunction
+endfunction"}}}
 
-function! vimproc#ptyopen(args)
+function! vimproc#ptyopen(args)"{{{
   if s:is_win
     let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(a:args))
     let l:ttyname = ''
@@ -191,56 +231,52 @@ function! vimproc#ptyopen(args)
   let l:proc.is_valid = 1
 
   return l:proc
-endfunction
+endfunction"}}}
 
 function! vimproc#kill(pid, sig)"{{{
   call s:libcall('vp_kill', [a:pid, a:sig])
 endfunction"}}}
 
-function! s:close() dict
+function! s:close() dict"{{{
   call self.f_close()
   let self.is_valid = 0
   let self.eof = 1
   let self.fd = -1
-endfunction
-
-function! s:read(...) dict
+endfunction"}}}
+function! s:read(...) dict"{{{
   let l:number = get(a:000, 0, -1)
   let l:timeout = get(a:000, 1, s:read_timeout)
   let [l:hd, l:eof] = self.f_read(l:number, l:timeout)
   let self.eof = l:eof
   return s:hd2str(l:hd)
-endfunction
-
-function! s:write(str, ...) dict
+endfunction"}}}
+function! s:write(str, ...) dict"{{{
   let l:timeout = get(a:000, 0, s:write_timeout)
   let l:hd = s:str2hd(a:str)
   return self.f_write(l:hd, l:timeout)
-endfunction
+endfunction"}}}
 
-function! s:fdopen(fd, f_close, f_read, f_write)
+function! s:fdopen(fd, f_close, f_read, f_write)"{{{
   return {
         \'fd' : a:fd, 'eof' : 0, 'is_valid' : 1,  
         \'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
         \'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write')
         \}
-endfunction
-
-function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write)
+endfunction"}}}
+function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write)"{{{
   return {
         \'fd_stdin' : a:fd_stdin, 'fd_stdout' : a:fd_stdout, 'eof' : 0, 'is_valid' : 1, 
         \'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
         \'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write')
         \}
-endfunction
-
-function! s:fdopen_pipes(fd, f_close, f_read, f_write)
+endfunction"}}}
+function! s:fdopen_pipes(fd, f_close, f_read, f_write)"{{{
   return {
         \'fd' : a:fd, 'eof' : 0, 'is_valid' : 1, 
         \'f_close' : s:funcref(a:f_close),
         \'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
         \}
-endfunction
+endfunction"}}}
 
 "-----------------------------------------------------------
 " UTILS
@@ -273,12 +309,11 @@ function! s:list2hd(lis)
 endfunction
 
 function! s:convert_args(args)"{{{
-  let l:args = (type(a:args) == type(""))? s:split_args(a:args) : a:args
   if empty(a:args)
     return []
   endif
 
-  let l:args = insert(l:args[1:], s:getfilename(l:args[0]))
+  let l:args = insert(a:args[1:], s:getfilename(a:args[0]))
 
   if &termencoding != '' && &encoding != &termencoding
     " Convert encoding.
@@ -329,166 +364,6 @@ function! s:getfilename(command)"{{{
   return split(l:files, '\n')[0]
 endfunction"}}}
 
-function! s:split_args(script)"{{{
-  let l:script = a:script
-  let l:max = len(l:script)
-  let l:args = []
-  let l:arg = ''
-  let l:i = 0
-  while l:i < l:max
-    if l:script[l:i] == "'"
-      " Single quote.
-      let l:end = matchend(l:script, "^'\\zs[^']*'", l:i)
-      if l:end == -1
-        throw 'Quote error'
-      endif
-
-      let l:arg .= l:script[l:i+1 : l:end-2]
-      if l:arg == ''
-        call add(l:args, '')
-      endif
-
-      let l:i = l:end
-    elseif l:script[l:i] == '"'
-      " Double quote.
-      let l:end = matchend(l:script, '^"\zs\%([^"]\|\"\)*"', l:i)
-      if l:end == -1
-        throw 'Quote error'
-      endif
-
-      let l:arg .= substitute(l:script[l:i+1 : l:end-2], '\\"', '"', 'g')
-      if l:arg == ''
-        call add(l:args, '')
-      endif
-
-      let l:i = l:end
-    elseif l:script[l:i] == '`'
-      " Back quote.
-      if l:script[l:i :] =~ '^`='
-        let l:quote = matchstr(l:script, '^`=\zs[^`]*\ze`', l:i)
-        let l:end = matchend(l:script, '^`=[^`]*`', l:i)
-        let l:arg .= string(eval(l:quote))
-      else
-        let l:quote = matchstr(l:script, '^`\zs[^`]*\ze`', l:i)
-        let l:end = matchend(l:script, '^`[^`]*`', l:i)
-        let l:arg .= substitute(system(l:quote), '\n', ' ', 'g')
-      endif
-      if l:arg == ''
-        call add(l:args, '')
-      endif
-
-      let l:i = l:end
-    elseif l:script[i] == '\'
-      " Escape.
-      let l:i += 1
-
-      if l:i > l:max
-        throw 'Escape error'
-      endif
-
-      let l:arg .= l:script[i]
-      let l:i += 1
-    elseif l:script[i] == '#'
-      " Comment.
-      break
-    elseif l:script[l:i] != ' '
-      let l:arg .= l:script[l:i]
-      let l:i += 1
-    else
-      " Space.
-      if l:arg != ''
-        call add(l:args, l:arg)
-      endif
-
-      let l:arg = ''
-
-      let l:i += 1
-    endif
-  endwhile
-
-  if l:arg != ''
-    call add(l:args, l:arg)
-  endif
-
-  " Substitute modifier.
-  let l:ret = []
-  for l:arg in l:args
-    if l:arg =~ '\%(:[p8~.htre]\)\+$'
-      let l:modify = matchstr(l:arg, '\%(:[p8~.htre]\)\+$')
-      let l:arg = fnamemodify(l:arg[: -len(l:modify)-1], l:modify)
-    endif
-    
-    call add(l:ret, l:arg)
-  endfor
-
-  return l:ret
-endfunction"}}}
-function! s:split_pipe(script)"{{{
-  if type(a:script) == type([])
-    return [a:script]
-  endif
-  
-  let l:script = ''
-
-  let l:i = 0
-  let l:max = len(a:script)
-  let l:commands = []
-  while l:i < l:max
-    if a:script[l:i] == '|'
-      " Pipe.
-      call add(l:commands, l:script)
-
-      " Search next command.
-      let l:script = ''
-      let l:i += 1
-    elseif a:script[l:i] == "'"
-      " Single quote.
-      let [l:string, l:i] = s:skip_quote(a:script, l:i)
-      let l:script .= l:string
-    elseif a:script[l:i] == '"'
-      " Double quote.
-      let [l:string, l:i] = s:skip_double_quote(a:script, l:i)
-      let l:script .= l:string
-    elseif a:script[l:i] == '`'
-      " Back quote.
-      let [l:string, l:i] = s:skip_back_quote(a:script, l:i)
-      let l:script .= l:string
-    elseif a:script[l:i] == '\' && l:i + 1 < l:max
-      " Escape.
-      let l:script .= '\' . a:script[l:i+1]
-      let l:i += 2
-    else
-      let l:script .= a:script[l:i]
-      let l:i += 1
-    endif
-  endwhile
-  
-  call add(l:commands, l:script)
-
-  return l:commands
-endfunction"}}}
-function! s:skip_quote(script, i)"{{{
-  let l:end = matchend(a:script, "^'[^']*'", a:i)
-  if l:end == -1
-    throw 'Quote error'
-  endif
-  return [matchstr(a:script, "^'[^']*'", a:i), l:end]
-endfunction"}}}
-function! s:skip_double_quote(script, i)"{{{
-  let l:end = matchend(a:script, '^"\%([^"]\|\"\)*"', a:i)
-  if l:end == -1
-    throw 'Quote error'
-  endif
-  return [matchstr(a:script, '^"\%([^"]\|\"\)*"', a:i), l:end]
-endfunction"}}}
-function! s:skip_back_quote(script, i)"{{{
-  let l:end = matchend(a:script, '^`[^`]*`', a:i)
-  if l:end == -1
-    throw 'Quote error'
-  endif
-  return [matchstr(a:script, '^`[^`]*`', a:i), l:end]
-endfunction"}}}
-
 "-----------------------------------------------------------
 " LOW LEVEL API
 
@@ -502,13 +377,7 @@ let s:lasterr = []
 let s:read_timeout = 100
 let s:write_timeout = 100
 
-if has('iconv')
-  " Dll path should be encoded with default encoding.  Vim does not convert
-  " it from &enc to default encoding.
-  let s:dll_path = iconv(s:dll_path, &encoding, "default")
-endif
-
-function! s:libcall(func, args)
+function! s:libcall(func, args)"{{{
   " End Of Value
   let l:EOV = "\xFF"
   let l:args = empty(a:args) ? '' : (join(reverse(copy(a:args)), l:EOV) . l:EOV)
@@ -527,7 +396,7 @@ function! s:libcall(func, args)
     throw printf('proc: %s: %s', a:func, l:msg)
   endif
   return l:result[:-2]
-endfunction
+endfunction"}}}
 
 function! s:SID_PREFIX()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_\zeSID_PREFIX$')
@@ -571,7 +440,7 @@ function! s:vp_file_write(hd, timeout) dict
   return l:nleft
 endfunction
 
-function! s:vp_pipe_open(npipe, argv)
+function! s:vp_pipe_open(npipe, argv)"{{{
   if s:is_win
     let l:cmdline = ''
     for arg in a:argv
@@ -584,7 +453,7 @@ function! s:vp_pipe_open(npipe, argv)
   endif
 
   return [pid] + fdlist
-endfunction
+endfunction"}}}
 
 function! s:vp_pipe_close() dict
   call s:libcall('vp_pipe_close', [self.fd])
@@ -608,7 +477,7 @@ function! s:vp_pipe_write(hd, timeout) dict
   return l:nleft
 endfunction
 
-function! s:read_pipes(...) dict
+function! s:read_pipes(...) dict"{{{
   let l:number = get(a:000, 0, -1)
   let l:timeout = get(a:000, 1, s:read_timeout)
   
@@ -643,9 +512,9 @@ function! s:read_pipes(...) dict
   let self.eof = self.fd[-1].eof
 
   return l:output
-endfunction
+endfunction"}}}
 
-function! s:write_pipes(str, ...) dict
+function! s:write_pipes(str, ...) dict"{{{
   let l:timeout = get(a:000, 0, s:write_timeout)
   
   " Write data.
@@ -678,7 +547,7 @@ function! s:write_pipes(str, ...) dict
   endfor
 
   return l:nleft
-endfunction
+endfunction"}}}
 
 if s:is_win
   " For Windows.

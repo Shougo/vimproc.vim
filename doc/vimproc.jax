@@ -75,13 +75,25 @@ INTERFACE					*vimproc-interface*
 ------------------------------------------------------------------------------
 FUNCTIONS 					*vimproc-functions*
 
-vimproc#system({expr} [, {input}])		*vimproc#system*
-		標準の|system()|を置き換えるための関数です。 Windows上で
-		|system()|を使用すると、DOS窓が出てきてしまいます。 しかし、
-		|vimproc#system()|ではそのようなことがありません。 ただしシェ
-		ルを起動しないので、シェルの内部コマンドは動作しません。 リ
-		ダイレクトも動かないので注意してください。 リダイレクトにつ
-		いては、今後実装予定があります。
+vimproc#version()				*vimproc#version()*
+		vimprocのバージョン番号を文字列形式で返す。vimproc Ver.4未満
+		には存在しない。
+
+vimproc#system({expr} [, {input}])		*vimproc#system()*
+		標準の|system()|を置き換えるための関数。 Windows上で
+		|system()|を使用すると、DOS窓が出てきてしまう。
+		|vimproc#system()|ではそのようなことはない。 ただしシェ ルを
+		起動しないので、シェルの内部コマンドは動作しない。 リダイレ
+		クトも動かない。 リダイレクトについては、今後実装予定がある。
+		引数は|system()|に準拠している。
+
+vimproc#parser#system({expr} [, {input}])	*vimproc#parser#system()*
+		標準の|system()|を置き換えるための関数。 Windows上で
+		|system()|を使用すると、DOS窓が出てきてしまう。
+		|vimproc#system()|ではそのようなことはない。 ただしシェ ルを
+		起動しないので、シェルの内部コマンドは動作しない。 リダイレ
+		クトも動かない。 リダイレクトについては、今後実装予定がある。
+		引数は|system()|に準拠している。
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
 		前回の|vimproc#system()|の実行において得られた、戻り値を取得する。
@@ -90,22 +102,50 @@ vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
 		前回の|vimproc#system()|の実行において、標準エラー出力に出力された
 		エラーメッセージを取得する。
 
-vimproc#open({path}, {flags} [, {mode}])	*vimproc#open*
+vimproc#open({path}, {flags} [, {mode}])	*vimproc#open()*
 		{path}で指定されるファイルを開きます。
 
-vimproc#popen2({args})				*vimproc#popen2*
+vimproc#popen2({args})				*vimproc#popen2()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+
+vimproc#parser#popen2({cmdline})		*vimproc#parser#popen2()*
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
+		コマンド列は関数内でパースされます。
+
+vimproc#plineopen2({cmdline})			*vimproc#plineopen2()*
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
 		パイプも解釈されます。
 
-vimproc#popen3({args})				*vimproc#popen3*
-		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+vimproc#parser#plineopen2({commands})		*vimproc#parser#plineopen2()*
+		{commands}で指定されるコマンド列を実行し、プロセス情報を返します。
 		パイプも解釈されます。
 
-vimproc#ptyopen({args})				*vimproc#ptyopen*
+vimproc#popen3({args})				*vimproc#popen3()*
+		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+
+vimproc#parser#popen3({args})			*vimproc#parser#popen3()*
+		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+		コマンド列は関数内でパースされます。
+
+vimproc#plineopen3({commands})			*vimproc#plineopen3()*
+		{commands}で指定されるコマンド列を実行し、プロセス情報を返します。
+		パイプも解釈されます。
+
+vimproc#parser#plineopen3({cmdline})		*vimproc#parser#popen3()*
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
+		コマンド列は関数内でパースされます。
+		パイプも解釈されます。
+
+vimproc#ptyopen({args})				*vimproc#ptyopen()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
 		パイプは解釈されません。
 
-vimproc#kill({pid}, {sig})			*vimproc#kill*
+vimproc#parser#ptyopen({cmdline})		*vimproc#ptyopen()*
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
+		コマンド列は関数内でパースされます。
+		パイプは解釈されません。
+
+vimproc#kill({pid}, {sig})			*vimproc#kill()*
 		{pid}で指定されるプロセスに対し、{sig}のシグナルを送信します。
 
 ------------------------------------------------------------------------------
@@ -127,7 +167,7 @@ EXAMPLES					*vimproc-examples*
 	call append(0, split(res, '\r\n\|\r\|\n'))
 	
 	" Pipe open test.
-	let sub = vimproc#popen2('ls')
+	let sub = vimproc#parser#popen2('ls')
 	let res = ''
 	while !sub.stdout.eof
 	let res .= sub.stdout.read()
@@ -158,6 +198,8 @@ CHANGELOG					*vimproc-changelog*
 
 2010-03-20
     * Ver.4 development is started.
+    * Implemented vimproc#version().
+    * Splited parser.
 
 ChangeLog 1.20-3.01{{{
 2010-03-17
