@@ -27,6 +27,7 @@
 "=============================================================================
 
 let s:is_win = has('win32') || has('win64')
+let s:is_vimshell = exists('*vimproc#version')
 let s:last_status = 0
 
 if exists('g:vimproc_dll_path')
@@ -50,7 +51,11 @@ endfunction"}}}
 
 function! vimproc#system(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
-    return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
+    if s:is_vimshell
+      return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
+    else
+      return (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, join(a:000))
+    endif
   endif
   
   " Open pipe.

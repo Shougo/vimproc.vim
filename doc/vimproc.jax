@@ -37,9 +37,9 @@ Changelog		|vimproc-changelog|
 ==============================================================================
 INTRODUCTION					*vimproc-introduction*
 
-vimprocとはYukihiro Nakadairaさんが開発し、現在私が保守作業を行っている、
+|vimproc|とはYukihiro Nakadairaさんが開発し、現在私が保守作業を行っている、
 優れた非同期実行ライブラリです。
-vimprocでは外部のシェルを使わず、外部DLLを用いて非同期実行処理を実装しています。
+|vimproc|では外部のシェルを使わず、外部DLLを用いて非同期実行処理を実装しています。
 Python等の外部インタフェースを使う場合と比較して、マルチスレッド化はできませんが、
 安定性に優れ、外部のインタプリタのバージョンに依存しません。
 
@@ -64,10 +64,8 @@ Visual Studio: >
 コンパイルが通ったら、autoloadにあるproc.vimとproc.soを.vimのautoloadディレクトリにコピーします。
 doc/にあるのはヘルプファイルです。
 
-vimshellから使用するには、.vimrc上で >
-	let g:VimShell_EnableInteractive = 1
-とすると、非同期実行が有効になります。
-vimshellは非同期実行のとき、Vimのシェル設定を利用しません。
+vimshell#parser系の関数は引数のパースに|vimshell|のルーチンを使用します。
+よって、|vimshell|がインストールされていない場合は動作しないので注意してください。
 
 ==============================================================================
 INTERFACE					*vimproc-interface*
@@ -82,10 +80,12 @@ vimproc#version()				*vimproc#version()*
 vimproc#system({expr} [, {input}])		*vimproc#system()*
 		標準の|system()|を置き換えるための関数。 Windows上で
 		|system()|を使用すると、DOS窓が出てきてしまう。
-		|vimproc#system()|ではそのようなことはない。 ただしシェ ルを
+		|vimproc#system()|ではそのようなことはない。 ただしシェルを
 		起動しないので、シェルの内部コマンドは動作しない。 リダイレ
 		クトも動かない。 リダイレクトについては、今後実装予定がある。
-		引数は|system()|に準拠している。
+		引数は|system()|に準拠している。引数に文字列を渡した場合、
+		|vimshell|の関数を用いて引数をパースする。|vimshell|がインス
+		トールされていない場合は、|system()|が呼び出される。
 
 vimproc#parser#system({expr} [, {input}])	*vimproc#parser#system()*
 		標準の|system()|を置き換えるための関数。 Windows上で
@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-03-25
+    * Use vimshell parser.
 
 2010-03-24
     * Fixed error.
