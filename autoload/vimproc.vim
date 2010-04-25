@@ -27,7 +27,7 @@
 "=============================================================================
 
 let s:is_win = has('win32') || has('win64')
-let s:is_vimshell = exists('*vimproc#version')
+let s:is_vimshell = exists('*vimshell#version')
 let s:last_status = 0
 
 if exists('g:vimproc_dll_path')

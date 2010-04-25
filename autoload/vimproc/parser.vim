@@ -25,7 +25,7 @@
 "=============================================================================
 
 " Check vimshell.
-let s:is_vimshell = exists('*vimproc#version')
+let s:is_vimshell = exists('*vimshell#version')
 if !s:is_vimshell
   echoerr 'vimshell is not installed. Please install vimshell Ver.7.0 or above to use parser.'
   finish
