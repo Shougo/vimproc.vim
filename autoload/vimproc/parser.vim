@@ -34,11 +34,11 @@ endif
 let s:is_win = has('win32') || has('win64')
 
 function! vimproc#parser#system(cmdline, ...)"{{{
-  let l:args = s:split_args(a:cmdline)
+  let l:args = vimshell#parser#split_args(a:cmdline)
   return (a:0 == 0) ? vimproc#system(l:args) : vimproc#system(l:args, join(a:000))
 endfunction"}}}
 
-function! vimproc#parser#popen2(cmdlvimshell#parser#ine)"{{{
+function! vimproc#parser#popen2(cmdline)"{{{
   return vimproc#popen2(vimshell#parser#split_args(a:cmdline))
 endfunction"}}}
 function! vimproc#parser#plineopen2(args)"{{{
@@ -59,7 +59,7 @@ function! vimproc#parser#popen3(cmdline)"{{{
 endfunction"}}}
 function! vimproc#parser#plineopen3(args)"{{{
   let l:commands = []
-  for l:cmdline in s:split_pipe(a:args)
+  for l:cmdline in vimshell#parser#split_pipe(a:args)
     let l:command = {
           \ 'args' : vimshell#parser#split_args(l:cmdline), 
           \ 'fd' : {}
@@ -71,6 +71,6 @@ function! vimproc#parser#plineopen3(args)"{{{
 endfunction"}}}
 
 function! vimproc#parser#ptyopen(cmdline)"{{{
-  call vimproc#ptyopen(s:split_args(a:cmdline))
+  call vimproc#ptyopen(vimshell#parser#split_args(a:cmdline))
 endfunction"}}}
 
