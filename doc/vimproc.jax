@@ -196,13 +196,16 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
-2010-03-25
+2010-04-27
+    * Implemented dummy declaration.
+
+2010-04-25
     * Use vimshell parser.
 
-2010-03-24
+2010-04-24
     * Fixed error.
 
-2010-03-20
+2010-04-20
     * Ver.4 development is started.
     * Implemented vimproc#version().
     * Splited parser.

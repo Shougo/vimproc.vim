@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 25 Apr 2010
+" Last Modified: 27 Apr 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -26,8 +26,10 @@
 " Version: 4.0, for Vim 7.0
 "=============================================================================
 
-function! vimproc#version()"{{{
-  return '4.0'
+" Dummy declaration."{{{
+function! vimproc#system()
+endfunction
+function! vimproc#version()
 endfunction"}}}
 
 let s:is_win = has('win32') || has('win64')
@@ -48,6 +50,10 @@ endif
 
 "-----------------------------------------------------------
 " API
+
+function! vimproc#version()"{{{
+  return '4.0'
+endfunction"}}}
 
 function! vimproc#system(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
