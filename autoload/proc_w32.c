@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <errno.h>
+#include <stdarg.h>
 
 /* For GetConsoleWindow() for Windows 2000 or later. */
 #define WINVER        0x0500

@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-05-01
+    * Fixed warning.
+
 2010-04-27
     * Implemented dummy declaration.
 
