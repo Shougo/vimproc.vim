@@ -13,6 +13,10 @@
 #include <unistd.h>
 #include <stddef.h>
 #include <dlfcn.h>
+
+#if !defined __APPLE__
+# include <sys/types.h>
+#endif
 #include <signal.h>
 
 #include <fcntl.h>
@@ -27,11 +31,9 @@
 /* for forkpty() */
 #if defined __linux__ || defined __CYGWIN__
 # include <pty.h>
-# include <sys/types.h>
 #elif defined __APPLE__ 
 # include <util.h>
 #else
-# include <sys/types.h>
 # include <sys/ioctl.h>
 # include <termios.h>
 # include <libutil.h>
