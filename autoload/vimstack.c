@@ -7,7 +7,6 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <varargs.h>
 
 /*
  * Argument and Result are Stack. Each value is EOV terminated String.

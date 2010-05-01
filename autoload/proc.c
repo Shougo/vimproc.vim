@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include <stddef.h>
 #include <dlfcn.h>
-#include <stdarg.h>
 #include <signal.h>
 
 #include <fcntl.h>
