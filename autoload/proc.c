@@ -16,6 +16,7 @@
 
 #if !defined __APPLE__
 # include <sys/types.h>
+# include <sys/ioctl.h>
 #endif
 #include <signal.h>
 
@@ -34,7 +35,6 @@
 #elif defined __APPLE__ 
 # include <util.h>
 #else
-# include <sys/ioctl.h>
 # include <termios.h>
 # include <libutil.h>
 #endif
