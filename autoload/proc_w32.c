@@ -81,7 +81,7 @@ EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) 
 
 /* --- */
 
-#define VP_ARGC_MAX 20
+#define VP_ARGC_MAX 256
 #define VP_READ_BUFSIZE 2048
 
 static const char *

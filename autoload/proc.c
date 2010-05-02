@@ -97,7 +97,7 @@ const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
 const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 /* --- */
 
-#define VP_ARGC_MAX 20
+#define VP_ARGC_MAX 256
 #define VP_READ_BUFSIZE 2048
 
 static vp_stack_t _result = VP_STACK_NULL;
@@ -367,10 +367,10 @@ vp_pipe_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &npipe));
     if (npipe != 2 && npipe != 3)
-        return vp_stack_return_error(&_result, "npipe range error");
+        return vp_stack_return_error(&_result, "npipe range error. wrong pipes.");
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
     if (argc < 1 || VP_ARGC_MAX <= argc)
-        return vp_stack_return_error(&_result, "argc range error");
+        return vp_stack_return_error(&_result, "argc range error. too many arguments. please use xargs.");
     for (i = 0; i < argc; ++i)
         VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
     argv[argc] = NULL;
@@ -472,7 +472,7 @@ vp_pty_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_row)));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
     if (argc < 1 || VP_ARGC_MAX <= argc)
-        return "argv is out of range";
+        return vp_stack_return_error(&_result, "argc range error. too many arguments. please use xargs.");
     for (i = 0; i < argc; ++i)
         VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
     argv[argc] = NULL;

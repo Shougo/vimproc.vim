@@ -196,6 +196,10 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-05-02
+    * Increased VP_ARGC_MAX.
+    * Revised error messages.
+
 2010-05-01
     * Fixed warning.
 
