@@ -131,7 +131,7 @@ vimproc#plineopen3({commands})			*vimproc#plineopen3()*
 		{commands}で指定されるコマンド列を実行し、プロセス情報を返します。
 		パイプも解釈されます。
 
-vimproc#parser#plineopen3({cmdline})		*vimproc#parser#popen3()*
+vimproc#parser#plineopen3({cmdline})		*vimproc#parser#plineopen3()*
 		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
 		コマンド列は関数内でパースされます。
 		パイプも解釈されます。
