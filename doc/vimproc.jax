@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-05-05
+    * Fixed encoding bug.
+
 2010-05-04
     * Fixed help tags.
 

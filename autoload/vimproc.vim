@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 27 Apr 2010
+" Last Modified: 05 May 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -326,11 +326,6 @@ function! s:convert_args(args)"{{{
 
   let l:args = insert(a:args[1:], s:getfilename(a:args[0]))
 
-  if &termencoding != '' && &encoding != &termencoding
-    " Convert encoding.
-    call map(l:args, 'iconv(v:val, &encoding, &termencoding)')
-  endif
-
   return l:args
 endfunction"}}}
 
@@ -357,11 +352,6 @@ function! s:getfilename(command)"{{{
 
     if !empty(l:files) && fnamemodify(l:files[0], ':e') ==? 'lnk'
       let l:files = resolve(l:files[0])
-
-      if &termencoding != '' && &encoding != &termencoding
-        " Convert encoding.
-        let l:files = iconv(l:files, &termencoding, &encoding)
-      endif
     endif
   else
     let l:path = substitute($PATH, '/\?:', ',', 'g')
