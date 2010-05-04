@@ -140,7 +140,7 @@ vimproc#ptyopen({args})				*vimproc#ptyopen()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
 		パイプは解釈されません。
 
-vimproc#parser#ptyopen({cmdline})		*vimproc#ptyopen()*
+vimproc#parser#ptyopen({cmdline})		*vimproc#parser#ptyopen()*
 		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
 		コマンド列は関数内でパースされます。
 		パイプは解釈されません。
@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-05-04
+    * Fixed help tags.
 
 2010-05-02
     * Increased VP_ARGC_MAX.
