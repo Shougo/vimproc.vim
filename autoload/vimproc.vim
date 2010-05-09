@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 05 May 2010
+" Last Modified: 09 May 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -643,6 +643,7 @@ endfunction
 
 function! s:vp_socket_close() dict
   call s:libcall('vp_socket_close', [self.fd])
+  let self.is_valid = 0
 endfunction
 
 function! s:vp_socket_read(number, timeout) dict
