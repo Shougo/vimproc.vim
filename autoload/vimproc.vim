@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 09 May 2010
+" Last Modified: 22 May 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -333,6 +333,12 @@ function! s:getfilename(command)"{{{
   let l:PATH_SEPARATOR = s:is_win ? '/\\' : '/'
   let l:pattern = printf('[/~]\?\f\+[%s]\f*$', l:PATH_SEPARATOR)
   if a:command =~ l:pattern
+    let l:file = (s:is_win && fnamemodify(a:command, ':e') ==? 'lnk')? 
+          \ resolve(l:files[0]) : a:command 
+    if !executable(l:file)
+      throw printf('File: "%s" is not found.', a:command)
+    endif
+    
     return a:command
   endif
 
