@@ -45,10 +45,6 @@ function! vimproc#parser#system_bg(cmdline)"{{{
   let l:cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
   
   if s:is_win
-    if &termencoding != '' && &termencoding != &encoding
-      let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
-    endif
-    
     silent execute '!start' l:cmdline
     return ''
   else

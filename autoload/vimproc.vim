@@ -93,11 +93,7 @@ function! vimproc#system(cmdline, ...)"{{{
     elseif s:is_vimshell
       return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
     else
-      if &termencoding != '' && &termencoding != &encoding
-        let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
-      endif
-      
-      return (a:0 == 0) ? system(l:cmdline) : system(l:cmdline, join(a:000))
+      return (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, join(a:000))
     endif
   endif
   
@@ -142,31 +138,17 @@ function! vimproc#system_bg(cmdline)"{{{
   if type(a:cmdline) == type('')
     if s:is_win
       let l:cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
-      if &termencoding != '' && &termencoding != &encoding
-        let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
-      endif
-
       silent execute '!start' l:cmdline
       return ''
     elseif s:is_vimshell
       return vimproc#parser#system_bg(a:cmdline)
     else
-      let l:cmdline = a:cmdline
-      if &termencoding != '' && &termencoding != &encoding
-        let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
-      endif
-
       return system(a:cmdline)
     endif
   endif
   
   if s:is_win
-    let l:cmdline = join(map(a:cmdline, '"\"".v:val."\""'))
-    if &termencoding != '' && &termencoding != &encoding
-      let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
-    endif
-    
-    silent execute '!start' l:cmdline
+    silent execute '!start' join(map(a:cmdline, '"\"".v:val."\""'))
   else
     " Open pipe.
     let l:subproc = vimproc#popen3(a:cmdline)

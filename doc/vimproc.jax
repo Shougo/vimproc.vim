@@ -205,7 +205,6 @@ CHANGELOG					*vimproc-changelog*
 
 2010-05-22
 - Implemented background execution(Testing).
-- Improved encoding.
 - Added new test.
 
 2010-05-22
