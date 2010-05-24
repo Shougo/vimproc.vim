@@ -85,15 +85,22 @@ vimproc#system({expr} [, {input}])		*vimproc#system()*
 		クトも動かない。 リダイレクトについては、今後実装予定がある。
 		引数は|system()|に準拠している。引数に文字列を渡した場合、
 		|vimshell|の関数を用いて引数をパースする。|vimshell|がインス
-		トールされていない場合は、|system()|が呼び出される。
+		トールされていない場合は、|system()|が呼び出される。引数の最
+		後に&を付けると、コマンドをバックグラウンドで実行する。
+
+vimproc#system_bg({expr})		*vimproc#system()*
+		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ
+		ンドで実行する。入力はできない。
 
 vimproc#parser#system({expr} [, {input}])	*vimproc#parser#system()*
-		標準の|system()|を置き換えるための関数。 Windows上で
-		|system()|を使用すると、DOS窓が出てきてしまう。
-		|vimproc#system()|ではそのようなことはない。 ただしシェ ルを
-		起動しないので、シェルの内部コマンドは動作しない。 リダイレ
-		クトも動かない。 リダイレクトについては、今後実装予定がある。
-		引数は|system()|に準拠している。
+		標準の|system()|を置き換えるための関数。|vimshell|の関数を用
+		いて引数をパースする。|vimshell|がインス トールされていない
+		場合は、|system()|が呼び出される。引数の最後に&を付けると、
+		コマンドをバックグラウンドで実行する。
+
+vimproc#parser#system_bg({expr})	*vimproc#parser#system()*
+		|vimproc#parser#system()|と同様だが、コマンドをバックグラウンドで実行する。
+		入力はできない。
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
 		前回の|vimproc#system()|の実行において得られた、戻り値を取得する。
@@ -197,34 +204,39 @@ BUGS						*vimproc-bugs*
 CHANGELOG					*vimproc-changelog*
 
 2010-05-22
-    * Improved executable search.
+- Implemented background execution(Testing).
+- Improved encoding.
+- Added new test.
+
+2010-05-22
+- Improved executable search.
 
 2010-05-05
-    * Fixed encoding bug.
+- Fixed encoding bug.
 
 2010-05-04
-    * Fixed help tags.
+- Fixed help tags.
 
 2010-05-02
-    * Increased VP_ARGC_MAX.
-    * Revised error messages.
+- Increased VP_ARGC_MAX.
+- Revised error messages.
 
 2010-05-01
-    * Fixed warning.
+- Fixed warning.
 
 2010-04-27
-    * Implemented dummy declaration.
+- Implemented dummy declaration.
 
 2010-04-25
-    * Use vimshell parser.
+- Use vimshell parser.
 
 2010-04-24
-    * Fixed error.
+- Fixed error.
 
 2010-04-20
-    * Ver.4 development is started.
-    * Implemented vimproc#version().
-    * Splited parser.
+- Ver.4 development is started.
+- Implemented vimproc#version().
+- Splited parser.
 
 ChangeLog 1.20-3.01{{{
 2010-03-17

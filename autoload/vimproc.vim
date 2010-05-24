@@ -48,6 +48,37 @@ if has('iconv')
   let s:dll_path = iconv(s:dll_path, &encoding, "default")
 endif
 
+if !s:is_win
+  let s:bg_processes = {}
+  
+  augroup vimproc
+    autocmd!
+    autocmd CursorHold * call s:garbage_collect()
+  augroup END
+
+  function! s:garbage_collect()"{{{
+    for l:proc in values(s:bg_processes)
+      " Check processes.
+      if !l:proc.stdout.eof
+        call l:proc.stdout.read(-1, 0)
+      else
+        let [l:cond, s:last_status] = l:subproc.waitpid()
+        if l:cond != 'exit'
+          try
+            " Kill process.
+            " 15 == SIGTERM
+            call l:subproc.kill(15)
+          catch
+            " Ignore error.
+          endtry
+        endif
+
+        call remove(s:bg_processes, l:proc.pid)
+      endwhile
+    endfor
+  endfunction"}}}
+endif
+
 "-----------------------------------------------------------
 " API
 
@@ -57,10 +88,16 @@ endfunction"}}}
 
 function! vimproc#system(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
-    if s:is_vimshell
+    if a:cmdline =~ '&\s*$'
+      return vimproc#system_bg(a:cmdline)
+    elseif s:is_vimshell
       return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
     else
-      return (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, join(a:000))
+      if &termencoding != '' && &termencoding != &encoding
+        let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
+      endif
+      
+      return (a:0 == 0) ? system(l:cmdline) : system(l:cmdline, join(a:000))
     endif
   endif
   
@@ -101,6 +138,44 @@ function! vimproc#system(cmdline, ...)"{{{
 
   return l:output
 endfunction"}}}
+function! vimproc#system_bg(cmdline)"{{{
+  if type(a:cmdline) == type('')
+    if s:is_win
+      let l:cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
+      if &termencoding != '' && &termencoding != &encoding
+        let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
+      endif
+
+      silent execute '!start' l:cmdline
+      return ''
+    elseif s:is_vimshell
+      return vimproc#parser#system_bg(a:cmdline)
+    else
+      let l:cmdline = a:cmdline
+      if &termencoding != '' && &termencoding != &encoding
+        let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
+      endif
+
+      return system(a:cmdline)
+    endif
+  endif
+  
+  if s:is_win
+    let l:cmdline = join(map(a:cmdline, '"\"".v:val."\""'))
+    if &termencoding != '' && &termencoding != &encoding
+      let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
+    endif
+    
+    silent execute '!start' l:cmdline
+  else
+    " Open pipe.
+    let l:subproc = vimproc#popen3(a:cmdline)
+    let s:bg_processes[l:subproc.pid] = l:subproc
+  endif
+  
+  return ''
+endfunction"}}}
+
 function! vimproc#get_last_status()"{{{
   return s:last_status
 endfunction"}}}

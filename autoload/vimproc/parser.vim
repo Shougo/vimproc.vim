@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 25 Apr 2010
+" Last Modified: 24 May 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -34,8 +34,28 @@ endif
 let s:is_win = has('win32') || has('win64')
 
 function! vimproc#parser#system(cmdline, ...)"{{{
-  let l:args = vimshell#parser#split_args(a:cmdline)
-  return (a:0 == 0) ? vimproc#system(l:args) : vimproc#system(l:args, join(a:000))
+  if a:cmdline =~ '&\s*$'
+    return vimproc#parser#system_bg(l:args)
+  else
+    let l:args = vimshell#parser#split_args(a:cmdline)
+    return (a:0 == 0) ? vimproc#system(l:args) : vimproc#system(l:args, join(a:000))
+  endif
+endfunction"}}}
+function! vimproc#parser#system_bg(cmdline)"{{{
+  let l:cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
+  
+  if s:is_win
+    if &termencoding != '' && &termencoding != &encoding
+      let l:cmdline = iconv(l:cmdline, &encoding, &termencoding)
+    endif
+    
+    silent execute '!start' l:cmdline
+    return ''
+  else
+    " Background execution.
+    let l:args = vimshell#parser#split_args(l:cmdline)
+    return vimproc#system_bg(l:args)
+  endif
 endfunction"}}}
 
 function! vimproc#parser#popen2(cmdline)"{{{
