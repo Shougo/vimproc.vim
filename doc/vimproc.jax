@@ -203,7 +203,10 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
-2010-05-22
+2010-05-25
+- Optimized autocmd.
+
+2010-05-24
 - Implemented background execution(Testing).
 - Added new test.
 

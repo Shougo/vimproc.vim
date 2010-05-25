@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 May 2010
+" Last Modified: 25 May 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -46,37 +46,6 @@ if has('iconv')
   " Dll path should be encoded with default encoding.  Vim does not convert
   " it from &enc to default encoding.
   let s:dll_path = iconv(s:dll_path, &encoding, "default")
-endif
-
-if !s:is_win
-  let s:bg_processes = {}
-  
-  augroup vimproc
-    autocmd!
-    autocmd CursorHold * call s:garbage_collect()
-  augroup END
-
-  function! s:garbage_collect()"{{{
-    for l:proc in values(s:bg_processes)
-      " Check processes.
-      if !l:proc.stdout.eof
-        call l:proc.stdout.read(-1, 0)
-      else
-        let [l:cond, s:last_status] = l:subproc.waitpid()
-        if l:cond != 'exit'
-          try
-            " Kill process.
-            " 15 == SIGTERM
-            call l:subproc.kill(15)
-          catch
-            " Ignore error.
-          endtry
-        endif
-
-        call remove(s:bg_processes, l:proc.pid)
-      endwhile
-    endfor
-  endfunction"}}}
 endif
 
 "-----------------------------------------------------------
@@ -150,6 +119,14 @@ function! vimproc#system_bg(cmdline)"{{{
   if s:is_win
     silent execute '!start' join(map(a:cmdline, '"\"".v:val."\""'))
   else
+    if !exists('s:is_win')"{{{
+      let s:bg_processes = {}
+
+      augroup vimproc
+        autocmd CursorHold * call s:garbage_collect()
+      augroup END
+    endif"}}}
+    
     " Open pipe.
     let l:subproc = vimproc#popen3(a:cmdline)
     let s:bg_processes[l:subproc.pid] = l:subproc
@@ -344,6 +321,35 @@ function! s:fdopen_pipes(fd, f_close, f_read, f_write)"{{{
         \'f_close' : s:funcref(a:f_close),
         \'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
         \}
+endfunction"}}}
+
+function! s:garbage_collect()"{{{
+  for l:proc in values(s:bg_processes)
+    " Check processes.
+    if !l:proc.stdout.eof
+      call l:proc.stdout.read(-1, 0)
+    else
+      let [l:cond, s:last_status] = l:subproc.waitpid()
+      if l:cond != 'exit'
+        try
+          " Kill process.
+          " 15 == SIGTERM
+          call l:subproc.kill(15)
+        catch
+          " Ignore error.
+        endtry
+      endif
+
+      call remove(s:bg_processes, l:proc.pid)
+      if empty(s:bg_processes)
+        unlet s:bg_processes
+        
+        augroup vimproc
+          autocmd!
+        augroup END
+      endif
+    endwhile
+  endfor
 endfunction"}}}
 
 "-----------------------------------------------------------
