@@ -119,7 +119,7 @@ function! vimproc#system_bg(cmdline)"{{{
   if s:is_win
     silent execute '!start' join(map(a:cmdline, '"\"".v:val."\""'))
   else
-    if !exists('s:is_win')"{{{
+    if !exists('s:bg_processes')"{{{
       let s:bg_processes = {}
 
       augroup vimproc
