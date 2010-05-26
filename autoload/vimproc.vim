@@ -328,27 +328,28 @@ function! s:garbage_collect()"{{{
     " Check processes.
     if !l:proc.stdout.eof
       call l:proc.stdout.read(-1, 0)
-    else
-      let [l:cond, s:last_status] = l:subproc.waitpid()
-      if l:cond != 'exit'
-        try
-          " Kill process.
-          " 15 == SIGTERM
-          call l:subproc.kill(15)
-        catch
-          " Ignore error.
-        endtry
-      endif
+      continue
+    endif
+    
+    let [l:cond, s:last_status] = l:proc.waitpid()
+    if l:cond != 'exit'
+      try
+        " Kill process.
+        " 15 == SIGTERM
+        call l:proc.kill(15)
+      catch
+        " Ignore error.
+      endtry
+    endif
 
-      call remove(s:bg_processes, l:proc.pid)
-      if empty(s:bg_processes)
-        unlet s:bg_processes
-        
-        augroup vimproc
-          autocmd!
-        augroup END
-      endif
-    endwhile
+    call remove(s:bg_processes, l:proc.pid)
+    if empty(s:bg_processes)
+      unlet s:bg_processes
+
+      augroup vimproc
+        autocmd!
+      augroup END
+    endif
   endfor
 endfunction"}}}
 
