@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 25 May 2010
+" Last Modified: 29 May 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -59,10 +59,13 @@ function! vimproc#system(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
     if a:cmdline =~ '&\s*$'
       return vimproc#system_bg(a:cmdline)
-    elseif s:is_vimshell
+    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:is_vimshell
       return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
     else
-      return (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, join(a:000))
+      let l:output = (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, join(a:000))
+      let s:last_status = v:shell_error
+      let s:last_errmsg = ''
+      return l:output
     endif
   endif
   
@@ -109,10 +112,13 @@ function! vimproc#system_bg(cmdline)"{{{
       let l:cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
       silent execute '!start' l:cmdline
       return ''
-    elseif s:is_vimshell
+    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:is_vimshell
       return vimproc#parser#system_bg(a:cmdline)
     else
-      return system(a:cmdline)
+      let l:output = system(a:cmdline)
+      let s:last_status = v:shell_error
+      let s:last_errmsg = ''
+      return l:output
     endif
   endif
   

@@ -203,6 +203,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-05-29
+- Fixed man permission error.
+
 2010-05-25
 - Optimized autocmd.
 
