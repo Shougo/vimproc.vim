@@ -88,7 +88,7 @@ vimproc#system({expr} [, {input}])		*vimproc#system()*
 		トールされていない場合は、|system()|が呼び出される。引数の最
 		後に&を付けると、コマンドをバックグラウンドで実行する。
 
-vimproc#system_bg({expr})		*vimproc#system()*
+vimproc#system_bg({expr})		*vimproc#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ
 		ンドで実行する。入力はできない。
 
@@ -98,7 +98,7 @@ vimproc#parser#system({expr} [, {input}])	*vimproc#parser#system()*
 		場合は、|system()|が呼び出される。引数の最後に&を付けると、
 		コマンドをバックグラウンドで実行する。
 
-vimproc#parser#system_bg({expr})	*vimproc#parser#system()*
+vimproc#parser#system_bg({expr})	*vimproc#parser#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウンドで実行する。
 		入力はできない。
 
@@ -202,6 +202,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-06-07
+- Fixed documentation typo.
 
 2010-05-29
 - Fixed man permission error.
