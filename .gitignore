@@ -1,8 +1,3 @@
-<<<<<<< HEAD
 autoload/proc.so
 autoload/proc.dll
 *.swp
-=======
-autoload/proc.dll
-autoload/proc.so
->>>>>>> 3255ac8cfb8e1ee74e5dc246491e380a3843388a
