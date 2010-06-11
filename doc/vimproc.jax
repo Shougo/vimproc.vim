@@ -75,7 +75,9 @@ FUNCTIONS 					*vimproc-functions*
 
 vimproc#version()				*vimproc#version()*
 		vimprocのバージョン番号を文字列形式で返す。vimproc Ver.4未満
-		には存在しない。
+		には存在しない。番号は|v:version|のように、メジャーバージョ
+		ン * 100 + マイナーバージョンという形式になっている。Ver.4な
+		らば400である。 Ver.4.1なら401である。
 
 vimproc#system({expr} [, {input}])		*vimproc#system()*
 		標準の|system()|を置き換えるための関数。 Windows上で
@@ -207,6 +209,7 @@ CHANGELOG					*vimproc-changelog*
 
 2010-06-11
 - Improved help file.
+- Improved vimproc#version().
 
 2010-06-07
 - Fixed documentation typo.
