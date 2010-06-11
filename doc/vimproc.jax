@@ -159,9 +159,11 @@ vimproc#kill({pid}, {sig})			*vimproc#kill()*
 VARIABLES 					*vimproc-variables*
 
 						*g:vimproc_dll_path*
-g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/proc.dll"
+g:vimproc_dll_path		(default Win32 or Cygwin : "$VIMRUNTIME/autoload/proc.dll"
 					others: "$VIMRUNTIME/autoload/proc.so")
-		vimprocが利用するproc.soへのパスを指定する。
+		vimprocが利用する動的ライブラリである、proc.soまたはproc.dll
+		へのパス を指定する。ライブラリはあらかじめコンパイルしてお
+		かなければならない。
 
 ==============================================================================
 EXAMPLES					*vimproc-examples*
@@ -202,6 +204,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-06-11
+- Improved help file.
 
 2010-05-29
 - Fixed man permission error.

@@ -39,7 +39,7 @@ let s:is_vimshell = exists('*vimshell#version')
 if exists('g:vimproc_dll_path')
   let s:dll_path = g:vimproc_dll_path
 else
-  let s:dll_path = expand("<sfile>:p:h") . (s:is_win || exists('$WINDIR')? '/proc.dll' : '/proc.so')
+  let s:dll_path = expand("<sfile>:p:h") . ((s:is_win || has('win32unix'))? '/proc.dll' : '/proc.so')
 endif
 
 if has('iconv')
