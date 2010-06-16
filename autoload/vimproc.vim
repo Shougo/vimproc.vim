@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 11 Jun 2010
+" Last Modified: 16 Jun 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -23,7 +23,7 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 4.0, for Vim 7.0
+" Version: 4.1, for Vim 7.0
 "=============================================================================
 
 " Dummy declaration."{{{
@@ -52,7 +52,7 @@ endif
 " API
 
 function! vimproc#version()"{{{
-  return str2nr(printf('%2d%02d', 4, 0))
+  return str2nr(printf('%2d%02d', 4, 1))
 endfunction"}}}
 
 function! vimproc#system(cmdline, ...)"{{{
@@ -148,7 +148,7 @@ function! vimproc#get_last_errmsg()"{{{
   return s:last_errmsg
 endfunction"}}}
 
-function! vimproc#open(path, flags, ...)"{{{
+function! vimproc#fopen(path, flags, ...)"{{{
   let l:mode = get(a:000, 0, 0)
   let l:fd = s:vp_file_open(a:path, a:flags, l:mode)
   return s:fdopen(l:fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')

@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <shellapi.h>
 
 /* For GetConsoleWindow() for Windows 2000 or later. */
 #define WINVER        0x0500
@@ -78,6 +79,8 @@ EXPORT const char *vp_socket_open(char *args); /* [socket] (host, port) */
 EXPORT const char *vp_socket_close(char *args);/* [] (socket) */
 EXPORT const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
 EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
+
+EXPORT const char *vp_open(char *args);      /* [] (path) */
 
 /* --- */
 
@@ -568,10 +571,33 @@ vp_kill(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%p", &handle));
 
-    if (!TerminateProcess(handle, 2) || !CloseHandle(handle))
+    /*if (!TerminateProcess(handle, 2) || !CloseHandle(handle))*/
+        /*return vp_stack_return_error(&_result, "kill() error: %s",*/
+                /*lasterror());*/
+    if (!ExitRemoteProcess(handle, 2)) {
         return vp_stack_return_error(&_result, "kill() error: %s",
                 lasterror());
+    }
+
     return NULL;
+}
+
+/* Improved kill function. */
+/* http://homepage3.nifty.com/k-takata/diary/2009-05.html */
+BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode)
+{
+    LPTHREAD_START_ROUTINE pfnExitProcess =
+        (LPTHREAD_START_ROUTINE) GetProcAddress(
+                GetModuleHandle(_T("kernel32.dll")), "ExitProcess");
+    if ((hProcess != NULL) && (pfnExitProcess != NULL)) {
+        HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0,
+                pfnExitProcess, (LPVOID) uExitCode, 0, NULL);
+        if (hThread != NULL) {
+            CloseHandle(hThread);
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 const char *
@@ -766,6 +792,23 @@ vp_socket_write(char *args)
     }
     vp_stack_push_num(&_result, "%u", nleft);
     return vp_stack_return(&_result);
+}
+
+const char *
+vp_open(char *args)
+{
+    vp_stack_t stack;
+    char *path;
+    
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
+    
+    if (ShellExecute(NULL, "open", path_to_folder, NULL, NULL, SW_SHOWNORMAL) < 32) {
+        return vp_stack_return_error(&_result, "ShellExecute() error: %s",
+                lasterror());
+    }
+
+    return NULL;
 }
 
 /* 

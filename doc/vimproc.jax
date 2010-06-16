@@ -1,6 +1,6 @@
 *vimproc.txt*	Vim用非同期実行ライブラリ
 
-Version: 4.0
+Version: 4.1
 Author : Shougo <Shougo.Matsu@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -111,7 +111,7 @@ vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
 		前回の|vimproc#system()|の実行において、標準エラー出力に出力された
 		エラーメッセージを取得する。
 
-vimproc#open({path}, {flags} [, {mode}])	*vimproc#open()*
+vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
 		{path}で指定されるファイルを開きます。
 
 vimproc#popen2({args})				*vimproc#popen2()*
@@ -171,7 +171,7 @@ g:vimproc_dll_path		(default Win32 or Cygwin : "$VIMRUNTIME/autoload/proc.dll"
 EXAMPLES					*vimproc-examples*
 >
 	" File open test.
-	let file = vimproc#open("./test1.vim", "O_RDONLY", 0)
+	let file = vimproc#fopen("./test1.vim", "O_RDONLY", 0)
 	let res = file.read()
 	call file.close()
 	new
@@ -207,6 +207,13 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-06-16
+- Started version 4.1 development.
+- Implemented vp_pty_open in Windows.
+- Improved vp_kill in Windows.
+- Changed vimproc#open() as vimproc#fopen().
+
+ChangeLog 4.0/*{{{*/
 2010-06-11
 - Improved help file.
 - Improved vimproc#version().
@@ -253,7 +260,7 @@ CHANGELOG					*vimproc-changelog*
 - Ver.4 development is started.
 - Implemented vimproc#version().
 - Splited parser.
-
+/*}}}*/
 ChangeLog 1.20-3.01{{{
 2010-03-17
     * Fixed s:split_pipe() bug.
