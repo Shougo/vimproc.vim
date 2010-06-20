@@ -25,13 +25,14 @@
 #include <stddef.h>
 #include <errno.h>
 #include <stdarg.h>
-#include <shellapi.h>
 
 /* For GetConsoleWindow() for Windows 2000 or later. */
 #define WINVER        0x0500
 #define _WIN32_WINNT  0x0500
 
 #include <windows.h>
+#include <winbase.h>
+#include <shellapi.h>
 #if 0
 # include <winsock2.h>
 #endif
@@ -81,6 +82,8 @@ EXPORT const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout
 EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 
 EXPORT const char *vp_open(char *args);      /* [] (path) */
+
+static BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode);
 
 /* --- */
 
@@ -584,11 +587,11 @@ vp_kill(char *args)
 
 /* Improved kill function. */
 /* http://homepage3.nifty.com/k-takata/diary/2009-05.html */
-BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode)
+static BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode)
 {
     LPTHREAD_START_ROUTINE pfnExitProcess =
         (LPTHREAD_START_ROUTINE) GetProcAddress(
-                GetModuleHandle(_T("kernel32.dll")), "ExitProcess");
+                GetModuleHandle("kernel32.dll"), "ExitProcess");
     if ((hProcess != NULL) && (pfnExitProcess != NULL)) {
         HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0,
                 pfnExitProcess, (LPVOID) uExitCode, 0, NULL);
@@ -803,7 +806,7 @@ vp_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
     
-    if (ShellExecute(NULL, "open", path_to_folder, NULL, NULL, SW_SHOWNORMAL) < 32) {
+    if (ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL) < 32) {
         return vp_stack_return_error(&_result, "ShellExecute() error: %s",
                 lasterror());
     }

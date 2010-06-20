@@ -79,6 +79,13 @@ vimproc#version()				*vimproc#version()*
 		ン * 100 + マイナーバージョンという形式になっている。Ver.4な
 		らば400である。 Ver.4.1なら401である。
 
+vimproc#open({filename})			*vimproc#open()*
+		{filename}をシステムに関連付けられたコマンドで開く。
+
+vimproc#get_command_name({command} [, {path}])	*vimproc#get_command_name()*
+		{command}を{path}から検索し、本当の名前を返す。 {path}を省略
+		すると、$PATHが代わりに使用される。
+
 vimproc#system({expr} [, {input}])		*vimproc#system()*
 		標準の|system()|を置き換えるための関数。 Windows上で
 		|system()|を使用すると、DOS窓が出てきてしまう。
@@ -206,6 +213,10 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-06-20
+- Added vimproc#open() and vimproc#get_command_name().
+- Improved command search.
 
 2010-06-16
 - Started version 4.1 development.
