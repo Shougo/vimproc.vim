@@ -82,9 +82,11 @@ vimproc#version()				*vimproc#version()*
 vimproc#open({filename})			*vimproc#open()*
 		{filename}をシステムに関連付けられたコマンドで開く。
 
-vimproc#get_command_name({command} [, {path}])	*vimproc#get_command_name()*
+vimproc#get_command_name({command} [, {path}, {count}])	*vimproc#get_command_name()*
 		{command}を{path}から検索し、本当の名前を返す。 {path}を省略
-		すると、$PATHが代わりに使用される。
+		すると、$PATHが代わりに使用される。{count}を指定すると、
+		{count}番目の候補が返る。{count}に-1を指定すると、結果はリス
+		トになる。
 
 vimproc#system({expr} [, {input}])		*vimproc#system()*
 		標準の|system()|を置き換えるための関数。 Windows上で
@@ -217,6 +219,7 @@ CHANGELOG					*vimproc-changelog*
 2010-06-20
 - Added vimproc#open() and vimproc#get_command_name().
 - Improved command search.
+- Improved vimproc#get_command_name().
 
 2010-06-16
 - Started version 4.1 development.

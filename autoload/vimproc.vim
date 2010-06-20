@@ -93,15 +93,19 @@ function! vimproc#open(filename)"{{{
 endfunction"}}}
 
 function! vimproc#get_command_name(command, ...)"{{{
-  if a:0 > 1
+  if a:0 > 2
     throw 'vimproc#get_command_name: Invalid argument.'
-  elseif a:0 == 1
+  endif
+  
+  if a:0 > 1
     let l:path = a:1
   elseif s:is_win 
     let l:path = substitute(substitute($PATH, ';', ',', 'g'), '\s', '\\\\ ', 'g')
   else
     let l:path = substitute(substitute($PATH, ':', ',', 'g'), '\s', '\\\\ ', 'g')
   endif
+
+  let l:count = a:0 < 2 ? 1 : a:2
   
   let l:command = expand(a:command)
   
@@ -123,17 +127,21 @@ function! vimproc#get_command_name(command, ...)"{{{
   " Command search.
   let l:suffixesadd_save = &l:suffixesadd
   let &l:suffixesadd = s:is_win ? substitute($PATHEXT.';.LNK', ';', ',', 'g') : ''
-  let l:file = findfile(l:command, l:path)
+  let l:file = findfile(l:command, l:path, l:count)
   let &l:suffixesadd = l:suffixesadd_save
 
-  if s:is_win && fnamemodify(l:file, ':e') ==? 'lnk'
-    let l:file = resolve(l:file)
-  endif
+  if l:count < 0
+    return filter(l:file, 'executable(v:val)')
+  else
+    if s:is_win && fnamemodify(l:file, ':e') ==? 'lnk'
+      let l:file = resolve(l:file)
+    endif
 
-  if l:file == ''
-    throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
-  elseif !executable(l:file)
-    throw printf('vimproc#get_command_name: File "%s" is not executable.', l:command)
+    if l:file == ''
+      throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
+    elseif !executable(l:file)
+      throw printf('vimproc#get_command_name: File "%s" is not executable.', l:command)
+    endif
   endif
 
   return l:file
