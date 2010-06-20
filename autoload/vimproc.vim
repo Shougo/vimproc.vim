@@ -98,9 +98,9 @@ function! vimproc#get_command_name(command, ...)"{{{
   elseif a:0 == 1
     let l:path = a:1
   elseif s:is_win 
-    let l:path = substitute($PATH, '\\\?;', ',', 'g') 
+    let l:path = substitute(substitute($PATH, ';', ',', 'g'), '\s', '\\\\ ', 'g')
   else
-    let l:path = substitute($PATH, '/\?:', ',', 'g')
+    let l:path = substitute(substitute($PATH, ':', ',', 'g'), '\s', '\\\\ ', 'g')
   endif
   
   let l:command = expand(a:command)
@@ -132,7 +132,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
   if l:file == ''
     throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
-  elseif !executable(l:command)
+  elseif !executable(l:file)
     throw printf('vimproc#get_command_name: File "%s" is not executable.', l:command)
   endif
 
