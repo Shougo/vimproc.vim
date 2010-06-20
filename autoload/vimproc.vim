@@ -486,9 +486,29 @@ function! s:convert_args(args)"{{{
     return []
   endif
 
-  let l:args = insert(a:args[1:], vimproc#get_command_name(a:args[0]))
+  return s:analyze_shebang(vimproc#get_command_name(a:args[0])) + a:args[1:]
+endfunction"}}}
 
-  return l:args
+function! s:analyze_shebang(filename)"{{{
+  if !s:is_win || fnamemodify(a:filename, ':e') != ''
+    return [a:filename]
+  endif
+
+  let l:lines = readfile(a:filename)
+  if empty(l:lines) || l:lines[0] !~ '^#!.\+'
+    " Not found.
+    return [a:filename]
+  endif
+
+  " Get shebang line.
+  let l:shebang = split(matchstr(l:lines[0], '^#!\zs.\+'))
+
+  " Convert command name.
+  if l:shebang[0] =~ '^/'
+    let l:shebang[0] = vimproc#get_command_name(fnamemodify(l:shebang[0], ':t'))
+  endif
+
+  return l:shebang + [a:filename]
 endfunction"}}}
 
 "-----------------------------------------------------------
