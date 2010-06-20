@@ -26,11 +26,9 @@
 " Version: 4.1, for Vim 7.0
 "=============================================================================
 
-" Dummy declaration."{{{
-function! vimproc#system()
-endfunction
 function! vimproc#version()
-endfunction"}}}
+  return str2nr(printf('%2d%02d', 4, 1))
+endfunction
 
 let s:is_win = has('win32') || has('win64')
 let s:last_status = 0
@@ -50,10 +48,6 @@ endif
 
 "-----------------------------------------------------------
 " API
-
-function! vimproc#version()"{{{
-  return str2nr(printf('%2d%02d', 4, 1))
-endfunction"}}}
 
 function! vimproc#open(filename)"{{{
   let l:filename = a:filename

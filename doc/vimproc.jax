@@ -221,6 +221,7 @@ CHANGELOG					*vimproc-changelog*
 - Improved command search.
 - Improved vimproc#get_command_name().
 - Analyse shebang line.
+- Improved vimproc#version().
 
 2010-06-16
 - Started version 4.1 development.
