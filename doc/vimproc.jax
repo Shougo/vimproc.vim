@@ -59,7 +59,7 @@ Mac: >
 Linux BSD: >
 	$ make -f make_gcc.mak
 Visual Studio: >
-	$ make -f make_msvc.mak
+	$ nmake /F make_msvc.mak
 
 コンパイルが通ったら、autoloadにあるproc.vimとproc.so(proc.dll)を.vimの
 autoloadディレクトリにコピーします。 doc/にあるのはヘルプファイルです。
@@ -227,6 +227,7 @@ CHANGELOG					*vimproc-changelog*
 - Improved vimproc#version().
 - Fixed Visual C++ link error.
 - Fixed warning.
+- Fixed help.
 
 2010-06-16
 - Started version 4.1 development.
