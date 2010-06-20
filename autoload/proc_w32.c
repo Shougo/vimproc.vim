@@ -806,7 +806,7 @@ vp_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
     
-    if (ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL) < 32) {
+    if ((int)ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL) < 32) {
         return vp_stack_return_error(&_result, "ShellExecute() error: %s",
                 lasterror());
     }
