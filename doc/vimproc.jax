@@ -61,8 +61,11 @@ Linux BSD: >
 Visual Studio: >
 	$ make -f make_msvc.mak
 
-コンパイルが通ったら、autoloadにあるproc.vimとproc.soを.vimのautoloadディレクトリにコピーします。
-doc/にあるのはヘルプファイルです。
+コンパイルが通ったら、autoloadにあるproc.vimとproc.so(proc.dll)を.vimの
+autoloadディレクトリにコピーします。 doc/にあるのはヘルプファイルです。
+Windowsユーザーでコン パイルするのが嫌な場合は、githubのダウンロードに
+proc.dllファイルがあります。ただし動作の保証はしません。
+http://github.com/Shougo/vimproc/downloads
 
 vimshell#parser系の関数は引数のパースに|vimshell|のルーチンを使用します。
 よって、|vimshell|がインストールされていない場合は動作しないので注意してください。
