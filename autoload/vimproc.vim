@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 20 Jun 2010
+" Last Modified: 21 Jun 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -32,12 +32,17 @@ endfunction
 
 let s:is_win = has('win32') || has('win64')
 let s:last_status = 0
-let s:is_vimshell = exists('*vimshell#version')
+let s:exists_vimshell = exists('*vimshell#version')
 
 if exists('g:vimproc_dll_path')
   let s:dll_path = g:vimproc_dll_path
 else
   let s:dll_path = expand("<sfile>:p:h") . ((s:is_win || has('win32unix'))? '/proc.dll' : '/proc.so')
+endif
+
+if !filereadable(s:dll_path)
+  execute 'echoerr' printf('"%s" is not found. Please make it.', s:dll_path)
+  finish
 endif
 
 if has('iconv')
@@ -145,7 +150,7 @@ function! vimproc#system(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
     if a:cmdline =~ '&\s*$'
       return vimproc#system_bg(a:cmdline)
-    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:is_vimshell
+    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:exists_vimshell
       return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
     else
       let l:output = (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, join(a:000))
@@ -198,7 +203,7 @@ function! vimproc#system_bg(cmdline)"{{{
       let l:cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
       silent execute '!start' l:cmdline
       return ''
-    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:is_vimshell
+    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:exists_vimshell
       return vimproc#parser#system_bg(a:cmdline)
     else
       let l:output = system(a:cmdline)

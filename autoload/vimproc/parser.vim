@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 24 May 2010
+" Last Modified: 21 Jun 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -25,8 +25,8 @@
 "=============================================================================
 
 " Check vimshell.
-let s:is_vimshell = exists('*vimshell#version')
-if !s:is_vimshell
+let s:exists_vimshell = exists('*vimshell#version')
+if !s:exists_vimshell
   echoerr 'vimshell is not installed. Please install vimshell Ver.7.0 or above to use parser.'
   finish
 endif

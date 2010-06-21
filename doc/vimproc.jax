@@ -49,7 +49,8 @@ INSTALL						*vimproc-install*
 まず、vimprocをリポジトリから取ってきます。
 [http://github.com/Shougo/vimproc/tree/master](http://github.com/Shougo/vimproc/tree/master)
 
-そしてproc.soをmakeします。
+そして外部ライブラリである、proc.so(proc.dll)をmakeします。
+vimprocはproc.so(proc.dll)の機能に依存しているので、proc.so(proc.dll)が存在しないとエラーになります。
 
 Make方法
 Mingw: >
@@ -177,7 +178,7 @@ g:vimproc_dll_path		(default Win32 or Cygwin : "$VIMRUNTIME/autoload/proc.dll"
 					others: "$VIMRUNTIME/autoload/proc.so")
 		vimprocが利用する動的ライブラリである、proc.soまたはproc.dll
 		へのパス を指定する。ライブラリはあらかじめコンパイルしてお
-		かなければならない。
+		かなければならない。このファイルが存在しないとエラーになる。
 
 ==============================================================================
 EXAMPLES					*vimproc-examples*
@@ -218,6 +219,10 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-06-21
+- Improved vimshell check.
+- Check dll file.
 
 2010-06-20
 - Added vimproc#open() and vimproc#get_command_name().
