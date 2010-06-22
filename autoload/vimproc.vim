@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 21 Jun 2010
+" Last Modified: 22 Jun 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -96,7 +96,7 @@ function! vimproc#get_command_name(command, ...)"{{{
     throw 'vimproc#get_command_name: Invalid argument.'
   endif
   
-  if a:0 > 1
+  if a:0 >= 1
     let l:path = a:1
   elseif s:is_win 
     let l:path = substitute(substitute($PATH, ';', ',', 'g'), '\s', '\\\\ ', 'g')
