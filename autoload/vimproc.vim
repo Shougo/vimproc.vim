@@ -491,7 +491,8 @@ function! s:convert_args(args)"{{{
 endfunction"}}}
 
 function! s:analyze_shebang(filename)"{{{
-  if !s:is_win || fnamemodify(a:filename, ':e') != ''
+  if !s:is_win || '.'.fnamemodify(a:filename, ':e') !~? 
+        \ '^' . substitute($PATHEXT, ';', '$\\|^', 'g') . '$'
     return [a:filename]
   endif
 
