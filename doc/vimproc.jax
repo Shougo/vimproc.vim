@@ -223,6 +223,7 @@ CHANGELOG					*vimproc-changelog*
 2010-06-24
 - Resolve symbolic link.
 - Improved shebang.
+- Fixed executable() bug.
 
 2010-06-22
 - Fixed vimproc#get_command_name() bug.

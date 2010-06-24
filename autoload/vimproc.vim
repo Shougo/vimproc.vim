@@ -110,8 +110,7 @@ function! vimproc#get_command_name(command, ...)"{{{
   
   let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win ? '/\\' : '/')
   if l:command =~ l:pattern
-    if (s:is_win && fnamemodify(l:command, ':e') ==? 'lnk')
-          \|| getftype(l:file) ==# "link"
+    if s:is_win && fnamemodify(l:command, ':e') ==? 'lnk'
       let l:command = resolve(l:command)
     endif
 
@@ -127,7 +126,7 @@ function! vimproc#get_command_name(command, ...)"{{{
   " Command search.
   let l:suffixesadd_save = &l:suffixesadd
   let &l:suffixesadd = s:is_win ? substitute($PATHEXT.';.LNK', ';', ',', 'g') : ''
-  let l:file = findfile(l:command, l:path, l:count)
+  let l:file = fnamemodify(findfile(l:command, l:path, l:count), ':p')
   let &l:suffixesadd = l:suffixesadd_save
 
   if l:count < 0
