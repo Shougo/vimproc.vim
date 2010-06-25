@@ -477,16 +477,25 @@ vp_pty_open(char *args)
         VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
     argv[argc] = NULL;
 
-#if 0
-    /* TODO: set termios parameter */
-    /* tcgetattr will fail when gvim is executed from gnome menu */
-    if (tcgetattr(STDIN_FILENO, &ti) < 0)
-        return vp_stack_return_error(&_result, "tcgetattr() error: %s",
-                strerror(errno));
-    pid = forkpty(&fdm, NULL, &ti, &ws);
-#else
-    pid = forkpty(&fdm, NULL, NULL, &ws);
-#endif
+    /* Set termios parameter */
+    if (tcgetattr(STDIN_FILENO, &ti) < 0) {
+        /* tcgetattr will fail when gvim is executed from gnome menu. */
+        /* Because, gvim hasn't terminal. */
+        
+        /*return vp_stack_return_error(&_result, "tcgetattr() error: %s",*/
+                /*strerror(errno));*/
+        pid = forkpty(&fdm, NULL, NULL, &ws);
+    } else {
+        ti.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+                | INLCR | IGNCR | ICRNL | IXON);
+        ti.c_oflag &= ~OPOST;
+        ti.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+        ti.c_cflag &= ~(CSIZE | PARENB);
+        ti.c_cflag |= CS8;
+
+        pid = forkpty(&fdm, NULL, &ti, &ws);
+    }
+    
     if (pid < 0) {
         return vp_stack_return_error(&_result, "forkpty() error: %s",
                 strerror(errno));
