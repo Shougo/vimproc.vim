@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 24 Jun 2010
+" Last Modified: 25 Jun 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -133,7 +133,6 @@ function! vimproc#get_command_name(command, ...)"{{{
     return filter(l:file, 'executable(v:val)')
   else
     if (s:is_win && fnamemodify(l:file, ':e') ==? 'lnk')
-          \|| getftype(l:file) ==# "link"
       let l:file = resolve(l:file)
     endif
 
