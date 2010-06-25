@@ -428,16 +428,16 @@ function! s:garbage_collect()"{{{
       continue
     endif
     
-    let [l:cond, s:last_status] = l:proc.waitpid()
-    if l:cond != 'exit'
-      try
+    try
+      let [l:cond, s:last_status] = l:proc.waitpid()
+      if l:cond != 'exit'
         " Kill process.
         " 15 == SIGTERM
         call l:proc.kill(15)
-      catch
-        " Ignore error.
-      endtry
-    endif
+      endif
+    catch
+      " Ignore error.
+    endtry
 
     call remove(s:bg_processes, l:proc.pid)
     if empty(s:bg_processes)

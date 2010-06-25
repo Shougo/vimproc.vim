@@ -223,6 +223,7 @@ CHANGELOG					*vimproc-changelog*
 2010-06-25
 - Improved pty_open().
 - Fixed resolve() error.
+- Ignore garbage collect error.
 
 2010-06-24
 - Resolve symbolic link.
