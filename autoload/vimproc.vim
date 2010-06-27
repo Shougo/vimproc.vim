@@ -489,11 +489,13 @@ function! s:convert_args(args)"{{{
 endfunction"}}}
 
 function! s:analyze_shebang(filename)"{{{
-  if (has('macunix') || system('uname') =~? '^darwin') && getfsize(a:filename) > 100000
+  if (has('macunix') || system('uname') =~? '^darwin')
     " Mac OS X's shebang support is imcomplete. :-(
+    if getfsize(a:filename) > 100000
 
-    " Maybe binary file.
-    return [a:filename]
+      " Maybe binary file.
+      return [a:filename]
+    endif
   elseif !s:is_win || '.'.fnamemodify(a:filename, ':e') !~? 
         \ '^' . substitute($PATHEXT, ';', '$\\|^', 'g') . '$'
     return [a:filename]
