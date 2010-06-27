@@ -220,6 +220,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-06-27
+- Fixed shebang for Mac OS X.
+
 2010-06-25
 - Fixed resolve() error.
 - Ignore garbage collect error.

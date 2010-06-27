@@ -489,14 +489,19 @@ function! s:convert_args(args)"{{{
 endfunction"}}}
 
 function! s:analyze_shebang(filename)"{{{
-  if !s:is_win || '.'.fnamemodify(a:filename, ':e') !~? 
+  if (has('macunix') || system('uname') =~? '^darwin') && getfsize(a:filename) > 100000
+    " Mac OS X's shebang support is imcomplete. :-(
+
+    " Maybe binary file.
+    return [a:filename]
+  elseif !s:is_win || '.'.fnamemodify(a:filename, ':e') !~? 
         \ '^' . substitute($PATHEXT, ';', '$\\|^', 'g') . '$'
     return [a:filename]
   endif
-
-  let l:lines = readfile(a:filename)
+  
+  let l:lines = readfile(a:filename, '', 1)
   if empty(l:lines) || l:lines[0] !~ '^#!.\+'
-    " Not found.
+    " Not found shebang.
     return [a:filename]
   endif
 
