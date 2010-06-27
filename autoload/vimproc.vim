@@ -509,7 +509,7 @@ function! s:analyze_shebang(filename)"{{{
   let l:shebang = split(matchstr(l:lines[0], '^#!\zs.\+'))
 
   " Convert command name.
-  if l:shebang[0] =~ '^/'
+  if s:is_win && l:shebang[0] =~ '^/'
     let l:shebang[0] = vimproc#get_command_name(fnamemodify(l:shebang[0], ':t'))
   endif
 
