@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 01 Jul 2010
+" Last Modified: 02 Jul 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -772,11 +772,61 @@ else
 endif
 
 function! s:vp_kill(sig) dict
+  if has_key(self, 'stdin')
+    try
+      call self.stdin.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'stdout')
+    try
+      call self.stdout.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'stderr')
+    try
+      call self.stdout.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'ttyname')
+    try
+      call self.close()
+    catch
+    endtry
+  endif
+  
   call s:libcall('vp_kill', [self.pid, a:sig])
   let self.is_valid = 0
 endfunction
 
 function! s:vp_pipes_kill(sig) dict
+  if has_key(self, 'stdin')
+    try
+      call self.stdin.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'stdout')
+    try
+      call self.stdout.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'stderr')
+    try
+      call self.stdout.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'ttyname')
+    try
+      call self.close()
+    catch
+    endtry
+  endif
+  
   for l:pid in self.pid_list
     call s:libcall('vp_kill', [l:pid, a:sig])
   endfor
