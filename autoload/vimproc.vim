@@ -784,6 +784,31 @@ function! s:vp_pipes_kill(sig) dict
 endfunction
 
 function! s:vp_waitpid() dict
+  if has_key(self, 'stdin')
+    try
+      call self.stdin.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'stdout')
+    try
+      call self.stdout.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'stderr')
+    try
+      call self.stdout.close()
+    catch
+    endtry
+  endif
+  if has_key(self, 'ttyname')
+    try
+      call self.close()
+    catch
+    endtry
+  endif
+  
   let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
   let self.is_valid = 0
   return [l:cond, l:status]
