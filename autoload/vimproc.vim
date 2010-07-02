@@ -382,7 +382,10 @@ function! vimproc#kill(pid, sig)"{{{
 endfunction"}}}
 
 function! s:close() dict"{{{
-  call self.f_close()
+  if self.is_valid
+    call self.f_close()
+  endif
+  
   let self.is_valid = 0
   let self.eof = 1
   let self.fd = -1
@@ -775,28 +778,16 @@ endif
 
 function! s:vp_kill(sig) dict
   if has_key(self, 'stdin')
-    try
-      call self.stdin.close()
-    catch
-    endtry
+    call self.stdin.close()
   endif
   if has_key(self, 'stdout')
-    try
-      call self.stdout.close()
-    catch
-    endtry
+    call self.stdout.close()
   endif
   if has_key(self, 'stderr')
-    try
-      call self.stdout.close()
-    catch
-    endtry
+    call self.stdout.close()
   endif
   if has_key(self, 'ttyname')
-    try
-      call self.close()
-    catch
-    endtry
+    call self.close()
   endif
   
   call s:libcall('vp_kill', [self.pid, a:sig])
@@ -805,28 +796,16 @@ endfunction
 
 function! s:vp_pipes_kill(sig) dict
   if has_key(self, 'stdin')
-    try
-      call self.stdin.close()
-    catch
-    endtry
+    call self.stdin.close()
   endif
   if has_key(self, 'stdout')
-    try
-      call self.stdout.close()
-    catch
-    endtry
+    call self.stdout.close()
   endif
   if has_key(self, 'stderr')
-    try
-      call self.stdout.close()
-    catch
-    endtry
+    call self.stdout.close()
   endif
   if has_key(self, 'ttyname')
-    try
-      call self.close()
-    catch
-    endtry
+    call self.close()
   endif
   
   for l:pid in self.pid_list
@@ -837,28 +816,16 @@ endfunction
 
 function! s:vp_waitpid() dict
   if has_key(self, 'stdin')
-    try
-      call self.stdin.close()
-    catch
-    endtry
+    call self.stdin.close()
   endif
   if has_key(self, 'stdout')
-    try
-      call self.stdout.close()
-    catch
-    endtry
+    call self.stdout.close()
   endif
   if has_key(self, 'stderr')
-    try
-      call self.stdout.close()
-    catch
-    endtry
+    call self.stdout.close()
   endif
   if has_key(self, 'ttyname')
-    try
-      call self.close()
-    catch
-    endtry
+    call self.close()
   endif
   
   let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])

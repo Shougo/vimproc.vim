@@ -224,6 +224,7 @@ CHANGELOG					*vimproc-changelog*
 - Close pipes when waitpid().
 - Close pipes when kill().
 - Close when system().
+- Improved close.
 
 2010-07-01
 - Set mergin.
