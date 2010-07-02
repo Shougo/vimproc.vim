@@ -172,10 +172,12 @@ function! vimproc#system(cmdline, ...)"{{{
   while !l:subproc.stdout.eof
     let l:output .= l:subproc.stdout.read(-1, 40)
   endwhile
+  call l:subproc.stdout.close()
   let s:last_errmsg = ''
   while !l:subproc.stderr.eof
     let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
   endwhile
+  call l:subproc.stderr.close()
 
   let [l:cond, s:last_status] = l:subproc.waitpid()
   if l:cond != 'exit'
