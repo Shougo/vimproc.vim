@@ -736,14 +736,16 @@ if s:is_win
   endfunction
 
   function! s:vp_pty_get_winsize() dict
-    let [width, height] = s:libcall('vp_pty_get_winsize', [self.fd_stdout])
+    " Not implemented.
+    "let [width, height] = s:libcall('vp_pty_get_winsize', [self.fd_stdout])
+    let [width, height] = [winwidth(0)-5, winheight(0)]
     return [width, height]
   endfunction
 
   function! s:vp_pty_set_winsize(width, height) dict
-    call s:libcall('vp_pty_set_winsize', [self.fd_stdout, a:width, a:height])
+    " Not implemented.
+    "call s:libcall('vp_pty_set_winsize', [self.fd_stdout, a:width, a:height])
   endfunction
-
 else
   function! s:vp_pty_open(width, height, argv)
     let [l:pid, l:fd, l:ttyname] = s:libcall('vp_pty_open',
@@ -771,9 +773,11 @@ else
   endfunction
 
   function! s:vp_pty_set_winsize(width, height) dict
-    call s:libcall('vp_pty_set_winsize', [self.fd, a:width, a:height])
+    call s:libcall('vp_pty_set_winsize', [self.fd, a:width-5, a:height])
+    
+    " Send SIGWINCH = 28 signal.
+    call vimproc#kill(self.pid, 28)
   endfunction
-
 endif
 
 function! s:vp_kill(sig) dict

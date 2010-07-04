@@ -222,6 +222,7 @@ CHANGELOG					*vimproc-changelog*
 
 2010-07-04
 - Don't use CREATE_NO_WINDOW.
+- Implemented get_winsize() and set_winsize().
 
 2010-07-02
 - Close pipes when waitpid().
