@@ -421,14 +421,13 @@ vp_pipe_open(char *args)
 
     ZeroMemory(&si, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
-    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
-    si.wShowWindow = SW_HIDE;
+    si.dwFlags = STARTF_USESTDHANDLES;
     si.hStdInput = hInputRead;
     si.hStdOutput = hOutputWrite;
     si.hStdError = hErrorWrite;
 
     if (!CreateProcess(NULL, cmdline, NULL, NULL, TRUE,
-                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+                        CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
         return vp_stack_return_error(&_result, "CreateProcess() error: %s",
                 lasterror());
 

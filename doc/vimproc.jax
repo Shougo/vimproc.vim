@@ -220,6 +220,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-07-04
+- Use CREATE_NO_WINDOW.
+
 2010-07-02
 - Close pipes when waitpid().
 - Close pipes when kill().
