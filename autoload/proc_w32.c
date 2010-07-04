@@ -418,7 +418,7 @@ vp_pipe_open(char *args)
             return vp_stack_return_error(&_result, "CloseHandle() error: %s",
                     lasterror());
     }
-
+    
     ZeroMemory(&si, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
     /*si.dwFlags = STARTF_USESTDHANDLES;*/
@@ -430,6 +430,7 @@ vp_pipe_open(char *args)
 
     if (!CreateProcess(NULL, cmdline, NULL, NULL, TRUE,
                         CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+                        /*0, NULL, NULL, &si, &pi))*/
                         /*DETACHED_PROCESS, NULL, NULL, &si, &pi))*/
                         /*CREATE_NO_WINDOW, NULL, NULL, &si, &pi))*/
         return vp_stack_return_error(&_result, "CreateProcess() error: %s",
