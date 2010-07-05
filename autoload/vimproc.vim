@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 02 Jul 2010
+" Last Modified: 05 Jul 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -494,7 +494,7 @@ function! s:convert_args(args)"{{{
 endfunction"}}}
 
 function! s:analyze_shebang(filename)"{{{
-  if (has('macunix') || system('uname') =~? '^darwin')
+  if !s:is_win && (has('macunix') || system('uname') =~? '^darwin')
     " Mac OS X's shebang support is imcomplete. :-(
     if getfsize(a:filename) > 100000
 

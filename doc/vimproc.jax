@@ -220,6 +220,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-07-05
+- Fixed shebang.
+
 2010-07-04
 - Don't use CREATE_NO_WINDOW.
 - Implemented get_winsize() and set_winsize().
