@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 21 Jun 2010
+" Last Modified: 12 Jul 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -24,12 +24,14 @@
 " }}}
 "=============================================================================
 
-" Check vimshell.
-let s:exists_vimshell = exists('*vimshell#version')
-if !s:exists_vimshell
+" Check vimshell."{{{
+try
+  call vimshell#version()
+catch
   echoerr 'vimshell is not installed. Please install vimshell Ver.7.0 or above to use parser.'
   finish
-endif
+endtry
+"}}}
 
 let s:is_win = has('win32') || has('win64')
 
