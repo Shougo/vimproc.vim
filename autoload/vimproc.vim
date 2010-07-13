@@ -126,7 +126,10 @@ function! vimproc#get_command_name(command, ...)"{{{
   " Command search.
   let l:suffixesadd_save = &l:suffixesadd
   let &l:suffixesadd = s:is_win ? substitute($PATHEXT.';.LNK', ';', ',', 'g') : ''
-  let l:file = fnamemodify(findfile(l:command, l:path, l:count), ':p')
+  let l:file = findfile(l:command, l:path, l:count)
+  if l:file != ''
+    let l:file = fnamemodify(l:file, ':p')
+  endif
   let &l:suffixesadd = l:suffixesadd_save
 
   if l:count < 0

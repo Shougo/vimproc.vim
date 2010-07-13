@@ -220,6 +220,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-07-13
+- Fixed error message.
+
 2010-07-12
 - Improved vimshell check.
 
