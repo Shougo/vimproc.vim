@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 12 Jul 2010
+" Last Modified: 16 Jul 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -26,11 +26,15 @@
 
 " Check vimshell."{{{
 try
-  call vimshell#version()
+  let s:exists_vimshell_version = vimshell#version()
 catch
   echoerr 'vimshell is not installed. Please install vimshell Ver.7.0 or above to use parser.'
   finish
 endtry
+if s:exists_vimshell_version < 700
+  echoerr 'Please install vimshell Ver.7.0 or above.'
+  finish
+endif
 "}}}
 
 let s:is_win = has('win32') || has('win64')
@@ -60,32 +64,14 @@ function! vimproc#parser#popen2(cmdline)"{{{
   return vimproc#popen2(vimshell#parser#split_args(a:cmdline))
 endfunction"}}}
 function! vimproc#parser#plineopen2(args)"{{{
-  let l:commands = []
-  for l:cmdline in vimshell#parser#split_pipe(a:args)
-    let l:command = {
-          \ 'args' : vimshell#parser#split_args(l:cmdline), 
-          \ 'fd' : {}
-          \}
-    call add(l:commands, l:command)
-  endfor
-  
-  return vimproc#popen2(l:commands)
+  return vimproc#popen2(vimshell#parser#parse_pipe(a:args))
 endfunction"}}}
 
 function! vimproc#parser#popen3(cmdline)"{{{
   return vimproc#popen3(vimshell#parser#split_args(a:cmdline))
 endfunction"}}}
 function! vimproc#parser#plineopen3(args)"{{{
-  let l:commands = []
-  for l:cmdline in vimshell#parser#split_pipe(a:args)
-    let l:command = {
-          \ 'args' : vimshell#parser#split_args(l:cmdline), 
-          \ 'fd' : {}
-          \}
-    call add(l:commands, l:command)
-  endfor
-  
-  return vimproc#popen3(l:commands)
+  return vimproc#popen3(vimshell#parser#parse_pipe(a:args))
 endfunction"}}}
 
 function! vimproc#parser#ptyopen(cmdline)"{{{
