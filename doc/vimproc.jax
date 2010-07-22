@@ -220,6 +220,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-07-22
+- Fixed vimshell check.
+
 2010-07-16
 - Improved vimshell check.
 - Improved pipeline parser.
