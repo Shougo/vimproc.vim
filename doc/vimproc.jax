@@ -229,6 +229,7 @@ CHANGELOG					*vimproc-changelog*
 - Ver.4.2.
 - Implemented timeout.
 - Improved kill.
+- Fixed executable() check.
 
 2010-07-22
 - Fixed vimshell check.

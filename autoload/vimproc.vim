@@ -115,7 +115,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
     if !filereadable(l:command)
       throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
-    elseif !executable(l:command)
+    elseif !s:is_win && !executable(l:command)
       throw printf('vimproc#get_command_name: File "%s" is not executable.', l:command)
     endif
 
@@ -140,7 +140,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
     if l:file == ''
       throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
-    elseif !executable(l:file)
+    elseif !s:is_win && !executable(l:file)
       throw printf('vimproc#get_command_name: File "%s" is not executable.', l:file)
     endif
   endif
