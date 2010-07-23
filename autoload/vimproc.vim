@@ -2,11 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-<<<<<<< HEAD
 " Last Modified: 23 Jul 2010
-=======
-" Last Modified: 22 Jul 2010
->>>>>>> e2f0327d0a693172aa751cf932cedc8f8e6ffd1e
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -185,8 +181,6 @@ function! vimproc#system(cmdline, ...)"{{{
     let l:start = reltime()
   endif
   while !l:subproc.stdout.eof
-    let l:output .= l:subproc.stdout.read(-1, 40)
-    
     if l:timeout > 0
       " Check timeout.
       let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
@@ -197,13 +191,13 @@ function! vimproc#system(cmdline, ...)"{{{
         return ''
       endif
     endif
+    
+    let l:output .= l:subproc.stdout.read(-1, 40)
   endwhile
   call l:subproc.stdout.close()
   
   let s:last_errmsg = ''
   while !l:subproc.stderr.eof
-    let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
-    
     if l:timeout > 0
       " Check timeout.
       let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
@@ -214,6 +208,8 @@ function! vimproc#system(cmdline, ...)"{{{
         return ''
       endif
     endif
+
+    let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
   endwhile
   call l:subproc.stderr.close()
 
