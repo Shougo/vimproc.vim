@@ -1,6 +1,6 @@
 *vimproc.txt*	Vim用非同期実行ライブラリ
 
-Version: 4.1
+Version: 4.2
 Author : Shougo <Shougo.Matsu@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -92,7 +92,7 @@ vimproc#get_command_name({command} [, {path}, {count}])	*vimproc#get_command_nam
 		{count}番目の候補が返る。{count}に-1を指定すると、結果はリス
 		トになる。
 
-vimproc#system({expr} [, {input}])		*vimproc#system()*
+vimproc#system({expr} [, {input}, {timeout}])		*vimproc#system()*
 		標準の|system()|を置き換えるための関数。 Windows上で
 		|system()|を使用すると、DOS窓が出てきてしまう。
 		|vimproc#system()|ではそのようなことはない。 ただしシェルを
@@ -102,12 +102,17 @@ vimproc#system({expr} [, {input}])		*vimproc#system()*
 		|vimshell|の関数を用いて引数をパースする。|vimshell|がインス
 		トールされていない場合は、|system()|が呼び出される。引数の最
 		後に&を付けると、コマンドをバックグラウンドで実行する。
+		{timeout}を指定すると、一定時間ブロックした場合、プロセスを
+		強制的に終了する。単位はミリ秒である。この機能には|+reltime|
+		が必要となる。省略すると、0を指定したことになり無視される。
+		内部で浮動小数点演算をしているため、Vim 7.2以上でないと動作
+		しない。
 
 vimproc#system_bg({expr})		*vimproc#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ
 		ンドで実行する。入力はできない。
 
-vimproc#parser#system({expr} [, {input}])	*vimproc#parser#system()*
+vimproc#parser#system({expr} [, {input}, {timeout}])	*vimproc#parser#system()*
 		標準の|system()|を置き換えるための関数。|vimshell|の関数を用
 		いて引数をパースする。|vimshell|がインス トールされていない
 		場合は、|system()|が呼び出される。引数の最後に&を付けると、
@@ -219,6 +224,11 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-07-23
+- Ver.4.2.
+- Implemented timeout.
+- Improved kill.
 
 2010-07-13
 - Fixed error message.

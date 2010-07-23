@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 05 Jul 2010
+" Last Modified: 23 Jul 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -23,11 +23,11 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 4.1, for Vim 7.0
+" Version: 4.2, for Vim 7.0
 "=============================================================================
 
 function! vimproc#version()
-  return str2nr(printf('%2d%02d', 4, 1))
+  return str2nr(printf('%2d%02d', 4, 2))
 endfunction
 
 let s:is_win = has('win32') || has('win64')
@@ -92,7 +92,7 @@ function! vimproc#open(filename)"{{{
 endfunction"}}}
 
 function! vimproc#get_command_name(command, ...)"{{{
-  if a:0 > 2
+  if a:0 > 3
     throw 'vimproc#get_command_name: Invalid argument.'
   endif
   
@@ -156,12 +156,14 @@ function! vimproc#system(cmdline, ...)"{{{
     elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:exists_vimshell
       return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
     else
-      let l:output = (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, join(a:000))
+      let l:output = (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, a:1)
       let s:last_status = v:shell_error
       let s:last_errmsg = ''
       return l:output
     endif
   endif
+  
+  let l:timeout = a:0 >= 2 ? a:2 : 0
   
   " Open pipe.
   let l:subproc = vimproc#popen3(a:cmdline)
@@ -171,14 +173,44 @@ function! vimproc#system(cmdline, ...)"{{{
     call l:subproc.stdin.write(a:1)
   endif
   call l:subproc.stdin.close()
+  
   let l:output = ''
+  if l:timeout > 0
+    if v:version < 702
+      echoerr 'To use timeout must be Vim 7.2 or above.'
+    endif
+    let l:start = reltime()
+  endif
   while !l:subproc.stdout.eof
     let l:output .= l:subproc.stdout.read(-1, 40)
+    
+    if l:timeout > 0
+      " Check timeout.
+      let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
+      if l:end > l:timeout
+        " Kill process.
+        " 15 == SIGTERM
+        call l:subproc.kill(15)
+        return ''
+      endif
+    endif
   endwhile
   call l:subproc.stdout.close()
+  
   let s:last_errmsg = ''
   while !l:subproc.stderr.eof
     let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
+    
+    if l:timeout > 0
+      " Check timeout.
+      let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
+      if l:end > l:timeout
+        " Kill process.
+        " 15 == SIGTERM
+        call l:subproc.kill(15)
+        return ''
+      endif
+    endif
   endwhile
   call l:subproc.stderr.close()
 
@@ -588,8 +620,10 @@ function! s:vp_file_open(path, flags, mode)
 endfunction
 
 function! s:vp_file_close() dict
-  call s:libcall('vp_file_close', [self.fd])
-  let self.fd = 0
+  if self.fd != 0
+    call s:libcall('vp_file_close', [self.fd])
+    let self.fd = 0
+  endif
 endfunction
 
 function! s:vp_file_read(number, timeout) dict
@@ -618,7 +652,10 @@ function! s:vp_pipe_open(npipe, argv)"{{{
 endfunction"}}}
 
 function! s:vp_pipe_close() dict
-  call s:libcall('vp_pipe_close', [self.fd])
+  if self.fd != 0
+    call s:libcall('vp_pipe_close', [self.fd])
+    let self.fd = 0
+  endif
 endfunction
 
 function! s:vp_pipes_front_close() dict
@@ -724,8 +761,12 @@ if s:is_win
   endfunction
 
   function! s:vp_pty_close() dict
-    call s:libcall('vp_pipe_close', [self.fd_stdin])
-    call s:libcall('vp_pipe_close', [self.fd_stdout])
+    if self.fd_stdin != 0
+      call s:libcall('vp_pipe_close', [self.fd_stdin])
+      call s:libcall('vp_pipe_close', [self.fd_stdout])
+      let self.fd_stdin = 0
+      let self.fd_stdout = 0
+    endif
   endfunction
 
   function! s:vp_pty_read(number, timeout) dict
