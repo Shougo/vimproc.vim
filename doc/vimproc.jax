@@ -230,6 +230,13 @@ CHANGELOG					*vimproc-changelog*
 - Implemented timeout.
 - Improved kill.
 
+2010-07-22
+- Fixed vimshell check.
+
+2010-07-16
+- Improved vimshell check.
+- Improved pipeline parser.
+
 2010-07-13
 - Fixed error message.
 

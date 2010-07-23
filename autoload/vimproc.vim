@@ -2,7 +2,11 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
+<<<<<<< HEAD
 " Last Modified: 23 Jul 2010
+=======
+" Last Modified: 22 Jul 2010
+>>>>>>> e2f0327d0a693172aa751cf932cedc8f8e6ffd1e
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -32,7 +36,6 @@ endfunction
 
 let s:is_win = has('win32') || has('win64')
 let s:last_status = 0
-let s:exists_vimshell = exists('*vimshell#version')
 
 if exists('g:vimproc_dll_path')
   let s:dll_path = g:vimproc_dll_path
@@ -153,7 +156,7 @@ function! vimproc#system(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
     if a:cmdline =~ '&\s*$'
       return vimproc#system_bg(a:cmdline)
-    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:exists_vimshell
+    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && exists('g:loaded_vimshell')
       return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
     else
       let l:output = (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, a:1)
