@@ -40,11 +40,15 @@ endif
 let s:is_win = has('win32') || has('win64')
 
 function! vimproc#parser#system(cmdline, ...)"{{{
+  let l:args = vimshell#parser#split_args(a:cmdline)
   if a:cmdline =~ '&\s*$'
     return vimproc#parser#system_bg(l:args)
+  elseif a:0 == 0
+    return vimproc#system(l:args)
+  elseif a:0 == 1
+    return vimproc#system(l:args, a:1)
   else
-    let l:args = vimshell#parser#split_args(a:cmdline)
-    return (a:0 == 0) ? vimproc#system(l:args) : vimproc#system(l:args, join(a:000))
+    return vimproc#system(l:args, a:1, a:2)
   endif
 endfunction"}}}
 function! vimproc#parser#system_bg(cmdline)"{{{

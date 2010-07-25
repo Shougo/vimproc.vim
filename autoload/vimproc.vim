@@ -153,7 +153,13 @@ function! vimproc#system(cmdline, ...)"{{{
     if a:cmdline =~ '&\s*$'
       return vimproc#system_bg(a:cmdline)
     elseif (!has('unix') || a:cmdline !~ '^\s*man ') && exists('g:loaded_vimshell')
-      return (a:0 == 0) ? vimproc#parser#system(a:cmdline) : vimproc#parser#system(a:cmdline, join(a:000))
+      if a:0 == 0
+        return vimproc#parser#system(a:cmdline)
+      elseif a:0 == 1
+        return vimproc#parser#system(a:cmdline, a:1)
+      else
+        return vimproc#parser#system(a:cmdline, a:1, a:2)
+      endif
     else
       let l:output = (a:0 == 0) ? system(a:cmdline) : system(a:cmdline, a:1)
       let s:last_status = v:shell_error
@@ -202,9 +208,13 @@ function! vimproc#system(cmdline, ...)"{{{
       " Check timeout.
       let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
       if l:end > l:timeout
-        " Kill process.
-        " 15 == SIGTERM
-        call l:subproc.kill(15)
+        try
+          " Kill process.
+          " 15 == SIGTERM
+          call l:subproc.kill(15)
+        catch
+          " Ignore error.
+        endtry
         return ''
       endif
     endif

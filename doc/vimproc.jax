@@ -230,6 +230,7 @@ CHANGELOG					*vimproc-changelog*
 - Implemented timeout.
 - Improved kill.
 - Fixed executable() check.
+- Fixed timeout.
 
 2010-07-22
 - Fixed vimshell check.
