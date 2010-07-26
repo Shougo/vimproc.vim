@@ -51,21 +51,28 @@ INSTALL						*vimproc-install*
 
 そして外部ライブラリである、proc.so(proc.dll)をmakeします。
 vimprocはproc.so(proc.dll)の機能に依存しているので、proc.so(proc.dll)が存在しないとエラーになります。
+Cygwinでコンパイルしたproc.dllはCygwin上のVim専用です。WindowsのVimでは使えません。注意してください。
 
 Make方法
-Mingw: >
+* Mingw: >
 	$ make -f make_mingw.mak
-Mac: >
+
+* Mac OS X: >
 	$ make -f make_mac.mak
-Linux BSD: >
+
+* Linux BSD: >
 	$ make -f make_gcc.mak
-Visual Studio: >
-	$ nmake /F make_msvc.mak
+
+* Visual Studio: >
+	$ make -f make_msvc.mak
+
+* Cygwin: >
+	$ make -f make_cygwin.mak
 
 コンパイルが通ったら、autoloadにあるproc.vimとproc.so(proc.dll)を.vimの
 autoloadディレクトリにコピーします。 doc/にあるのはヘルプファイルです。
-Windowsユーザーでコン パイルするのが嫌な場合は、githubのダウンロードに
-proc.dllファイルがあります。ただし動作の保証はしません。
+Windowsユーザーでコンパイルするのが嫌な場合は、githubのダウンロードに
+32bit版のproc.dllファイルがあります。ただし動作の保証はしません。
 http://github.com/Shougo/vimproc/downloads
 
 vimshell#parser系の関数は引数のパースに|vimshell|のルーチンを使用します。
@@ -224,6 +231,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-07-26
+- Fixed document.
 
 2010-07-23
 - Ver.4.2.
