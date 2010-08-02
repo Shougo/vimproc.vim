@@ -234,6 +234,7 @@ CHANGELOG					*vimproc-changelog*
 
 2010-08-02
 - Fixed vimproc#system_bg().
+- Fixed suffixesadd error.
 
 2010-07-26
 - Fixed document.
