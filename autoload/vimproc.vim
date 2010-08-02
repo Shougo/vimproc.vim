@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 23 Jul 2010
+" Last Modified: 02 Aug 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -61,7 +61,7 @@ function! vimproc#open(filename)"{{{
   endif
 
   " Detect desktop environment.
-  if vimshell#iswin()
+  if s:is_win
     " For URI only.
     "execute '!start rundll32 url.dll,FileProtocolHandler' l:filename
     
@@ -249,7 +249,7 @@ function! vimproc#system_bg(cmdline)"{{{
       let l:cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
       silent execute '!start' l:cmdline
       return ''
-    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && s:exists_vimshell
+    elseif (!has('unix') || a:cmdline !~ '^\s*man ') && exists('g:loaded_vimshell')
       return vimproc#parser#system_bg(a:cmdline)
     else
       let l:output = system(a:cmdline)
