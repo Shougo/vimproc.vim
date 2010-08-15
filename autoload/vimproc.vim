@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 02 Aug 2010
+" Last Modified: 15 Aug 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -194,10 +194,15 @@ function! vimproc#system(cmdline, ...)"{{{
     if l:timeout > 0
       " Check timeout.
       let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
-      if l:end > l:timeout
+      if l:end > l:timeout && !l:subproc.stdout.eof
         " Kill process.
         " 15 == SIGTERM
-        call l:subproc.kill(15)
+        try
+          call l:subproc.kill(15)
+        catch
+          " Ignore error.
+        endtry
+        
         return ''
       endif
     endif

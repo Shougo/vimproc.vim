@@ -232,6 +232,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-08-15
+- Improved timeout.
+
 2010-08-02
 - Fixed vimproc#system_bg().
 - Fixed suffixesadd error.
