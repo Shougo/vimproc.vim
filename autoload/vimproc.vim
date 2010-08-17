@@ -184,9 +184,10 @@ function! vimproc#system(cmdline, ...)"{{{
   endif
   call l:subproc.stdin.close()
   
-  let l:start = 0
   if l:timeout > 0 && has('reltime') && v:version >= 702
     let l:start = reltime()
+  else
+    let l:timeout = 0
   endif
   
   let l:output = ''
