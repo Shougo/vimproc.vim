@@ -97,10 +97,14 @@ function! vimproc#get_command_name(command, ...)"{{{
   
   if a:0 >= 1
     let l:path = a:1
-  elseif s:is_win 
-    let l:path = substitute(substitute($PATH, ';', ',', 'g'), '\s', '\\\\ ', 'g')
   else
-    let l:path = substitute(substitute($PATH, ':', ',', 'g'), '\s', '\\\\ ', 'g')
+    let l:path = $PATH
+  endif
+  
+  if s:is_win 
+    let l:path = substitute(substitute(l:path, ';', ',', 'g'), '\s', '\\\\ ', 'g')
+  else
+    let l:path = substitute(substitute(l:path, ':', ',', 'g'), '\s', '\\\\ ', 'g')
   endif
 
   let l:count = a:0 < 2 ? 1 : a:2
@@ -119,7 +123,7 @@ function! vimproc#get_command_name(command, ...)"{{{
       throw printf('vimproc#get_command_name: File "%s" is not executable.', l:command)
     endif
 
-    return l:command
+    return l:count < 0 ? [ l:command ] : l:command
   endif
 
   " Command search.
@@ -130,14 +134,15 @@ function! vimproc#get_command_name(command, ...)"{{{
     let &l:suffixesadd = ''
   endif
   let l:file = findfile(l:command, l:path, l:count)
-  if l:file != ''
-    let l:file = fnamemodify(l:file, ':p')
-  endif
   let &l:suffixesadd = l:suffixesadd_save
 
   if l:count < 0
-    return filter(l:file, 'executable(v:val)')
+    return map(filter(l:file, 'executable(v:val)'), 'fnamemodify(v:val, ":p")')
   else
+    if l:file != ''
+      let l:file = fnamemodify(l:file, ':p')
+    endif
+    
     if (s:is_win && fnamemodify(l:file, ':e') ==? 'lnk')
       let l:file = resolve(l:file)
     endif

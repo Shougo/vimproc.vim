@@ -246,6 +246,7 @@ CHANGELOG					*vimproc-changelog*
 - Ver.4.3.
 - Improved vimproc#system().
 - Implemented vimproc#pgroup_open().
+- Improved vimproc#get_command_name().
 
 2010-08-15
 - Improved timeout.
