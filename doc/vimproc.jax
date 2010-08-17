@@ -1,6 +1,6 @@
 *vimproc.txt*	Vim用非同期実行ライブラリ
 
-Version: 4.2
+Version: 4.3
 Author : Shougo <Shougo.Matsu@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -105,7 +105,7 @@ vimproc#system({expr} [, {input}, {timeout}])		*vimproc#system()*
 		|vimproc#system()|ではそのようなことはない。 ただしシェルを
 		起動しないので、シェルの内部コマンドは動作しない。 リダイレ
 		クトも動かない。 リダイレクトについては、今後実装予定がある。
-		引数は|system()|に準拠している。引数に文字列を渡した場合、
+		引数は|vimproc#plineopen3()|と同じだが、引数に文字列を渡した場合、
 		|vimshell|の関数を用いて引数をパースする。|vimshell|がインス
 		トールされていない場合は、|system()|が呼び出される。引数の最
 		後に&を付けると、コマンドをバックグラウンドで実行する。
@@ -137,14 +137,14 @@ vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
 		エラーメッセージを取得する。
 
 vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
-		{path}で指定されるファイルを開きます。
+		{path}で指定されるファイルを開く。
 
 vimproc#popen2({args})				*vimproc#popen2()*
-		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
 
 vimproc#parser#popen2({cmdline})		*vimproc#parser#popen2()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
-		コマンド列は関数内でパースされます。
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
+		コマンド列は|vimshell|によってパースされる。
 
 vimproc#plineopen2({cmdline})			*vimproc#plineopen2()*
 		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
@@ -152,35 +152,45 @@ vimproc#plineopen2({cmdline})			*vimproc#plineopen2()*
 
 vimproc#parser#plineopen2({commands})		*vimproc#parser#plineopen2()*
 		{commands}で指定されるコマンド列を実行し、プロセス情報を返します。
+		コマンド列は|vimshell|によってパースされる。
 		パイプも解釈されます。
 
 vimproc#popen3({args})				*vimproc#popen3()*
-		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
+		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
 
 vimproc#parser#popen3({args})			*vimproc#parser#popen3()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
-		コマンド列は関数内でパースされます。
+		コマンド列は|vimshell|によってパースされる。
 
 vimproc#plineopen3({commands})			*vimproc#plineopen3()*
-		{commands}で指定されるコマンド列を実行し、プロセス情報を返します。
-		パイプも解釈されます。
+		{commands}で指定されるコマンド列を実行し、プロセス情報を返す。
+		パイプも解釈される。
 
 vimproc#parser#plineopen3({cmdline})		*vimproc#parser#plineopen3()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
-		コマンド列は関数内でパースされます。
-		パイプも解釈されます。
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
+		コマンド列は|vimshell|によってパースされる。
+		パイプも解釈される。
+
+vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
+		{commands}で指定されるコマンド列を実行し、プロセス情報を返す。
+		パイプの他に、条件付き実行も解釈される。
+
+vimproc#parser#pgroup_open({cmdline})		*vimproc#parser#pgroup_open()*
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
+		コマンド列は|vimshell|によってパースされる。
+		パイプの他に、; && ||も解釈される。
 
 vimproc#ptyopen({args})				*vimproc#ptyopen()*
-		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
-		パイプは解釈されません。
+		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
+		パイプは解釈されない。
 
 vimproc#parser#ptyopen({cmdline})		*vimproc#parser#ptyopen()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
-		コマンド列は関数内でパースされます。
-		パイプは解釈されません。
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
+		コマンド列は|vimshell|によってパースされる。
+		パイプは解釈されない。
 
 vimproc#kill({pid}, {sig})			*vimproc#kill()*
-		{pid}で指定されるプロセスに対し、{sig}のシグナルを送信します。
+		{pid}で指定されるプロセスに対し、{sig}のシグナルを送信する。
 
 ------------------------------------------------------------------------------
 VARIABLES 					*vimproc-variables*
@@ -231,6 +241,11 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-08-17
+- Ver.4.3.
+- Improved vimproc#system().
+- Implemented vimproc#pgroup_open().
 
 2010-08-15
 - Improved timeout.

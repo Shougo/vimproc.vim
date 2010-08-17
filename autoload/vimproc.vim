@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Aug 2010
+" Last Modified: 17 Aug 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -23,11 +23,11 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 4.2, for Vim 7.0
+" Version: 4.3, for Vim 7.0
 "=============================================================================
 
 function! vimproc#version()
-  return str2nr(printf('%2d%02d', 4, 2))
+  return str2nr(printf('%2d%02d', 4, 3))
 endfunction
 
 let s:is_win = has('win32') || has('win64')
@@ -175,7 +175,8 @@ function! vimproc#system(cmdline, ...)"{{{
   let l:timeout = a:0 >= 2 ? a:2 : 0
   
   " Open pipe.
-  let l:subproc = vimproc#popen3(a:cmdline)
+  "let l:subproc = vimproc#popen3(a:cmdline)
+  let l:subproc = vimproc#pgroup_open(a:cmdline)
 
   if !empty(a:000)
     " Write input.
@@ -183,14 +184,14 @@ function! vimproc#system(cmdline, ...)"{{{
   endif
   call l:subproc.stdin.close()
   
-  let l:output = ''
-  if l:timeout > 0
-    if v:version < 702
-      echoerr 'To use timeout must be Vim 7.2 or above.'
-    endif
+  let l:start = 0
+  if l:timeout > 0 && has('reltime') && v:version >= 702
     let l:start = reltime()
   endif
-  while !l:subproc.stdout.eof
+  
+  let l:output = ''
+  let s:last_errmsg = ''
+  while !l:subproc.stdout.eof && !l:subproc.stderr.eof
     if l:timeout > 0
       " Check timeout.
       let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
@@ -207,29 +208,16 @@ function! vimproc#system(cmdline, ...)"{{{
       endif
     endif
     
-    let l:output .= l:subproc.stdout.read(-1, 40)
-  endwhile
-  call l:subproc.stdout.close()
-  
-  let s:last_errmsg = ''
-  while !l:subproc.stderr.eof
-    if l:timeout > 0
-      " Check timeout.
-      let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
-      if l:end > l:timeout
-        try
-          " Kill process.
-          " 15 == SIGTERM
-          call l:subproc.kill(15)
-        catch
-          " Ignore error.
-        endtry
-        return ''
-      endif
+    if !l:subproc.stdout.eof
+      let l:output .= l:subproc.stdout.read(-1, 40)
     endif
-
-    let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
+    
+    if !l:subproc.stderr.eof
+      let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
+    endif
   endwhile
+  
+  call l:subproc.stdout.close()
   call l:subproc.stderr.close()
 
   let [l:cond, s:last_status] = l:subproc.waitpid()
@@ -402,6 +390,23 @@ function! vimproc#plineopen3(commands)"{{{
   return proc
 endfunction"}}}
 
+function! vimproc#pgroup_open(statements)"{{{
+  let l:proc = {}
+  let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement)
+  
+  let l:proc.pid = l:proc.current_proc.pid
+  let l:proc.condition = a:statements[0].condition
+  let l:proc.statements = a:statements[1:]
+  let l:proc.stdin = s:fdopen_pgroup(l:proc, l:proc.current_proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let l:proc.stdout = s:fdopen_pgroup(l:proc, l:proc.current_proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let l:proc.stderr = s:fdopen_pgroup(l:proc, l:proc.current_proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let l:proc.kill = s:funcref('vp_pgroup_kill')
+  let l:proc.waitpid = s:funcref('vp_pgroup_waitpid')
+  let l:proc.is_valid = 1
+
+  return proc
+endfunction"}}}
+
 function! vimproc#socket_open(host, port)"{{{
   let l:fd = s:vp_socket_open(a:host, a:port)
   return s:fdopen(l:fd, 'vp_socket_close', 'vp_socket_read', 'vp_socket_write')
@@ -473,6 +478,13 @@ endfunction"}}}
 function! s:fdopen_pipes(fd, f_close, f_read, f_write)"{{{
   return {
         \'fd' : a:fd, 'eof' : 0, 'is_valid' : 1, 
+        \'f_close' : s:funcref(a:f_close),
+        \'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
+        \}
+endfunction"}}}
+function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write)"{{{
+  return {
+        \'proc' : a:proc, 'fd' : a:fd, 'eof' : 0, 'is_valid' : 1, 
         \'f_close' : s:funcref(a:f_close),
         \'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
         \}
@@ -684,6 +696,10 @@ function! s:vp_pipes_back_close() dict
   call self.fd[-1].close()
 endfunction
 
+function! s:vp_pgroup_close() dict
+  call self.fd.close()
+endfunction
+
 function! s:vp_pipe_read(number, timeout) dict
   let [l:hd, l:eof] = s:libcall('vp_pipe_read', [self.fd, a:number, a:timeout])
   return [l:hd, l:eof]
@@ -762,6 +778,62 @@ function! s:write_pipes(str, ...) dict"{{{
       endfor
     endif
   endfor
+
+  return l:nleft
+endfunction"}}}
+
+function! s:read_pgroup(...) dict"{{{
+  let l:number = get(a:000, 0, -1)
+  let l:timeout = get(a:000, 1, s:read_timeout)
+  
+  let l:output = ''
+  let l:eof = 0
+  
+  if !self.fd.eof
+    let l:output = self.fd.read(l:number, l:timeout)
+  endif
+
+  if self.proc.current_proc.stdout.eof && self.proc.current_proc.stderr.eof
+    " Get status.
+    let [l:cond, l:status] = self.proc.current_proc.waitpid()
+    let l:status = str2nr(l:status)
+
+    if empty(self.proc.statements)
+          \ || (self.proc.condition ==# 'true' && l:status)
+          \ || (self.proc.condition ==# 'false' && !l:status)
+      let self.proc.statements = []
+      
+      " Exit.
+      let self.proc.stdout.eof = 1
+      let self.proc.stderr.eof = 1
+
+      " Caching status.
+      let self.cond = l:cond
+      let self.status = l:status
+    else
+      " Initialize next statement.
+      let l:proc = vimproc#plineopen3(self.proc.statements[0].statement)
+      let self.proc.current_proc = l:proc
+      let self.proc.condition = self.proc.statements[0].condition
+      let self.proc.statements = self.proc.statements[1:]
+
+      let self.proc.stdin = s:fdopen_pgroup(self.proc, l:proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+      let self.proc.stdout = s:fdopen_pgroup(self.proc, l:proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+      let self.proc.stderr = s:fdopen_pgroup(self.proc, l:proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+    endif
+  endif
+
+  return l:output
+endfunction"}}}
+
+function! s:write_pgroup(str, ...) dict"{{{
+  let l:timeout = get(a:000, 0, s:write_timeout)
+  
+  let l:nleft = 0
+  if !self.fd.eof
+    " Write data.
+    let l:nleft = self.fd.write(a:str, l:timeout)
+  endif
 
   return l:nleft
 endfunction"}}}
@@ -880,6 +952,25 @@ function! s:vp_pipes_kill(sig) dict
   let self.is_valid = 0
 endfunction
 
+function! s:vp_pgroup_kill(sig) dict
+  if has_key(self, 'stdin')
+    call self.stdin.close()
+  endif
+  if has_key(self, 'stdout')
+    call self.stdout.close()
+  endif
+  if has_key(self, 'stderr')
+    call self.stdout.close()
+  endif
+  if has_key(self, 'ttyname')
+    call self.close()
+  endif
+  
+  call self.proc.current_proc.kill(a:sig)
+  
+  let self.is_valid = 0
+endfunction
+
 function! s:vp_waitpid() dict
   if has_key(self, 'stdin')
     call self.stdin.close()
@@ -895,6 +986,15 @@ function! s:vp_waitpid() dict
   endif
   
   let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+  let self.is_valid = 0
+  return [l:cond, l:status]
+endfunction
+
+function! s:vp_pgroup_waitpid() dict
+  let [l:cond, l:status] = 
+        \ has_key(self, 'cond') && has_key(self, 'status') ?
+        \ [self.cond, self.status] : self.current_proc.waitpid()
+  
   let self.is_valid = 0
   return [l:cond, l:status]
 endfunction
