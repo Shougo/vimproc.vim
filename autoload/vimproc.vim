@@ -176,12 +176,18 @@ function! vimproc#system(cmdline, ...)"{{{
       return l:output
     endif
   endif
+
+  if empty(a:cmdline)
+    let s:last_status = 0
+    let s:last_errmsg = ''
+    return ''
+  endif
   
   let l:timeout = a:0 >= 2 ? a:2 : 0
   
   " Open pipe.
-  "let l:subproc = vimproc#popen3(a:cmdline)
-  let l:subproc = vimproc#pgroup_open(a:cmdline)
+  let l:subproc = (type(a:cmdline[0]) == type('')) ? 
+        \ vimproc#popen3(a:cmdline) : vimproc#pgroup_open(a:cmdline)
 
   if !empty(a:000)
     " Write input.
@@ -814,8 +820,8 @@ function! s:read_pgroup(...) dict"{{{
       let self.proc.stderr.eof = 1
 
       " Caching status.
-      let self.cond = l:cond
-      let self.status = l:status
+      let self.proc.cond = l:cond
+      let self.proc.status = l:status
     else
       " Initialize next statement.
       let l:proc = vimproc#plineopen3(self.proc.statements[0].statement)

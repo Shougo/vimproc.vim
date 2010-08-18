@@ -242,6 +242,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-08-18
+- Fixed pgroup error.
+
 2010-08-17
 - Ver.4.3.
 - Improved vimproc#system().
