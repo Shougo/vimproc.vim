@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 17 Aug 2010
+" Last Modified: 23 Aug 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -301,6 +301,10 @@ function! vimproc#fopen(path, flags, ...)"{{{
 endfunction"}}}
 
 function! vimproc#popen2(args)"{{{
+  if type(a:args) == type('')
+    return vimproc#parser#popen2(a:args)
+  endif
+  
   let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(a:args))
   let l:proc = {}
   let l:proc.pid = l:pid
@@ -313,6 +317,10 @@ function! vimproc#popen2(args)"{{{
   return proc
 endfunction"}}}
 function! vimproc#plineopen2(commands)"{{{
+  if type(a:commands) == type('')
+    return vimproc#parser#plineopen2(a:commands)
+  endif
+
   let l:pid_list = []
   let l:stdin_list = []
   let l:stdout_list = []
@@ -349,6 +357,10 @@ function! vimproc#plineopen2(commands)"{{{
 endfunction"}}}
 
 function! vimproc#popen3(args)"{{{
+  if type(a:args) == type('')
+    return vimproc#parser#popen3(a:args)
+  endif
+
   let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = s:vp_pipe_open(3, s:convert_args(a:args))
   let l:proc = {}
   let l:proc.pid = l:pid
@@ -362,6 +374,10 @@ function! vimproc#popen3(args)"{{{
   return proc
 endfunction"}}}
 function! vimproc#plineopen3(commands)"{{{
+  if type(a:commands) == type('')
+    return vimproc#parser#plineopen3(a:commands)
+  endif
+
   let l:pid_list = []
   let l:stdin_list = []
   let l:stdout_list = []
@@ -403,6 +419,10 @@ function! vimproc#plineopen3(commands)"{{{
 endfunction"}}}
 
 function! vimproc#pgroup_open(statements)"{{{
+  if type(a:statements) == type('')
+    return vimproc#parser#pgroup_open(a:statements)
+  endif
+
   let l:proc = {}
   let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement)
   
@@ -419,12 +439,11 @@ function! vimproc#pgroup_open(statements)"{{{
   return proc
 endfunction"}}}
 
-function! vimproc#socket_open(host, port)"{{{
-  let l:fd = s:vp_socket_open(a:host, a:port)
-  return s:fdopen(l:fd, 'vp_socket_close', 'vp_socket_read', 'vp_socket_write')
-endfunction"}}}
-
 function! vimproc#ptyopen(args)"{{{
+  if type(a:args) == type('')
+    return vimproc#parser#ptyopen(a:args)
+  endif
+  
   if s:is_win
     let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(a:args))
     let l:ttyname = ''
@@ -445,6 +464,11 @@ function! vimproc#ptyopen(args)"{{{
   let l:proc.is_valid = 1
 
   return l:proc
+endfunction"}}}
+
+function! vimproc#socket_open(host, port)"{{{
+  let l:fd = s:vp_socket_open(a:host, a:port)
+  return s:fdopen(l:fd, 'vp_socket_close', 'vp_socket_read', 'vp_socket_write')
 endfunction"}}}
 
 function! vimproc#kill(pid, sig)"{{{

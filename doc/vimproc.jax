@@ -99,7 +99,7 @@ vimproc#get_command_name({command} [, {path}, {count}])	*vimproc#get_command_nam
 		{count}番目の候補が返る。{count}に-1を指定すると、結果はリス
 		トになる。
 
-vimproc#system({expr} [, {input}, {timeout}])		*vimproc#system()*
+vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		標準の|system()|を置き換えるための関数。 Windows上で
 		|system()|を使用すると、DOS窓が出てきてしまう。
 		|vimproc#system()|ではそのようなことはない。 ただしシェルを
@@ -115,7 +115,7 @@ vimproc#system({expr} [, {input}, {timeout}])		*vimproc#system()*
 		内部で浮動小数点演算をしているため、Vim 7.2以上でないと動作
 		しない。
 
-vimproc#system_bg({expr})		*vimproc#system_bg()*
+vimproc#system_bg({expr})			*vimproc#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ
 		ンドで実行する。入力はできない。
 
@@ -125,7 +125,7 @@ vimproc#parser#system({expr} [, {input}, {timeout}])	*vimproc#parser#system()*
 		場合は、|system()|が呼び出される。引数の最後に&を付けると、
 		コマンドをバックグラウンドで実行する。
 
-vimproc#parser#system_bg({expr})	*vimproc#parser#system_bg()*
+vimproc#parser#system_bg({expr})		*vimproc#parser#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウンドで実行する。
 		入力はできない。
 
@@ -138,55 +138,37 @@ vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
 
 vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
 		{path}で指定されるファイルを開く。
+		{flags}には各種のフラグを文字列形式で指定する。
+
+vimproc#socket_open({host}, {port})		*vimproc#socket_open()*
+		{host}, {port}で指定されるソケットをオープンし、オブジェクトを返す。
 
 vimproc#popen2({args})				*vimproc#popen2()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
-
-vimproc#parser#popen2({cmdline})		*vimproc#parser#popen2()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
-		コマンド列は|vimshell|によってパースされる。
+		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
 
 vimproc#plineopen2({cmdline})			*vimproc#plineopen2()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返します。
-		パイプも解釈されます。
-
-vimproc#parser#plineopen2({commands})		*vimproc#parser#plineopen2()*
-		{commands}で指定されるコマンド列を実行し、プロセス情報を返します。
-		コマンド列は|vimshell|によってパースされる。
-		パイプも解釈されます。
+		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
+		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
+		パイプも解釈される。
 
 vimproc#popen3({args})				*vimproc#popen3()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
-
-vimproc#parser#popen3({args})			*vimproc#parser#popen3()*
-		{args}で指定されるコマンド列を実行し、プロセス情報を返します。
-		コマンド列は|vimshell|によってパースされる。
+		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
 
 vimproc#plineopen3({commands})			*vimproc#plineopen3()*
 		{commands}で指定されるコマンド列を実行し、プロセス情報を返す。
-		パイプも解釈される。
-
-vimproc#parser#plineopen3({cmdline})		*vimproc#parser#plineopen3()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
-		コマンド列は|vimshell|によってパースされる。
+		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
 		パイプも解釈される。
 
 vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
 		{commands}で指定されるコマンド列を実行し、プロセス情報を返す。
-		パイプの他に、条件付き実行も解釈される。
-
-vimproc#parser#pgroup_open({cmdline})		*vimproc#parser#pgroup_open()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
-		コマンド列は|vimshell|によってパースされる。
+		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
 		パイプの他に、; && ||も解釈される。
 
 vimproc#ptyopen({args})				*vimproc#ptyopen()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
-		パイプは解釈されない。
-
-vimproc#parser#ptyopen({cmdline})		*vimproc#parser#ptyopen()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
-		コマンド列は|vimshell|によってパースされる。
+		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
 		パイプは解釈されない。
 
 vimproc#kill({pid}, {sig})			*vimproc#kill()*
@@ -241,6 +223,10 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-08-23
+- Revised documentation.
+- Call parser automatically.
 
 2010-08-18
 - Fixed pgroup error.
