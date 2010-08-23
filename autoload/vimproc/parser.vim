@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 17 Aug 2010
+" Last Modified: 23 Aug 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -83,7 +83,7 @@ function! vimproc#parser#plineopen3(args)"{{{
 endfunction"}}}
 
 function! vimproc#parser#ptyopen(cmdline)"{{{
-  call vimproc#ptyopen(vimshell#parser#split_args(a:cmdline))
+  return vimproc#ptyopen(vimshell#parser#split_args(a:cmdline))
 endfunction"}}}
 
 function! vimproc#parser#pgroup_open(cmdline)"{{{
@@ -91,5 +91,5 @@ function! vimproc#parser#pgroup_open(cmdline)"{{{
   for l:statement in l:statements
     let l:statement.statement = vimshell#parser#parse_pipe(l:statement.statement)
   endfor
-  call vimproc#pgroup_open(l:statements)
+  return vimproc#pgroup_open(l:statements)
 endfunction"}}}

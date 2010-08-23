@@ -227,6 +227,7 @@ CHANGELOG					*vimproc-changelog*
 2010-08-23
 - Revised documentation.
 - Call parser automatically.
+- Fixed parser bug.
 
 2010-08-18
 - Fixed pgroup error.
