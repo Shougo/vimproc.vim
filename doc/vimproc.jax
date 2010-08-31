@@ -224,6 +224,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-08-31
+- Fixed vimproc#system().
+
 2010-08-23
 - Revised documentation.
 - Call parser automatically.
