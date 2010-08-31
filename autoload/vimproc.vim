@@ -203,7 +203,7 @@ function! vimproc#system(cmdline, ...)"{{{
   
   let l:output = ''
   let s:last_errmsg = ''
-  while !l:subproc.stdout.eof && !l:subproc.stderr.eof
+  while !l:subproc.stdout.eof || !l:subproc.stderr.eof
     if l:timeout > 0
       " Check timeout.
       let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
