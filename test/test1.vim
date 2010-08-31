@@ -1,8 +1,28 @@
+" vim:foldmethod=marker:fen:
+scriptencoding utf-8
 
-let file = vimproc#fopen("./test1.vim", "O_RDONLY", 0)
-let res = file.read()
-call file.close()
+" Saving 'cpoptions' {{{
+let s:save_cpo = &cpo
+set cpo&vim
+" }}}
 
-new
-call append(0, split(res, '\r\n\|\r\|\n'))
 
+function! s:run()
+    let filename = "./test1.vim"
+    let file = vimproc#fopen(filename, "O_RDONLY", 0)
+    let res = file.read()
+
+    Ok file.is_valid, "yet not closed"
+    call file.close()
+    Ok !file.is_valid, "closed"
+
+    IsDeeply readfile(filename), split(res, '\r\n\|\r\|\n'), "readfile() vs vimproc#fopen()"
+endfunction
+
+call s:run()
+Done
+
+
+" Restore 'cpoptions' {{{
+let &cpo = s:save_cpo
+" }}}
