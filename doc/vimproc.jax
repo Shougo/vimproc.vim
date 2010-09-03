@@ -69,7 +69,7 @@ Make方法
 * Cygwin: >
 	$ make -f make_cygwin.mak
 
-コンパイルが通ったら、autoloadにあるproc.vimとproc.so(proc.dll)を.vimの
+コンパイルが通ったら、autoload/にあるファイルやディレクトリを.vimの
 autoloadディレクトリにコピーします。 doc/にあるのはヘルプファイルです。
 Windowsユーザーでコンパイルするのが嫌な場合は、githubのダウンロードに
 32bit版のproc.dllファイルがあります。ただし動作の保証はしません。
@@ -223,6 +223,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-09-03
+- Fixed documentation.
 
 2010-08-31
 - Fixed vimproc#system().
