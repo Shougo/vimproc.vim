@@ -27,6 +27,7 @@ CONTENTS					*vimproc-contents*
 Introduction		|vimproc-introduction|
 Install			|vimproc-install|
 Interface		|vimproc-interface|
+  Commands		  |vimproc-commands|
   Functions		  |vimproc-functions|
   Variables		  |vimproc-variables|
 Examples		|vimproc-examples|
@@ -80,6 +81,18 @@ vimshell#parser系の関数は引数のパースに|vimshell|のルーチンを�
 
 ==============================================================================
 INTERFACE					*vimproc-interface*
+
+------------------------------------------------------------------------------
+COMMANDS 					*vimproc-commands*
+
+:VimProcBang {path}					*:VimProcBang*
+			{path}で指定された実行ファイルを起動し、結果を:echoで表
+			示します。|:!|の代わりになります。|vimshell|でコマンド
+			ラインをパースするので、vimshellが必要です。
+
+:VimProcRead {path}					*:VimProcRead*
+			{path}で指定された実行ファイルを起動し、結果をカーソル
+			行に追記します。|:read|の代わりになります。
 
 ------------------------------------------------------------------------------
 FUNCTIONS 					*vimproc-functions*
@@ -223,6 +236,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-09-04
+- Implemented VimProcBang and VimProcRead commands.
 
 2010-09-03
 - Fixed documentation.

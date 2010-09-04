@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 23 Aug 2010
+" Last Modified: 04 Sep 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -33,21 +33,21 @@ endfunction
 let s:is_win = has('win32') || has('win64')
 let s:last_status = 0
 
-if exists('g:vimproc_dll_path')
-  let s:dll_path = g:vimproc_dll_path
-else
-  let s:dll_path = expand("<sfile>:p:h") . ((s:is_win || has('win32unix'))? '/proc.dll' : '/proc.so')
+" Global options definition."{{{
+if !exists('g:vimproc_dll_path')
+  let g:vimproc_dll_path = expand("<sfile>:p:h") . (has('win32') || has('win64') || has('win32unix') ? '/proc.dll' : '/proc.so')
 endif
+"}}}
 
-if !filereadable(s:dll_path)
-  execute 'echoerr' printf('"%s" is not found. Please make it.', s:dll_path)
+if !filereadable(g:vimproc_dll_path)
+  execute 'echoerr' printf('"%s" is not found. Please make it.', g:vimproc_dll_path)
   finish
 endif
 
 if has('iconv')
   " Dll path should be encoded with default encoding.  Vim does not convert
   " it from &enc to default encoding.
-  let s:dll_path = iconv(s:dll_path, &encoding, "default")
+  let g:vimproc_dll_path = iconv(g:vimproc_dll_path, &encoding, "default")
 endif
 
 "-----------------------------------------------------------
@@ -641,7 +641,7 @@ function! s:libcall(func, args)"{{{
   " End Of Value
   let l:EOV = "\xFF"
   let l:args = empty(a:args) ? '' : (join(reverse(copy(a:args)), l:EOV) . l:EOV)
-  let l:stack_buf = libcall(s:dll_path, a:func, l:args)
+  let l:stack_buf = libcall(g:vimproc_dll_path, a:func, l:args)
   " Why this does not work?
   " let result = split(stack_buf, EOV, 1)
   let l:result = split(l:stack_buf, '[\xFF]', 1)
@@ -1057,6 +1057,6 @@ endfunction
 
 " Initialize.
 if !exists('s:dlhandle')
-  let s:dll_handle = s:vp_dlopen(s:dll_path)
+  let s:dll_handle = s:vp_dlopen(g:vimproc_dll_path)
 endif
 
