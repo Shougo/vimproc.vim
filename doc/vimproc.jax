@@ -1,6 +1,6 @@
-*vimproc.txt*	Vim用非同期実行ライブラリ
+*vimproc.jax*	Vim用非同期実行ライブラリ
 
-Version: 4.3
+Version: 5.0
 Author : Shougo <Shougo.Matsu@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -39,20 +39,21 @@ Changelog		|vimproc-changelog|
 INTRODUCTION					*vimproc-introduction*
 
 |vimproc|とはYukihiro Nakadairaさんが開発し、現在私が保守作業を行っている、
-優れた非同期実行ライブラリです。
-|vimproc|では外部のシェルを使わず、外部DLLを用いて非同期実行処理を実装しています。
-Python等の外部インタフェースを使う場合と比較して、マルチスレッド化はできませんが、
-安定性に優れ、外部のインタプリタのバージョンに依存しません。
+優れた非同期実行ライブラリである。
+|vimproc|では外部のシェルを使わず、外部DLLを用いて非同期実行処理を実装している
+。Python等の外部インタフェースを使う場合と比較して、マルチスレッド化はできない
+が、安定性に優れ、外部のインタプリタのバージョンに依存しない。
 
 ==============================================================================
 INSTALL						*vimproc-install*
 
-まず、vimprocをリポジトリから取ってきます。
+まず、vimprocをリポジトリから取得する。
 [http://github.com/Shougo/vimproc/tree/master](http://github.com/Shougo/vimproc/tree/master)
 
-そして外部ライブラリである、proc.so(proc.dll)をmakeします。
-vimprocはproc.so(proc.dll)の機能に依存しているので、proc.so(proc.dll)が存在しないとエラーになります。
-Cygwinでコンパイルしたproc.dllはCygwin上のVim専用です。WindowsのVimでは使えません。注意してください。
+そして外部ライブラリである、proc.so(proc.dll)をmakeする。vimprocは
+proc.so(proc.dll)の機能に依存しているので、proc.so(proc.dll)が存在しないとエラ
+ーになる。Cygwinでコンパイルしたproc.dllはCygwin上のVim専用なので、WindowsのVim
+では使えない。
 
 Make方法
 * Mingw: >
@@ -70,14 +71,11 @@ Make方法
 * Cygwin: >
 	$ make -f make_cygwin.mak
 
-コンパイルが通ったら、autoload/にあるファイルやディレクトリを.vimの
-autoloadディレクトリにコピーします。 doc/にあるのはヘルプファイルです。
-Windowsユーザーでコンパイルするのが嫌な場合は、githubのダウンロードに
-32bit版のproc.dllファイルがあります。ただし動作の保証はしません。
+コンパイルが通ったら、autoload/にあるファイルやディレクトリを.vimのautoloadディ
+レクトリにコピーする。 doc/にあるのはヘルプファイルである。Windowsユーザーでコ
+ンパイルするのが嫌な場合は、githubのダウンロードに32bit版のproc.dllファイルがあ
+る。ただし動作の保証はしない。
 http://github.com/Shougo/vimproc/downloads
-
-vimshell#parser系の関数は引数のパースに|vimshell|のルーチンを使用します。
-よって、|vimshell|がインストールされていない場合は動作しないので注意してください。
 
 ==============================================================================
 INTERFACE					*vimproc-interface*
@@ -87,12 +85,11 @@ COMMANDS 					*vimproc-commands*
 
 :VimProcBang {path}					*:VimProcBang*
 			{path}で指定された実行ファイルを起動し、結果を:echoで表
-			示します。|:!|の代わりになります。|vimshell|でコマンド
-			ラインをパースするので、vimshellが必要です。
+			示する。|:!|の代わりになる。
 
 :VimProcRead {path}					*:VimProcRead*
 			{path}で指定された実行ファイルを起動し、結果をカーソル
-			行に追記します。|:read|の代わりになります。
+			行に追記する。|:read|の代わりになる。
 
 ------------------------------------------------------------------------------
 FUNCTIONS 					*vimproc-functions*
@@ -119,28 +116,16 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		起動しないので、シェルの内部コマンドは動作しない。 リダイレ
 		クトも動かない。 リダイレクトについては、今後実装予定がある。
 		引数は|vimproc#plineopen3()|と同じだが、引数に文字列を渡した場合、
-		|vimshell|の関数を用いて引数をパースする。|vimshell|がインス
-		トールされていない場合は、|system()|が呼び出される。引数の最
-		後に&を付けると、コマンドをバックグラウンドで実行する。
-		{timeout}を指定すると、一定時間ブロックした場合、プロセスを
-		強制的に終了する。単位はミリ秒である。この機能には|+reltime|
-		が必要となる。省略すると、0を指定したことになり無視される。
-		内部で浮動小数点演算をしているため、Vim 7.2以上でないと動作
-		しない。
+		自前のルーチンで引数をパースする。引数の最後に&を付けると、コマ
+		ンドをバックグラウンドで実行する。{timeout}を指定すると、一定時
+		間ブロックした場合、プロセスを強制的に終了する。単位はミリ秒で
+		ある。この機能には|+reltime|が必要となる。省略すると、0を指定し
+		たことになり無視される。内部で浮動小数点演算をしているため、Vim
+		7.2以上でないと動作しない。
 
 vimproc#system_bg({expr})			*vimproc#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ
 		ンドで実行する。入力はできない。
-
-vimproc#parser#system({expr} [, {input}, {timeout}])	*vimproc#parser#system()*
-		標準の|system()|を置き換えるための関数。|vimshell|の関数を用
-		いて引数をパースする。|vimshell|がインス トールされていない
-		場合は、|system()|が呼び出される。引数の最後に&を付けると、
-		コマンドをバックグラウンドで実行する。
-
-vimproc#parser#system_bg({expr})		*vimproc#parser#system_bg()*
-		|vimproc#parser#system()|と同様だが、コマンドをバックグラウンドで実行する。
-		入力はできない。
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
 		前回の|vimproc#system()|の実行において得られた、戻り値を取得する。
@@ -151,38 +136,61 @@ vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
 
 vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
 		{path}で指定されるファイルを開く。
-		{flags}には各種のフラグを文字列形式で指定する。
+		{flags}にはC言語のopen()と同じ各種のフラグを文字列形式で指定す
+		る。
 
 vimproc#socket_open({host}, {port})		*vimproc#socket_open()*
-		{host}, {port}で指定されるソケットをオープンし、オブジェクトを返す。
+		{host}, {port}で指定されるソケットをオープンし、オブジェクトを
+		返す。{host}は文字列、{port}は数値である。
 
 vimproc#popen2({args})				*vimproc#popen2()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
-		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
-
-vimproc#plineopen2({cmdline})			*vimproc#plineopen2()*
-		{cmdline}で指定されるコマンド列を実行し、プロセス情報を返す。
-		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
-		パイプも解釈される。
+		引数に文字列を指定すると、コマンドは自前のパーサによってパース
+		される。
+		
+		{args}は引数を区切ったリストである。
 
 vimproc#popen3({args})				*vimproc#popen3()*
-		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
-		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
+		標準エラー出力を分けること以外は|vimproc#popen2()|と同じである。
+
+vimproc#plineopen2({commands})			*vimproc#plineopen2()*
+		{commands}で指定されるコマンド列を実行し、プロセス情報を返す。
+		引数に文字列を指定すると、コマンドは自前のパーサによってパース
+		される。
+		パイプも解釈される。
+		
+		{commands}はコマンドごとに区切ったディクショナリのリストである。
+		ディクショナリは次のキーを持つ。
+		args			引数を区切ったリスト。
+		fd			出力先のファイル名。空にすると出力はパ
+					イプラインの次のプロセスに渡される。
 
 vimproc#plineopen3({commands})			*vimproc#plineopen3()*
-		{commands}で指定されるコマンド列を実行し、プロセス情報を返す。
-		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
-		パイプも解釈される。
+		標準エラー出力を分けること以外は|vimproc#plineopen2()|と同じである。
 
 vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
 		{commands}で指定されるコマンド列を実行し、プロセス情報を返す。
-		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
+		引数に文字列を指定すると、コマンドは自前のパーサによってパース
+		される。
 		パイプの他に、; && ||も解釈される。
+		
+		{statements}はコマンドごとに区切ったディクショナリのリストである。
+		ディクショナリは次のキーを持つ。
+		statement		実行するパイプライン情報。中身は
+					|vimproc#plineopen2()|の引数と同じ。
+		condition		次のコマンドを実行する条件。
+					always, true, falseが指定できる。
+					alwaysなら必ず実行される。
+					trueならコマンドが成功したときに実行、
+					falseならコマンドが失敗したときに実行。
 
 vimproc#ptyopen({args})				*vimproc#ptyopen()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
-		引数に文字列を指定すると、コマンドは|vimshell|によってパースされる。
+		引数に文字列を指定すると、コマンドは自前のパーサによってパース
+		される。
 		パイプは解釈されない。
+		
+		{args}は引数を区切ったリストである。
 
 vimproc#kill({pid}, {sig})			*vimproc#kill()*
 		{pid}で指定されるプロセスに対し、{sig}のシグナルを送信する。
@@ -237,6 +245,12 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-09-05
+- Ver.5 Development is started.
+- Independented from vimshell.
+- Revised documentation.
+
+ChangeLog 4.1-4.2 {{{
 2010-09-04
 - Implemented VimProcBang and VimProcRead commands.
 
@@ -341,8 +355,8 @@ CHANGELOG					*vimproc-changelog*
 - Implemented vp_pty_open in Windows.
 - Improved vp_kill in Windows.
 - Changed vimproc#open() as vimproc#fopen().
-
-ChangeLog 4.0/*{{{*/
+"}}}
+ChangeLog 4.0{{{
 2010-06-11
 - Improved help file.
 - Improved vimproc#version().
@@ -389,7 +403,7 @@ ChangeLog 4.0/*{{{*/
 - Ver.4 development is started.
 - Implemented vimproc#version().
 - Splited parser.
-/*}}}*/
+}}}
 ChangeLog 1.20-3.01{{{
 2010-03-17
     * Fixed s:split_pipe() bug.
