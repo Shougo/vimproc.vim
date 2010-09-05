@@ -24,6 +24,12 @@
 " }}}
 "=============================================================================
 
+" Saving 'cpoptions' {{{
+let s:save_cpo = &cpo
+set cpo&vim
+" }}}
+
+
 let s:is_win = has('win32') || has('win64')
 
 function! vimproc#parser#system(cmdline, ...)"{{{
@@ -931,3 +937,7 @@ function! s:skip_else(args, script, i)"{{{
   return [l:script, i]
 endfunction"}}}
 
+" Restore 'cpoptions' {{{
+let &cpo = s:save_cpo
+" }}}
+" vim:foldmethod=marker:fen:sw=2:sts=2

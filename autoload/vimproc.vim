@@ -26,6 +26,11 @@
 " Version: 5.0, for Vim 7.0
 "=============================================================================
 
+" Saving 'cpoptions' {{{
+let s:save_cpo = &cpo
+set cpo&vim
+" }}}
+
 function! vimproc#version()
   return str2nr(printf('%2d%02d', 5, 0))
 endfunction
@@ -299,7 +304,7 @@ function! s:popen(npipe, args)"{{{
   let l:pipe = s:vp_pipe_open(a:npipe, s:convert_args(a:args))
   if a:npipe == 3
     let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
-  else a:npipe == 2
+  else
     let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
   endif
   
@@ -1026,3 +1031,7 @@ if !exists('s:dlhandle')
   let s:dll_handle = s:vp_dlopen(g:vimproc_dll_path)
 endif
 
+" Restore 'cpoptions' {{{
+let &cpo = s:save_cpo
+" }}}
+" vim:foldmethod=marker:fen:sw=2:sts=2

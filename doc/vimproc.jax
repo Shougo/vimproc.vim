@@ -250,6 +250,7 @@ CHANGELOG					*vimproc-changelog*
 - Independented from vimshell.
 - Revised documentation.
 - Improved status.
+- Fixed tests.
 
 ChangeLog 4.1-4.2 {{{
 2010-09-04
