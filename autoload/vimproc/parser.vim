@@ -228,6 +228,73 @@ function! vimproc#parser#parse_statements(script)"{{{
   return l:statements
 endfunction"}}}
 
+function! vimproc#parser#split_statements(script)"{{{
+  let l:max = len(a:script)
+  let l:statements = []
+  let l:statement = ''
+  let i = 0
+  while i < l:max
+    if a:script[i] == ';'
+      if l:statement != ''
+        call add(l:statements, l:statement)
+      endif
+      let l:statement = ''
+      let i += 1
+    elseif a:script[i] == '&'
+      if i+1 < len(a:script) && a:script[i+1] == '&'
+        if l:statement != ''
+          call add(l:statements, l:statement)
+        endif
+        let i += 2
+      else
+        let i += 1
+      endif
+    elseif a:script[i] == '|'
+      if i+1 < len(a:script) && a:script[i+1] == '|'
+        if l:statement != ''
+          call add(l:statements, l:statement)
+        endif
+        let i += 2
+      else
+        let i += 1
+      endif
+    elseif a:script[i] == "'"
+      " Single quote.
+      let [l:string, i] = s:skip_single_quote(a:script, i)
+      let l:statement .= l:string
+    elseif a:script[i] == '"'
+      " Double quote.
+      let [l:string, i] = s:skip_double_quote(a:script, i)
+      let l:statement .= l:string
+    elseif a:script[i] == '`'
+      " Back quote.
+      let [l:string, i] = s:skip_back_quote(a:script, i)
+      let l:statement .= l:string
+    elseif a:script[i] == '\'
+      " Escape.
+      let i += 1
+
+      if i >= len(a:script)
+        throw 'Exception: Join to next line (\).'
+      endif
+
+      let l:statement .= '\' . a:script[i]
+      let i += 1
+    elseif a:script[i] == '#'
+      " Comment.
+      break
+    else
+      let l:statement .= a:script[i]
+      let i += 1
+    endif
+  endwhile
+
+  if l:statement != ''
+    call add(l:statements, l:statement)
+  endif
+
+  return l:statements
+endfunction"}}}
 function! vimproc#parser#split_args(script)"{{{
   let l:script = a:script
   let l:max = len(l:script)
