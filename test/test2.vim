@@ -7,9 +7,8 @@ set cpo&vim
 " }}}
 
 
-
 function! s:run()
-    let cmd = "/bin/ls"
+    let cmd = "ls"
     let sub = vimproc#popen2([cmd])
     let res = ""
     while !sub.stdout.eof
@@ -19,7 +18,7 @@ function! s:run()
     Ok sub.is_valid, "yet not closed"
     let [cond, status] = sub.waitpid()
     Is cond, "exit", "cond ==# exit"
-    Is status+0, 0, "status ==# 0"
+    Is status, 0, "status ==# 0"
     Ok !sub.is_valid, "closed"
 
     Is res, system(cmd), 'vimproc#popen2([' . string(cmd) . ']) vs system(' . string(cmd) . ')'

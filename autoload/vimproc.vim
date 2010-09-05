@@ -799,7 +799,6 @@ function! s:read_pgroup(...) dict"{{{
   if self.proc.current_proc.stdout.eof && self.proc.current_proc.stderr.eof
     " Get status.
     let [l:cond, l:status] = self.proc.current_proc.waitpid()
-    let l:status = str2nr(l:status)
 
     if empty(self.proc.statements)
           \ || (self.proc.condition ==# 'true' && l:status)
@@ -990,7 +989,7 @@ function! s:vp_waitpid() dict
   
   let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
   let self.is_valid = 0
-  return [l:cond, l:status]
+  return [l:cond, str2nr(l:status)]
 endfunction
 
 function! s:vp_pgroup_waitpid() dict
@@ -999,7 +998,7 @@ function! s:vp_pgroup_waitpid() dict
         \ [self.cond, self.status] : self.current_proc.waitpid()
   
   let self.is_valid = 0
-  return [l:cond, l:status]
+  return [l:cond, str2nr(l:status)]
 endfunction
 
 function! s:vp_socket_open(host, port)
