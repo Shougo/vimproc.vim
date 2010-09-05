@@ -1,10 +1,34 @@
-let sub = vimproc#popen2(["ls", '-la'])
-let res = ""
-while !sub.stdout.eof
-  let res .= sub.stdout.read()
-endwhile
-let [cond, status] = sub.waitpid()
+" vim:foldmethod=marker:fen:
+scriptencoding utf-8
 
-new
-call append(0, split(res, '\r\n\|\r\|\n') + [string([cond, status])])
+" Saving 'cpoptions' {{{
+let s:save_cpo = &cpo
+set cpo&vim
+" }}}
 
+
+
+function! s:run()
+    let cmd = ["ls", '-la']
+    let sub = vimproc#popen2(cmd)
+    let res = ""
+    while !sub.stdout.eof
+        let res .= sub.stdout.read()
+    endwhile
+
+    Ok sub.is_valid, "yet not closed"
+    let [cond, status] = sub.waitpid()
+    Ok !sub.is_valid, "closed"
+    Is cond, "exit", "cond ==# exit"
+    Is status+0, 0, "status ==# 0"
+
+    Is res, system(join(cmd)), 'vimproc#popen2(' . string(cmd) . ') vs system(' . string(join(cmd)) . ')'
+endfunction
+
+call s:run()
+Done
+
+
+" Restore 'cpoptions' {{{
+let &cpo = s:save_cpo
+" }}}
