@@ -14,7 +14,7 @@ function! s:chdir(dir)
     let f = simpletap#finalizer()
     let f['1back_to_cwd'] = {'args': [org_cwd]}
     function f['1back_to_cwd'].fn(org_cwd)
-        lcd `=org_cwd`
+        lcd `=a:org_cwd`
     endfunction
 endfunction
 
