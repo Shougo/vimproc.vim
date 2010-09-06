@@ -245,6 +245,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-09-06
+- Incleased argc max.
+
 2010-09-05
 - Ver.5 Development is started.
 - Independented from vimshell.

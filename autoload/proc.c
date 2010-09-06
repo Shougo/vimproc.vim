@@ -97,7 +97,7 @@ const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
 const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 /* --- */
 
-#define VP_ARGC_MAX 256
+#define VP_ARGC_MAX 1024
 #define VP_READ_BUFSIZE 2048
 
 static vp_stack_t _result = VP_STACK_NULL;
