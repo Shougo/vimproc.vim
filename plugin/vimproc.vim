@@ -53,6 +53,7 @@ function! s:bang(cmdline)"{{{
           let l:output = iconv(l:output, &termencoding, &encoding)
         endif
         echo l:output
+        sleep 1m
       endif
     endif
 
@@ -63,6 +64,7 @@ function! s:bang(cmdline)"{{{
           let l:output = iconv(l:output, &termencoding, &encoding)
         endif
         echohl WarningMsg | echo l:output | echohl None
+        sleep 1m
       endif
     endif
   endwhile
