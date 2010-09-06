@@ -247,6 +247,7 @@ CHANGELOG					*vimproc-changelog*
 
 2010-09-06
 - Incleased argc max.
+- Improved :VimProcBang.
 
 2010-09-05
 - Ver.5 Development is started.

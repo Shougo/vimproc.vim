@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 04 Sep 2010
+" Last Modified: 06 Sep 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -52,7 +52,7 @@ function! s:bang(cmdline)"{{{
         if &encoding != &termencoding
           let l:output = iconv(l:output, &termencoding, &encoding)
         endif
-        echon l:output
+        echo l:output
       endif
     endif
 
@@ -62,7 +62,7 @@ function! s:bang(cmdline)"{{{
         if &encoding != &termencoding
           let l:output = iconv(l:output, &termencoding, &encoding)
         endif
-        echohl WarningMsg | echon l:output | echohl None
+        echohl WarningMsg | echo l:output | echohl None
       endif
     endif
   endwhile
