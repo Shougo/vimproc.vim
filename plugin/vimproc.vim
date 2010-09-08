@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 06 Sep 2010
+" Last Modified: 08 Sep 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -40,7 +40,8 @@ command! -nargs=+ -complete=shellcmd VimProcRead call s:read(<q-args>)
 " Command functions:
 function! s:bang(cmdline)"{{{
   " Open pipe.
-  let l:subproc = vimproc#pgroup_open(a:cmdline)
+  let l:cmdline = join(map(split(a:cmdline), 'expand(v:val)'))
+  let l:subproc = vimproc#pgroup_open(iconv(l:cmdline, &termencoding, &encoding))
 
   call l:subproc.stdin.close()
 
@@ -75,7 +76,9 @@ function! s:bang(cmdline)"{{{
   let [l:cond, l:last_status] = l:subproc.waitpid()
 endfunction"}}}
 function! s:read(cmdline)"{{{
-  call append('.', split(iconv(vimshell#system(a:cmdline), &termencoding, &encoding), '\n'))
+  " Expand args.
+  let l:cmdline = join(map(split(a:cmdline), 'expand(v:val)'))
+  call append('.', split(iconv(vimshell#system(l:cmdline), &termencoding, &encoding), '\r\n\|\n'))
 endfunction"}}}
 
 let &cpo = s:save_cpo
