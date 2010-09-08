@@ -7,3 +7,6 @@ all: $(TARGET)
 
 $(TARGET): $(SRC) autoload/vimstack.c
 	gcc $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
+
+clean:
+	rm -f $(TARGET)
