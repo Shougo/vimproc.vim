@@ -302,7 +302,7 @@ function! vimproc#popen3(args)"{{{
 endfunction"}}}
 function! s:popen(npipe, args)"{{{
   let l:pipe = s:vp_pipe_open(a:npipe, s:convert_args(a:args))
-  if len(l:pipe) == 3
+  if a:npipe == 3
     let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
   else
     let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
@@ -312,7 +312,7 @@ function! s:popen(npipe, args)"{{{
   let l:proc.pid = l:pid
   let l:proc.stdin = s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
   let l:proc.stdout = s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-  if len(l:pipe) == 3
+  if a:npipe == 3
     let l:proc.stderr = s:fdopen(l:fd_stderr, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
   endif
   let l:proc.kill = s:funcref('vp_kill')
