@@ -614,17 +614,15 @@ function! s:libcall(func, args)"{{{
   let l:EOV = "\xFF"
   let l:args = empty(a:args) ? '' : (join(reverse(copy(a:args)), l:EOV) . l:EOV)
   let l:stack_buf = libcall(g:vimproc_dll_path, a:func, l:args)
-  " Why this does not work?
-  " let result = split(stack_buf, EOV, 1)
   let l:result = split(l:stack_buf, '[\xFF]', 1)
   if !empty(l:result) && l:result[-1] != ''
     let s:lasterr = l:result
     let l:msg = string(l:result)
-    if has('iconv') && s:is_win
+    if has('iconv') && &termencoding != '' && &termencoding != &encoding
       " Kernel error message is encoded with system codepage.
-      " XXX: other normal error message may be encoded with &enc.
-      let l:msg = iconv(l:msg, 'default', &enc)
+      let l:msg = iconv(l:msg, &termencoding, &encoding)
     endif
+    
     throw printf('proc: %s: %s', a:func, l:msg)
   endif
   return l:result[:-2]
@@ -690,16 +688,7 @@ function! s:vp_pipe_open(npipe, argv)"{{{
           \ [a:npipe, len(a:argv)] + a:argv)
   endif
   
-  let l:ret = [l:pid] + l:fdlist
-  
-  if len(l:fdlist) != a:npipe
-    call s:print_error('Invalid fdlist returned!')
-    call s:print_error('a:npipe = ' . a:npipe)
-    call s:print_error('a:argv = ' . string(a:argv))
-    call s:print_error('l:fdlist = ' . string(l:fdlist))
-  endif
-
-  return l:ret
+  return [l:pid] + l:fdlist
 endfunction"}}}
 
 function! s:vp_pipe_close() dict
