@@ -245,6 +245,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-09-15
+- Improved error check.
+
 2010-09-08
 - Expand args.
 - Added make clean target.

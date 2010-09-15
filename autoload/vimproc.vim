@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 05 Sep 2010
+" Last Modified: 15 Sep 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -302,7 +302,7 @@ function! vimproc#popen3(args)"{{{
 endfunction"}}}
 function! s:popen(npipe, args)"{{{
   let l:pipe = s:vp_pipe_open(a:npipe, s:convert_args(a:args))
-  if a:npipe == 3
+  if len(l:pipe) == 3
     let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
   else
     let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
@@ -312,7 +312,7 @@ function! s:popen(npipe, args)"{{{
   let l:proc.pid = l:pid
   let l:proc.stdin = s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
   let l:proc.stdout = s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-  if a:npipe == 3
+  if len(l:pipe) == 3
     let l:proc.stderr = s:fdopen(l:fd_stderr, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
   endif
   let l:proc.kill = s:funcref('vp_kill')
@@ -634,6 +634,10 @@ function! s:SID_PREFIX()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_\zeSID_PREFIX$')
 endfunction
 
+function! s:print_error(string)
+  echohl Error | echomsg a:string | echohl None
+endfunction
+
 " Get funcref.
 function! s:funcref(funcname)
   return function(s:SID_PREFIX().a:funcname)
@@ -685,8 +689,17 @@ function! s:vp_pipe_open(npipe, argv)"{{{
     let [l:pid; l:fdlist] = s:libcall('vp_pipe_open',
           \ [a:npipe, len(a:argv)] + a:argv)
   endif
+  
+  let l:ret = [l:pid] + l:fdlist
+  
+  if len(l:fdlist) != a:npipe
+    call s:print_error('Invalid fdlist returned!')
+    call s:print_error('a:npipe = ' . a:npipe)
+    call s:print_error('a:argv = ' . string(a:argv))
+    call s:print_error('l:fdlist = ' . string(l:fdlist))
+  endif
 
-  return [pid] + fdlist
+  return l:ret
 endfunction"}}}
 
 function! s:vp_pipe_close() dict
