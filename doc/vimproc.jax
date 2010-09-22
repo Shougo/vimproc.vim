@@ -245,6 +245,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-09-23
+- Fixed :VimProcBang.
+
 2010-09-15
 - Improved error check.
 - Refactoringed.
