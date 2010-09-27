@@ -118,9 +118,7 @@ function! vimproc#get_command_name(command, ...)"{{{
   
   let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win ? '/\\' : '/')
   if l:command =~ l:pattern
-    if s:is_win && fnamemodify(l:command, ':e') ==? 'lnk'
-      let l:command = resolve(l:command)
-    endif
+    let l:command = resolve(l:command)
 
     if !filereadable(l:command)
       throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
@@ -148,9 +146,7 @@ function! vimproc#get_command_name(command, ...)"{{{
       let l:file = fnamemodify(l:file, ':p')
     endif
     
-    if (s:is_win && fnamemodify(l:file, ':e') ==? 'lnk')
-      let l:file = resolve(l:file)
-    endif
+    let l:file = resolve(l:file)
 
     if l:file == ''
       throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
