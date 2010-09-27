@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Sep 2010
+" Last Modified: 23 Sep 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -45,7 +45,6 @@ function! s:bang(cmdline)"{{{
 
   call l:subproc.stdin.close()
 
-  let s:last_errmsg = ''
   while !l:subproc.stdout.eof || !l:subproc.stderr.eof
     if !l:subproc.stdout.eof
       let l:output = l:subproc.stdout.read(-1, 40)
@@ -53,7 +52,8 @@ function! s:bang(cmdline)"{{{
         if &encoding != &termencoding
           let l:output = iconv(l:output, &termencoding, &encoding)
         endif
-        echo l:output
+        
+        echon l:output
         sleep 1m
       endif
     endif
@@ -64,7 +64,8 @@ function! s:bang(cmdline)"{{{
         if &encoding != &termencoding
           let l:output = iconv(l:output, &termencoding, &encoding)
         endif
-        echohl WarningMsg | echo l:output | echohl None
+        echohl WarningMsg | echon l:output | echohl None
+        
         sleep 1m
       endif
     endif
