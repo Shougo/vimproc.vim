@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Sep 2010
+" Last Modified: 28 Sep 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -118,7 +118,9 @@ function! vimproc#get_command_name(command, ...)"{{{
   
   let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win ? '/\\' : '/')
   if l:command =~ l:pattern
-    let l:command = resolve(l:command)
+    if !executable(l:command)
+      let l:command = resolve(l:command)
+    endif
 
     if !filereadable(l:command)
       throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
@@ -146,7 +148,9 @@ function! vimproc#get_command_name(command, ...)"{{{
       let l:file = fnamemodify(l:file, ':p')
     endif
     
-    let l:file = resolve(l:file)
+    if !executable(l:command)
+      let l:file = resolve(l:file)
+    endif
 
     if l:file == ''
       throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
