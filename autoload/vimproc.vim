@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 28 Sep 2010
+" Last Modified: 14 Oct 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -44,15 +44,15 @@ if !exists('g:vimproc_dll_path')
 endif
 "}}}
 
-if !filereadable(g:vimproc_dll_path)
-  execute 'echoerr' printf('"%s" is not found. Please make it.', g:vimproc_dll_path)
-  finish
-endif
-
 if has('iconv')
   " Dll path should be encoded with default encoding.  Vim does not convert
   " it from &enc to default encoding.
   let g:vimproc_dll_path = iconv(g:vimproc_dll_path, &encoding, "default")
+endif
+
+if !filereadable(g:vimproc_dll_path)
+  execute 'echoerr' printf('vimproc''s DLL: "%s" is not found. Please read :help vimproc and make it.', g:vimproc_dll_path)
+  finish
 endif
 
 "-----------------------------------------------------------

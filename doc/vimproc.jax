@@ -245,6 +245,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-10-14
+- Improved error check.
+
 2010-09-28
 - Improved resolve().
 
