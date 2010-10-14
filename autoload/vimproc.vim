@@ -51,7 +51,7 @@ if has('iconv')
 endif
 
 if !filereadable(g:vimproc_dll_path)
-  execute 'echoerr' printf('vimproc''s DLL: "%s" is not found. Please read :help vimproc and make it.', g:vimproc_dll_path)
+  echoerr printf('vimproc''s DLL: "%s" is not found. Please read :help vimproc and make it.', g:vimproc_dll_path)
   finish
 endif
 
