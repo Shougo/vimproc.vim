@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 14 Oct 2010
+" Last Modified: 18 Oct 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -99,23 +99,22 @@ function! vimproc#get_command_name(command, ...)"{{{
   if a:0 > 3
     throw 'vimproc#get_command_name: Invalid argument.'
   endif
-  
+
   if a:0 >= 1
     let l:path = a:1
   else
     let l:path = $PATH
   endif
-  
-  if s:is_win 
-    let l:path = substitute(substitute(l:path, ';', ',', 'g'), '\s', '\\\\ ', 'g')
-  else
-    let l:path = substitute(substitute(l:path, ':', ',', 'g'), '\s', '\\\\ ', 'g')
-  endif
+
+  " Expand path.
+  let l:path = substitute(l:path, (s:is_win ? ';' : ':'), ',', 'g')
+  let l:path = join(split(l:path, ','), ',')
+  let l:path = substitute(l:path, '\s', '\\\\ ', 'g')
 
   let l:count = a:0 < 2 ? 1 : a:2
-  
+
   let l:command = expand(a:command)
-  
+
   let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win ? '/\\' : '/')
   if l:command =~ l:pattern
     if !executable(l:command)
@@ -147,7 +146,7 @@ function! vimproc#get_command_name(command, ...)"{{{
     if l:file != ''
       let l:file = fnamemodify(l:file, ':p')
     endif
-    
+
     if !executable(l:command)
       let l:file = resolve(l:file)
     endif
