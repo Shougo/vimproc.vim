@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 05 Sep 2010
+" Last Modified: 02 Nov 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -827,6 +827,13 @@ function! s:parse_double_quote(script, i)"{{{
     return ['', a:i]
   endif
 
+  let l:escape_sequences = {
+        \ 'a' : "\<C-g>", 'b' : "\<BS>",
+        \ 't' : "\<Tab>", 'r' : "\<CR>",
+        \ 'n' : "\<LF>",  'e' : "\<Esc>",
+        \ '\' : '\',  '?' : '?',
+        \ '"' : '"',  "'" : "'",
+        \}
   let l:arg = ''
   let i = a:i + 1
   let l:max = len(a:script)
@@ -842,7 +849,15 @@ function! s:parse_double_quote(script, i)"{{{
         throw 'Exception: Join to next line (\).'
       endif
 
-      let l:arg .= a:script[i]
+      if a:script[i] == 'x'
+        let l:num = matchstr(a:script, '^\x\+', i+1)
+        let l:arg .= nr2char(str2nr(l:num, 16))
+        let i += len(l:num)
+      elseif has_key(l:escape_sequences, a:script[i])
+        let l:arg .= l:escape_sequences[a:script[i]]
+      else
+        let l:arg .= '\' . a:script[i]
+      endif
       let i += 1
     else
       let l:arg .= a:script[i]

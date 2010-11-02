@@ -245,6 +245,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-11-02
+- Improved escape sequence parse.
+
 2010-10-14
 - Improved error check.
 
