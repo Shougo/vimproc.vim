@@ -245,6 +245,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-11-07
+- Improved modeline.
+
 2010-11-02
 - Improved escape sequence parse.
 
@@ -282,7 +285,8 @@ CHANGELOG					*vimproc-changelog*
 - Improved status.
 - Fixed tests.
 
-ChangeLog 4.1-4.2 {{{
+------------------------------------------------------------------------------
+ChangeLog 4.1-4.2
 2010-09-04
 - Implemented VimProcBang and VimProcRead commands.
 
@@ -387,8 +391,9 @@ ChangeLog 4.1-4.2 {{{
 - Implemented vp_pty_open in Windows.
 - Improved vp_kill in Windows.
 - Changed vimproc#open() as vimproc#fopen().
-"}}}
-ChangeLog 4.0{{{
+
+------------------------------------------------------------------------------
+ChangeLog 4.0
 2010-06-11
 - Improved help file.
 - Improved vimproc#version().
@@ -435,8 +440,9 @@ ChangeLog 4.0{{{
 - Ver.4 development is started.
 - Implemented vimproc#version().
 - Splited parser.
-}}}
-ChangeLog 1.20-3.01{{{
+
+------------------------------------------------------------------------------
+ChangeLog 1.20-3.01
 2010-03-17
     * Fixed s:split_pipe() bug.
     * Marked as ver.3.01.
@@ -506,7 +512,6 @@ ChangeLog 1.20-3.01{{{
     * Mark as ver.1.20.
     
     * Modified for Mac OS X(Thanks splhack!).
-}}}
 
 ==============================================================================
-vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:fdm=marker:
+vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:
