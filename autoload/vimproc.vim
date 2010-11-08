@@ -133,17 +133,25 @@ function! vimproc#get_command_name(command, ...)"{{{
   " Command search.
   let l:suffixesadd_save = &l:suffixesadd
   if s:is_win
-    let &l:suffixesadd = substitute($PATHEXT.';.LNK', ';', ',', 'g')
+    " On Windows, findfile() search a file which don't have file extension
+    " also. When there are 'perldoc', 'perldoc.bat' in your $PATH,
+    " executable('perldoc')  return 1 cause by you have 'perldoc.bat'.
+    " But findfile('perldoc', $PATH, 1) return whether file exist there.
+    if fnamemodify(l:command, ':e') == ''
+      let &l:suffixesadd = ''
+      for l:ext in split($PATHEXT.';.LNK', ';')
+        let l:file = findfile(l:command . l:ext, l:path, l:count)
+        if (l:count >= 0 && l:file != '') || (l:count < 0 && empty(l:file))
+          break
+        endif
+      endfor
+    else
+      let &l:suffixesadd = substitute($PATHEXT.';.LNK', ';', ',', 'g')
+      let l:file = findfile(l:command, l:path, l:count)
+    endif
   else
     let &l:suffixesadd = ''
-  endif
-  let l:file = findfile(l:command, l:path, l:count)
-  if l:count >= 0 && s:is_win
-    " In windows, check non-extension file.
-    while l:file != '' && fnamemodify(l:file, ':e') == ''
-      let l:count += 1
-      let l:file = findfile(l:command, l:path, l:count)
-    endwhile
+    let l:file = findfile(l:command, l:path, l:count)
   endif
   let &l:suffixesadd = l:suffixesadd_save
 
