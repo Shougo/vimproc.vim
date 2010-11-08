@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 18 Oct 2010
+" Last Modified: 08 Nov 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -138,6 +138,13 @@ function! vimproc#get_command_name(command, ...)"{{{
     let &l:suffixesadd = ''
   endif
   let l:file = findfile(l:command, l:path, l:count)
+  if l:count >= 0 && s:is_win
+    " In windows, check non-extension file.
+    while l:file != '' && fnamemodify(l:file, ':e') == ''
+      let l:count += 1
+      let l:file = findfile(l:command, l:path, l:count)
+    endwhile
+  endif
   let &l:suffixesadd = l:suffixesadd_save
 
   if l:count < 0
