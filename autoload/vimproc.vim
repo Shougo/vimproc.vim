@@ -686,7 +686,13 @@ function! s:vp_pipe_open(npipe, argv)"{{{
     let [l:pid; l:fdlist] = s:libcall('vp_pipe_open',
           \ [a:npipe, len(a:argv)] + a:argv)
   endif
-  
+
+  if a:npipe != len(l:fdlist)
+    echoerr 'Bug behavior is detected!'
+    echoerr printf('a:npipe = %d, a:argv = %s', a:npipe, string(a:argv))
+    echoerr printf('l:fdlist = %s', string(l:fdlist))
+  endif
+
   return [l:pid] + l:fdlist
 endfunction"}}}
 
