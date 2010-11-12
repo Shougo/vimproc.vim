@@ -248,6 +248,9 @@ CHANGELOG					*vimproc-changelog*
 2010-11-12
 - Improved error detection.
 
+2010-11-08
+- In windows, check non-extension file.
+
 2010-11-07
 - Improved modeline.
 

@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 18 Oct 2010
+" Last Modified: 08 Nov 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -133,11 +133,26 @@ function! vimproc#get_command_name(command, ...)"{{{
   " Command search.
   let l:suffixesadd_save = &l:suffixesadd
   if s:is_win
-    let &l:suffixesadd = substitute($PATHEXT.';.LNK', ';', ',', 'g')
+    " On Windows, findfile() search a file which don't have file extension
+    " also. When there are 'perldoc', 'perldoc.bat' in your $PATH,
+    " executable('perldoc')  return 1 cause by you have 'perldoc.bat'.
+    " But findfile('perldoc', $PATH, 1) return whether file exist there.
+    if fnamemodify(l:command, ':e') == ''
+      let &l:suffixesadd = ''
+      for l:ext in split($PATHEXT.';.LNK', ';')
+        let l:file = findfile(l:command . l:ext, l:path, l:count)
+        if (l:count >= 0 && l:file != '') || (l:count < 0 && empty(l:file))
+          break
+        endif
+      endfor
+    else
+      let &l:suffixesadd = substitute($PATHEXT.';.LNK', ';', ',', 'g')
+      let l:file = findfile(l:command, l:path, l:count)
+    endif
   else
     let &l:suffixesadd = ''
+    let l:file = findfile(l:command, l:path, l:count)
   endif
-  let l:file = findfile(l:command, l:path, l:count)
   let &l:suffixesadd = l:suffixesadd_save
 
   if l:count < 0
