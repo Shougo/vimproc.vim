@@ -83,21 +83,22 @@ INTERFACE					*vimproc-interface*
 COMMANDS 					*vimproc-commands*
 
 :VimProcBang {path}					*:VimProcBang*
-			
-			
+			Execute {path} command and echo result.  This
+			command replaces |:!|.
 
 :VimProcRead {path}					*:VimProcRead*
-			
-			
+			Execute {path} command and paste result in current
+			buffer.  This command replaces |:read|.
 
 ------------------------------------------------------------------------------
 FUNCTIONS 					*vimproc-functions*
 
 vimproc#version()				*vimproc#version()*
-		
+		Returns vimproc version number as string. Version 5.0 is
+		"500".  Version 5.1 (5.01) is "501" same as |v:version|.
 
 vimproc#open({filename})			*vimproc#open()*
-		
+		Open {filename} with system associated command.
 
 vimproc#get_command_name({command} [, {path}, {count}])	*vimproc#get_command_name()*
 		
@@ -106,13 +107,14 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		
 
 vimproc#system_bg({expr})			*vimproc#system_bg()*
-		
+		Same as |vimproc#parser#system()|, but execute command in
+		background.
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
-		
+		Get last |vimproc#system()| status value.
 
 vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
-		
+		Get last |vimproc#system()| error message.
 
 vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
 		
@@ -124,13 +126,15 @@ vimproc#popen2({args})				*vimproc#popen2()*
 		
 
 vimproc#popen3({args})				*vimproc#popen3()*
-		
+		Same as |vimproc#popen2()|, but this function splits
+		stderr output.
 
 vimproc#plineopen2({commands})			*vimproc#plineopen2()*
 		
 
 vimproc#plineopen3({commands})			*vimproc#plineopen3()*
-		
+		Same as |vimproc#plineopen2()|, but this function splits
+		stderr output.
 
 vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
 		
@@ -139,7 +143,7 @@ vimproc#ptyopen({args})				*vimproc#ptyopen()*
 		
 
 vimproc#kill({pid}, {sig})			*vimproc#kill()*
-		
+		Send {sig} signal to {pid} process.
 
 ------------------------------------------------------------------------------
 VARIABLES 					*vimproc-variables*
@@ -147,7 +151,9 @@ VARIABLES 					*vimproc-variables*
 						*g:vimproc_dll_path*
 g:vimproc_dll_path		(default Win32 or Cygwin : "$VIMRUNTIME/autoload/proc.dll"
 					others: "$VIMRUNTIME/autoload/proc.so")
-		This variable is dll name used by vimproc.
+		This variable is dll name used by vimproc.  You must compile
+		this dll file. If this dll is not exist, vimproc will echo
+		error.
 
 ==============================================================================
 EXAMPLES					*vimproc-examples*
@@ -188,6 +194,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2010-11-14
+- Improved English help file.
 
 2010-11-12
 - Improved error detection.
