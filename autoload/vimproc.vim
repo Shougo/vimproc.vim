@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 08 Nov 2010
+" Last Modified: 16 Nov 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -47,7 +47,7 @@ endif
 if has('iconv')
   " Dll path should be encoded with default encoding.  Vim does not convert
   " it from &enc to default encoding.
-  let g:vimproc_dll_path = iconv(g:vimproc_dll_path, &encoding, "default")
+  let g:vimproc_dll_path = iconv(g:vimproc_dll_path, &encoding, 'default')
 endif
 
 if !filereadable(g:vimproc_dll_path)
@@ -60,9 +60,12 @@ endif
 
 function! vimproc#open(filename)"{{{
   let l:filename = a:filename
-  if &termencoding != '' && &encoding != &termencoding
-    " Convert encoding.
-    let l:filename = iconv(l:filename, &encoding, &termencoding)
+  if has('iconv')
+    let l:termencoding = s:is_win && &termencoding == '' ? 'default' : &termencoding
+    if l:termencoding != '' && &encoding != l:termencoding
+      " Convert encoding.
+      let l:filename = iconv(l:filename, &encoding, l:termencoding)
+    endif
   endif
 
   " Detect desktop environment.
@@ -632,11 +635,14 @@ function! s:libcall(func, args)"{{{
   if !empty(l:result) && l:result[-1] != ''
     let s:lasterr = l:result
     let l:msg = string(l:result)
-    if has('iconv') && &termencoding != '' && &termencoding != &encoding
-      " Kernel error message is encoded with system codepage.
-      let l:msg = iconv(l:msg, &termencoding, &encoding)
+    if has('iconv')
+      let l:termencoding = s:is_win && &termencoding == '' ? 'default' : &termencoding
+      if l:termencoding != '' && &encoding != l:termencoding
+        " Kernel error message is encoded with system codepage.
+        let l:msg = iconv(l:msg, l:termencoding, &encoding)
+      endif
     endif
-    
+
     throw printf('proc: %s: %s', a:func, l:msg)
   endif
   return l:result[:-2]

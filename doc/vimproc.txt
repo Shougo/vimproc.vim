@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-11-16
+- Improved convert encodings.
+
 2010-11-14
 - Improved English help file.
 
