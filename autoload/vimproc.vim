@@ -1055,7 +1055,7 @@ function! s:vp_socket_write(hd, timeout) dict
 endfunction
 
 " Initialize.
-if !exists('s:dlhandle')
+if !exists('s:dll_handle')
   let s:dll_handle = s:vp_dlopen(g:vimproc_dll_path)
 endif
 
