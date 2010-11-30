@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-11-30
+- Fixed dll handle error.
+
 2010-11-16
 - Improved convert encodings.
 
