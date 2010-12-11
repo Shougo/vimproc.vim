@@ -30,7 +30,11 @@
 let s:save_cpo = &cpo
 set cpo&vim
 " }}}
-
+" MacVim trouble shooter {{{
+if has('gui_macvim') && !&encoding
+  set encoding=utf-8
+endif
+"}}}
 function! vimproc#version()
   return str2nr(printf('%2d%02d', 5, 0))
 endfunction
