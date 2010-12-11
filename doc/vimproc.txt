@@ -1,0 +1,483 @@
+*vimproc.jax*	Asynchronous execution plugin for Vim
+
+Version: 5.0
+Author : Shougo <Shougo.Matsu@gmail.com>
+License: MIT license  {{{
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}}}
+
+CONTENTS					*vimproc-contents*
+
+Introduction		|vimproc-introduction|
+Install			|vimproc-install|
+Interface		|vimproc-interface|
+  Commands		  |vimproc-commands|
+  Functions		  |vimproc-functions|
+  Variables		  |vimproc-variables|
+Examples		|vimproc-examples|
+ToDo			|vimproc-todo|
+Bugs			|vimproc-bugs|
+Changelog		|vimproc-changelog|
+
+==============================================================================
+INTRODUCTION					*vimproc-introduction*
+
+|vimproc|is grate asynchronous execution library for Vim. Original vimshell is
+created by Yukihiro Nakadaira. But I'm maintaining it now.
+Instead of external shell(example: 'shell'), |vimproc| uses external dll file.
+
+==============================================================================
+INSTALL						*vimproc-install*
+
+In first, you get vimproc from git repository.
+[http://github.com/Shougo/vimproc/tree/master](http://github.com/Shougo/vimproc/tree/master)
+
+Next, make external dll "proc.so(or proc.dll)". Because vimproc depends on
+"proc.so(or proc.dll)"'s function, vimproc echo error message when
+"proc.so(proc.dll)" don't exist.
+
+Note: The proc.dll compiled in Cygwin can't work for Windows Vim.
+
+Below is Make command.
+* Mingw: >
+	$ make -f make_mingw.mak
+
+* Mac OS X: >
+	$ make -f make_mac.mak
+
+* Linux BSD: >
+	$ make -f make_gcc.mak
+
+* Visual Studio: >
+	$ make -f make_msvc.mak
+
+* Cygwin: >
+	$ make -f make_cygwin.mak
+
+After compile, you copy autoload/* files to your |$VIMRUNTIME|.
+
+I compiled proc.dll in 32 bit Windows, and distributed it below URL.
+Note: I DON'T guarantee it.
+http://github.com/Shougo/vimproc/downloads
+
+==============================================================================
+INTERFACE					*vimproc-interface*
+
+------------------------------------------------------------------------------
+COMMANDS 					*vimproc-commands*
+
+:VimProcBang {path}					*:VimProcBang*
+			Execute {path} command and echo result.  This
+			command replaces |:!|.
+
+:VimProcRead {path}					*:VimProcRead*
+			Execute {path} command and paste result in current
+			buffer.  This command replaces |:read|.
+
+------------------------------------------------------------------------------
+FUNCTIONS 					*vimproc-functions*
+
+vimproc#version()				*vimproc#version()*
+		Returns vimproc version number as string. Version 5.0 is
+		"500".  Version 5.1 (5.01) is "501" same as |v:version|.
+
+vimproc#open({filename})			*vimproc#open()*
+		Open {filename} with system associated command.
+
+vimproc#get_command_name({command} [, {path}, {count}])	*vimproc#get_command_name()*
+		
+
+vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
+		
+
+vimproc#system_bg({expr})			*vimproc#system_bg()*
+		Same as |vimproc#parser#system()|, but execute command in
+		background.
+
+vimproc#get_last_status()			*vimproc#get_last_status()*
+		Get last |vimproc#system()| status value.
+
+vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
+		Get last |vimproc#system()| error message.
+
+vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
+		
+
+vimproc#socket_open({host}, {port})		*vimproc#socket_open()*
+		
+
+vimproc#popen2({args})				*vimproc#popen2()*
+		
+
+vimproc#popen3({args})				*vimproc#popen3()*
+		Same as |vimproc#popen2()|, but this function splits
+		stderr output.
+
+vimproc#plineopen2({commands})			*vimproc#plineopen2()*
+		
+
+vimproc#plineopen3({commands})			*vimproc#plineopen3()*
+		Same as |vimproc#plineopen2()|, but this function splits
+		stderr output.
+
+vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
+		
+
+vimproc#ptyopen({args})				*vimproc#ptyopen()*
+		
+
+vimproc#kill({pid}, {sig})			*vimproc#kill()*
+		Send {sig} signal to {pid} process.
+
+------------------------------------------------------------------------------
+VARIABLES 					*vimproc-variables*
+
+						*g:vimproc_dll_path*
+g:vimproc_dll_path		(default Win32 or Cygwin : "$VIMRUNTIME/autoload/proc.dll"
+					others: "$VIMRUNTIME/autoload/proc.so")
+		This variable is dll name used by vimproc.  You must compile
+		this dll file. If this dll is not exist, vimproc will echo
+		error.
+
+==============================================================================
+EXAMPLES					*vimproc-examples*
+>
+	" File open test.
+	let file = vimproc#fopen("./test1.vim", "O_RDONLY", 0)
+	let res = file.read()
+	call file.close()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n'))
+	
+	" Pipe open test.
+	let sub = vimproc#parser#popen2('ls')
+	let res = ''
+	while !sub.stdout.eof
+	let res .= sub.stdout.read()
+	endwhile
+	let [cond, status] = sub.waitpid()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n') + [string([cond, status])])
+	
+	" Socket open test.
+	let sock = vimproc#socket_open('www.yahoo.com', 80)
+	call sock.write("GET / HTTP/1.0\r\n\r\n")
+	let res = ''
+	while !sock.eof
+	let res .= sock.read()
+	endwhile
+	call sock.close()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n'))
+<
+==============================================================================
+TODO						*vimproc-todo*
+
+==============================================================================
+BUGS						*vimproc-bugs*
+
+==============================================================================
+CHANGELOG					*vimproc-changelog*
+
+2010-11-30
+- Fixed dll handle error.
+
+2010-11-16
+- Improved convert encodings.
+
+2010-11-14
+- Improved English help file.
+
+2010-11-12
+- Improved error detection.
+- Added English help file(Incomplete).
+
+2010-11-08
+- In windows, check non-extension file.
+
+2010-11-07
+- Improved modeline.
+
+2010-11-02
+- Improved escape sequence parse.
+
+2010-10-18
+- Expand $path.
+
+2010-10-14
+- Improved error check.
+
+2010-09-28
+- Improved resolve().
+
+2010-09-27
+- Fixed resolve().
+
+2010-09-23
+- Fixed :VimProcBang.
+
+2010-09-15
+- Improved error check.
+- Refactoringed.
+
+2010-09-08
+- Expand args.
+- Added make clean target.
+
+2010-09-06
+- Incleased argc max.
+- Improved :VimProcBang.
+
+2010-09-05
+- Ver.5 Development is started.
+- Independented from vimshell.
+- Revised documentation.
+- Improved status.
+- Fixed tests.
+
+------------------------------------------------------------------------------
+ChangeLog 4.1-4.2
+2010-09-04
+- Implemented VimProcBang and VimProcRead commands.
+
+2010-09-03
+- Fixed documentation.
+
+2010-08-31
+- Fixed vimproc#system().
+
+2010-08-23
+- Revised documentation.
+- Call parser automatically.
+- Fixed parser bug.
+
+2010-08-18
+- Fixed pgroup error.
+
+2010-08-17
+- Ver.4.3.
+- Improved vimproc#system().
+- Implemented vimproc#pgroup_open().
+- Improved vimproc#get_command_name().
+
+2010-08-15
+- Improved timeout.
+
+2010-08-02
+- Fixed vimproc#system_bg().
+- Fixed suffixesadd error.
+
+2010-07-26
+- Fixed document.
+
+2010-07-23
+- Ver.4.2.
+- Implemented timeout.
+- Improved kill.
+- Fixed executable() check.
+- Fixed timeout.
+
+2010-07-22
+- Fixed vimshell check.
+
+2010-07-16
+- Improved vimshell check.
+- Improved pipeline parser.
+
+2010-07-13
+- Fixed error message.
+
+2010-07-12
+- Improved vimshell check.
+
+2010-07-05
+- Fixed shebang.
+
+2010-07-04
+- Don't use CREATE_NO_WINDOW.
+- Implemented get_winsize() and set_winsize().
+
+2010-07-02
+- Close pipes when waitpid().
+- Close pipes when kill().
+- Close when system().
+- Improved close.
+
+2010-07-01
+- Set mergin.
+
+2010-06-27
+- Fixed shebang for Mac OS X.
+
+2010-06-25
+- Fixed resolve() error.
+- Ignore garbage collect error.
+- Restore pty_open().
+
+2010-06-24
+- Resolve symbolic link.
+- Improved shebang.
+- Fixed executable() bug.
+
+2010-06-22
+- Fixed vimproc#get_command_name() bug.
+
+2010-06-21
+- Improved vimshell check.
+- Check dll file.
+
+2010-06-20
+- Added vimproc#open() and vimproc#get_command_name().
+- Improved command search.
+- Improved vimproc#get_command_name().
+- Analyse shebang line.
+- Improved vimproc#version().
+- Fixed Visual C++ link error.
+- Fixed warning.
+- Fixed help.
+
+2010-06-16
+- Started version 4.1 development.
+- Implemented vp_pty_open in Windows.
+- Improved vp_kill in Windows.
+- Changed vimproc#open() as vimproc#fopen().
+
+------------------------------------------------------------------------------
+ChangeLog 4.0
+2010-06-11
+- Improved help file.
+- Improved vimproc#version().
+
+2010-06-07
+- Fixed documentation typo.
+
+2010-05-29
+- Fixed man permission error.
+
+2010-05-25
+- Optimized autocmd.
+
+2010-05-24
+- Implemented background execution(Testing).
+- Added new test.
+
+2010-05-22
+- Improved executable search.
+
+2010-05-05
+- Fixed encoding bug.
+
+2010-05-04
+- Fixed help tags.
+
+2010-05-02
+- Increased VP_ARGC_MAX.
+- Revised error messages.
+
+2010-05-01
+- Fixed warning.
+
+2010-04-27
+- Implemented dummy declaration.
+
+2010-04-25
+- Use vimshell parser.
+
+2010-04-24
+- Fixed error.
+
+2010-04-20
+- Ver.4 development is started.
+- Implemented vimproc#version().
+- Splited parser.
+
+------------------------------------------------------------------------------
+ChangeLog 1.20-3.01
+2010-03-17
+    * Fixed s:split_pipe() bug.
+    * Marked as ver.3.01.
+
+2010-02-25
+    * Fixed Cygwin Makefile.
+    * Fixed for Cygwin.
+    * Supported Cygwin platform.
+
+2010-02-20
+    * Added Cygwin Makefile.
+
+2010-02-17
+    * Fixed modifier parse bug.
+
+2010-02-15
+    * Improved argument parse in vimproc#system.
+    * Fixed vimproc#socket_open() error.
+    * Improved close.
+    * Test revised.
+    * Added vimproc#kill() function.
+
+2010-01-14
+    * Deleted convert encoding in vimproc#system.
+    * Use popen3 in vimproc#system.
+    * Implemented vimproc#get_last_errmsg().
+
+2010-01-04
+    * Added g:vimproc_dll_path option.
+
+2009-12-30
+    * Fixed Makefile.
+    * Improved Windows pty support.
+
+2009-12-25
+    * Fixed Makefile.
+    * Newline convert.
+    * vimproc#system supported input.
+    * Implemented vimproc#get_last_status() instead of v:shell_error.
+
+2009-12-22
+    * Implemented Windows pty.
+    * Supported MinGW.
+
+2009-12-17
+    * Reimplemented vimproc.vim.
+    * Changed tests.
+
+2009-11-11
+    * Resolve shortcut filename.
+
+2009-11-06
+    * Fixed command search bug on Windows.
+
+2009-09-09
+    * Mark as ver.1.22.
+    * Use forkpty().
+    
+    * Modified for Mac OS X(Thanks Nico!).
+
+2009-07-09
+    * Mark as ver.1.21.
+    
+    * Fixed pty_open() bug in Linux.
+
+2009-07-08
+    * Mark as ver.1.20.
+    
+    * Modified for Mac OS X(Thanks splhack!).
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:

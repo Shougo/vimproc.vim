@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 28 Sep 2010
+" Last Modified: 30 Nov 2010
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -48,15 +48,15 @@ if !exists('g:vimproc_dll_path')
 endif
 "}}}
 
-if !filereadable(g:vimproc_dll_path)
-  execute 'echoerr' printf('"%s" is not found. Please make it.', g:vimproc_dll_path)
-  finish
-endif
-
 if has('iconv')
   " Dll path should be encoded with default encoding.  Vim does not convert
   " it from &enc to default encoding.
-  let g:vimproc_dll_path = iconv(g:vimproc_dll_path, &encoding, "default")
+  let g:vimproc_dll_path = iconv(g:vimproc_dll_path, &encoding, 'default')
+endif
+
+if !filereadable(g:vimproc_dll_path)
+  echoerr printf('vimproc''s DLL: "%s" is not found. Please read :help vimproc and make it.', g:vimproc_dll_path)
+  finish
 endif
 
 "-----------------------------------------------------------
@@ -64,9 +64,12 @@ endif
 
 function! vimproc#open(filename)"{{{
   let l:filename = a:filename
-  if &termencoding != '' && &encoding != &termencoding
-    " Convert encoding.
-    let l:filename = iconv(l:filename, &encoding, &termencoding)
+  if has('iconv')
+    let l:termencoding = s:is_win && &termencoding == '' ? 'default' : &termencoding
+    if l:termencoding != '' && &encoding != l:termencoding
+      " Convert encoding.
+      let l:filename = iconv(l:filename, &encoding, l:termencoding)
+    endif
   endif
 
   " Detect desktop environment.
@@ -103,23 +106,22 @@ function! vimproc#get_command_name(command, ...)"{{{
   if a:0 > 3
     throw 'vimproc#get_command_name: Invalid argument.'
   endif
-  
+
   if a:0 >= 1
     let l:path = a:1
   else
     let l:path = $PATH
   endif
-  
-  if s:is_win 
-    let l:path = substitute(substitute(l:path, ';', ',', 'g'), '\s', '\\\\ ', 'g')
-  else
-    let l:path = substitute(substitute(l:path, ':', ',', 'g'), '\s', '\\\\ ', 'g')
-  endif
+
+  " Expand path.
+  let l:path = substitute(l:path, (s:is_win ? ';' : ':'), ',', 'g')
+  let l:path = join(split(l:path, ','), ',')
+  let l:path = substitute(l:path, '\s', '\\\\ ', 'g')
 
   let l:count = a:0 < 2 ? 1 : a:2
-  
+
   let l:command = expand(a:command)
-  
+
   let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win ? '/\\' : '/')
   if l:command =~ l:pattern
     if !executable(l:command)
@@ -138,11 +140,26 @@ function! vimproc#get_command_name(command, ...)"{{{
   " Command search.
   let l:suffixesadd_save = &l:suffixesadd
   if s:is_win
-    let &l:suffixesadd = substitute($PATHEXT.';.LNK', ';', ',', 'g')
+    " On Windows, findfile() search a file which don't have file extension
+    " also. When there are 'perldoc', 'perldoc.bat' in your $PATH,
+    " executable('perldoc')  return 1 cause by you have 'perldoc.bat'.
+    " But findfile('perldoc', $PATH, 1) return whether file exist there.
+    if fnamemodify(l:command, ':e') == ''
+      let &l:suffixesadd = ''
+      for l:ext in split($PATHEXT.';.LNK', ';')
+        let l:file = findfile(l:command . l:ext, l:path, l:count)
+        if (l:count >= 0 && l:file != '') || (l:count < 0 && empty(l:file))
+          break
+        endif
+      endfor
+    else
+      let &l:suffixesadd = substitute($PATHEXT.';.LNK', ';', ',', 'g')
+      let l:file = findfile(l:command, l:path, l:count)
+    endif
   else
     let &l:suffixesadd = ''
+    let l:file = findfile(l:command, l:path, l:count)
   endif
-  let l:file = findfile(l:command, l:path, l:count)
   let &l:suffixesadd = l:suffixesadd_save
 
   if l:count < 0
@@ -151,7 +168,7 @@ function! vimproc#get_command_name(command, ...)"{{{
     if l:file != ''
       let l:file = fnamemodify(l:file, ':p')
     endif
-    
+
     if !executable(l:command)
       let l:file = resolve(l:file)
     endif
@@ -622,11 +639,14 @@ function! s:libcall(func, args)"{{{
   if !empty(l:result) && l:result[-1] != ''
     let s:lasterr = l:result
     let l:msg = string(l:result)
-    if has('iconv') && &termencoding != '' && &termencoding != &encoding
-      " Kernel error message is encoded with system codepage.
-      let l:msg = iconv(l:msg, &termencoding, &encoding)
+    if has('iconv')
+      let l:termencoding = s:is_win && &termencoding == '' ? 'default' : &termencoding
+      if l:termencoding != '' && &encoding != l:termencoding
+        " Kernel error message is encoded with system codepage.
+        let l:msg = iconv(l:msg, l:termencoding, &encoding)
+      endif
     endif
-    
+
     throw printf('proc: %s: %s', a:func, l:msg)
   endif
   return l:result[:-2]
@@ -646,7 +666,9 @@ function! s:funcref(funcname)
 endfunction
 
 function! s:finalize()
-  call s:vp_dlclose(s:dll_handle)
+  if exists('s:dll_handle')
+    call s:vp_dlclose(s:dll_handle)
+  endif
 endfunction
 
 function! s:vp_dlopen(path)
@@ -691,7 +713,13 @@ function! s:vp_pipe_open(npipe, argv)"{{{
     let [l:pid; l:fdlist] = s:libcall('vp_pipe_open',
           \ [a:npipe, len(a:argv)] + a:argv)
   endif
-  
+
+  if a:npipe != len(l:fdlist)
+    echoerr 'Bug behavior is detected!'
+    echoerr printf('a:npipe = %d, a:argv = %s', a:npipe, string(a:argv))
+    echoerr printf('l:fdlist = %s', string(l:fdlist))
+  endif
+
   return [l:pid] + l:fdlist
 endfunction"}}}
 
@@ -1033,7 +1061,7 @@ function! s:vp_socket_write(hd, timeout) dict
 endfunction
 
 " Initialize.
-if !exists('s:dlhandle')
+if !exists('s:dll_handle')
   let s:dll_handle = s:vp_dlopen(g:vimproc_dll_path)
 endif
 
