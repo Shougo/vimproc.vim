@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 30 Nov 2010
+" Last Modified: 14 Dec 2010.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -76,7 +76,7 @@ function! vimproc#open(filename)"{{{
   if s:is_win
     " For URI only.
     "execute '!start rundll32 url.dll,FileProtocolHandler' l:filename
-    
+
     call s:libcall('vp_open', [fnamemodify(a:filename, ':p')])
   elseif has('win32unix')
     " Cygwin.
@@ -203,9 +203,9 @@ function! vimproc#system(cmdline, ...)"{{{
     let s:last_errmsg = ''
     return ''
   endif
-  
+
   let l:timeout = a:0 >= 2 ? a:2 : 0
-  
+
   " Open pipe.
   let l:subproc = (type(a:cmdline[0]) == type('')) ? 
         \ vimproc#popen3(a:cmdline) : vimproc#pgroup_open(a:cmdline)
@@ -215,13 +215,13 @@ function! vimproc#system(cmdline, ...)"{{{
     call l:subproc.stdin.write(a:1)
   endif
   call l:subproc.stdin.close()
-  
+
   if l:timeout > 0 && has('reltime') && v:version >= 702
     let l:start = reltime()
   else
     let l:timeout = 0
   endif
-  
+
   let l:output = ''
   let s:last_errmsg = ''
   while !l:subproc.stdout.eof || !l:subproc.stderr.eof
@@ -236,20 +236,20 @@ function! vimproc#system(cmdline, ...)"{{{
         catch
           " Ignore error.
         endtry
-        
+
         return ''
       endif
     endif
-    
+
     if !l:subproc.stdout.eof
       let l:output .= l:subproc.stdout.read(-1, 40)
     endif
-    
+
     if !l:subproc.stderr.eof
       let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
     endif
   endwhile
-  
+
   call l:subproc.stdout.close()
   call l:subproc.stderr.close()
 
@@ -274,7 +274,7 @@ function! vimproc#system_bg(cmdline)"{{{
       return vimproc#parser#system_bg(a:cmdline)
     endif
   endif
-  
+
   if s:is_win
     silent execute '!start' join(map(a:cmdline, '"\"".v:val."\""'))
   else
@@ -285,12 +285,12 @@ function! vimproc#system_bg(cmdline)"{{{
         autocmd CursorHold * call s:garbage_collect()
       augroup END
     endif"}}}
-    
+
     " Open pipe.
     let l:subproc = vimproc#popen3(a:cmdline)
     let s:bg_processes[l:subproc.pid] = l:subproc
   endif
-  
+
   return ''
 endfunction"}}}
 
@@ -311,7 +311,7 @@ function! vimproc#popen2(args)"{{{
   if type(a:args) == type('')
     return vimproc#parser#popen2(a:args)
   endif
-  
+
   return s:popen(3, a:args)
 endfunction"}}}
 function! vimproc#popen3(args)"{{{
@@ -328,7 +328,7 @@ function! s:popen(npipe, args)"{{{
   else
     let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
   endif
-  
+
   let l:proc = {}
   let l:proc.pid = l:pid
   let l:proc.stdin = s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
@@ -369,7 +369,7 @@ function! s:plineopen(npipe, commands)"{{{
     else
       let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
     endif
-    
+
     call add(l:pid_list, l:pid)
     call add(l:stdin_list, s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     call add(l:stdout_list, s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
@@ -406,6 +406,8 @@ function! s:plineopen(npipe, commands)"{{{
   endif
   let l:proc.kill = s:funcref('vp_pipes_kill')
   let l:proc.waitpid = s:funcref('vp_waitpid')
+  let l:proc.get_winsize = s:funcref('vp_pty_get_winsize')
+  let l:proc.set_winsize = s:funcref('vp_pty_set_winsize')
   let l:proc.is_valid = 1
 
   return proc
@@ -418,7 +420,7 @@ function! vimproc#pgroup_open(statements)"{{{
 
   let l:proc = {}
   let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement)
-  
+
   let l:proc.pid = l:proc.current_proc.pid
   let l:proc.condition = a:statements[0].condition
   let l:proc.statements = a:statements[1:]
@@ -436,7 +438,7 @@ function! vimproc#ptyopen(args)"{{{
   if type(a:args) == type('')
     return vimproc#parser#ptyopen(a:args)
   endif
-  
+
   if s:is_win
     let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(a:args))
     let l:ttyname = ''
@@ -472,7 +474,7 @@ function! s:close() dict"{{{
   if self.is_valid
     call self.f_close()
   endif
-  
+
   let self.is_valid = 0
   let self.eof = 1
   let self.fd = -1
@@ -526,7 +528,7 @@ function! s:garbage_collect()"{{{
       call l:proc.stdout.read(-1, 0)
       continue
     endif
-    
+
     try
       let [l:cond, s:last_status] = l:proc.waitpid()
       if l:cond != 'exit'
@@ -599,7 +601,7 @@ function! s:analyze_shebang(filename)"{{{
         \ '^' . substitute($PATHEXT, ';', '$\\|^', 'g') . '$'
     return [a:filename]
   endif
-  
+
   let l:lines = readfile(a:filename, '', 1)
   if empty(l:lines) || l:lines[0] !~ '^#!.\+'
     " Not found shebang.
@@ -755,7 +757,7 @@ endfunction
 function! s:read_pipes(...) dict"{{{
   let l:number = get(a:000, 0, -1)
   let l:timeout = get(a:000, 1, s:read_timeout)
-  
+
   let l:output = ''
   let l:eof = 0
   for l:fd in self.fd
@@ -783,7 +785,7 @@ function! s:read_pipes(...) dict"{{{
       endfor
     endif
   endfor
-  
+
   let self.eof = self.fd[-1].eof
 
   return l:output
@@ -791,7 +793,7 @@ endfunction"}}}
 
 function! s:write_pipes(str, ...) dict"{{{
   let l:timeout = get(a:000, 0, s:write_timeout)
-  
+
   " Write data.
   let l:nleft = self.fd[0].write(a:str, l:timeout)
 
@@ -827,10 +829,10 @@ endfunction"}}}
 function! s:read_pgroup(...) dict"{{{
   let l:number = get(a:000, 0, -1)
   let l:timeout = get(a:000, 1, s:read_timeout)
-  
+
   let l:output = ''
   let l:eof = 0
-  
+
   if !self.fd.eof
     let l:output = self.fd.read(l:number, l:timeout)
   endif
@@ -843,7 +845,7 @@ function! s:read_pgroup(...) dict"{{{
           \ || (self.proc.condition ==# 'true' && l:status)
           \ || (self.proc.condition ==# 'false' && !l:status)
       let self.proc.statements = []
-      
+
       " Exit.
       let self.proc.stdout.eof = 1
       let self.proc.stderr.eof = 1
@@ -869,7 +871,7 @@ endfunction"}}}
 
 function! s:write_pgroup(str, ...) dict"{{{
   let l:timeout = get(a:000, 0, s:write_timeout)
-  
+
   let l:nleft = 0
   if !self.fd.eof
     " Write data.
@@ -949,7 +951,7 @@ else
 
   function! s:vp_pty_set_winsize(width, height) dict
     call s:libcall('vp_pty_set_winsize', [self.fd, a:width-5, a:height])
-    
+
     " Send SIGWINCH = 28 signal.
     call vimproc#kill(self.pid, 28)
   endfunction
@@ -968,7 +970,7 @@ function! s:vp_kill(sig) dict
   if has_key(self, 'ttyname')
     call self.close()
   endif
-  
+
   call s:libcall('vp_kill', [self.pid, a:sig])
   let self.is_valid = 0
 endfunction
@@ -986,7 +988,7 @@ function! s:vp_pipes_kill(sig) dict
   if has_key(self, 'ttyname')
     call self.close()
   endif
-  
+
   for l:pid in self.pid_list
     call s:libcall('vp_kill', [l:pid, a:sig])
   endfor
@@ -1006,9 +1008,9 @@ function! s:vp_pgroup_kill(sig) dict
   if has_key(self, 'ttyname')
     call self.close()
   endif
-  
+
   call self.proc.current_proc.kill(a:sig)
-  
+
   let self.is_valid = 0
 endfunction
 
@@ -1025,7 +1027,7 @@ function! s:vp_waitpid() dict
   if has_key(self, 'ttyname')
     call self.close()
   endif
-  
+
   let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
   let self.is_valid = 0
   return [l:cond, str2nr(l:status)]
@@ -1035,7 +1037,7 @@ function! s:vp_pgroup_waitpid() dict
   let [l:cond, l:status] = 
         \ has_key(self, 'cond') && has_key(self, 'status') ?
         \ [self.cond, self.status] : self.current_proc.waitpid()
-  
+
   let self.is_valid = 0
   return [l:cond, str2nr(l:status)]
 endfunction
