@@ -408,6 +408,7 @@ function! s:plineopen(npipe, commands)"{{{
   let l:proc.waitpid = s:funcref('vp_waitpid')
   let l:proc.get_winsize = s:funcref('vp_pty_get_winsize')
   let l:proc.set_winsize = s:funcref('vp_pty_set_winsize')
+  let l:proc.fd = l:proc.stdin.fd[0]
   let l:proc.is_valid = 1
 
   return proc
