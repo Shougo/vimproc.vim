@@ -196,7 +196,7 @@ BUGS						*vimproc-bugs*
 CHANGELOG					*vimproc-changelog*
 
 2010-12-14
-- Improved set_winsize() and get_winsize().
+- Restored set_winsize() and get_winsize().
 
 2010-11-30
 - Fixed dll handle error.

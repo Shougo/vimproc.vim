@@ -406,9 +406,6 @@ function! s:plineopen(npipe, commands)"{{{
   endif
   let l:proc.kill = s:funcref('vp_pipes_kill')
   let l:proc.waitpid = s:funcref('vp_waitpid')
-  let l:proc.get_winsize = s:funcref('vp_pty_get_winsize')
-  let l:proc.set_winsize = s:funcref('vp_pty_set_winsize')
-  let l:proc.fd = l:proc.stdin.fd[0]
   let l:proc.is_valid = 1
 
   return proc
@@ -509,7 +506,7 @@ function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write)"{{{
 endfunction"}}}
 function! s:fdopen_pipes(fd, f_close, f_read, f_write)"{{{
   return {
-        \'fd' : a:fd, 'eof' : 0, 'is_valid' : 1, 
+        \'fd' : a:fd, 'eof' : 0, 'is_valid' : 1,
         \'f_close' : s:funcref(a:f_close),
         \'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
         \}
