@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 14 Dec 2010.
+" Last Modified: 19 Dec 2010.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -115,8 +115,9 @@ function! vimproc#get_command_name(command, ...)"{{{
 
   " Expand path.
   let l:path = substitute(l:path, (s:is_win ? ';' : ':'), ',', 'g')
-  let l:path = join(split(l:path, ','), ',')
-  let l:path = substitute(l:path, '\s', '\\\\ ', 'g')
+  if s:is_win
+    let l:path = substitute(l:path, '\\', '/', 'g')
+  endif
 
   let l:count = a:0 < 2 ? 1 : a:2
 

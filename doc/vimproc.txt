@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-12-19
+- Fixed substitute path.
+
 2010-12-14
 - Improved set_winsize() and get_winsize().
 
