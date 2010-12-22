@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-12-22
+- Fixed escape bug.
+
 2010-12-19
 - Fixed substitute path.
 
