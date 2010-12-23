@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 Dec 2010.
+" Last Modified: 23 Dec 2010.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -425,6 +425,7 @@ function! vimproc#pgroup_open(statements)"{{{
   let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement)
 
   let l:proc.pid = l:proc.current_proc.pid
+  let l:proc.pid_list = l:proc.current_proc.pid_list
   let l:proc.condition = a:statements[0].condition
   let l:proc.statements = a:statements[1:]
   let l:proc.stdin = s:fdopen_pgroup(l:proc, l:proc.current_proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
@@ -861,6 +862,9 @@ function! s:read_pgroup(...) dict"{{{
       " Initialize next statement.
       let l:proc = vimproc#plineopen3(self.proc.statements[0].statement)
       let self.proc.current_proc = l:proc
+
+      let self.pid = l:proc.pid
+      let self.pid_list = l:proc.pid_list
       let self.proc.condition = self.proc.statements[0].condition
       let self.proc.statements = self.proc.statements[1:]
 
@@ -1031,13 +1035,20 @@ function! s:vp_waitpid() dict
     call self.close()
   endif
 
-  let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+  if has_key(self, 'pid_list')
+    for pid in self.pid_list
+      let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
+    endfor
+  else
+    let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+  endif
+
   let self.is_valid = 0
   return [l:cond, str2nr(l:status)]
 endfunction
 
 function! s:vp_pgroup_waitpid() dict
-  let [l:cond, l:status] = 
+  let [l:cond, l:status] =
         \ has_key(self, 'cond') && has_key(self, 'status') ?
         \ [self.cond, self.status] : self.current_proc.waitpid()
 
