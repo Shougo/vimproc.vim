@@ -195,7 +195,7 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
-2010-12-24
+2010-12-23
 - Fixed vimproc resource leak.
 
 2010-12-22
