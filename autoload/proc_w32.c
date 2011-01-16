@@ -87,7 +87,6 @@ static BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode);
 
 /* --- */
 
-#define VP_ARGC_MAX 256
 #define VP_READ_BUFSIZE 2048
 
 static const char *

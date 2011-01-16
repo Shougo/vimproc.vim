@@ -135,6 +135,11 @@ function! vimproc#parser#parse_pipe(statement)"{{{
         " Clear.
         let @+ = ''
       else
+        if filereadable(l:fd.stdout)
+          " Delete file.
+          call delete(l:fd.stdout)
+        endif
+
         " Create file.
         call writefile([], l:fd.stdout)
       endif
