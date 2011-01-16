@@ -97,7 +97,6 @@ const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
 const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 /* --- */
 
-#define VP_ARGC_MAX 1024
 #define VP_READ_BUFSIZE 2048
 
 static vp_stack_t _result = VP_STACK_NULL;
@@ -359,7 +358,7 @@ vp_pipe_open(char *args)
     vp_stack_t stack;
     int npipe;
     int argc;
-    char *argv[VP_ARGC_MAX];
+    char **argv;
     int fd[3][2];
     pid_t pid;
     int i;
@@ -369,18 +368,23 @@ vp_pipe_open(char *args)
     if (npipe != 2 && npipe != 3)
         return vp_stack_return_error(&_result, "npipe range error. wrong pipes.");
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
-    if (argc < 1 || VP_ARGC_MAX <= argc)
-        return vp_stack_return_error(&_result, "argc range error. too many arguments. please use xargs.");
+    argv = malloc(sizeof(char *) * (argc+1));
+    if (argv == NULL) {
+        return vp_stack_return_error(&_result, "failed malloc().");
+    }
     for (i = 0; i < argc; ++i)
         VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
     argv[argc] = NULL;
 
-    if (pipe(fd[0]) < 0 || pipe(fd[1]) < 0 || (npipe == 3 && pipe(fd[2]) < 0))
+    if (pipe(fd[0]) < 0 || pipe(fd[1]) < 0 || (npipe == 3 && pipe(fd[2]) < 0)) {
+        free(argv);
         return vp_stack_return_error(&_result, "pipe() error: %s",
                 strerror(errno));
+    }
 
     pid = fork();
     if (pid < 0) {
+        free(argv);
         return vp_stack_return_error(&_result, "fork() error: %s",
                 strerror(errno));
     } else if (pid == 0) {
@@ -392,36 +396,37 @@ vp_pipe_open(char *args)
         if (fd[0][0] != STDIN_FILENO) {
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 write(fd[1][1], strerror(errno), strlen(strerror(errno)));
-                _exit(EXIT_FAILURE);
+                goto child_error;
             }
             close(fd[0][0]);
         }
         if (fd[1][1] != STDOUT_FILENO) {
             if (dup2(fd[1][1], STDOUT_FILENO) != STDOUT_FILENO) {
                 write(fd[1][1], strerror(errno), strlen(strerror(errno)));
-                _exit(EXIT_FAILURE);
+                goto child_error;
             }
             close(fd[1][1]);
         }
         if (npipe == 2) {
             if (dup2(STDOUT_FILENO, STDERR_FILENO) != STDERR_FILENO) {
                 write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
-                _exit(EXIT_FAILURE);
+                goto child_error;
             }
         } else if (fd[2][1] != STDERR_FILENO) {
             if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
                 write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
-                _exit(EXIT_FAILURE);
+                goto child_error;
             }
             close(fd[2][1]);
         }
         if (execv(argv[0], argv) < 0) {
-            /* error */
             write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
-            _exit(EXIT_FAILURE);
+            goto child_error;
         }
+        free(argv);
     } else {
         /* parent */
+        free(argv);
         close(fd[0][0]);
         close(fd[1][1]);
         if (npipe == 3)
@@ -435,6 +440,12 @@ vp_pipe_open(char *args)
     }
     /* DO NOT REACH HEAR */
     return NULL;
+
+
+    /* error */
+child_error:
+    free(argv);
+    _exit(EXIT_FAILURE);
 }
 
 const char *
@@ -460,7 +471,7 @@ vp_pty_open(char *args)
 {
     vp_stack_t stack;
     int argc;
-    char *argv[VP_ARGC_MAX];
+    char **argv;
     int fdm;
     pid_t pid;
     struct winsize ws = {0, 0, 0, 0};
@@ -471,8 +482,10 @@ vp_pty_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_col)));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_row)));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
-    if (argc < 1 || VP_ARGC_MAX <= argc)
-        return vp_stack_return_error(&_result, "argc range error. too many arguments. please use xargs.");
+    argv = malloc(sizeof(char *) * (argc+1));
+    if (argv == NULL) {
+        return vp_stack_return_error(&_result, "failed malloc().");
+    }
     for (i = 0; i < argc; ++i)
         VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
     argv[argc] = NULL;
@@ -496,8 +509,9 @@ vp_pty_open(char *args)
         /*pid = forkpty(&fdm, NULL, &ti, &ws);*/
     /*}*/
     pid = forkpty(&fdm, NULL, NULL, &ws);
-    
+
     if (pid < 0) {
+        free(argv);
         return vp_stack_return_error(&_result, "forkpty() error: %s",
                 strerror(errno));
     } else if (pid == 0) {
@@ -505,10 +519,15 @@ vp_pty_open(char *args)
         if (execv(argv[0], argv) < 0) {
             /* error */
             write(fdm, strerror(errno), strlen(strerror(errno)));
+
+            free(argv);
             _exit(EXIT_FAILURE);
         }
+        free(argv);
     } else {
         /* parent */
+        free(argv);
+
         vp_stack_push_num(&_result, "%d", pid);
         vp_stack_push_num(&_result, "%d", fdm);
         /* XXX - ttyname(fdm) breaks in OS X */

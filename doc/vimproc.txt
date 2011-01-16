@@ -197,6 +197,7 @@ CHANGELOG					*vimproc-changelog*
 
 2010-01-16
 - Fixed overwrite system file error in Windows.
+- Removed limited argc size.
 
 2010-12-23
 - Fixed vimproc resource leak.
