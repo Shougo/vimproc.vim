@@ -358,7 +358,6 @@ vp_pipe_open(char *args)
     vp_stack_t stack;
     int npipe;
     int argc;
-    char **argv;
     int fd[3][2];
     pid_t pid;
     int i;
@@ -368,27 +367,19 @@ vp_pipe_open(char *args)
     if (npipe != 2 && npipe != 3)
         return vp_stack_return_error(&_result, "npipe range error. wrong pipes.");
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
-    argv = malloc(sizeof(char *) * (argc+1));
-    if (argv == NULL) {
-        return vp_stack_return_error(&_result, "failed malloc().");
-    }
-    for (i = 0; i < argc; ++i)
-        VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
-    argv[argc] = NULL;
-
     if (pipe(fd[0]) < 0 || pipe(fd[1]) < 0 || (npipe == 3 && pipe(fd[2]) < 0)) {
-        free(argv);
         return vp_stack_return_error(&_result, "pipe() error: %s",
                 strerror(errno));
     }
 
     pid = fork();
     if (pid < 0) {
-        free(argv);
         return vp_stack_return_error(&_result, "fork() error: %s",
                 strerror(errno));
     } else if (pid == 0) {
         /* child */
+        char **argv;
+
         close(fd[0][1]);
         close(fd[1][0]);
         if (npipe == 3)
@@ -419,14 +410,25 @@ vp_pipe_open(char *args)
             }
             close(fd[2][1]);
         }
+
+        argv = malloc(sizeof(char *) * (argc+1));
+        if (argv == NULL) {
+            write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
+            goto child_error;
+        }
+        for (i = 0; i < argc; ++i) {
+            VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
+        }
+        argv[argc] = NULL;
+
         if (execv(argv[0], argv) < 0) {
+            free(argv);
             write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
             goto child_error;
         }
         free(argv);
     } else {
         /* parent */
-        free(argv);
         close(fd[0][0]);
         close(fd[1][1]);
         if (npipe == 3)
@@ -444,7 +446,6 @@ vp_pipe_open(char *args)
 
     /* error */
 child_error:
-    free(argv);
     _exit(EXIT_FAILURE);
 }
 
@@ -471,7 +472,6 @@ vp_pty_open(char *args)
 {
     vp_stack_t stack;
     int argc;
-    char **argv;
     int fdm;
     pid_t pid;
     struct winsize ws = {0, 0, 0, 0};
@@ -482,13 +482,6 @@ vp_pty_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_col)));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_row)));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
-    argv = malloc(sizeof(char *) * (argc+1));
-    if (argv == NULL) {
-        return vp_stack_return_error(&_result, "failed malloc().");
-    }
-    for (i = 0; i < argc; ++i)
-        VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
-    argv[argc] = NULL;
 
     /* Set termios parameter */
     /*if (tcgetattr(STDIN_FILENO, &ti) < 0) {*/
@@ -511,22 +504,32 @@ vp_pty_open(char *args)
     pid = forkpty(&fdm, NULL, NULL, &ws);
 
     if (pid < 0) {
-        free(argv);
         return vp_stack_return_error(&_result, "forkpty() error: %s",
                 strerror(errno));
     } else if (pid == 0) {
         /* child */
+        char **argv;
+
+        argv = malloc(sizeof(char *) * (argc+1));
+        if (argv == NULL) {
+            write(fdm, strerror(errno), strlen(strerror(errno)));
+            _exit(EXIT_FAILURE);
+        }
+        for (i = 0; i < argc; ++i) {
+            VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
+        }
+        argv[argc] = NULL;
+
         if (execv(argv[0], argv) < 0) {
             /* error */
-            write(fdm, strerror(errno), strlen(strerror(errno)));
-
             free(argv);
+
+            write(fdm, strerror(errno), strlen(strerror(errno)));
             _exit(EXIT_FAILURE);
         }
         free(argv);
     } else {
         /* parent */
-        free(argv);
 
         vp_stack_push_num(&_result, "%d", pid);
         vp_stack_push_num(&_result, "%d", fdm);
