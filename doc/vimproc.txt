@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-01-25
+- Fixed back quote parse.
+
 2010-01-16
 - Fixed overwrite system file error in Windows.
 - Removed limited argc size.

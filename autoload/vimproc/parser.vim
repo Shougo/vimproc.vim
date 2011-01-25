@@ -899,7 +899,7 @@ function! s:parse_back_quote(script, i)"{{{
     while i < l:max
       if a:script[i] == '`'
         " Quote end.
-        return [vimproc#system(l:arg), i+1]
+        return [substitute(vimproc#system(l:arg), '\n$', '', ''), i+1]
       else
         let l:arg .= a:script[i]
         let i += 1
