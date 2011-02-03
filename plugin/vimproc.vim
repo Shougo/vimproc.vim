@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 Sep 2010
+" Last Modified: 03 Feb 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -39,9 +39,12 @@ command! -nargs=+ -complete=shellcmd VimProcRead call s:read(<q-args>)
 
 " Command functions:
 function! s:bang(cmdline)"{{{
+  " Expand % and #.
+  let l:cmdline = join(map(vimproc#parser#split_args_through(
+        \ iconv(a:cmdline, &termencoding, &encoding)), 'expand(v:val)'))
+
   " Open pipe.
-  let l:cmdline = join(map(split(a:cmdline), 'expand(v:val)'))
-  let l:subproc = vimproc#pgroup_open(iconv(l:cmdline, &termencoding, &encoding))
+  let l:subproc = vimproc#pgroup_open(l:cmdline)
 
   call l:subproc.stdin.close()
 
@@ -52,7 +55,7 @@ function! s:bang(cmdline)"{{{
         if &encoding != &termencoding
           let l:output = iconv(l:output, &termencoding, &encoding)
         endif
-        
+
         echon l:output
         sleep 1m
       endif
@@ -65,7 +68,7 @@ function! s:bang(cmdline)"{{{
           let l:output = iconv(l:output, &termencoding, &encoding)
         endif
         echohl WarningMsg | echon l:output | echohl None
-        
+
         sleep 1m
       endif
     endif
@@ -77,9 +80,12 @@ function! s:bang(cmdline)"{{{
   let [l:cond, l:last_status] = l:subproc.waitpid()
 endfunction"}}}
 function! s:read(cmdline)"{{{
+  " Expand % and #.
+  let l:cmdline = join(map(vimproc#parser#split_args_through(
+        \ iconv(a:cmdline, &termencoding, &encoding)), 'expand(v:val)'))
+
   " Expand args.
-  let l:cmdline = join(map(split(a:cmdline), 'expand(v:val)'))
-  call append('.', split(iconv(vimshell#system(l:cmdline), &termencoding, &encoding), '\r\n\|\n'))
+  call append('.', split(iconv(vimproc#system(l:cmdline), &termencoding, &encoding), '\r\n\|\n'))
 endfunction"}}}
 
 let &cpo = s:save_cpo

@@ -37,7 +37,7 @@ function! vimproc#parser#system(cmdline, ...)"{{{
   for l:arg in l:args
     let l:arg.statement = vimproc#parser#parse_pipe(l:arg.statement)
   endfor
-  
+
   if a:cmdline =~ '&\s*$'
     return vimproc#parser#system_bg(l:args)
   elseif a:0 == 0

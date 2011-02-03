@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-02-03
+- Fixed expand().
+
 2010-01-25
 - Fixed back quote parse.
 
