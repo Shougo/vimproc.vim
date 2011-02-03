@@ -41,7 +41,7 @@ command! -nargs=+ -complete=shellcmd VimProcRead call s:read(<q-args>)
 function! s:bang(cmdline)"{{{
   " Expand % and #.
   let l:cmdline = join(map(vimproc#parser#split_args_through(
-        \ iconv(a:cmdline, &termencoding, &encoding)), 'expand(v:val)'))
+        \ iconv(a:cmdline, &termencoding, &encoding)), 'substitute(expand(v:val), "\n", " ", "g")'))
 
   " Open pipe.
   let l:subproc = vimproc#pgroup_open(l:cmdline)
