@@ -82,7 +82,7 @@ endfunction"}}}
 function! s:read(cmdline)"{{{
   " Expand % and #.
   let l:cmdline = join(map(vimproc#parser#split_args_through(
-        \ iconv(a:cmdline, &termencoding, &encoding)), 'expand(v:val)'))
+        \ iconv(a:cmdline, &termencoding, &encoding)), 'substitute(expand(v:val), "\n", " ", "g")'))
 
   " Expand args.
   call append('.', split(iconv(vimproc#system(l:cmdline), &termencoding, &encoding), '\r\n\|\n'))
