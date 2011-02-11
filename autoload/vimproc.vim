@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 23 Dec 2010.
+" Last Modified: 11 Feb 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -768,7 +768,7 @@ function! s:read_pipes(...) dict"{{{
   for l:fd in self.fd
     if !l:fd.eof
       let l:read = l:fd.read(l:number, l:timeout)
-      while l:read != ''
+      while len(l:output) < l:number && l:read != ''
         if empty(l:fd.redirect_fd)
           " Append output.
           let l:output .= l:read

@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-02-11
+- Fixed read_pipes.
+
 2010-02-03
 - Fixed expand().
 
