@@ -1,4 +1,4 @@
-*vimproc.jax*	Asynchronous execution plugin for Vim
+*vimproc.txt*	Asynchronous execution plugin for Vim
 
 Version: 5.0
 Author : Shougo <Shougo.Matsu@gmail.com>
