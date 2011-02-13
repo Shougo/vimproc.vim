@@ -714,7 +714,7 @@ function! s:vp_file_read_line() dict
   let l:hd = ''
   let l:eof = 0
   while l:hd !~ "\n\|\r\n" && !l:eof
-    let [l:hd, l:eof] = s:libcall('vp_file_read', [self.fd, a:number, a:timeout])
+    let [l:hd, l:eof] = s:libcall('vp_file_read', [self.fd, -1, s:read_timeout])
     let l:output .= l:output
   endwhile
 
