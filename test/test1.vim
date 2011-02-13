@@ -16,7 +16,19 @@ function! s:run()
   call file.close()
   Ok !file.is_valid, "closed"
 
-  IsDeeply readfile(filename), split(res, '\r\n\|\r\|\n'), "readfile() vs vimproc#fopen()"
+  IsDeeply readfile(filename), split(res, '\r\n\|\r\|\n'), "readfile() vs vimproc#fopen().read()"
+
+  let file = vimproc#fopen(filename, "O_RDONLY", 0)
+  let res2 = []
+  while !file.eof
+    call add(res2, file.read_line())
+  endwhile
+
+  Ok file.is_valid, "yet not closed"
+  call file.close()
+  Ok !file.is_valid, "closed"
+
+  IsDeeply readfile(filename), res2, "readfile() vs vimproc#fopen().read_line()"
 endfunction
 
 let s:org_cwd = getcwd()

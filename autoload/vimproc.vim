@@ -307,8 +307,6 @@ function! vimproc#fopen(path, flags, ...)"{{{
   let l:mode = get(a:000, 0, 0)
   let l:fd = s:vp_file_open(a:path, a:flags, l:mode)
   let l:proc = s:fdopen(l:fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
-  let l:proc.read_line = s:funcref('vp_file_read_line')
-  let l:proc.buffer = ''
   return l:proc
 endfunction"}}}
 
@@ -488,12 +486,35 @@ function! s:close() dict"{{{
   let self.fd = -1
 endfunction"}}}
 function! s:read(...) dict"{{{
+  let l:output = self.buffer
+  if self.__eof
+    return l:output
+  endif
+
   let l:number = get(a:000, 0, -1)
   let l:timeout = get(a:000, 1, s:read_timeout)
   let [l:hd, l:eof] = self.f_read(l:number, l:timeout)
   let self.eof = l:eof
-  return s:hd2str(l:hd)
+  let self.__eof = l:eof
+
+  let l:output .= s:hd2str(l:hd)
+  return l:output
 endfunction"}}}
+function! s:read_line() dict
+  let l:output = self.buffer
+  let l:res = ''
+  while l:res !~ "\n\|\r\n" && !self.__eof
+    let l:res = self.read()
+    let l:output .= l:res
+  endwhile
+
+  let l:lines = split(l:output, "\n\\|\r\n", 1)
+  let self.buffer = join(l:lines[1:], "\<LF>")
+  let self.eof = (self.buffer != '') ? 0 : self.__eof
+
+  return l:lines[0]
+endfunction
+
 function! s:write(str, ...) dict"{{{
   let l:timeout = get(a:000, 0, s:write_timeout)
   let l:hd = s:str2hd(a:str)
@@ -502,9 +523,10 @@ endfunction"}}}
 
 function! s:fdopen(fd, f_close, f_read, f_write)"{{{
   return {
-        \'fd' : a:fd, 'eof' : 0, 'is_valid' : 1,  
-        \'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
-        \'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write')
+        \ 'fd' : a:fd, 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write),
+        \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
+        \ 'read_line' : s:funcref('read_line'),
         \}
 endfunction"}}}
 function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write)"{{{
@@ -707,26 +729,6 @@ function! s:vp_file_read(number, timeout) dict
   let [l:hd, l:eof] = s:libcall('vp_file_read', [self.fd, a:number, a:timeout])
   let l:hd = self.buffer . l:hd
   return [l:hd, l:eof]
-endfunction
-
-function! s:vp_file_read_line() dict
-  let l:output = self.buffer
-  let l:hd = ''
-  let l:eof = 0
-  while l:hd !~ "\n\|\r\n" && !l:eof
-    let [l:hd, l:eof] = s:libcall('vp_file_read', [self.fd, -1, s:read_timeout])
-    let l:output .= l:output
-  endwhile
-
-  if !l:eof
-    let l:lines = split(l:output, "\n\|\r\n")
-    let self.buffer = join(l:lines[1:], "\<LF>")
-    let l:output = l:lines[0] . "\<LF>"
-  else
-    let self.buffer = ''
-  endif
-
-  return l:output
 endfunction
 
 function! s:vp_file_write(hd, timeout) dict
