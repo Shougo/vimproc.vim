@@ -503,16 +503,17 @@ endfunction"}}}
 function! s:read_line() dict
   let l:output = self.buffer
   let l:res = ''
-  while l:res !~ '\n\|\r\n' && !self.__eof
+  while l:res !~ '\r\?\n' && !self.__eof
     let l:res = self.read()
     let l:output .= l:res
   endwhile
 
-  let l:lines = split(l:output, '\n\|\r\n', 1)
-  let self.buffer = join(l:lines[1:], "\<LF>")
+  let l:pos = match(l:output, '\v%(\r?\n|$)\zs')
+  let l:line = matchstr(l:output[: l:pos - 1], '.\{-}\ze\r\?\n$')
+  let self.buffer = l:output[l:pos :]
   let self.eof = (self.buffer != '') ? 0 : self.__eof
 
-  return l:lines[0]
+  return l:line
 endfunction
 
 function! s:write(str, ...) dict"{{{
