@@ -503,12 +503,12 @@ endfunction"}}}
 function! s:read_line() dict
   let l:output = self.buffer
   let l:res = ''
-  while l:res !~ "\n\|\r\n" && !self.__eof
+  while l:res !~ '\n\|\r\n' && !self.__eof
     let l:res = self.read()
     let l:output .= l:res
   endwhile
 
-  let l:lines = split(l:output, "\n\\|\r\n", 1)
+  let l:lines = split(l:output, '\n\|\r\n', 1)
   let self.buffer = join(l:lines[1:], "\<LF>")
   let self.eof = (self.buffer != '') ? 0 : self.__eof
 
