@@ -369,13 +369,13 @@ function! s:plineopen(npipe, commands)"{{{
 
   " Open input.
   let l:hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
-        \ 0 : vimproc#fopen(a:commands[0].fd.stdin, "O_RDONLY")
+        \ 0 : vimproc#fopen(a:commands[0].fd.stdin, "O_RDONLY").fd
 
   for l:command in a:commands
     let l:hstdout = l:command.fd.stdout == '' ?
-          \ 0 : vimproc#fopen(l:command.fd.stdout, "O_WRONLY | O_CREAT")
+          \ 0 : vimproc#fopen(l:command.fd.stdout, "O_WRONLY | O_CREAT").fd
     let l:hstderr = l:command.fd.stderr == '' ?
-          \ 0 : vimproc#fopen(l:command.fd.stderr, "O_WRONLY | O_CREAT")
+          \ 0 : vimproc#fopen(l:command.fd.stderr, "O_WRONLY | O_CREAT").fd
 
     let l:pipe = s:vp_pipe_open(a:npipe, l:hstdin, l:hstdout, l:hstderr,
           \ s:convert_args(l:command.args))
