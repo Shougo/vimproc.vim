@@ -1004,7 +1004,7 @@ function! s:vp_pgroup_kill(sig) dict
     call self.close()
   endif
 
-  call self.proc.current_proc.kill(a:sig)
+  call self.current_proc.kill(a:sig)
 
   let self.is_valid = 0
 endfunction
