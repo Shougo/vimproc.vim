@@ -1040,7 +1040,7 @@ function! s:vp_waitpid() dict
     endtry
 
     " For zombie process.
-    if !(l:cond !=# 'signal' && l:status == 77)
+    if !(l:cond ==# 'signal' && l:status == 77)
       break
     endif
   endwhile
