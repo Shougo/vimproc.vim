@@ -338,11 +338,11 @@ const char *
 vp_pipe_open(char *args)
 {
     vp_stack_t stack;
-    int npipe;
+    int npipe, hstdin, hstderr, hstdout;
     char *cmdline;
-    HANDLE hInputWriteTmp, hInputRead, hInputWrite;
-    HANDLE hOutputReadTmp, hOutputRead, hOutputWrite;
-    HANDLE hErrorReadTmp, hErrorRead, hErrorWrite;
+    HANDLE hInputWriteTmp, hInputWrite, hInputReadTmp, hInputRead;
+    HANDLE hOutputWriteTmp, hOutputWrite, hOutputReadTmp, hOutputRead;
+    HANDLE hErrorWriteTmp, hErrorWrite, hErrorReadTmp, hErrorRead;
     SECURITY_ATTRIBUTES sa;
     PROCESS_INFORMATION pi;
     STARTUPINFO si;
@@ -351,38 +351,65 @@ vp_pipe_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &npipe));
     if (npipe != 2 && npipe != 3)
         return vp_stack_return_error(&_result, "npipe range error");
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdin));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdout));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstderr));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &cmdline));
 
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.lpSecurityDescriptor = NULL;
     sa.bInheritHandle = TRUE;
 
-    if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 0))
-        return vp_stack_return_error(&_result, "CreatePipe() error: %s",
-                lasterror());
+    if (hstdin) {
+        /* Get handle. */
+        hInputRead = (HANDLE)_get_osfhandle(hstdin);
+
+        if (!CreatePipe(&hInputReadTmp, &hInputWriteTmp, &sa, 0))
+            return vp_stack_return_error(&_result, "CreatePipe() error: %s",
+                    lasterror());
+        if (!CloseHandle(hInputReadTmp))
+            return vp_stack_return_error(&_result, "CloseHandle() error: %s",
+                    lasterror());
+    } else {
+        /* Create pipe. */
+        if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 0))
+            return vp_stack_return_error(&_result, "CreatePipe() error: %s",
+                    lasterror());
+    }
     if (!DuplicateHandle(GetCurrentProcess(),
-                         hInputWriteTmp,
-                         GetCurrentProcess(),
-                         &hInputWrite,
-                         0,
-                         FALSE,
-                         DUPLICATE_SAME_ACCESS))
+                hInputWriteTmp,
+                GetCurrentProcess(),
+                &hInputWrite,
+                0,
+                FALSE,
+                DUPLICATE_SAME_ACCESS))
         return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                 lasterror());
     if (!CloseHandle(hInputWriteTmp))
         return vp_stack_return_error(&_result, "CloseHandle() error: %s",
                 lasterror());
 
-    if (!CreatePipe(&hOutputReadTmp, &hOutputWrite, &sa, 0))
-        return vp_stack_return_error(&_result, "CreatePipe() error: %s",
-                lasterror());
+    if (hstdout) {
+        /* Get handle. */
+        hOutputWrite = (HANDLE)_get_osfhandle(hstdout);
+
+        if (!CreatePipe(&hOutputReadTmp, &hOutputWriteTmp, &sa, 0))
+            return vp_stack_return_error(&_result, "CreatePipe() error: %s",
+                    lasterror());
+    } else {
+        /* Create pipe. */
+        if (!CreatePipe(&hOutputReadTmp, &hOutputWrite, &sa, 0))
+            return vp_stack_return_error(&_result, "CreatePipe() error: %s",
+                    lasterror());
+    }
+
     if (!DuplicateHandle(GetCurrentProcess(),
-                         hOutputReadTmp,
-                         GetCurrentProcess(),
-                         &hOutputRead,
-                         0,
-                         FALSE,
-                         DUPLICATE_SAME_ACCESS))
+                hOutputReadTmp,
+                GetCurrentProcess(),
+                &hOutputRead,
+                0,
+                FALSE,
+                DUPLICATE_SAME_ACCESS))
         return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                 lasterror());
     if (!CloseHandle(hOutputReadTmp))
@@ -400,24 +427,34 @@ vp_pipe_open(char *args)
             return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                     lasterror());
     } else {
-        if (!CreatePipe(&hErrorReadTmp, &hErrorWrite, &sa, 0))
-            return vp_stack_return_error(&_result, "CreatePipe() error: %s",
-                    lasterror());
+        if (hstderr) {
+            /* Get handle. */
+            hErrorWrite = (HANDLE)_get_osfhandle(hstderr);
+
+            if (!CreatePipe(&hErrorReadTmp, &hErrorWriteTmp, &sa, 0))
+                return vp_stack_return_error(&_result, "CreatePipe() error: %s",
+                        lasterror());
+        } else {
+            /* Create pipe. */
+            if (!CreatePipe(&hErrorReadTmp, &hErrorWrite, &sa, 0))
+                return vp_stack_return_error(&_result, "CreatePipe() error: %s",
+                        lasterror());
+        }
 
         if (!DuplicateHandle(GetCurrentProcess(),
-                             hErrorReadTmp,
-                             GetCurrentProcess(),
-                             &hErrorRead,
-                             0,
-                             FALSE,
-                             DUPLICATE_SAME_ACCESS))
+                    hErrorReadTmp,
+                    GetCurrentProcess(),
+                    &hErrorRead,
+                    0,
+                    FALSE,
+                    DUPLICATE_SAME_ACCESS))
             return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                     lasterror());
         if (!CloseHandle(hErrorReadTmp))
             return vp_stack_return_error(&_result, "CloseHandle() error: %s",
                     lasterror());
     }
-    
+
     ZeroMemory(&si, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
     /*si.dwFlags = STARTF_USESTDHANDLES;*/
@@ -432,22 +469,28 @@ vp_pipe_open(char *args)
                         /*0, NULL, NULL, &si, &pi))*/
                         /*DETACHED_PROCESS, NULL, NULL, &si, &pi))*/
                         /*CREATE_NO_WINDOW, NULL, NULL, &si, &pi))*/
-        return vp_stack_return_error(&_result, "CreateProcess() error: %s",
+        return vp_stack_return_error(&_result, "CreateProcess() error: %s %s",
                 lasterror());
 
     if (!CloseHandle(pi.hThread))
         return vp_stack_return_error(&_result, "CloseHandle() error: %s",
                 lasterror());
 
-    if (!CloseHandle(hInputRead))
-        return vp_stack_return_error(&_result, "CloseHandle() error: %s",
-                lasterror());
-    if (!CloseHandle(hOutputWrite))
-        return vp_stack_return_error(&_result, "CloseHandle() error: %s",
-                lasterror());
-    if (!CloseHandle(hErrorWrite))
-        return vp_stack_return_error(&_result, "CloseHandle() error: %s",
-                lasterror());
+    if (!hstdin) {
+        if (!CloseHandle(hInputRead))
+            return vp_stack_return_error(&_result, "CloseHandle() error: %s",
+                    lasterror());
+    }
+    if (!hstdout) {
+        if (!CloseHandle(hOutputWrite))
+            return vp_stack_return_error(&_result, "CloseHandle() error: %s",
+                    lasterror());
+    }
+    if (!hstderr) {
+        if (!CloseHandle(hErrorWrite))
+            return vp_stack_return_error(&_result, "CloseHandle() error: %s",
+                    lasterror());
+    }
 
     vp_stack_push_num(&_result, "%p", pi.hProcess);
     vp_stack_push_num(&_result, "%d", _open_osfhandle((long)hInputWrite, 0));

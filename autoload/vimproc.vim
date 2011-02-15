@@ -325,7 +325,8 @@ function! vimproc#popen3(args)"{{{
   return s:popen(3, a:args)
 endfunction"}}}
 function! s:popen(npipe, args)"{{{
-  let l:pipe = s:vp_pipe_open(a:npipe, s:convert_args(a:args))
+  let l:pipe = s:vp_pipe_open(a:npipe, 0, 0, 0,
+        \ s:convert_args(a:args))
   if a:npipe == 3
     let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
   else
@@ -365,8 +366,19 @@ function! s:plineopen(npipe, commands)"{{{
   let l:stdin_list = []
   let l:stdout_list = []
   let l:stderr_list = []
+
+  " Open input.
+  let l:hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
+        \ 0 : vimproc#fopen(a:commands[0].fd.stdin, "O_RDONLY")
+
   for l:command in a:commands
-    let l:pipe = s:vp_pipe_open(a:npipe, s:convert_args(l:command.args))
+    let l:hstdout = l:command.fd.stdout == '' ?
+          \ 0 : vimproc#fopen(l:command.fd.stdout, "O_WRONLY | O_CREAT")
+    let l:hstderr = l:command.fd.stderr == '' ?
+          \ 0 : vimproc#fopen(l:command.fd.stderr, "O_WRONLY | O_CREAT")
+
+    let l:pipe = s:vp_pipe_open(a:npipe, l:hstdin, l:hstdout, l:hstderr,
+          \ s:convert_args(l:command.args))
     if a:npipe == 3
       let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
     else
@@ -379,25 +391,9 @@ function! s:plineopen(npipe, commands)"{{{
     if a:npipe == 3
       call add(l:stderr_list, s:fdopen(l:fd_stderr, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     endif
+
+    let l:hstdin = l:stdout_list[-1].fd
   endfor
-
-  " Set pipe redirection.
-  let i = 0
-  let max = len(l:pid_list) - 1
-  while i < max
-    let l:stdin_list[i].redirect_fd = []
-    let l:stdout_list[i].redirect_fd = [ l:stdin_list[i+1] ]
-    if a:npipe == 3
-      let l:stderr_list[i].redirect_fd = []
-    endif
-
-    let i += 1
-  endwhile
-  let l:stdin_list[i].redirect_fd = []
-  let l:stdout_list[i].redirect_fd = []
-  if a:npipe == 3
-    let l:stderr_list[i].redirect_fd = []
-  endif
 
   let l:proc = {}
   let l:proc.pid_list = l:pid_list
@@ -445,7 +441,8 @@ function! vimproc#ptyopen(args)"{{{
   endif
 
   if s:is_win
-    let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, s:convert_args(a:args))
+    let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, 0, 0, 0,
+          \ s:convert_args(a:args))
     let l:ttyname = ''
 
     let l:proc = s:fdopen_pty(l:fd_stdin, l:fd_stdout, 'vp_pty_close', 'vp_pty_read', 'vp_pty_write')
@@ -740,16 +737,17 @@ function! s:vp_file_write(hd, timeout) dict
   return l:nleft
 endfunction
 
-function! s:vp_pipe_open(npipe, argv)"{{{
+function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
   if s:is_win
     let l:cmdline = ''
     for arg in a:argv
       let l:cmdline .= '"' . substitute(arg, '"', '\\"', 'g') . '" '
     endfor
-    let [l:pid; l:fdlist] = s:libcall('vp_pipe_open', [a:npipe, l:cmdline])
+    let [l:pid; l:fdlist] = s:libcall('vp_pipe_open',
+          \ [a:npipe, a:hstdin, a:hstdout, a:hstderr, l:cmdline])
   else
     let [l:pid; l:fdlist] = s:libcall('vp_pipe_open',
-          \ [a:npipe, len(a:argv)] + a:argv)
+          \ [a:npipe, a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
   endif
 
   if a:npipe != len(l:fdlist)
@@ -794,34 +792,11 @@ function! s:read_pipes(...) dict"{{{
   let l:number = get(a:000, 0, -1)
   let l:timeout = get(a:000, 1, s:read_timeout)
 
-  let l:output = ''
-  let l:eof = 0
-  for l:fd in self.fd
-    if !l:fd.eof
-      let l:read = l:fd.read(l:number, l:timeout)
-      while (l:number < 0 || len(l:output) < l:number) && l:read != ''
-        if empty(l:fd.redirect_fd)
-          " Append output.
-          let l:output .= l:read
-        else
-          " Write pipe.
-          for l:redirect_fd in l:fd.redirect_fd
-            call l:redirect_fd.write(l:read)
-          endfor
-        endif
+  if self.fd[-1].eof
+    return ''
+  endif
 
-        let l:read = l:fd.read(l:number, l:timeout)
-      endwhile
-    else
-      " Close pipe.
-      for l:redirect_fd in l:fd.redirect_fd
-        if l:redirect_fd.fd >= 0
-          call l:redirect_fd.close()
-        endif
-      endfor
-    endif
-  endfor
-
+  let l:output = self.fd[-1].read(l:number, l:timeout)
   let self.eof = self.fd[-1].eof
 
   return l:output
@@ -830,34 +805,13 @@ endfunction"}}}
 function! s:write_pipes(str, ...) dict"{{{
   let l:timeout = get(a:000, 0, s:write_timeout)
 
+  if self.fd[-1].eof
+    return 0
+  endif
+
   " Write data.
   let l:nleft = self.fd[0].write(a:str, l:timeout)
-
-  for l:fd in self.fd[: -2]
-    if !l:fd.eof
-      let l:read = l:fd.read([-1, l:timeout])
-      while l:read != ''
-        if empty(l:fd.redirect_fd)
-          " Append output.
-          let l:output .= l:read
-        else
-          " Write pipe.
-          for l:redirect_fd in l:fd.redirect_fd
-            call l:redirect_fd.write(l:read)
-          endfor
-        endif
-
-        let l:read = l:fd.read(-1, l:timeout)
-      endwhile
-    else
-      " Close pipe.
-      for l:redirect_fd in l:fd.redirect_fd
-        if l:redirect_fd.fd >= 0
-          call l:redirect_fd.close()
-        endif
-      endfor
-    endif
-  endfor
+  let self.eof = self.fd[0].eof
 
   return l:nleft
 endfunction"}}}

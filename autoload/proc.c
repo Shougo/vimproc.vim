@@ -356,7 +356,7 @@ const char *
 vp_pipe_open(char *args)
 {
     vp_stack_t stack;
-    int npipe;
+    int npipe, hstdin, hstderr, hstdout;
     int argc;
     int fd[3][2];
     pid_t pid;
@@ -366,6 +366,9 @@ vp_pipe_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &npipe));
     if (npipe != 2 && npipe != 3)
         return vp_stack_return_error(&_result, "npipe range error. wrong pipes.");
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdin));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdout));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstderr));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
     if (pipe(fd[0]) < 0 || pipe(fd[1]) < 0 || (npipe == 3 && pipe(fd[2]) < 0)) {
         return vp_stack_return_error(&_result, "pipe() error: %s",

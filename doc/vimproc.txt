@@ -197,6 +197,7 @@ CHANGELOG					*vimproc-changelog*
 
 2010-02-15
 - Fixed error.
+- Improved pipes(experimental).
 
 2010-02-13
 - Fixed read_line() bugs.

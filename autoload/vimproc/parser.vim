@@ -146,7 +146,7 @@ function! vimproc#parser#parse_pipe(statement)"{{{
     endif
 
     call add(l:commands, {
-          \ 'args' : vimproc#parser#split_args(l:cmdline), 
+          \ 'args' : vimproc#parser#split_args(l:cmdline),
           \ 'fd' : l:fd
           \})
   endfor
