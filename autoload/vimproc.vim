@@ -779,11 +779,19 @@ function! s:vp_pgroup_close() dict
 endfunction
 
 function! s:vp_pipe_read(number, timeout) dict
+  if self.fd == 0
+    return ['', 1]
+  endif
+
   let [l:hd, l:eof] = s:libcall('vp_pipe_read', [self.fd, a:number, a:timeout])
   return [l:hd, l:eof]
 endfunction
 
 function! s:vp_pipe_write(hd, timeout) dict
+  if self.fd == 0
+    return 0
+  endif
+
   let [l:nleft] = s:libcall('vp_pipe_write', [self.fd, a:hd, a:timeout])
   return l:nleft
 endfunction
@@ -805,7 +813,7 @@ endfunction"}}}
 function! s:write_pipes(str, ...) dict"{{{
   let l:timeout = get(a:000, 0, s:write_timeout)
 
-  if self.fd[-1].eof
+  if self.fd[0].eof
     return 0
   endif
 
@@ -981,10 +989,7 @@ function! s:vp_pipes_kill(sig) dict
     call self.close()
   endif
 
-  for l:pid in self.pid_list
-    call s:libcall('vp_kill', [l:pid, a:sig])
-  endfor
-  let self.is_valid = 0
+  call s:libcall('vp_kill', [self.pid, a:sig])
 endfunction
 
 function! s:vp_pgroup_kill(sig) dict
@@ -1020,15 +1025,9 @@ function! s:vp_waitpid() dict
     call self.close()
   endif
 
-  if has_key(self, 'pid_list')
-    for pid in self.pid_list
-      let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
-    endfor
-  else
-    let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
-  endif
-
   let self.is_valid = 0
+  let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+
   return [l:cond, str2nr(l:status)]
 endfunction
 

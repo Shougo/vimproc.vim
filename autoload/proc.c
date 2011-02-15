@@ -370,9 +370,35 @@ vp_pipe_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdout));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstderr));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
-    if (pipe(fd[0]) < 0 || pipe(fd[1]) < 0 || (npipe == 3 && pipe(fd[2]) < 0)) {
-        return vp_stack_return_error(&_result, "pipe() error: %s",
-                strerror(errno));
+
+    if (hstdin) {
+        fd[0][0] = hstdin;
+        fd[0][1] = 0;
+    } else {
+        if (pipe(fd[0]) < 0) {
+            return vp_stack_return_error(&_result, "pipe() error: %s",
+                    strerror(errno));
+        }
+    }
+    if (hstdout) {
+        fd[1][0] = hstdout;
+        fd[1][1] = 0;
+    } else {
+        if (pipe(fd[1]) < 0) {
+            return vp_stack_return_error(&_result, "pipe() error: %s",
+                    strerror(errno));
+        }
+    }
+    if (npipe == 3) {
+        if (hstderr) {
+            fd[2][0] = hstderr;
+            fd[2][1] = 0;
+        } else {
+            if (pipe(fd[2]) < 0) {
+                return vp_stack_return_error(&_result, "pipe() error: %s",
+                        strerror(errno));
+            }
+        }
     }
 
     pid = fork();
@@ -383,32 +409,33 @@ vp_pipe_open(char *args)
         /* child */
         char **argv;
 
-        close(fd[0][1]);
-        close(fd[1][0]);
-        if (npipe == 3)
+        if (!hstdin) {
+            close(fd[0][1]);
+        }
+        if (!hstdout) {
+            close(fd[1][0]);
+        }
+        if (npipe == 3 && !hstderr) {
             close(fd[2][0]);
+        }
         if (fd[0][0] != STDIN_FILENO) {
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
-                write(fd[1][1], strerror(errno), strlen(strerror(errno)));
                 goto child_error;
             }
             close(fd[0][0]);
         }
         if (fd[1][1] != STDOUT_FILENO) {
             if (dup2(fd[1][1], STDOUT_FILENO) != STDOUT_FILENO) {
-                write(fd[1][1], strerror(errno), strlen(strerror(errno)));
                 goto child_error;
             }
             close(fd[1][1]);
         }
         if (npipe == 2) {
             if (dup2(STDOUT_FILENO, STDERR_FILENO) != STDERR_FILENO) {
-                write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
                 goto child_error;
             }
         } else if (fd[2][1] != STDERR_FILENO) {
             if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
-                write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
                 goto child_error;
             }
             close(fd[2][1]);
@@ -416,7 +443,6 @@ vp_pipe_open(char *args)
 
         argv = malloc(sizeof(char *) * (argc+1));
         if (argv == NULL) {
-            write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
             goto child_error;
         }
         for (i = 0; i < argc; ++i) {
@@ -426,16 +452,21 @@ vp_pipe_open(char *args)
 
         if (execv(argv[0], argv) < 0) {
             free(argv);
-            write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
             goto child_error;
         }
         free(argv);
     } else {
         /* parent */
-        close(fd[0][0]);
-        close(fd[1][1]);
-        if (npipe == 3)
+        if (!hstdin) {
+            close(fd[0][0]);
+        }
+        if (!hstdout) {
+            close(fd[1][1]);
+        }
+        if (npipe == 3 && !hstderr) {
             close(fd[2][1]);
+        }
+
         vp_stack_push_num(&_result, "%d", pid);
         vp_stack_push_num(&_result, "%d", fd[0][1]);
         vp_stack_push_num(&_result, "%d", fd[1][0]);
@@ -449,6 +480,7 @@ vp_pipe_open(char *args)
 
     /* error */
 child_error:
+    write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
     _exit(EXIT_FAILURE);
 }
 
