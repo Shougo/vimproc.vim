@@ -494,22 +494,23 @@ function! s:read(...) dict"{{{
   let self.eof = l:eof
   let self.__eof = l:eof
 
-  let l:output .= s:hd2str(l:hd)
+  let l:output .= s:hd2str([l:hd])
   return l:output
 endfunction"}}}
 function! s:read_line() dict
   let l:output = self.buffer
   let l:res = ''
-  while l:res !~ "\n\|\r\n" && !self.__eof
+  while l:res !~ '\r\?\n' && !self.__eof
     let l:res = self.read()
     let l:output .= l:res
   endwhile
 
-  let l:lines = split(l:output, "\n\\|\r\n", 1)
-  let self.buffer = join(l:lines[1:], "\<LF>")
+  let l:pos = match(l:output, '\v%(\r?\n|$)\zs')
+  let l:line = matchstr(l:output[: l:pos - 1], '.\{-}\ze\r\?\n$')
+  let self.buffer = l:output[l:pos :]
   let self.eof = (self.buffer != '') ? 0 : self.__eof
 
-  return l:lines[0]
+  return l:line
 endfunction
 
 function! s:write(str, ...) dict"{{{
@@ -593,7 +594,9 @@ function! s:hd2str(hd)
   " Since Vim can not handle \x00 byte, remove it.
   " do not use nr2char()
   " nr2char(255) => "\xc3\xbf" (utf8)
-  return join(map(split(a:hd, '..\zs'), 'v:val == "00" ? "" : eval(''"\x'' . v:val . ''"'')'), '')
+  "
+  " a:hd is a list because to avoid copying the value.
+  return join(map(split(a:hd[0], '..\zs'), 'v:val == "00" ? "" : eval(''"\x'' . v:val . ''"'')'), '')
 endfunction
 
 function! s:str2list(str)
@@ -601,7 +604,7 @@ function! s:str2list(str)
 endfunction
 
 function! s:list2str(lis)
-  return s:hd2str(s:list2hd(a:lis))
+  return s:hd2str(s:list2hd([a:lis]))
 endfunction
 
 function! s:hd2list(hd)
