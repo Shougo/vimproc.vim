@@ -381,8 +381,8 @@ vp_pipe_open(char *args)
         }
     }
     if (hstdout) {
-        fd[1][0] = hstdout;
-        fd[1][1] = 0;
+        fd[1][1] = hstdout;
+        fd[1][0] = 0;
     } else {
         if (pipe(fd[1]) < 0) {
             return vp_stack_return_error(&_result, "pipe() error: %s",
@@ -391,8 +391,8 @@ vp_pipe_open(char *args)
     }
     if (npipe == 3) {
         if (hstderr) {
-            fd[2][0] = hstderr;
-            fd[2][1] = 0;
+            fd[2][1] = hstderr;
+            fd[2][0] = 0;
         } else {
             if (pipe(fd[2]) < 0) {
                 return vp_stack_return_error(&_result, "pipe() error: %s",
