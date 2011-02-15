@@ -981,7 +981,7 @@ function! s:vp_kill(sig) dict
     for pid in self.pid_list
       try
         call s:libcall('vp_kill', [pid, a:sig])
-      catch /kill() error: /
+      catch /kill() error:/
         " Ignore.
       endtry
     endfor
@@ -1026,17 +1026,17 @@ function! s:vp_waitpid() dict
   let self.is_valid = 0
 
   let [l:cond, l:status] = ['error', 1]
-  if has_key(self, 'pid_list')
-    for pid in self.pid_list
-      try
+  try
+    if has_key(self, 'pid_list')
+      for pid in self.pid_list
         let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
-      catch /waitpid() error: /
         " Ignore.
-      endtry
-    endfor
-  else
-    let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
-  endif
+      endfor
+    else
+      let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+    endif
+  catch /waitpid() error:/
+  endtry
 
   return [l:cond, str2nr(l:status)]
 endfunction
@@ -1044,9 +1044,7 @@ endfunction
 function! s:vp_pgroup_waitpid() dict
   let self.is_valid = 0
 
-  let [l:cond, l:status] =
-        \ has_key(self, 'cond') && has_key(self, 'status') ?
-        \ [self.cond, self.status] : self.current_proc.waitpid()
+  let [l:cond, l:status] = self.current_proc.waitpid()
 
   return [l:cond, str2nr(l:status)]
 endfunction
