@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 13 Feb 2011.
+" Last Modified: 15 Feb 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -523,7 +523,8 @@ endfunction"}}}
 
 function! s:fdopen(fd, f_close, f_read, f_write)"{{{
   return {
-        \ 'fd' : a:fd, 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'fd' : a:fd,
+        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
         \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write),
         \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
         \ 'read_line' : s:funcref('read_line'),
@@ -531,23 +532,26 @@ function! s:fdopen(fd, f_close, f_read, f_write)"{{{
 endfunction"}}}
 function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write)"{{{
   return {
-        \'fd_stdin' : a:fd_stdin, 'fd_stdout' : a:fd_stdout, 'eof' : 0, 'is_valid' : 1, 
-        \'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
-        \'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write')
+        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'fd_stdin' : a:fd_stdin, 'fd_stdout' : a:fd_stdout,
+        \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
+        \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write')
         \}
 endfunction"}}}
 function! s:fdopen_pipes(fd, f_close, f_read, f_write)"{{{
   return {
-        \'fd' : a:fd, 'eof' : 0, 'is_valid' : 1,
-        \'f_close' : s:funcref(a:f_close),
-        \'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
+        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'fd' : a:fd,
+        \ 'f_close' : s:funcref(a:f_close),
+        \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
         \}
 endfunction"}}}
 function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write)"{{{
   return {
-        \'proc' : a:proc, 'fd' : a:fd, 'eof' : 0, 'is_valid' : 1, 
-        \'f_close' : s:funcref(a:f_close),
-        \'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
+        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'proc' : a:proc, 'fd' : a:fd,
+        \ 'f_close' : s:funcref(a:f_close),
+        \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
         \}
 endfunction"}}}
 

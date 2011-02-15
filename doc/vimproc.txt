@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-02-15
+- Fixed error.
+
 2010-02-13
 - Fixed read_line() bugs.
 
