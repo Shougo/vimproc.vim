@@ -374,7 +374,7 @@ vp_pipe_open(char *args)
                     GetCurrentProcess(),
                     &hInputWrite,
                     0,
-                    FALSE,
+                    TRUE,
                     DUPLICATE_SAME_ACCESS))
             return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                     lasterror());
@@ -397,7 +397,7 @@ vp_pipe_open(char *args)
                     GetCurrentProcess(),
                     &hOutputRead,
                     0,
-                    FALSE,
+                    TRUE,
                     DUPLICATE_SAME_ACCESS))
             return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                     lasterror());
@@ -431,7 +431,7 @@ vp_pipe_open(char *args)
                         GetCurrentProcess(),
                         &hErrorRead,
                         0,
-                        FALSE,
+                        TRUE,
                         DUPLICATE_SAME_ACCESS))
                 return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                         lasterror());
