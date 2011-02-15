@@ -1026,17 +1026,24 @@ function! s:vp_waitpid() dict
   let self.is_valid = 0
 
   let [l:cond, l:status] = ['error', 1]
-  try
-    if has_key(self, 'pid_list')
-      for pid in self.pid_list
-        let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
-        " Ignore.
-      endfor
-    else
-      let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+  while 1
+    try
+      if has_key(self, 'pid_list')
+        for pid in self.pid_list
+          let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
+          " Ignore.
+        endfor
+      else
+        let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+      endif
+    catch /waitpid() error:/
+    endtry
+
+    " For zombie process.
+    if !(l:cond !=# 'signal' && l:status == 77)
+      break
     endif
-  catch /waitpid() error:/
-  endtry
+  endwhile
 
   return [l:cond, str2nr(l:status)]
 endfunction
