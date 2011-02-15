@@ -202,6 +202,7 @@ CHANGELOG					*vimproc-changelog*
 - Fixed duplicate handles.
 - Fixed waitpid().
 - Pulled thinca's patch.
+- Fixed kill().
 
 2010-02-13
 - Fixed read_line() bugs.

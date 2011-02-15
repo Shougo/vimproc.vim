@@ -235,6 +235,7 @@ function! vimproc#system(cmdline, ...)"{{{
         " 15 == SIGTERM
         try
           call l:subproc.kill(15)
+          call l:subproc.waitpid()
         catch
           " Ignore error.
         endtry
