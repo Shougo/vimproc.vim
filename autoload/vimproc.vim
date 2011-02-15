@@ -405,7 +405,7 @@ function! s:plineopen(npipe, commands)"{{{
   endif
   let l:proc.get_winsize = s:funcref('vp_get_winsize')
   let l:proc.set_winsize = s:funcref('vp_set_winsize')
-  let l:proc.kill = s:funcref('vp_pipes_kill')
+  let l:proc.kill = s:funcref('vp_kill')
   let l:proc.waitpid = s:funcref('vp_waitpid')
   let l:proc.is_valid = 1
   let l:proc.is_pty = 0
@@ -971,25 +971,19 @@ function! s:vp_kill(sig) dict
     call self.close()
   endif
 
-  call s:libcall('vp_kill', [self.pid, a:sig])
   let self.is_valid = 0
-endfunction
 
-function! s:vp_pipes_kill(sig) dict
-  if has_key(self, 'stdin')
-    call self.stdin.close()
+  if has_key(self, 'pid_list')
+    for pid in self.pid_list
+      try
+        call s:libcall('vp_kill', [pid, a:sig])
+      catch /kill() error: /
+        " Ignore.
+      endtry
+    endfor
+  else
+    call s:libcall('vp_kill', [self.pid, a:sig])
   endif
-  if has_key(self, 'stdout')
-    call self.stdout.close()
-  endif
-  if has_key(self, 'stderr')
-    call self.stdout.close()
-  endif
-  if has_key(self, 'ttyname')
-    call self.close()
-  endif
-
-  call s:libcall('vp_kill', [self.pid, a:sig])
 endfunction
 
 function! s:vp_pgroup_kill(sig) dict
@@ -1026,17 +1020,30 @@ function! s:vp_waitpid() dict
   endif
 
   let self.is_valid = 0
-  let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+
+  let [l:cond, l:status] = ['error', 1]
+  if has_key(self, 'pid_list')
+    for pid in self.pid_list
+      try
+        let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
+      catch /waitpid() error: /
+        " Ignore.
+      endtry
+    endfor
+  else
+    let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
+  endif
 
   return [l:cond, str2nr(l:status)]
 endfunction
 
 function! s:vp_pgroup_waitpid() dict
+  let self.is_valid = 0
+
   let [l:cond, l:status] =
         \ has_key(self, 'cond') && has_key(self, 'status') ?
         \ [self.cond, self.status] : self.current_proc.waitpid()
 
-  let self.is_valid = 0
   return [l:cond, str2nr(l:status)]
 endfunction
 

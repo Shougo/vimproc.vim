@@ -200,6 +200,7 @@ CHANGELOG					*vimproc-changelog*
 - Improved pipes(experimental).
 - Fixed redirection.
 - Fixed duplicate handles.
+- Fixed waitpid().
 
 2010-02-13
 - Fixed read_line() bugs.
