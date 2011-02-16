@@ -1,4 +1,4 @@
-CFLAGS=-W -Wall -Wno-unused -use=gnu99 -shared
+CFLAGS=-O2 -W -Wall -Wno-unused -use=gnu99 -shared
 TARGET=autoload/proc.dll
 SRC=autoload/proc.c
 LDFLAGS+=-lutil

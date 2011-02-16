@@ -1,4 +1,4 @@
-CFLAGS=-W -Wall -Wno-unused -std=gnu99 -pedantic -shared
+CFLAGS=-W -O2 -Wall -Wno-unused -std=gnu99 -pedantic -shared
 
 TARGET=autoload/proc.so
 SRC=autoload/proc.c

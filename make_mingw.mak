@@ -1,8 +1,14 @@
+# for MinGW.
 
-all: autoload/proc.dll
+TARGET=autoload/proc.dll
+SRC=autoload/proc_w32.c
+CFLAGS=-O2 -Wall -shared
+LDFLAGS+=-lwsock32
 
-autoload/proc.dll: autoload/proc_w32.c autoload/vimstack.c
-	gcc -Wall -shared autoload/proc_w32.c autoload/vimstack.c -lwsock32 -o autoload/proc.dll
+all: $(TARGET)
+
+$(TARGET): $(SRC) autoload/vimstack.c
+	gcc $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
 
 clean:
 	rm -f $(TARGET)

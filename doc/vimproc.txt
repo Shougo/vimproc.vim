@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-02-16
+- Revised makefiles.
+
 2010-02-15
 - Fixed error.
 - Improved pipes(experimental).
