@@ -277,17 +277,9 @@ function! vimproc#system_bg(cmdline)"{{{
   if s:is_win
     silent execute '!start' join(map(a:cmdline, '"\"".v:val."\""'))
   else
-    if !exists('s:bg_processes')"{{{
-      let s:bg_processes = {}
-
-      augroup vimproc
-        autocmd CursorHold * call s:garbage_collect()
-      augroup END
-    endif"}}}
-
     " Open pipe.
     let l:subproc = vimproc#popen3(a:cmdline)
-    let s:bg_processes[l:subproc.pid] = l:subproc
+    let s:bg_processes[l:subproc.pid] = l:subproc.pid
   endif
 
   return ''
@@ -593,32 +585,23 @@ function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write)"{{{
 endfunction"}}}
 
 function! s:garbage_collect()"{{{
-  for l:proc in values(s:bg_processes)
+  for pid in values(s:bg_processes)
     " Check processes.
-    if !l:proc.stdout.eof
-      call l:proc.stdout.read(-1, 0)
-      continue
-    endif
-
     try
-      let [l:cond, s:last_status] = l:proc.waitpid()
-      if l:cond != 'exit'
-        " Kill process.
-        " 15 == SIGTERM
-        call l:proc.kill(15)
+      let [l:cond, l:status] = s:waitpid(pid)
+      " echomsg string([pid, l:cond, l:status])
+      if l:cond !=# 'run'
+        if l:cond !=# 'exit'
+          " Kill process.
+          " 15 == SIGTERM
+          call vimproc#kill(pid, 15)
+        endif
+
+        call remove(s:bg_processes, pid)
       endif
-    catch
+    catch /waitpid() error:\|kill() error:/
       " Ignore error.
     endtry
-
-    call remove(s:bg_processes, l:proc.pid)
-    if empty(s:bg_processes)
-      unlet s:bg_processes
-
-      augroup vimproc
-        autocmd!
-      augroup END
-    endif
   endfor
 endfunction"}}}
 
@@ -698,12 +681,14 @@ endfunction"}}}
 augroup vimproc
   autocmd!
   autocmd VimLeave * call s:finalize()
+  autocmd CursorHold * call s:garbage_collect()
 augroup END
 
 " Initialize.
 let s:lasterr = []
 let s:read_timeout = 100
 let s:write_timeout = 100
+let s:bg_processes = {}
 
 function! s:libcall(func, args)"{{{
   " End Of Value
@@ -1017,14 +1002,10 @@ function! s:vp_kill(sig) dict
 
   if has_key(self, 'pid_list')
     for pid in self.pid_list
-      try
-        call s:libcall('vp_kill', [pid, a:sig])
-      catch /kill() error:/
-        " Ignore.
-      endtry
+      call vimproc#kill(pid, a:sig)
     endfor
   else
-    call s:libcall('vp_kill', [self.pid, a:sig])
+    call vimproc#kill(self.pid, a:sig)
   endif
 endfunction
 
@@ -1047,6 +1028,22 @@ function! s:vp_pgroup_kill(sig) dict
   let self.is_valid = 0
 endfunction
 
+function! s:waitpid(pid)
+  try
+    let [l:cond, l:status] = s:libcall('vp_waitpid', [a:pid])
+    if l:cond ==# 'run'
+      " Add process list.
+      let s:bg_processes[a:pid] = a:pid
+
+      let [l:cond, l:status] = ['exit', '0']
+    endif
+  catch /waitpid() error:/
+    let [l:cond, l:status] = ['exit', '0']
+  endtry
+
+  return [l:cond, str2nr(l:status)]
+endfunction
+
 function! s:vp_waitpid() dict
   if has_key(self, 'stdin')
     call self.stdin.close()
@@ -1063,19 +1060,14 @@ function! s:vp_waitpid() dict
 
   let self.is_valid = 0
 
-  let [l:cond, l:status] = ['exit', '0']
   while 1
-    try
-      if has_key(self, 'pid_list')
-        for pid in self.pid_list
-          let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
-          " Ignore.
-        endfor
-      else
-        let [l:cond, l:status] = s:libcall('vp_waitpid', [self.pid])
-      endif
-    catch /waitpid() error:/
-    endtry
+    if has_key(self, 'pid_list')
+      for pid in self.pid_list
+        let [l:cond, l:status] = s:waitpid(pid)
+      endfor
+    else
+      let [l:cond, l:status] = s:waitpid(self.pid)
+    endif
 
     " echomsg string([l:cond, l:status])
     " For zombie process.
@@ -1084,7 +1076,7 @@ function! s:vp_waitpid() dict
     endif
   endwhile
 
-  return [l:cond, str2nr(l:status)]
+  return [l:cond, l:status]
 endfunction
 
 function! s:vp_pgroup_waitpid() dict

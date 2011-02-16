@@ -661,7 +661,7 @@ vp_waitpid(char *args)
     if (n == -1)
         return vp_stack_return_error(&_result, "waitpid() error: %s",
                 strerror(errno));
-    if (WIFCONTINUED(status)) {
+    if (n == 0 || WIFCONTINUED(status)) {
         vp_stack_push_str(&_result, "run");
         vp_stack_push_num(&_result, "%d", 0);
     } else if (WIFEXITED(status)) {
