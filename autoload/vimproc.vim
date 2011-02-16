@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Feb 2011.
+" Last Modified: 16 Feb 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -216,7 +216,6 @@ function! vimproc#system(cmdline, ...)"{{{
     " Write input.
     call l:subproc.stdin.write(a:1)
   endif
-  call l:subproc.stdin.close()
 
   if l:timeout > 0 && has('reltime') && v:version >= 702
     let l:start = reltime()
@@ -252,9 +251,6 @@ function! vimproc#system(cmdline, ...)"{{{
       let s:last_errmsg .= l:subproc.stderr.read(-1, 40)
     endif
   endwhile
-
-  call l:subproc.stdout.close()
-  call l:subproc.stderr.close()
 
   let [l:cond, s:last_status] = l:subproc.waitpid()
 
@@ -472,6 +468,48 @@ endfunction"}}}
 
 function! vimproc#kill(pid, sig)"{{{
   call s:libcall('vp_kill', [a:pid, a:sig])
+endfunction"}}}
+
+function! vimproc#decode_signal(signal)"{{{
+  if a:signal == 2
+    return 'SIGINT'
+  elseif a:signal == 3
+    return 'SIGQUIT'
+  elseif a:signal == 4
+    return 'SIGILL'
+  elseif a:signal == 6
+    return 'SIGABRT'
+  elseif a:signal == 8
+    return 'SIGFPE'
+  elseif a:signal == 9
+    return 'SIGKILL'
+  elseif a:signal == 11
+    return 'SIGSEGV'
+  elseif a:signal == 13
+    return 'SIGPIPE'
+  elseif a:signal == 14
+    return 'SIGALRM'
+  elseif a:signal == 15
+    return 'SIGTERM'
+  elseif a:signal == 10
+    return 'SIGUSR1'
+  elseif a:signal == 12
+    return 'SIGUSR2'
+  elseif a:signal == 17
+    return 'SIGCHLD'
+  elseif a:signal == 18
+    return 'SIGCONT'
+  elseif a:signal == 19
+    return 'SIGSTOP'
+  elseif a:signal == 20
+    return 'SIGTSTP'
+  elseif a:signal == 21
+    return 'SIGTTIN'
+  elseif a:signal == 22
+    return 'SIGTTOU'
+  else
+    return 'UNKNOWN'
+  endif
 endfunction"}}}
 
 function! s:close() dict"{{{
@@ -1025,7 +1063,7 @@ function! s:vp_waitpid() dict
 
   let self.is_valid = 0
 
-  let [l:cond, l:status] = ['error', 1]
+  let [l:cond, l:status] = ['exit', '0']
   while 1
     try
       if has_key(self, 'pid_list')
@@ -1039,8 +1077,9 @@ function! s:vp_waitpid() dict
     catch /waitpid() error:/
     endtry
 
+    " echomsg string([l:cond, l:status])
     " For zombie process.
-    if !(l:cond ==# 'signal' && l:status == 77)
+    if !(l:cond ==# 'signal' && vimproc#decode_signal(l:status) != 'UNKNOWN')
       break
     endif
   endwhile
