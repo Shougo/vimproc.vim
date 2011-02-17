@@ -361,6 +361,7 @@ vp_pipe_open(char *args)
     int fd[3][2];
     pid_t pid;
     int i;
+    int dummy;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &npipe));
@@ -480,7 +481,7 @@ vp_pipe_open(char *args)
 
     /* error */
 child_error:
-    write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
+    dummy = write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
     _exit(EXIT_FAILURE);
 }
 
@@ -512,6 +513,7 @@ vp_pty_open(char *args)
     struct winsize ws = {0, 0, 0, 0};
     struct termios ti;
     int i;
+    int dummy;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_col)));
@@ -547,8 +549,7 @@ vp_pty_open(char *args)
 
         argv = malloc(sizeof(char *) * (argc+1));
         if (argv == NULL) {
-            write(fdm, strerror(errno), strlen(strerror(errno)));
-            _exit(EXIT_FAILURE);
+            goto child_error;
         }
         for (i = 0; i < argc; ++i) {
             VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
@@ -559,8 +560,7 @@ vp_pty_open(char *args)
             /* error */
             free(argv);
 
-            write(fdm, strerror(errno), strlen(strerror(errno)));
-            _exit(EXIT_FAILURE);
+            goto child_error;
         }
         free(argv);
     } else {
@@ -574,6 +574,11 @@ vp_pty_open(char *args)
     }
     /* DO NOT REACH HERE */
     return NULL;
+
+    /* error */
+child_error:
+    dummy = write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
+    _exit(EXIT_FAILURE);
 }
 
 const char *

@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2010-02-17
+- Fixed warnings.
+
 2010-02-16
 - Revised makefiles.
 - Fixed resource leak problem.
