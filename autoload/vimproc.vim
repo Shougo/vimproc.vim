@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 16 Feb 2011.
+" Last Modified: 23 Feb 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -216,6 +216,7 @@ function! vimproc#system(cmdline, ...)"{{{
     " Write input.
     call l:subproc.stdin.write(a:1)
   endif
+  call l:subproc.stdin.close()
 
   if l:timeout > 0 && has('reltime') && v:version >= 702
     let l:start = reltime()

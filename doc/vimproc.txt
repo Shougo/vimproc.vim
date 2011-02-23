@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-02-23
+- Fixed stdin close bug in vimproc#system().
+
 2011-02-17
 - Fixed warnings.
 
