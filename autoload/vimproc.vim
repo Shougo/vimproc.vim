@@ -63,7 +63,7 @@ endif
 " API
 
 function! vimproc#open(filename)"{{{
-  let l:filename = a:filename
+  let l:filename = fnamemodify(a:filename, ':p')
   if has('iconv')
     let l:termencoding = s:is_win && &termencoding == '' ? 'default' : &termencoding
     if l:termencoding != '' && &encoding != l:termencoding
@@ -77,7 +77,7 @@ function! vimproc#open(filename)"{{{
     " For URI only.
     "execute '!start rundll32 url.dll,FileProtocolHandler' l:filename
 
-    call s:libcall('vp_open', [fnamemodify(a:filename, ':p')])
+    call s:libcall('vp_open', [l:filename])
   elseif has('win32unix')
     " Cygwin.
     call vimproc#system(['cygstart', l:filename])
@@ -118,14 +118,16 @@ function! vimproc#get_command_name(command, ...)"{{{
   if s:is_win
     let l:path = substitute(l:path, '\\', '/', 'g')
   endif
-  let l:path = escape(l:path, ' ')
+
+  " Escape ' ' and ".
+  let l:path = escape(l:path, ' "')
 
   let l:count = a:0 < 2 ? 1 : a:2
 
   let l:command = expand(a:command)
 
   let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win ? '/\\' : '/')
-  if l:command =~ l:pattern
+  if l:command =~ l:pattern && (!s:is_win || fnamemodify(l:command, ':e') != '')
     if !executable(l:command)
       let l:command = resolve(l:command)
     endif

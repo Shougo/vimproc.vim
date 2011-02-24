@@ -723,27 +723,32 @@ function! s:parse_variables(script)"{{{
 
   let i = 0
   let l:max = len(a:script)
-  while i < l:max
-    if a:script[i] == '$'
-      " Eval variables.
-      if exists('b:vimshell')
-        " For vimshell.
-        if match(a:script, '^$\l', i) >= 0
-          let l:script .= string(eval(printf("b:vimshell.variables['%s']", matchstr(a:script, '^$\zs\l\w*', i))))
-        elseif match(a:script, '^$$', i) >= 0
-          let l:script .= string(eval(printf("b:vimshell.system_variables['%s']", matchstr(a:script, '^$$\zs\h\w*', i))))
+  try
+    while i < l:max
+      if a:script[i] == '$'
+        " Eval variables.
+        if exists('b:vimshell')
+          " For vimshell.
+          if match(a:script, '^$\l', i) >= 0
+            let l:script .= string(eval(printf("b:vimshell.variables['%s']", matchstr(a:script, '^$\zs\l\w*', i))))
+          elseif match(a:script, '^$$', i) >= 0
+            let l:script .= string(eval(printf("b:vimshell.system_variables['%s']", matchstr(a:script, '^$$\zs\h\w*', i))))
+          else
+            let l:script .= string(eval(matchstr(a:script, '^$\h\w*', i)))
+          endif
         else
           let l:script .= string(eval(matchstr(a:script, '^$\h\w*', i)))
         endif
+
+        let i = matchend(a:script, '^$$\?\h\w*', i)
       else
-        let l:script .= string(eval(matchstr(a:script, '^$\h\w*', i)))
+        let [l:script, i] = s:skip_else(l:script, a:script, i)
       endif
-      
-      let i = matchend(a:script, '^$$\?\h\w*', i)
-    else
-      let [l:script, i] = s:skip_else(l:script, a:script, i)
-    endif
-  endwhile
+    endwhile
+  catch /^Vim\%((\a\+)\)\=:E15/
+    " Parse error.
+    return a:script
+  endtry
 
   return l:script
 endfunction"}}}
