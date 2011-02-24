@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 03 Feb 2011.
+" Last Modified: 24 Feb 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -34,6 +34,16 @@ endif
 let s:save_cpo = &cpo
 set cpo&vim
 
+if !exists('g:stdinencoding')
+  let g:stdinencoding = &termencoding
+endif
+if !exists('g:stdoutencoding')
+  let g:stdoutencoding = &termencoding
+endif
+if !exists('g:stderrencoding')
+  let g:stderrencoding = &termencoding
+endif
+
 command! -nargs=+ -complete=shellcmd VimProcBang call s:bang(<q-args>)
 command! -nargs=+ -complete=shellcmd VimProcRead call s:read(<q-args>)
 
@@ -41,7 +51,8 @@ command! -nargs=+ -complete=shellcmd VimProcRead call s:read(<q-args>)
 function! s:bang(cmdline)"{{{
   " Expand % and #.
   let l:cmdline = join(map(vimproc#parser#split_args_through(
-        \ iconv(a:cmdline, &termencoding, &encoding)), 'substitute(expand(v:val), "\n", " ", "g")'))
+        \ vimproc#util#iconv(a:cmdline, vimproc#util#termencoding(), &encoding)),
+        \ 'substitute(expand(v:val), "\n", " ", "g")'))
 
   " Open pipe.
   let l:subproc = vimproc#pgroup_open(l:cmdline)
@@ -52,9 +63,7 @@ function! s:bang(cmdline)"{{{
     if !l:subproc.stdout.eof
       let l:output = l:subproc.stdout.read(-1, 40)
       if l:output != ''
-        if &encoding != &termencoding
-          let l:output = iconv(l:output, &termencoding, &encoding)
-        endif
+        let l:output = vimproc#util#iconv(l:output, vimproc#util#stdoutencoding(), &encoding)
 
         echon l:output
         sleep 1m
@@ -64,9 +73,7 @@ function! s:bang(cmdline)"{{{
     if !l:subproc.stderr.eof
       let l:output = l:subproc.stderr.read(-1, 40)
       if l:output != ''
-        if &encoding != &termencoding
-          let l:output = iconv(l:output, &termencoding, &encoding)
-        endif
+        let l:output = vimproc#util#iconv(l:output, vimproc#util#stderrencoding(), &encoding)
         echohl WarningMsg | echon l:output | echohl None
 
         sleep 1m
@@ -82,10 +89,12 @@ endfunction"}}}
 function! s:read(cmdline)"{{{
   " Expand % and #.
   let l:cmdline = join(map(vimproc#parser#split_args_through(
-        \ iconv(a:cmdline, &termencoding, &encoding)), 'substitute(expand(v:val), "\n", " ", "g")'))
+        \ vimproc#util#iconv(a:cmdline, vimproc#util#termencoding(), &encoding)),
+        \ 'substitute(expand(v:val), "\n", " ", "g")'))
 
   " Expand args.
-  call append('.', split(iconv(vimproc#system(l:cmdline), &termencoding, &encoding), '\r\n\|\n'))
+  call append('.', split(vimproc#util#iconv(vimproc#system(l:cmdline),
+        \ vimproc#util#stdoutencoding(), &encoding), '\r\n\|\n'))
 endfunction"}}}
 
 let &cpo = s:save_cpo

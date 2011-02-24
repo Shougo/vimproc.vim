@@ -123,6 +123,10 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		たことになり無視される。内部で浮動小数点演算をしているため、Vim
 		7.2以上でないと動作しない。
 
+vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
+		|vimproc#parser#system()|と同様だが、エンコーディングを自動的に
+		変換する。
+
 vimproc#system_bg({expr})			*vimproc#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ
 		ンドで実行する。入力はできない。
@@ -204,6 +208,21 @@ g:vimproc_dll_path		(default Win32 or Cygwin : "$VIMRUNTIME/autoload/proc.dll"
 		vimprocが利用する動的ライブラリである、proc.soまたはproc.dll
 		へのパス を指定する。ライブラリはあらかじめコンパイルしてお
 		かなければならない。このファイルが存在しないとエラーになる。
+
+						*g:stdinencoding*
+g:stdinencoding			(default : 'termencoding'の値が使用される)
+		vimprocがプログラムへの標準入力を変換する際に使用するエンコーデ
+		ィング。
+
+						*g:stdoutencoding*
+g:stdoutencoding		(default : 'termencoding'の値が使用される)
+		vimprocがプログラムからの標準出力を変換する際に使用するエンコー
+		ディング。
+
+						*g:stderrencoding*
+g:stderrencoding		(default : 'termencoding'の値が使用される)
+		vimprocがプログラムからの標準エラー出力を変換する際に使用するエ
+		ンコーディング。
 
 ==============================================================================
 EXAMPLES					*vimproc-examples*

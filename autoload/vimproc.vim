@@ -48,11 +48,7 @@ if !exists('g:vimproc_dll_path')
 endif
 "}}}
 
-if has('iconv')
-  " Dll path should be encoded with default encoding.  Vim does not convert
-  " it from &enc to default encoding.
-  let g:vimproc_dll_path = iconv(g:vimproc_dll_path, &encoding, 'default')
-endif
+let g:vimproc_dll_path = vimproc#util#iconv(g:vimproc_dll_path, &encoding, vimproc#util#termencoding())
 
 if !filereadable(g:vimproc_dll_path)
   echoerr printf('vimproc''s DLL: "%s" is not found. Please read :help vimproc and make it.', g:vimproc_dll_path)
@@ -63,14 +59,7 @@ endif
 " API
 
 function! vimproc#open(filename)"{{{
-  let l:filename = fnamemodify(a:filename, ':p')
-  if has('iconv')
-    let l:termencoding = s:is_win && &termencoding == '' ? 'default' : &termencoding
-    if l:termencoding != '' && &encoding != l:termencoding
-      " Convert encoding.
-      let l:filename = iconv(l:filename, &encoding, l:termencoding)
-    endif
-  endif
+  let l:filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'), vimproc#util#termencoding())
 
   " Detect desktop environment.
   if s:is_win
@@ -232,7 +221,7 @@ function! vimproc#system(cmdline, ...)"{{{
   let l:timeout = a:0 >= 2 ? a:2 : 0
 
   " Open pipe.
-  let l:subproc = (type(a:cmdline[0]) == type('')) ? 
+  let l:subproc = (type(a:cmdline[0]) == type('')) ?
         \ vimproc#popen3(a:cmdline) : vimproc#pgroup_open(a:cmdline)
 
   if !empty(a:000)
@@ -284,6 +273,21 @@ function! vimproc#system(cmdline, ...)"{{{
   elseif has('win32') || has('win64')
     let l:output = substitute(l:output, '\r\n', '\n', 'g')
   endif
+
+  return l:output
+endfunction"}}}
+function! vimproc#system2(...)"{{{
+  if !empty(a:000)
+    let l:args = deepcopy(a:000)
+    let l:args[1] = vimproc#util#iconv(l:args[1], &encoding, vimproc#util#stdinencoding())
+  else
+    let l:args = a:000
+  endif
+  let l:output = call('vimproc#system', l:args)
+
+  " This function converts application encoding to &encoding.
+  let l:output = vimproc#util#iconv(l:output, vimproc#util#stdoutencoding(), &encoding)
+  let s:last_errmsg = vimproc#util#iconv(s:last_errmsg, vimproc#util#stderrencoding(), &encoding)
 
   return l:output
 endfunction"}}}
@@ -722,14 +726,7 @@ function! s:libcall(func, args)"{{{
   let l:result = split(l:stack_buf, '[\xFF]', 1)
   if !empty(l:result) && l:result[-1] != ''
     let s:lasterr = l:result
-    let l:msg = string(l:result)
-    if has('iconv')
-      let l:termencoding = s:is_win && &termencoding == '' ? 'default' : &termencoding
-      if l:termencoding != '' && &encoding != l:termencoding
-        " Kernel error message is encoded with system codepage.
-        let l:msg = iconv(l:msg, l:termencoding, &encoding)
-      endif
-    endif
+    let l:msg = vimproc#util#iconv(string(l:result), vimproc#util#termencoding(), &encoding)
 
     throw printf('proc: %s: %s', a:func, l:msg)
   endif
