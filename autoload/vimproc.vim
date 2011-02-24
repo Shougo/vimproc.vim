@@ -150,9 +150,30 @@ function! vimproc#get_command_name(command, ...)"{{{
     " But findfile('perldoc', $PATH, 1) return whether file exist there.
     if fnamemodify(l:command, ':e') == ''
       let &l:suffixesadd = ''
-      for l:ext in split($PATHEXT.';.LNK', ';')
-        let l:file = findfile(l:command . l:ext, l:path, l:count)
-        if (l:count >= 0 && l:file != '') || (l:count < 0 && empty(l:file))
+      " for l:ext in split($PATHEXT.';.LNK', ';')
+      "   let l:file = findfile(l:command . l:ext, l:path, l:count)
+      if l:command =~ '[/\\]'
+        " Absolute path.
+        let l:path = fnamemodify(l:command, ':h')
+        let l:command = fnamemodify(l:command, ':t')
+      else
+        " substitute ,, -> ,
+        let l:path = substitute(l:path, ',\{2,}', ',', 'g')
+      endif
+
+      let l:file = l:count < 0 ? [] : ''
+      for l:head in split(l:path, ',')
+        for l:ext in split($PATHEXT.';.LNK', ';')
+          let l:findfile = findfile(l:command . tolower(l:ext), l:head, l:count)
+          if l:count >= 0 && l:findfile != ''
+            let l:file = l:findfile
+            break
+          elseif l:count < 0 && !empty(l:findfile)
+            let l:file += l:findfile
+          endif
+        endfor
+
+        if l:count >= 0 && l:file != ''
           break
         endif
       endfor
