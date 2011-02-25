@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-02-25
+- Fixed vimproc#open().
+
 2011-02-24
 - Fixed last status bug.
 - Applied some patches.

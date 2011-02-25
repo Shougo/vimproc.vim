@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 24 Feb 2011.
+" Last Modified: 25 Feb 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -59,7 +59,7 @@ endif
 " API
 
 function! vimproc#open(filename)"{{{
-  let l:filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'), vimproc#util#termencoding())
+  let l:filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'), &encoding, vimproc#util#termencoding())
 
   " Detect desktop environment.
   if s:is_win
