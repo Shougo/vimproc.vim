@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-03-01
+- Fixed list2str().
+
 2011-02-25
 - Fixed vimproc#open().
 
