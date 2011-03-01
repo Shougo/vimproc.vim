@@ -560,7 +560,7 @@ function! s:read_line() dict
   let l:output = self.buffer
   let l:res = ''
   while l:res !~ '\r\?\n' && !self.__eof
-    let l:res = self.read()
+    let l:res = self.read(256)
     let l:output .= l:res
   endwhile
 

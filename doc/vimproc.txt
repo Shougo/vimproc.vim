@@ -197,6 +197,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-03-01
 - Fixed list2str().
+- Set readline number.
 
 2011-02-25
 - Fixed vimproc#open().
