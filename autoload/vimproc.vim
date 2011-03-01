@@ -559,7 +559,7 @@ endfunction"}}}
 function! s:read_line() dict
   let l:output = ''
   let l:res = ''
-  while l:res !~ '\r\?\n' && !self.__eof
+  while l:res !~ '\r\?\n'
     let l:res = self.read(256)
     let l:output .= l:res
   endwhile
