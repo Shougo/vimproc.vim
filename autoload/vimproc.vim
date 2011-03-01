@@ -557,7 +557,7 @@ function! s:read(...) dict"{{{
   return l:output
 endfunction"}}}
 function! s:read_line() dict
-  let l:output = self.buffer
+  let l:output = ''
   let l:res = ''
   while l:res !~ '\r\?\n' && !self.__eof
     let l:res = self.read(256)
