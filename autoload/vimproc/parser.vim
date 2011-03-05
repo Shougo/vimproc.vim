@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 02 Nov 2010
+" Last Modified: 05 Mar 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -198,18 +198,6 @@ function! vimproc#parser#parse_statements(script)"{{{
 
         let i += 1
       endif
-    elseif a:script[i] == "'"
-      " Single quote.
-      let [l:string, i] = s:skip_single_quote(a:script, i)
-      let l:statement .= l:string
-    elseif a:script[i] == '"'
-      " Double quote.
-      let [l:string, i] = s:skip_double_quote(a:script, i)
-      let l:statement .= l:string
-    elseif a:script[i] == '`'
-      " Back quote.
-      let [l:string, i] = s:skip_back_quote(a:script, i)
-      let l:statement .= l:string
     elseif a:script[i] == '\'
       " Escape.
       let i += 1

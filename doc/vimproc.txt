@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-03-05
+- Fixed parse.
+
 2011-03-01
 - Fixed list2str().
 - Set readline number.
