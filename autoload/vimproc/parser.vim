@@ -126,6 +126,21 @@ function! vimproc#parser#parse_pipe(statement)"{{{
       let l:fd = { 'stdin' : '', 'stdout' : '', 'stderr' : '' }
     endif
 
+    if l:fd.stdout != '' && l:fd.stdout !~ '^>'
+      if l:fd.stdout ==# '/dev/clip'
+        " Clear.
+        let @+ = ''
+      else
+        if filereadable(l:fd.stdout)
+          " Delete file.
+          call delete(l:fd.stdout)
+        endif
+
+        " Create file.
+        call writefile([], l:fd.stdout)
+      endif
+    endif
+
     call add(l:commands, {
           \ 'args' : vimproc#parser#split_args(l:cmdline),
           \ 'fd' : l:fd
