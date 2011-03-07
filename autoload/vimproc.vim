@@ -570,7 +570,7 @@ function! vimproc#write(filename, string, ...)"{{{
     let l:mode = 'O_WRONLY | O_CREAT'
     if l:mode =~ 'a'
       " Append mode.
-      let l:mode .= ' | O_APPEND'
+      let l:mode .= '| O_APPEND'
     endif
 
     let l:hfile = vimproc#fopen(l:filename, l:mode)
