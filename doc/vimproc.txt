@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-03-07
+- Improved virtual file.
+
 2011-03-06
 - Fixed parse line.
 
