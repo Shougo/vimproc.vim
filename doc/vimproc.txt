@@ -198,6 +198,7 @@ CHANGELOG					*vimproc-changelog*
 2011-03-07
 - Improved virtual file.
 - Implemented vimproc#write().
+- Fixed process initialization.
 
 2011-03-06
 - Fixed parse line.

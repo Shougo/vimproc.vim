@@ -389,10 +389,21 @@ function! s:plineopen(npipe, commands)"{{{
         \ 0 : vimproc#fopen(a:commands[0].fd.stdin, "O_RDONLY").fd
 
   for l:command in a:commands
+    let l:mode = 'O_WRONLY | O_CREAT'
+    if l:command.fd.stdout =~ '^>'
+      let l:mode .= ' | O_APPEND'
+      let l:command.fd.stdout = l:command.fd.stdout[1:]
+    endif
     let l:hstdout = l:command.fd.stdout == '' ?
-          \ 0 : vimproc#fopen(l:command.fd.stdout, "O_WRONLY | O_CREAT").fd
+          \ 0 : vimproc#fopen(l:command.fd.stdout, l:mode).fd
+
+    let l:mode = 'O_WRONLY | O_CREAT'
+    if l:command.fd.stderr =~ '^>'
+      let l:mode .= ' | O_APPEND'
+      let l:command.fd.stderr = l:command.fd.stderr[1:]
+    endif
     let l:hstderr = l:command.fd.stderr == '' ?
-          \ 0 : vimproc#fopen(l:command.fd.stderr, "O_WRONLY | O_CREAT").fd
+          \ 0 : vimproc#fopen(l:command.fd.stderr, l:mode).fd
 
     let l:pipe = s:vp_pipe_open(a:npipe, l:hstdin, l:hstdout, l:hstderr,
           \ s:convert_args(l:command.args))
@@ -556,16 +567,15 @@ function! vimproc#write(filename, string, ...)"{{{
   else
     " Write file.
 
+    let l:mode = 'O_WRONLY | O_CREAT'
     if l:mode =~ 'a'
       " Append mode.
-      silent redir >> l:filename
-      echo a:string
-      redir END
-    else
-      silent redir! > l:filename
-      echo a:string
-      redir END
+      let l:mode .= ' | O_APPEND'
     endif
+
+    let l:hfile = vimproc#fopen(l:filename, l:mode)
+    call l:hfile.write(a:string)
+    call l:hfile.close()
   endif
 endfunction"}}}
 
