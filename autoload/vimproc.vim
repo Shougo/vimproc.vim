@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 01 Mar 2011.
+" Last Modified: 07 Mar 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -529,6 +529,43 @@ function! vimproc#decode_signal(signal)"{{{
     return 'SIGTTOU'
   else
     return 'UNKNOWN'
+  endif
+endfunction"}}}
+
+function! vimproc#write(filename, string, ...)"{{{
+  if a:string == ''
+    return
+  endif
+
+  let l:mode = get(a:000, 0,
+        \ a:filename =~ '^>' ? 'a' : 'w')
+
+  let l:filename = a:filename =~ '^>' ?
+        \ a:filename[1:] : a:filename
+
+  if l:filename ==# '/dev/null'
+    " Nothing.
+  elseif l:filename ==# '/dev/clip'
+    " Write to clipboard.
+
+    if l:mode =~ 'a'
+      let @+ .= a:string
+    else
+      let @+ = a:string
+    endif
+  else
+    " Write file.
+
+    if l:mode =~ 'a'
+      " Append mode.
+      silent redir >> l:filename
+      echo a:string
+      redir END
+    else
+      silent redir! > l:filename
+      echo a:string
+      redir END
+    endif
   endif
 endfunction"}}}
 

@@ -126,25 +126,6 @@ function! vimproc#parser#parse_pipe(statement)"{{{
       let l:fd = { 'stdin' : '', 'stdout' : '', 'stderr' : '' }
     endif
 
-    if l:fd.stdout != ''
-      if l:fd.stdout =~ '^>'
-        let l:fd.stdout = l:fd.stdout[1:]
-      elseif l:fd.stdout ==# '/dev/null'
-        " Nothing.
-      elseif l:fd.stdout ==# '/dev/clip'
-        " Clear.
-        let @+ = ''
-      else
-        if filereadable(l:fd.stdout)
-          " Delete file.
-          call delete(l:fd.stdout)
-        endif
-
-        " Create file.
-        call writefile([], l:fd.stdout)
-      endif
-    endif
-
     call add(l:commands, {
           \ 'args' : vimproc#parser#split_args(l:cmdline),
           \ 'fd' : l:fd
@@ -562,26 +543,6 @@ function! vimproc#parser#expand_wildcard(wildcard)"{{{
   endif
 
   return filter(l:expanded, 'v:val != "." && v:val != ".."')
-endfunction"}}}
-function! vimproc#parser#print(filename, string)"{{{
-  if a:string == ''
-    return
-  endif
-
-  if a:filename != ''
-    if a:filename ==# '/dev/null'
-      " Nothing.
-    elseif a:filename ==# '/dev/clip'
-      " Write to clipboard.
-      let @+ .= a:string
-    else
-      " Write file.
-      let l:file = extend(readfile(a:filename), split(a:string, '\r\n\|\n'))
-      call writefile(l:file, a:filename)
-    endif
-
-    return
-  endif
 endfunction"}}}
 
 " Parse helper.

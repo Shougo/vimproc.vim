@@ -199,6 +199,20 @@ vimproc#ptyopen({args})				*vimproc#ptyopen()*
 vimproc#kill({pid}, {sig})			*vimproc#kill()*
 		{pid}で指定されるプロセスに対し、{sig}のシグナルを送信する。
 
+vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
+		{filename}で指定されるファイル名に対し、{string}を書き出す。
+		{mode}は書き込みのモードを表し、"w"もしくは"b"を指定する。
+		"w"が通常の書き出しであり、"b"はデータを追記する。{mode}を省
+		略すると、"w"となるが、{filename}の先頭が">"の場合は"a"とな
+		る。
+		
+		この関数は{filename}に特殊な仮想デバイスファイルを指定するこ
+		とができる。現在対応している仮想デバイスファイルは以下の通り
+		である。
+		
+		"/dev/null"		何も出力しない。
+		"/dev/clip"		Vimのクリックボードへ書き出す。
+
 ------------------------------------------------------------------------------
 VARIABLES 					*vimproc-variables*
 
