@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 05 Mar 2011.
+" Last Modified: 07 Mar 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -198,65 +198,6 @@ function! vimproc#parser#parse_statements(script)"{{{
 
         let i += 1
       endif
-    elseif a:script[i] == '\'
-      " Escape.
-      let i += 1
-
-      if i >= len(a:script)
-        throw 'Exception: Join to next line (\).'
-      endif
-
-      let l:statement .= '\' . a:script[i]
-      let i += 1
-    elseif a:script[i] == '#'
-      " Comment.
-      break
-    else
-      let l:statement .= a:script[i]
-      let i += 1
-    endif
-  endwhile
-
-  if l:statement != ''
-    call add(l:statements,
-          \ { 'statement' : l:statement,
-          \   'condition' : 'always',
-          \})
-  endif
-
-  return l:statements
-endfunction"}}}
-
-function! vimproc#parser#split_statements(script)"{{{
-  let l:max = len(a:script)
-  let l:statements = []
-  let l:statement = ''
-  let i = 0
-  while i < l:max
-    if a:script[i] == ';'
-      if l:statement != ''
-        call add(l:statements, l:statement)
-      endif
-      let l:statement = ''
-      let i += 1
-    elseif a:script[i] == '&'
-      if i+1 < len(a:script) && a:script[i+1] == '&'
-        if l:statement != ''
-          call add(l:statements, l:statement)
-        endif
-        let i += 2
-      else
-        let i += 1
-      endif
-    elseif a:script[i] == '|'
-      if i+1 < len(a:script) && a:script[i+1] == '|'
-        if l:statement != ''
-          call add(l:statements, l:statement)
-        endif
-        let i += 2
-      else
-        let i += 1
-      endif
     elseif a:script[i] == "'"
       " Single quote.
       let [l:string, i] = s:skip_single_quote(a:script, i)
@@ -289,10 +230,18 @@ function! vimproc#parser#split_statements(script)"{{{
   endwhile
 
   if l:statement != ''
-    call add(l:statements, l:statement)
+    call add(l:statements,
+          \ { 'statement' : l:statement,
+          \   'condition' : 'always',
+          \})
   endif
 
   return l:statements
+endfunction"}}}
+
+function! vimproc#parser#split_statements(script)"{{{
+  return map(vimproc#parser#parse_statements(a:script),
+        \ 'v:val.statement')
 endfunction"}}}
 function! vimproc#parser#split_args(script)"{{{
   let l:script = a:script

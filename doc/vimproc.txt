@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-03-06
+- Fixed parse line.
+
 2011-03-05
 - Fixed parse.
 
