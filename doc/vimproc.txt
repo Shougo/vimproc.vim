@@ -199,6 +199,7 @@ CHANGELOG					*vimproc-changelog*
 - Improved virtual file.
 - Implemented vimproc#write().
 - Fixed process initialization.
+- Fixed for vimshell.
 
 2011-03-06
 - Fixed parse line.

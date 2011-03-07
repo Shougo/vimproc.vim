@@ -150,6 +150,10 @@ function! vimproc#parser#parse_pipe(statement)"{{{
   return l:commands
 endfunction"}}}
 function! vimproc#parser#parse_statements(script)"{{{
+  if a:script =~ '^\s*:'
+    return [ { 'statement' : a:script, 'condition' : 'always' } ]
+  endif
+
   let l:max = len(a:script)
   let l:statements = []
   let l:statement = ''
