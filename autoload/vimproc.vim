@@ -722,20 +722,20 @@ endfunction"}}}
 
 function! s:analyze_shebang(filename)"{{{
   if !s:is_win && (has('macunix') || system('uname') =~? '^darwin')
-    " Mac OS X's shebang support is imcomplete. :-(
+    " Mac OS X's shebang support is incomplete. :-(
     if getfsize(a:filename) > 100000
 
-      " Maybe binary file.
+      " Maybe a binary file.
       return [a:filename]
     endif
-  elseif !s:is_win || '.'.fnamemodify(a:filename, ':e') !~? 
+  elseif !s:is_win || '.'.fnamemodify(a:filename, ':e') !~?
         \ '^' . substitute($PATHEXT, ';', '$\\|^', 'g') . '$'
     return [a:filename]
   endif
 
   let l:lines = readfile(a:filename, '', 1)
   if empty(l:lines) || l:lines[0] !~ '^#!.\+'
-    " Not found shebang.
+    " Shebang not found.
     return [a:filename]
   endif
 
