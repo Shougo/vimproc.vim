@@ -1,5 +1,5 @@
 CFLAGS=-O2 -W -Wall -Wno-unused -use=gnu99 -shared
-TARGET=autoload/proc.dll
+TARGET=autoload/proc_cygwin.dll
 SRC=autoload/proc.c
 LDFLAGS+=-lutil
 

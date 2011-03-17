@@ -51,9 +51,9 @@ INSTALL						*vimproc-install*
 [http://github.com/Shougo/vimproc/tree/master](http://github.com/Shougo/vimproc/tree/master)
 
 そして外部ライブラリである、proc.so(proc.dll)をmakeする。vimprocは
-proc.so(proc.dll)の機能に依存しているので、proc.so(proc.dll)が存在しないとエラ
-ーになる。Cygwinでコンパイルしたproc.dllはCygwin上のVim専用なので、WindowsのVim
-では使えない。
+proc.so(proc.dll, proc_cygwin.dll)の機能に依存しているので、
+proc.so(proc.dll, proc_cygwin.dll)が存在しないとエラーになる。Cygwinでコンパ
+イルしたproc_cygwin.dllはCygwin上のVim専用なので、WindowsのVimでは使えない。
 
 Make方法
 * Mingw: >
@@ -217,11 +217,13 @@ vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
 VARIABLES 					*vimproc-variables*
 
 						*g:vimproc_dll_path*
-g:vimproc_dll_path		(default Win32 or Cygwin : "$VIMRUNTIME/autoload/proc.dll"
+g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/proc.dll"
+					Cygwin: "$VIMRUNTIME/autoload/proc_cygwin.dll"
 					others: "$VIMRUNTIME/autoload/proc.so")
-		vimprocが利用する動的ライブラリである、proc.soまたはproc.dll
-		へのパス を指定する。ライブラリはあらかじめコンパイルしてお
-		かなければならない。このファイルが存在しないとエラーになる。
+		vimprocが利用する動的ライブラリである、proc.soまたは
+		proc.dll(proc_cygwin.dll)へのパス を指定する。ライブラリはあ
+		らかじめコンパイルしておかなければならない。このファイルが存
+		在しないとエラーになる。
 
 						*g:stdinencoding*
 g:stdinencoding			(default : 'termencoding'の値が使用される)

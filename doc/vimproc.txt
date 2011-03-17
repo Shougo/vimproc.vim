@@ -48,11 +48,11 @@ INSTALL						*vimproc-install*
 In first, you get vimproc from git repository.
 [http://github.com/Shougo/vimproc/tree/master](http://github.com/Shougo/vimproc/tree/master)
 
-Next, make external dll "proc.so(or proc.dll)". Because vimproc depends on
-"proc.so(or proc.dll)"'s function, vimproc echo error message when
-"proc.so(proc.dll)" don't exist.
+Next, make external dll "proc.so(or proc.dll, proc_cygwin.dll)". Because
+vimproc depends on "proc.so(or proc.dll, proc_cygwin.dll)"'s function,
+vimproc echo error message when "proc.so(proc.dll)" don't exist.
 
-Note: The proc.dll compiled in Cygwin can't work for Windows Vim.
+Note: The proc_cygwin.dll compiled in Cygwin can't work for Windows Vim.
 
 Below is Make command.
 * Mingw: >
@@ -149,7 +149,8 @@ vimproc#kill({pid}, {sig})			*vimproc#kill()*
 VARIABLES 					*vimproc-variables*
 
 						*g:vimproc_dll_path*
-g:vimproc_dll_path		(default Win32 or Cygwin : "$VIMRUNTIME/autoload/proc.dll"
+g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/proc.dll"
+					Cygwin: "$VIMRUNTIME/autoload/proc_cygwin.dll"
 					others: "$VIMRUNTIME/autoload/proc.so")
 		This variable is dll name used by vimproc.  You must compile
 		this dll file. If this dll is not exist, vimproc will echo
@@ -198,6 +199,7 @@ CHANGELOG					*vimproc-changelog*
 2011-03-17
 - Fixed DuplicateHandle() bug.
 - Ver.5.1.
+- Changed default dll name in Cygwin.
 
 2011-03-07
 - Improved virtual file.

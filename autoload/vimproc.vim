@@ -44,7 +44,7 @@ let s:last_status = 0
 
 " Global options definition."{{{
 if !exists('g:vimproc_dll_path')
-  let g:vimproc_dll_path = expand("<sfile>:p:h") . (has('win32') || has('win64') || has('win32unix') ? '/proc.dll' : '/proc.so')
+  let g:vimproc_dll_path = expand("<sfile>:p:h") . (has('win32') || has('win64')? '/proc.dll' : has('win32unix') ? '/proc_cygwin.dll' : '/proc.so')
 endif
 "}}}
 
