@@ -23,7 +23,7 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 5.0, for Vim 7.0
+" Version: 5.1, for Vim 7.0
 "=============================================================================
 
 " Saving 'cpoptions' {{{
@@ -36,7 +36,7 @@ if has('gui_macvim') && !&encoding
 endif
 "}}}
 function! vimproc#version()
-  return str2nr(printf('%2d%02d', 5, 0))
+  return str2nr(printf('%2d%02d', 5, 1))
 endfunction
 
 let s:is_win = has('win32') || has('win64')
