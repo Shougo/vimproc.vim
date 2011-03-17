@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 07 Mar 2011.
+" Last Modified: 17 Mar 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -342,8 +342,7 @@ function! vimproc#popen3(args)"{{{
   return s:popen(3, a:args)
 endfunction"}}}
 function! s:popen(npipe, args)"{{{
-  let l:pipe = s:vp_pipe_open(a:npipe, 0, 0, 0,
-        \ s:convert_args(a:args))
+  let l:pipe = s:vp_pipe_open(a:npipe, 0, 0, 0, s:convert_args(a:args))
   if a:npipe == 3
     let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
   else

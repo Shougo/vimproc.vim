@@ -340,9 +340,9 @@ vp_pipe_open(char *args)
     vp_stack_t stack;
     int npipe, hstdin, hstderr, hstdout;
     char *cmdline;
-    HANDLE hInputWriteTmp, hInputWrite, hInputRead;
-    HANDLE hOutputWrite, hOutputReadTmp, hOutputRead;
-    HANDLE hErrorWrite, hErrorReadTmp, hErrorRead;
+    HANDLE hInputWrite, hInputRead;
+    HANDLE hOutputWrite, hOutputRead;
+    HANDLE hErrorWrite, hErrorRead;
     SECURITY_ATTRIBUTES sa;
     PROCESS_INFORMATION pi;
     STARTUPINFO si;
@@ -364,6 +364,8 @@ vp_pipe_open(char *args)
         /* Get handle. */
         hInputRead = (HANDLE)_get_osfhandle(hstdin);
     } else {
+        HANDLE hInputWriteTmp;
+
         /* Create pipe. */
         if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 0))
             return vp_stack_return_error(&_result, "CreatePipe() error: %s",
@@ -374,7 +376,7 @@ vp_pipe_open(char *args)
                     GetCurrentProcess(),
                     &hInputWrite,
                     0,
-                    TRUE,
+                    FALSE,
                     DUPLICATE_SAME_ACCESS))
             return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                     lasterror());
@@ -387,6 +389,8 @@ vp_pipe_open(char *args)
         /* Get handle. */
         hOutputWrite = (HANDLE)_get_osfhandle(hstdout);
     } else {
+        HANDLE hOutputReadTmp;
+
         /* Create pipe. */
         if (!CreatePipe(&hOutputReadTmp, &hOutputWrite, &sa, 0))
             return vp_stack_return_error(&_result, "CreatePipe() error: %s",
@@ -397,7 +401,7 @@ vp_pipe_open(char *args)
                     GetCurrentProcess(),
                     &hOutputRead,
                     0,
-                    TRUE,
+                    FALSE,
                     DUPLICATE_SAME_ACCESS))
             return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                     lasterror());
@@ -421,6 +425,8 @@ vp_pipe_open(char *args)
             /* Get handle. */
             hErrorWrite = (HANDLE)_get_osfhandle(hstderr);
         } else {
+            HANDLE hErrorReadTmp;
+
             /* Create pipe. */
             if (!CreatePipe(&hErrorReadTmp, &hErrorWrite, &sa, 0))
                 return vp_stack_return_error(&_result, "CreatePipe() error: %s",
@@ -431,7 +437,7 @@ vp_pipe_open(char *args)
                         GetCurrentProcess(),
                         &hErrorRead,
                         0,
-                        TRUE,
+                        FALSE,
                         DUPLICATE_SAME_ACCESS))
                 return vp_stack_return_error(&_result, "DuplicateHandle() error: %s",
                         lasterror());

@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-03-17
+- Fixed DuplicateHandle() bug.
+
 2011-03-07
 - Improved virtual file.
 - Implemented vimproc#write().
