@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 17 Mar 2011.
+" Last Modified: 21 Mar 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -202,13 +202,7 @@ function! vimproc#system(cmdline, ...)"{{{
     if a:cmdline =~ '&\s*$'
       return vimproc#system_bg(a:cmdline)
     elseif (!has('unix') || a:cmdline !~ '^\s*man ')
-      if a:0 == 0
-        return vimproc#parser#system(a:cmdline)
-      elseif a:0 == 1
-        return vimproc#parser#system(a:cmdline, a:1)
-      else
-        return vimproc#parser#system(a:cmdline, a:1, a:2)
-      endif
+      return call('vimproc#parser#system', [a:cmdline]+a:000)
     endif
   endif
 
