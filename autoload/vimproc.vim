@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 21 Mar 2011.
+" Last Modified: 22 Mar 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -296,13 +296,9 @@ function! vimproc#system_bg(cmdline)"{{{
     endif
   endif
 
-  if s:is_win
-    silent execute '!start' join(map(a:cmdline, '"\"".v:val."\""'))
-  else
-    " Open pipe.
-    let l:subproc = vimproc#popen3(a:cmdline)
-    let s:bg_processes[l:subproc.pid] = l:subproc.pid
-  endif
+  " Open pipe.
+  let l:subproc = vimproc#popen3(a:cmdline)
+  let s:bg_processes[l:subproc.pid] = l:subproc.pid
 
   return ''
 endfunction"}}}

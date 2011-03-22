@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-03-22
+- Improved vimproc#system_bg().
+
 2011-03-21
 - Improved vimproc#system().
 
