@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-03-25
+- Improved MacOS Check.
+
 2011-03-22
 - Improved vimproc#system_bg().
 

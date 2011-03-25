@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 Mar 2011.
+" Last Modified: 25 Mar 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -30,8 +30,12 @@
 let s:save_cpo = &cpo
 set cpo&vim
 " }}}
+
+let s:is_win = has('win32') || has('win64')
+let s:is_mac = has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin'
+
 " MacVim trouble shooter {{{
-if has('gui_macvim') && !&encoding
+if s:is_mac && !&encoding
   set encoding=utf-8
 endif
 "}}}
@@ -39,7 +43,6 @@ function! vimproc#version()
   return str2nr(printf('%2d%02d', 5, 1))
 endfunction
 
-let s:is_win = has('win32') || has('win64')
 let s:last_status = 0
 
 " Global options definition."{{{
@@ -82,7 +85,7 @@ function! vimproc#open(filename)"{{{
   elseif executable('exo-open')
     " Xfce.
     call vimproc#system_bg(['exo-open', l:filename])
-  elseif (has('macunix') || system('uname') =~? '^darwin') && executable('open')
+  elseif s:is_mac && executable('open')
     " Mac OS.
     call vimproc#system_bg(['open', l:filename])
   else
@@ -262,7 +265,7 @@ function! vimproc#system(cmdline, ...)"{{{
   let [l:cond, l:status] = l:subproc.waitpid()
 
   " Newline convert.
-  if has('mac')
+  if s:is_mac
     let l:output = substitute(l:output, '\r', '\n', 'g')
   elseif has('win32') || has('win64')
     let l:output = substitute(l:output, '\r\n', '\n', 'g')
@@ -286,16 +289,6 @@ function! vimproc#system2(...)"{{{
   return l:output
 endfunction"}}}
 function! vimproc#system_bg(cmdline)"{{{
-  if type(a:cmdline) == type('')
-    if s:is_win
-      let l:cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
-      silent execute '!start' l:cmdline
-      return ''
-    else
-      return vimproc#parser#system_bg(a:cmdline)
-    endif
-  endif
-
   " Open pipe.
   let l:subproc = vimproc#popen3(a:cmdline)
   let s:bg_processes[l:subproc.pid] = l:subproc.pid
@@ -710,7 +703,7 @@ function! s:convert_args(args)"{{{
 endfunction"}}}
 
 function! s:analyze_shebang(filename)"{{{
-  if !s:is_win && (has('macunix') || system('uname') =~? '^darwin')
+  if s:is_mac
     " Mac OS X's shebang support is incomplete. :-(
     if getfsize(a:filename) > 100000
 
