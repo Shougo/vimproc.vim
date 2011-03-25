@@ -32,7 +32,7 @@ set cpo&vim
 " }}}
 
 let s:is_win = has('win32') || has('win64')
-let s:is_mac = has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin'
+let s:is_mac = !s:is_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
 
 " MacVim trouble shooter {{{
 if s:is_mac && !&encoding
