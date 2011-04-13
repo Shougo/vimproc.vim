@@ -664,7 +664,7 @@ function! s:garbage_collect()"{{{
     " Check processes.
     try
       let [l:cond, l:status] = s:waitpid(pid)
-      echomsg string([pid, l:cond, l:status])
+      " echomsg string([pid, l:cond, l:status])
       if l:cond !=# 'run'
         if l:cond !=# 'exit'
           " Kill process.
