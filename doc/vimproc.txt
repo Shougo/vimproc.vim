@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-04-13
+- Fixed resource leak bug(Thanks ujihisa!).
+
 2011-03-25
 - Improved MacOS Check.
 

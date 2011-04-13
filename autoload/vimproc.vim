@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 25 Mar 2011.
+" Last Modified: 13 Apr 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1042,7 +1042,7 @@ function! s:vp_kill(sig) dict
     call self.stdout.close()
   endif
   if has_key(self, 'stderr')
-    call self.stdout.close()
+    call self.stderr.close()
   endif
   if has_key(self, 'ttyname')
     call self.close()
@@ -1067,7 +1067,7 @@ function! s:vp_pgroup_kill(sig) dict
     call self.stdout.close()
   endif
   if has_key(self, 'stderr')
-    call self.stdout.close()
+    call self.stderr.close()
   endif
   if has_key(self, 'ttyname')
     call self.close()
@@ -1104,7 +1104,7 @@ function! s:vp_waitpid() dict
     call self.stdout.close()
   endif
   if has_key(self, 'stderr')
-    call self.stdout.close()
+    call self.stderr.close()
   endif
   if has_key(self, 'ttyname')
     call self.close()
