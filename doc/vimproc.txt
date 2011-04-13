@@ -198,6 +198,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-04-13
 - Fixed resource leak bug(Thanks ujihisa!).
+- Fixed vimproc#system_bg() resource leak.
 
 2011-03-25
 - Improved MacOS Check.

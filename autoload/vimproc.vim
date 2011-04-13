@@ -291,6 +291,10 @@ endfunction"}}}
 function! vimproc#system_bg(cmdline)"{{{
   " Open pipe.
   let l:subproc = vimproc#popen3(a:cmdline)
+
+  " Close handles.
+  call s:close_all(l:subproc)
+
   let s:bg_processes[l:subproc.pid] = l:subproc.pid
 
   return ''
@@ -561,6 +565,20 @@ function! vimproc#write(filename, string, ...)"{{{
   endif
 endfunction"}}}
 
+function! s:close_all(self)"{{{
+  if has_key(a:self, 'stdin')
+    call a:self.stdin.close()
+  endif
+  if has_key(a:self, 'stdout')
+    call a:self.stdout.close()
+  endif
+  if has_key(a:self, 'stderr')
+    call a:self.stderr.close()
+  endif
+  if has_key(a:self, 'ttyname')
+    call a:self.close()
+  endif
+endfunction"}}}
 function! s:close() dict"{{{
   if self.is_valid
     call self.f_close()
@@ -646,7 +664,7 @@ function! s:garbage_collect()"{{{
     " Check processes.
     try
       let [l:cond, l:status] = s:waitpid(pid)
-      " echomsg string([pid, l:cond, l:status])
+      echomsg string([pid, l:cond, l:status])
       if l:cond !=# 'run'
         if l:cond !=# 'exit'
           " Kill process.
@@ -1035,18 +1053,7 @@ function! s:vp_set_winsize(width, height) dict
 endfunction
 
 function! s:vp_kill(sig) dict
-  if has_key(self, 'stdin')
-    call self.stdin.close()
-  endif
-  if has_key(self, 'stdout')
-    call self.stdout.close()
-  endif
-  if has_key(self, 'stderr')
-    call self.stderr.close()
-  endif
-  if has_key(self, 'ttyname')
-    call self.close()
-  endif
+  call s:close_all(self)
 
   let self.is_valid = 0
 
@@ -1060,18 +1067,7 @@ function! s:vp_kill(sig) dict
 endfunction
 
 function! s:vp_pgroup_kill(sig) dict
-  if has_key(self, 'stdin')
-    call self.stdin.close()
-  endif
-  if has_key(self, 'stdout')
-    call self.stdout.close()
-  endif
-  if has_key(self, 'stderr')
-    call self.stderr.close()
-  endif
-  if has_key(self, 'ttyname')
-    call self.close()
-  endif
+  call s:close_all(self)
 
   call self.current_proc.kill(a:sig)
 
@@ -1097,18 +1093,7 @@ function! s:waitpid(pid)
 endfunction
 
 function! s:vp_waitpid() dict
-  if has_key(self, 'stdin')
-    call self.stdin.close()
-  endif
-  if has_key(self, 'stdout')
-    call self.stdout.close()
-  endif
-  if has_key(self, 'stderr')
-    call self.stderr.close()
-  endif
-  if has_key(self, 'ttyname')
-    call self.close()
-  endif
+  call s:close_all(self)
 
   let self.is_valid = 0
 
