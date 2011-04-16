@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 13 Apr 2011.
+" Last Modified: 16 Apr 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -380,7 +380,7 @@ function! s:plineopen(npipe, commands)"{{{
       let l:mode .= ' | O_APPEND'
       let l:command.fd.stdout = l:command.fd.stdout[1:]
     endif
-    let l:hstdout = l:command.fd.stdout == '' ?
+    let l:hstdout = s:is_pseudo_device(l:command.fd.stdout) ?
           \ 0 : vimproc#fopen(l:command.fd.stdout, l:mode).fd
 
     let l:mode = 'O_WRONLY | O_CREAT'
@@ -388,7 +388,7 @@ function! s:plineopen(npipe, commands)"{{{
       let l:mode .= ' | O_APPEND'
       let l:command.fd.stderr = l:command.fd.stderr[1:]
     endif
-    let l:hstderr = l:command.fd.stderr == '' ?
+    let l:hstderr = s:is_pseudo_device(l:command.fd.stdout) ?
           \ 0 : vimproc#fopen(l:command.fd.stderr, l:mode).fd
 
     let l:pipe = s:vp_pipe_open(a:npipe, l:hstdin, l:hstdout, l:hstderr,
@@ -425,6 +425,13 @@ function! s:plineopen(npipe, commands)"{{{
   let l:proc.is_pty = 0
 
   return proc
+endfunction"}}}
+
+function! s:is_pseudo_device(filename)"{{{
+  return a:filename == ''
+        \ || a:filename ==# '/dev/null'
+        \ || a:filename ==# '/dev/clip'
+        \ || a:filename ==# '/dev/quickfix'
 endfunction"}}}
 
 function! vimproc#pgroup_open(statements)"{{{
@@ -550,6 +557,34 @@ function! vimproc#write(filename, string, ...)"{{{
     else
       let @+ = a:string
     endif
+  elseif l:filename ==# '/dev/quickfix'
+    " Write to quickfix.
+    let l:qflist = getqflist()
+
+    for str in split(a:string, '\n\|\r\n')
+      if str =~ '^.\+:.\+:.\+$'
+        let l:line = split(str[2:], ':')
+        let l:filename = str[:1] . l:line[0]
+
+        if len(l:line) >= 3 && l:line[1] =~ '^\d\+$'
+          call add(l:qflist, {
+                \ 'filename' : l:filename,
+                \ 'lnum' : l:line[1],
+                \ 'pattern' : join(l:line[2:], ':'),
+                \ 'text' : join(l:line[2:], ':'),
+                \ })
+        else
+          call add(l:qflist, {
+                \ 'filename' : l:filename,
+                \ 'pattern' : join(l:line[1:], ':'),
+                \ 'text' : join(l:line[1:], ':'),
+                \ })
+        endif
+      endif
+    endfor
+    echomsg string(l:qflist)
+
+    call setqflist(l:qflist)
   else
     " Write file.
 

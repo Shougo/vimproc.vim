@@ -30,6 +30,7 @@ Interface		|vimproc-interface|
   Commands		  |vimproc-commands|
   Functions		  |vimproc-functions|
   Variables		  |vimproc-variables|
+Tips			|vimproc-tips|
 Examples		|vimproc-examples|
 ToDo			|vimproc-todo|
 Bugs			|vimproc-bugs|
@@ -241,36 +242,21 @@ g:stderrencoding		(default : 'termencoding'の値が使用される)
 		ンコーディング。
 
 ==============================================================================
-EXAMPLES					*vimproc-examples*
->
-	" File open test.
-	let file = vimproc#fopen("./test1.vim", "O_RDONLY", 0)
-	let res = file.read()
-	call file.close()
-	new
-	call append(0, split(res, '\r\n\|\r\|\n'))
-	
-	" Pipe open test.
-	let sub = vimproc#parser#popen2('ls')
-	let res = ''
-	while !sub.stdout.eof
-	let res .= sub.stdout.read()
-	endwhile
-	let [cond, status] = sub.waitpid()
-	new
-	call append(0, split(res, '\r\n\|\r\|\n') + [string([cond, status])])
-	
-	" Socket open test.
-	let sock = vimproc#socket_open('www.yahoo.com', 80)
-	call sock.write("GET / HTTP/1.0\r\n\r\n")
-	let res = ''
-	while !sock.eof
-	let res .= sock.read()
-	endwhile
-	call sock.close()
-	new
-	call append(0, split(res, '\r\n\|\r\|\n'))
-<
+TIPS						*vimproc-tips*
+
+疑似デバイスファイル				*vimproc-tips-pseudo-devices*
+		vimprocは疑似デバイスファイルにも対応している。現在対応して
+		いるのは、次の疑似デバイスファイルである。
+		
+		/dev/null
+		これに出力した場合は結果を捨てる。
+		
+		/dev/clip
+		クリップボードに出力する。
+		
+		/dev/quickfix
+		|quickfix|に出力する。
+
 ==============================================================================
 TODO						*vimproc-todo*
 

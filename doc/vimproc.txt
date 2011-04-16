@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-04-16
+- Supported quickfix redirection.
+
 2011-04-13
 - Fixed resource leak bug(Thanks ujihisa!).
 - Fixed vimproc#system_bg() resource leak.
