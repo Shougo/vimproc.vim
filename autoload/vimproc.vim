@@ -570,14 +570,11 @@ function! vimproc#write(filename, string, ...)"{{{
           call add(l:qflist, {
                 \ 'filename' : l:filename,
                 \ 'lnum' : l:line[1],
-                \ 'pattern' : join(l:line[2:], ':'),
                 \ 'text' : join(l:line[2:], ':'),
                 \ })
         else
           call add(l:qflist, {
-                \ 'filename' : l:filename,
-                \ 'pattern' : join(l:line[1:], ':'),
-                \ 'text' : join(l:line[1:], ':'),
+                \ 'text' : str,
                 \ })
         endif
       endif
