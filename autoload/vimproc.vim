@@ -1130,13 +1130,6 @@ function! s:vp_waitpid() dict
   let self.is_valid = 0
 
   while 1
-    if has_key(self, 'pid_list')
-      for pid in self.pid_list[: -2]
-        " Add bg processes list.
-        let s:bg_processes[pid] = pid
-      endfor
-    endif
-
     let [l:cond, l:status] = s:waitpid(self.pid)
 
     " echomsg string([l:cond, l:status])
@@ -1145,6 +1138,13 @@ function! s:vp_waitpid() dict
       break
     endif
   endwhile
+
+  if has_key(self, 'pid_list')
+    for pid in self.pid_list[: -2]
+      " Add bg processes list.
+      let s:bg_processes[pid] = pid
+    endfor
+  endif
 
   return [l:cond, l:status]
 endfunction
