@@ -1141,8 +1141,7 @@ function! s:vp_waitpid() dict
 
   if has_key(self, 'pid_list')
     for pid in self.pid_list[: -2]
-      " Add bg processes list.
-      let s:bg_processes[pid] = pid
+      call s:waitpid(pid)
     endfor
   endif
 
