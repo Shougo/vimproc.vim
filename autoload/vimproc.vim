@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 16 Apr 2011.
+" Last Modified: 18 Apr 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1131,12 +1131,13 @@ function! s:vp_waitpid() dict
 
   while 1
     if has_key(self, 'pid_list')
-      for pid in self.pid_list
-        let [l:cond, l:status] = s:waitpid(pid)
+      for pid in self.pid_list[: -2]
+        " Add bg processes list.
+        let s:bg_processes[pid] = pid
       endfor
-    else
-      let [l:cond, l:status] = s:waitpid(self.pid)
     endif
+
+    let [l:cond, l:status] = s:waitpid(self.pid)
 
     " echomsg string([l:cond, l:status])
     " For zombie process.

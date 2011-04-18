@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-04-18
+- Improved waitpid.
+
 2011-04-16
 - Supported quickfix redirection.
 
