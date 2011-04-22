@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 24 Feb 2011.
+" Last Modified: 22 Apr 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -31,8 +31,10 @@ elseif exists('g:loaded_vimproc')
   finish
 endif
 
+" Saving 'cpoptions' {{{
 let s:save_cpo = &cpo
 set cpo&vim
+" }}}
 
 if !exists('g:stdinencoding')
   let g:stdinencoding = &termencoding
@@ -102,4 +104,7 @@ unlet s:save_cpo
 
 let g:loaded_vimproc = 1
 
+" Restore 'cpoptions' {{{
+let &cpo = s:save_cpo
+" }}}
 " vim: foldmethod=marker
