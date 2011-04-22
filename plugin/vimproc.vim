@@ -99,12 +99,10 @@ function! s:read(cmdline)"{{{
         \ vimproc#util#stdoutencoding(), &encoding), '\r\n\|\n'))
 endfunction"}}}
 
-let &cpo = s:save_cpo
-unlet s:save_cpo
-
 let g:loaded_vimproc = 1
 
 " Restore 'cpoptions' {{{
 let &cpo = s:save_cpo
+unlet s:save_cpo
 " }}}
 " vim: foldmethod=marker

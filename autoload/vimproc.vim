@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 18 Apr 2011.
+" Last Modified: 22 Apr 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1183,5 +1183,7 @@ endif
 
 " Restore 'cpoptions' {{{
 let &cpo = s:save_cpo
+unlet s:save_cpo
 " }}}
+" __END__
 " vim:foldmethod=marker:fen:sw=2:sts=2
