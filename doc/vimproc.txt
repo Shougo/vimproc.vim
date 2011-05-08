@@ -199,6 +199,9 @@ CHANGELOG					*vimproc-changelog*
 2011-05-08
 - Added 64bit dll description.
 
+2011-05-06
+- Fixed vimproc#system2() error.
+
 2011-04-22
 - Fixed for cpoptions.
 
