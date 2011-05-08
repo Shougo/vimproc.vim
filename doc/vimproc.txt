@@ -72,8 +72,8 @@ Below is Make command.
 
 After compile, you copy autoload/* files to your |$VIMRUNTIME|.
 
-I compiled proc.dll in 32 bit Windows, and distributed it below URL.
-Note: I DON'T guarantee it.
+I compiled proc.dll in 32/64 bit Windows, and distributed it below URL.
+Note: I DON'T recommend to use it.
 http://github.com/Shougo/vimproc/downloads
 
 ==============================================================================
@@ -195,6 +195,9 @@ BUGS						*vimproc-bugs*
 
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2011-05-08
+- Added 64bit dll description.
 
 2011-04-22
 - Fixed for cpoptions.
