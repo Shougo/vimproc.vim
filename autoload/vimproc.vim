@@ -305,7 +305,7 @@ function! vimproc#system_bg(cmdline)"{{{
 endfunction"}}}
 function! vimproc#system_gui(cmdline)"{{{
   let l:cmdline = s:is_win ?
-        \ 'cmd.exe /c ' . join(map(vimproc#parser#popen3(a:cmdline), '"v:val"'))
+        \ 'cmd.exe /c ' . join(map(vimproc#parser#split_args(a:cmdline), '"v:val"'))
         \ : a:cmdline
 
   return vimproc#system_bg(l:cmdline)
@@ -649,7 +649,7 @@ endfunction"}}}
 function! s:read_line() dict
   let l:output = ''
   let l:res = ''
-  while l:res !~ '\r\?\n'
+  while l:res !~ '\r\?\n' && l:res != ''
     let l:res = self.read(256)
     let l:output .= l:res
   endwhile
