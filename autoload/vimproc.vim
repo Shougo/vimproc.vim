@@ -203,7 +203,8 @@ endfunction"}}}
 function! vimproc#system(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
     if a:cmdline =~ '&\s*$'
-      return vimproc#system_bg(a:cmdline)
+      let l:cmdline = substitute(a:cmdline, '&\s*$', '', '')
+      return vimproc#system_bg(l:cmdline)
     elseif (!has('unix') || a:cmdline !~ '^\s*man ')
       return call('vimproc#parser#system', [a:cmdline]+a:000)
     endif
@@ -305,7 +306,7 @@ function! vimproc#system_bg(cmdline)"{{{
 endfunction"}}}
 function! vimproc#system_gui(cmdline)"{{{
   let l:cmdline = s:is_win ?
-        \ 'cmd.exe /c ' . join(map(vimproc#parser#split_args(a:cmdline), '"v:val"'))
+        \ 'cmd.exe /c ' . join(map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""'))
         \ : a:cmdline
 
   return vimproc#system_bg(l:cmdline)
@@ -590,7 +591,6 @@ function! vimproc#write(filename, string, ...)"{{{
         endif
       endif
     endfor
-    echomsg string(l:qflist)
 
     call setqflist(l:qflist)
   else
@@ -647,11 +647,14 @@ function! s:read(...) dict"{{{
   return l:output
 endfunction"}}}
 function! s:read_line() dict
-  let l:output = ''
-  let l:res = ''
-  while l:res !~ '\r\?\n' && l:res != ''
+  let l:output = self.buffer
+  while l:output !~ '\r\?\n'
     let l:res = self.read(256)
     let l:output .= l:res
+
+    if l:res == ''
+      break
+    endif
   endwhile
 
   let l:pos = match(l:output, '\v%(\r?\n|$)\zs')
@@ -698,7 +701,8 @@ function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write)"{{{
         \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
         \ 'proc' : a:proc, 'fd' : a:fd,
         \ 'f_close' : s:funcref(a:f_close),
-        \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
+        \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write),
+        \ 'read_line' : s:funcref('read_line'),
         \}
 endfunction"}}}
 

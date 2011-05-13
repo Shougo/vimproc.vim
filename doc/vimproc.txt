@@ -199,6 +199,7 @@ CHANGELOG					*vimproc-changelog*
 2011-05-13
 - Added system_gui().
 - Ver.5.2 development is started.
+- Fixed some bugs.
 
 2011-05-08
 - Added 64bit dll description.
