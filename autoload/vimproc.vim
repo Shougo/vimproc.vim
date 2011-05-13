@@ -305,7 +305,7 @@ function! vimproc#system_bg(cmdline)"{{{
 endfunction"}}}
 function! vimproc#system_gui(cmdline)"{{{
   let l:cmdline = s:is_win ?
-        \ 'cmd.exe /c ' . join(vimproc#parser#popen3(a:cmdline), '"')
+        \ 'cmd.exe /c ' . join(map(vimproc#parser#popen3(a:cmdline), '"v:val"'))
         \ : a:cmdline
 
   return vimproc#system_bg(l:cmdline)
