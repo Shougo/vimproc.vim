@@ -306,7 +306,7 @@ function! vimproc#system_bg(cmdline)"{{{
 endfunction"}}}
 function! vimproc#system_gui(cmdline)"{{{
   let l:cmdline = s:is_win ?
-        \ 'cmd.exe /c ' . join(map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""'))
+        \ ['cmd.exe',  '/c'] + map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""')
         \ : a:cmdline
 
   return vimproc#system_bg(l:cmdline)
