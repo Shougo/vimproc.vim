@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 06 May 2011.
+" Last Modified: 13 May 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -23,7 +23,7 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-" Version: 5.1, for Vim 7.0
+" Version: 5.2, for Vim 7.0
 "=============================================================================
 
 " Saving 'cpoptions' {{{
@@ -40,7 +40,7 @@ if s:is_mac && !&encoding
 endif
 "}}}
 function! vimproc#version()
-  return str2nr(printf('%2d%02d', 5, 1))
+  return str2nr(printf('%2d%02d', 5, 2))
 endfunction
 
 let s:last_status = 0
@@ -295,6 +295,23 @@ endfunction"}}}
 function! vimproc#system_bg(cmdline)"{{{
   " Open pipe.
   let l:subproc = vimproc#popen3(a:cmdline)
+
+  " Close handles.
+  call s:close_all(l:subproc)
+
+  let s:bg_processes[l:subproc.pid] = l:subproc.pid
+
+  return ''
+endfunction"}}}
+function! vimproc#system_gui(cmdline)"{{{
+  if s:is_win
+    let l:cmdline = 'cmd.exe /c ' . join(vimproc#parser#popen3(a:args), '"')
+  else
+    let l:cmdline = a:cmdline
+  endif
+
+  " Open pipe.
+  let l:subproc = vimproc#popen3(l:cmdline)
 
   " Close handles.
   call s:close_all(l:subproc)

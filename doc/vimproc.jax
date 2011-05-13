@@ -1,6 +1,6 @@
 *vimproc.jax*	Vim用非同期実行ライブラリ
 
-Version: 5.1
+Version: 5.2
 Author : Shougo <Shougo.Matsu@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -131,6 +131,10 @@ vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
 vimproc#system_bg({expr})			*vimproc#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ
 		ンドで実行する。入力はできない。
+
+vimproc#system_gui({expr})			*vimproc#system_gui()*
+		|vimproc#parser#system_bg()|と同様だが、GUIコマンドをバックグラ
+		ウンドで実行する。入力はできない。
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
 		前回の|vimproc#system()|の実行において得られた、戻り値を取得する。
