@@ -304,11 +304,9 @@ function! vimproc#system_bg(cmdline)"{{{
   return ''
 endfunction"}}}
 function! vimproc#system_gui(cmdline)"{{{
-  if s:is_win
-    let l:cmdline = 'cmd.exe /c ' . join(vimproc#parser#popen3(a:cmdline), '"')
-  else
-    let l:cmdline = a:cmdline
-  endif
+  let l:cmdline = s:is_win ?
+        \ 'cmd.exe /c ' . join(vimproc#parser#popen3(a:cmdline), '"')
+        \ : a:cmdline
 
   return vimproc#system_bg(l:cmdline)
 endfunction"}}}
