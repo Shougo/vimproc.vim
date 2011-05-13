@@ -310,15 +310,7 @@ function! vimproc#system_gui(cmdline)"{{{
     let l:cmdline = a:cmdline
   endif
 
-  " Open pipe.
-  let l:subproc = vimproc#popen3(l:cmdline)
-
-  " Close handles.
-  call s:close_all(l:subproc)
-
-  let s:bg_processes[l:subproc.pid] = l:subproc.pid
-
-  return ''
+  return vimproc#system_bg(l:cmdline)
 endfunction"}}}
 
 function! vimproc#get_last_status()"{{{
