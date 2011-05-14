@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-05-14
+- Fixed popen().
+
 2011-05-13
 - Added system_gui().
 - Ver.5.2 development is started.

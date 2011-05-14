@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 13 May 2011.
+" Last Modified: 14 May 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -331,7 +331,7 @@ function! vimproc#popen2(args)"{{{
     return vimproc#parser#popen2(a:args)
   endif
 
-  return s:popen(3, a:args)
+  return s:popen(2, a:args)
 endfunction"}}}
 function! vimproc#popen3(args)"{{{
   if type(a:args) == type('')
