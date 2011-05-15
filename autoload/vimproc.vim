@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 14 May 2011.
+" Last Modified: 16 May 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -306,8 +306,9 @@ function! vimproc#system_bg(cmdline)"{{{
 endfunction"}}}
 function! vimproc#system_gui(cmdline)"{{{
   let l:cmdline = s:is_win ?
-        \ ['cmd.exe',  '/c'] + map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""')
+        \ join(['cmd.exe',  '/c'] + map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""'))
         \ : a:cmdline
+  " echomsg string(l:cmdline)
 
   return vimproc#system_bg(l:cmdline)
 endfunction"}}}
@@ -316,7 +317,7 @@ function! vimproc#get_last_status()"{{{
   return s:last_status
 endfunction"}}}
 function! vimproc#get_last_errmsg()"{{{
-  return s:last_errmsg
+  return vimproc#util#iconv(s:last_errmsg, vimproc#util#stderrencoding(), &encoding)
 endfunction"}}}
 
 function! vimproc#fopen(path, flags, ...)"{{{
