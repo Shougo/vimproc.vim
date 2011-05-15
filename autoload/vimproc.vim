@@ -44,6 +44,7 @@ function! vimproc#version()
 endfunction
 
 let s:last_status = 0
+let s:last_errmsg = ''
 
 " Global options definition."{{{
 if !exists('g:vimproc_dll_path')
@@ -305,12 +306,12 @@ function! vimproc#system_bg(cmdline)"{{{
   return ''
 endfunction"}}}
 function! vimproc#system_gui(cmdline)"{{{
-  let l:cmdline = s:is_win ?
-        \ join(['cmd.exe',  '/c'] + map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""'))
-        \ : a:cmdline
-  " echomsg string(l:cmdline)
-
-  return vimproc#system_bg(l:cmdline)
+  if s:is_win
+    execute ':!start ' . join(map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""'))
+    return ''
+  else
+    return vimproc#system_bg(a:cmdline)
+  endif
 endfunction"}}}
 
 function! vimproc#get_last_status()"{{{

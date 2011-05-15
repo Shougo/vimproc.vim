@@ -198,6 +198,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-05-16
 - Fixed vimproc#get_last_errmsg().
+- Fixed vimproc#system_gui() in Windows.
 
 2011-05-14
 - Fixed popen().
