@@ -270,7 +270,7 @@ function! vimproc#system(cmdline, ...)"{{{
         set imsearch=0
         let l:in = vimproc#util#iconv(inputsecret('Input Secret : '), vimproc#util#encoding(), vimproc#util#termencoding())
 
-        call b:interactive.process.write(l:in . "\<NL>")
+        call l:subproc.stdin.write(a:1)
       endif
 
       let l:output .= l:out
