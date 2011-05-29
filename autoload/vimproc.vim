@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 16 May 2011.
+" Last Modified: 29 May 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -45,6 +45,11 @@ endfunction
 
 let s:last_status = 0
 let s:last_errmsg = ''
+
+let s:password_regex =
+      \'\%(Enter \\|[Oo]ld \\|[Nn]ew \\|''s \\|login \\|'''  .
+      \'Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] \|^\)' .
+      \'[Pp]assword\|\%(^\|\n\)[Pp]assword'
 
 " Global options definition."{{{
 if !exists('g:vimproc_dll_path')
@@ -226,8 +231,8 @@ function! vimproc#system(cmdline, ...)"{{{
   if !empty(a:000)
     " Write input.
     call l:subproc.stdin.write(a:1)
+    call l:subproc.stdin.close()
   endif
-  call l:subproc.stdin.close()
 
   if l:timeout > 0 && has('reltime') && v:version >= 702
     let l:start = reltime()
@@ -256,7 +261,19 @@ function! vimproc#system(cmdline, ...)"{{{
     endif
 
     if !l:subproc.stdout.eof
-      let l:output .= l:subproc.stdout.read(-1, 40)
+      let l:out = l:subproc.stdout.read(-1, 40)
+
+      if empty(a:000) && l:out =~ s:password_regex
+        redraw
+
+        " Password input.
+        set imsearch=0
+        let l:in = vimproc#util#iconv(inputsecret('Input Secret : '), vimproc#util#encoding(), vimproc#util#termencoding())
+
+        call b:interactive.process.write(l:in . "\<NL>")
+      endif
+
+      let l:output .= l:out
     endif
 
     if !l:subproc.stderr.eof

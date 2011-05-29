@@ -123,6 +123,9 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		ある。この機能には|+reltime|が必要となる。省略すると、0を指定し
 		たことになり無視される。内部で浮動小数点演算をしているため、Vim
 		7.2以上でないと動作しない。
+		{input}を指定しない限り、プログラムに入力を与えることはでき
+		ないが、それでは不便なのでパスワード入力にのみ実験的に対応し
+		た。
 
 vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
 		|vimproc#parser#system()|と同様だが、エンコーディングを自動的に

@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-05-29
+- Supported password input in vimproc#system().
+
 2011-05-16
 - Fixed vimproc#get_last_errmsg().
 - Fixed vimproc#system_gui() in Windows.
