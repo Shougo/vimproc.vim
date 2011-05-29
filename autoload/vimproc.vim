@@ -268,7 +268,7 @@ function! vimproc#system(cmdline, ...)"{{{
 
         " Password input.
         set imsearch=0
-        let l:in = vimproc#util#iconv(inputsecret('Input Secret : '), vimproc#util#encoding(), vimproc#util#termencoding())
+        let l:in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
 
         call l:subproc.stdin.write(a:1)
       endif
