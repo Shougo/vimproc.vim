@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 30 May 2011.
+" Last Modified: 02 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -47,9 +47,9 @@ let s:last_status = 0
 let s:last_errmsg = ''
 
 let s:password_regex =
-      \'\%(Enter \\|[Oo]ld \\|[Nn]ew \\|''s \\|login \\|'''  .
-      \'Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] \|^\)' .
-      \'[Pp]assword\|\%(^\|\n\)[Pp]assword'
+      \'\%(Enter \|[Oo]ld \|[Nn]ew \|login '  .
+      \'\|Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
+      \'\|^\|\n\|''s \)[Pp]assword'
 
 " Global options definition."{{{
 if !exists('g:vimproc_dll_path')
