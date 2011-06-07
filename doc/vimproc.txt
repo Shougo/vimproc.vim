@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-06-07
+- Fixed read_line() bug.
+
 2011-06-02
 - Improved password pattern.
 

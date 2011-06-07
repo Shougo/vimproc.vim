@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 02 Jun 2011.
+" Last Modified: 07 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -660,6 +660,7 @@ function! s:close() dict"{{{
 
   let self.is_valid = 0
   let self.eof = 1
+  let self.__eof = 1
   let self.fd = -1
 endfunction"}}}
 function! s:read(...) dict"{{{
@@ -691,7 +692,7 @@ function! s:read_line() dict
   let l:pos = match(l:output, '\v%(\r?\n|$)\zs')
   let l:line = matchstr(l:output[: l:pos - 1], '.\{-}\ze\r\?\n$')
   let self.buffer = l:output[l:pos :]
-  let self.eof = (self.buffer != '') ? 0 : self.__eof
+  let self.eof = (self.buffer != '') ? 0 : 1
 
   return l:line
 endfunction
