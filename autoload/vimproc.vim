@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 07 Jun 2011.
+" Last Modified: 09 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -665,6 +665,7 @@ function! s:close() dict"{{{
 endfunction"}}}
 function! s:read(...) dict"{{{
   let l:output = self.buffer
+
   if self.__eof
     return l:output
   endif
@@ -692,7 +693,7 @@ function! s:read_line() dict
   let l:pos = match(l:output, '\v%(\r?\n|$)\zs')
   let l:line = matchstr(l:output[: l:pos - 1], '.\{-}\ze\r\?\n$')
   let self.buffer = l:output[l:pos :]
-  let self.eof = (self.buffer != '') ? 0 : 1
+  let self.eof = (self.buffer != '') ? 0 : self.__eof
 
   return l:line
 endfunction
@@ -1003,13 +1004,12 @@ function! s:read_pgroup(...) dict"{{{
   let l:timeout = get(a:000, 1, s:read_timeout)
 
   let l:output = ''
-  let l:eof = 0
 
   if !self.fd.eof
     let l:output = self.fd.read(l:number, l:timeout)
   endif
 
-  if self.proc.current_proc.stdout.eof && self.proc.current_proc.stderr.eof
+  if self.proc.current_proc.stdout.eof
     " Get status.
     let [l:cond, l:status] = self.proc.current_proc.waitpid()
 
@@ -1020,7 +1020,9 @@ function! s:read_pgroup(...) dict"{{{
 
       " Exit.
       let self.proc.stdout.eof = 1
+      let self.proc.stdout.__eof = 1
       let self.proc.stderr.eof = 1
+      let self.proc.stderr.__eof = 1
 
       " Caching status.
       let self.proc.cond = l:cond
