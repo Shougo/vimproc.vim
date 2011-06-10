@@ -196,6 +196,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-06-10
+- Restored read_pgroup().
+
 2011-06-09
 - Fixed read_pgroup().
 

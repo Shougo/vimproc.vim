@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 09 Jun 2011.
+" Last Modified: 10 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1009,7 +1009,7 @@ function! s:read_pgroup(...) dict"{{{
     let l:output = self.fd.read(l:number, l:timeout)
   endif
 
-  if self.proc.current_proc.stdout.eof
+  if self.proc.current_proc.stdout.eof && self.proc.current_proc.stderr.eof
     " Get status.
     let [l:cond, l:status] = self.proc.current_proc.waitpid()
 
