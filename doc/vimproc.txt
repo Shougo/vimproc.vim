@@ -1,7 +1,8 @@
 *vimproc.txt*	Asynchronous execution plugin for Vim
 
 Version: 5.2
-Author : Shougo <Shougo.Matsu@gmail.com>
+Author : Shougo <Shougo.Matsu at gmail.com>
+Original Author : Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -198,6 +199,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-06-10
 - Restored read_pgroup().
+- Fixed author.
 
 2011-06-09
 - Fixed read_pgroup().

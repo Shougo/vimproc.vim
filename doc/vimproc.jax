@@ -1,7 +1,8 @@
 *vimproc.jax*	Vim用非同期実行ライブラリ
 
 Version: 5.2
-Author : Shougo <Shougo.Matsu@gmail.com>
+Author : Shougo <Shougo.Matsu at gmail.com>
+Original Author : Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
