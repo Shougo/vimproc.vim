@@ -1007,8 +1007,6 @@ function! s:read_pgroup(...) dict"{{{
 
   if !self.fd.eof
     let l:output = self.fd.read(l:number, l:timeout)
-  else
-    let self.fd.__eof = 1
   endif
 
   if self.proc.current_proc.stdout.eof
