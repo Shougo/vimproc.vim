@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 10 Jun 2011.
+" Last Modified: 13 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1007,6 +1007,18 @@ function! s:read_pgroup(...) dict"{{{
 
   if !self.fd.eof
     let l:output = self.fd.read(l:number, l:timeout)
+  else
+    let self.fd.__eof = 1
+  endif
+
+  if self.proc.current_proc.stdout.eof
+    let self.proc.stdout.eof = 1
+    let self.proc.stdout.__eof = 1
+  endif
+
+  if self.proc.current_proc.stderr.eof
+    let self.proc.stderr.eof = 1
+    let self.proc.stderr.__eof = 1
   endif
 
   if self.proc.current_proc.stdout.eof && self.proc.current_proc.stderr.eof
@@ -1017,12 +1029,6 @@ function! s:read_pgroup(...) dict"{{{
           \ || (self.proc.condition ==# 'true' && l:status)
           \ || (self.proc.condition ==# 'false' && !l:status)
       let self.proc.statements = []
-
-      " Exit.
-      let self.proc.stdout.eof = 1
-      let self.proc.stdout.__eof = 1
-      let self.proc.stderr.eof = 1
-      let self.proc.stderr.__eof = 1
 
       " Caching status.
       let self.proc.cond = l:cond
