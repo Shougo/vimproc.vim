@@ -125,12 +125,16 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		たことになり無視される。内部で浮動小数点演算をしているため、Vim
 		7.2以上でないと動作しない。
 		{input}を指定しない限り、プログラムに入力を与えることはでき
-		ないが、それでは不便なのでパスワード入力にのみ実験的に対応し
-		た。
+		ない。
 
 vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
 		|vimproc#parser#system()|と同様だが、エンコーディングを自動的に
 		変換する。
+
+vimproc#system_passwd({expr} [, {input}, {timeout}])
+						*vimproc#system_passwd()*
+		|vimproc#parser#system()|と同様だが、パスワード入力に対応してい
+		る。
 
 vimproc#system_bg({expr})			*vimproc#system_bg()*
 		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ

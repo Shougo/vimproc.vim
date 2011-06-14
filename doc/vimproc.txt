@@ -197,6 +197,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-06-14
+- Added vimproc#system_passwd().
+
 2011-06-13
 - Improved read_pgroup().
 

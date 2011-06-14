@@ -206,36 +206,25 @@ function! vimproc#get_command_name(command, ...)"{{{
   return l:file
 endfunction"}}}
 
-function! vimproc#system(cmdline, ...)"{{{
-  if type(a:cmdline) == type('')
-    if a:cmdline =~ '&\s*$'
-      let l:cmdline = substitute(a:cmdline, '&\s*$', '', '')
-      return vimproc#system_bg(l:cmdline)
-    elseif (!has('unix') || a:cmdline !~ '^\s*man ')
-      return call('vimproc#parser#system', [a:cmdline]+a:000)
-    endif
-  endif
-
+function! s:system(cmdline, is_passwd, input, timeout)"{{{
   if empty(a:cmdline)
     let s:last_status = 0
     let s:last_errmsg = ''
     return ''
   endif
 
-  let l:timeout = a:0 >= 2 ? a:2 : 0
-
   " Open pipe.
   let l:subproc = (type(a:cmdline[0]) == type('')) ?
         \ vimproc#popen3(a:cmdline) : vimproc#pgroup_open(a:cmdline)
 
-  if !empty(a:000)
+  if a:input != ''
     " Write input.
-    call l:subproc.stdin.write(a:1)
-    call l:subproc.stdin.close()
+    call l:subproc.stdin.write(a:input)
   endif
 
-  if l:timeout > 0 && has('reltime') && v:version >= 702
+  if a:timeout > 0 && has('reltime') && v:version >= 702
     let l:start = reltime()
+    let l:timeout = 0
   else
     let l:timeout = 0
   endif
@@ -263,7 +252,7 @@ function! vimproc#system(cmdline, ...)"{{{
     if !l:subproc.stdout.eof
       let l:out = l:subproc.stdout.read(-1, 40)
 
-      if empty(a:000) && l:out =~ s:password_regex
+      if a:is_passwd && l:out =~ s:password_regex
         redraw
 
         " Password input.
@@ -279,14 +268,14 @@ function! vimproc#system(cmdline, ...)"{{{
     if !l:subproc.stderr.eof
       let l:out = l:subproc.stderr.read(-1, 40)
 
-      if empty(a:000) && l:out =~ s:password_regex
+      if a:is_passwd && l:out =~ s:password_regex
         redraw
 
         " Password input.
         set imsearch=0
         let l:in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
 
-        call l:subproc.stdin.write(a:1)
+        call l:subproc.stdin.write(l:in)
       endif
 
       let s:last_errmsg .= l:out
@@ -303,6 +292,21 @@ function! vimproc#system(cmdline, ...)"{{{
   endif
 
   return l:output
+endfunction"}}}
+function! vimproc#system(cmdline, ...)"{{{
+  if type(a:cmdline) == type('')
+    if a:cmdline =~ '&\s*$'
+      let l:cmdline = substitute(a:cmdline, '&\s*$', '', '')
+      return vimproc#system_bg(l:cmdline)
+    elseif (!has('unix') || a:cmdline !~ '^\s*man ')
+      return call('vimproc#parser#system', [a:cmdline]+a:000)
+    endif
+  endif
+
+  let l:timeout = a:0 >= 2 ? a:2 : 0
+  let l:input = a:0 >= 1 ? a:1 : ''
+
+  return s:system(a:cmdline, 0, l:input, l:timeout)
 endfunction"}}}
 function! vimproc#system2(...)"{{{
   if empty(a:000)
@@ -322,6 +326,21 @@ function! vimproc#system2(...)"{{{
   let s:last_errmsg = vimproc#util#iconv(s:last_errmsg, vimproc#util#stderrencoding(), &encoding)
 
   return l:output
+endfunction"}}}
+function! vimproc#system_passwd(cmdline, ...)"{{{
+  if type(a:cmdline) == type('')
+    if a:cmdline =~ '&\s*$'
+      let l:cmdline = substitute(a:cmdline, '&\s*$', '', '')
+      return vimproc#system_bg(l:cmdline)
+    elseif (!has('unix') || a:cmdline !~ '^\s*man ')
+      return call('vimproc#parser#system', [a:cmdline]+a:000)
+    endif
+  endif
+
+  let l:timeout = a:0 >= 2 ? a:2 : 0
+  let l:input = a:0 >= 1 ? a:1 : ''
+
+  return s:system(a:cmdline, 1, l:input, l:timeout)
 endfunction"}}}
 function! vimproc#system_bg(cmdline)"{{{
   " Open pipe.
