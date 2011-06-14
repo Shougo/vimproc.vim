@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 13 Jun 2011.
+" Last Modified: 14 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -270,7 +270,7 @@ function! vimproc#system(cmdline, ...)"{{{
         set imsearch=0
         let l:in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
 
-        call l:subproc.stdin.write(a:1)
+        call l:subproc.stdin.write(l:in)
       endif
 
       let l:output .= l:out
