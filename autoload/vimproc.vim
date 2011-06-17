@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 14 Jun 2011.
+" Last Modified: 17 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -227,6 +227,10 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
     let l:timeout = 0
   else
     let l:timeout = 0
+  endif
+
+  if !a:is_passwd
+    call l:subproc.stdin.close()
   endif
 
   let l:output = ''
