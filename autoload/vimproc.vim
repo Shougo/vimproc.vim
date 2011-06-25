@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 17 Jun 2011.
+" Last Modified: 25 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -950,6 +950,7 @@ function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
 
   if a:npipe != len(l:fdlist)
     echoerr 'Bug behavior is detected!'
+    echoerr printf('l:pid = %s', string(l:pid))
     echoerr printf('a:npipe = %d, a:argv = %s', a:npipe, string(a:argv))
     echoerr printf('l:fdlist = %s', string(l:fdlist))
   endif
