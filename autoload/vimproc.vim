@@ -949,8 +949,7 @@ function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
   endif
 
   if a:npipe != len(l:fdlist)
-    echoerr 'Bug behavior is detected!'
-    echoerr printf('l:pid = %s', string(l:pid))
+    echoerr 'Bug behavior is detected!: ' . l:pid
     echoerr printf('a:npipe = %d, a:argv = %s', a:npipe, string(a:argv))
     echoerr printf('l:fdlist = %s', string(l:fdlist))
   endif
