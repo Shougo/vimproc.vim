@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 25 Jun 2011.
+" Last Modified: 26 Jun 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -704,18 +704,23 @@ function! s:read(...) dict"{{{
 endfunction"}}}
 function! s:read_line() dict
   let l:output = self.buffer
-  while l:output !~ '\r\?\n'
+  let l:pos = stridx(l:output, "\n")
+  while l:pos < 0
     let l:res = self.read(256)
     let l:output .= l:res
 
     if l:res == ''
       break
     endif
+    let l:pos = stridx(l:output, "\n")
   endwhile
 
-  let l:pos = match(l:output, '\v%(\r?\n|$)\zs')
-  let l:line = matchstr(l:output[: l:pos - 1], '.\{-}\ze\r\?\n$')
-  let self.buffer = l:output[l:pos :]
+  let l:line = l:output[: l:pos - 1]
+  if l:line =~ '\r$'
+    " Chomp \r.
+    let l:line = l:line[: -2]
+  endif
+  let self.buffer = l:output[l:pos + 1 :]
   let self.eof = (self.buffer != '') ? 0 : self.__eof
 
   return l:line
