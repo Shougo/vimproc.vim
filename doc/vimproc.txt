@@ -197,6 +197,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-07-02
+- Improved vimproc#system_gui().
+
 2011-06-26
 - Optimized read_line().
 
