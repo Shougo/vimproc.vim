@@ -197,6 +197,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-07-03
+- Fixed japanese documentation.
+
 2011-07-02
 - Improved vimproc#system_gui().
 

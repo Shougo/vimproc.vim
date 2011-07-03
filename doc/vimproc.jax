@@ -128,20 +128,20 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		ない。
 
 vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
-		|vimproc#parser#system()|と同様だが、エンコーディングを自動的に
+		|vimproc#system()|と同様だが、エンコーディングを自動的に
 		変換する。
 
 vimproc#system_passwd({expr} [, {input}, {timeout}])
 						*vimproc#system_passwd()*
-		|vimproc#parser#system()|と同様だが、パスワード入力に対応してい
+		|vimproc#system()|と同様だが、パスワード入力に対応してい
 		る。
 
 vimproc#system_bg({expr})			*vimproc#system_bg()*
-		|vimproc#parser#system()|と同様だが、コマンドをバックグラウ
+		|vimproc#system()|と同様だが、コマンドをバックグラウ
 		ンドで実行する。入力はできない。
 
 vimproc#system_gui({expr})			*vimproc#system_gui()*
-		|vimproc#parser#system_bg()|と同様だが、GUIコマンドをバックグラ
+		|vimproc#system_bg()|と同様だが、GUIコマンドをバックグラ
 		ウンドで実行する。入力はできない。
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
