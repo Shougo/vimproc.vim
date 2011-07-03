@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 03 Jul 2011.
+" Last Modified: 04 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -374,7 +374,7 @@ function! vimproc#get_last_errmsg()"{{{
 endfunction"}}}
 
 function! vimproc#fopen(path, flags, ...)"{{{
-  let l:mode = get(a:000, 0, 420) " 420 == 0644
+  let l:mode = get(a:000, 0, 0644)
   let l:fd = s:vp_file_open(a:path, a:flags, l:mode)
   let l:proc = s:fdopen(l:fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
   return l:proc
