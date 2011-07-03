@@ -199,6 +199,8 @@ CHANGELOG					*vimproc-changelog*
 
 2011-07-03
 - Fixed japanese documentation.
+- Fixed plineopen() error.
+- Fixed Windows fopen() bug.
 
 2011-07-02
 - Improved vimproc#system_gui().

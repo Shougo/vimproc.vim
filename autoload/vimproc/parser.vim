@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 22 Apr 2011.
+" Last Modified: 03 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -133,14 +133,6 @@ function! vimproc#parser#parse_pipe(statement)"{{{
         elseif l:fd[key] ==# '/dev/quickfix'
           " Clear quickfix.
           call setqflist([])
-        else
-          if filereadable(l:fd[key])
-            " Delete file.
-            call delete(l:fd[key])
-          endif
-
-          " Create file.
-          call writefile([], l:fd[key])
         endif
       endif
     endfor

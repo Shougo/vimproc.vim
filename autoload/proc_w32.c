@@ -164,7 +164,7 @@ vp_file_open(char *args)
     if (strstr(flags, "O_WRONLY"))      f |= O_WRONLY;
 #endif
 #ifdef O_RDWR
-    if (strstr(flags, "O_RDRW"))        f |= O_RDWR;
+    if (strstr(flags, "O_RDWR"))        f |= O_RDWR;
 #endif
 #ifdef O_NONBLOCK
     if (strstr(flags, "O_NONBLOCK"))    f |= O_NONBLOCK;
@@ -172,7 +172,7 @@ vp_file_open(char *args)
 #ifdef O_APPEND
     if (strstr(flags, "O_APPEND"))      f |= O_APPEND;
 #endif
-#ifdef O_CEAT
+#ifdef O_CREAT
     if (strstr(flags, "O_CREAT"))       f |= O_CREAT;
 #endif
 #ifdef O_EXCL
@@ -219,9 +219,14 @@ vp_file_open(char *args)
 #endif
 
     fd = open(path, f, mode);
-    if (fd == -1)
+    if (fd == -1) {
         return vp_stack_return_error(&_result, "open() error: %s",
                 strerror(errno));
+    }
+    if (f & O_APPEND) {
+        /* Note: Windows7 ignores O_APPEND flag. why? */
+        lseek(fd, 0, SEEK_END);
+    }
     vp_stack_push_num(&_result, "%d", fd);
     return vp_stack_return(&_result);
 }

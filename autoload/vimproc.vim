@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 02 Jul 2011.
+" Last Modified: 03 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -374,7 +374,7 @@ function! vimproc#get_last_errmsg()"{{{
 endfunction"}}}
 
 function! vimproc#fopen(path, flags, ...)"{{{
-  let l:mode = get(a:000, 0, 0)
+  let l:mode = get(a:000, 0, 644)
   let l:fd = s:vp_file_open(a:path, a:flags, l:mode)
   let l:proc = s:fdopen(l:fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
   return l:proc
@@ -438,7 +438,7 @@ function! s:plineopen(npipe, commands)"{{{
 
   " Open input.
   let l:hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
-        \ 0 : vimproc#fopen(a:commands[0].fd.stdin, "O_RDONLY").fd
+        \ 0 : vimproc#fopen(a:commands[0].fd.stdin, 'O_RDONLY').fd
 
   for l:command in a:commands
     let l:mode = 'O_WRONLY | O_CREAT'
@@ -454,7 +454,7 @@ function! s:plineopen(npipe, commands)"{{{
       let l:mode .= ' | O_APPEND'
       let l:command.fd.stderr = l:command.fd.stderr[1:]
     endif
-    let l:hstderr = s:is_pseudo_device(l:command.fd.stdout) ?
+    let l:hstderr = s:is_pseudo_device(l:command.fd.stderr) ?
           \ 0 : vimproc#fopen(l:command.fd.stderr, l:mode).fd
 
     let l:pipe = s:vp_pipe_open(a:npipe, l:hstdin, l:hstdout, l:hstderr,
