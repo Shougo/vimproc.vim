@@ -374,7 +374,7 @@ function! vimproc#get_last_errmsg()"{{{
 endfunction"}}}
 
 function! vimproc#fopen(path, flags, ...)"{{{
-  let l:mode = get(a:000, 0, 0)
+  let l:mode = get(a:000, 0, 420) " 420 == 0644
   let l:fd = s:vp_file_open(a:path, a:flags, l:mode)
   let l:proc = s:fdopen(l:fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
   return l:proc
