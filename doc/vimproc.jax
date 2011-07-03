@@ -116,7 +116,7 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		|system()|を使用すると、DOS窓が出てきてしまう。
 		|vimproc#system()|ではそのようなことはない。 ただしシェルを
 		起動しないので、シェルの内部コマンドは動作しない。 リダイレ
-		クトも動かない。 リダイレクトについては、今後実装予定がある。
+		クトも動作しない。 リダイレクトについては、今後実装予定がある。
 		引数は|vimproc#plineopen3()|と同じだが、引数に文字列を渡した場合、
 		自前のルーチンで引数をパースする。引数の最後に&を付けると、コマ
 		ンドをバックグラウンドで実行する。{timeout}を指定すると、一定時
@@ -126,6 +126,7 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		7.2以上でないと動作しない。
 		{input}を指定しない限り、プログラムに入力を与えることはでき
 		ない。
+		{expr}にはコマンドライン引数のリストを渡すことができる。
 
 vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
 		|vimproc#system()|と同様だが、エンコーディングを自動的に
