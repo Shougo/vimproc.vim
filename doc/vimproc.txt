@@ -197,6 +197,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-07-15
+- Fixed vimproc#system().
+
 2011-07-04
 - Fixed permission.
 

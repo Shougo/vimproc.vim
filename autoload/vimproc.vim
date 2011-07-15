@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 04 Jul 2011.
+" Last Modified: 15 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -283,6 +283,7 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
       endif
 
       let s:last_errmsg .= l:out
+      let l:output .= l:out
     endif
   endwhile
 
