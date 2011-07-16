@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 03 Jul 2011.
+" Last Modified: 16 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -711,6 +711,10 @@ function! s:parse_redirection(script)"{{{
         let l:fd.stdout = matchstr(a:script, '^\s*\zs\f*', i)
       else
         let l:fd.stderr = matchstr(a:script, '^\s*\zs\f*', i)
+        if l:fd.stderr ==# '&1'
+          " Redirection to stdout.
+          let l:fd.stderr = '/dev/stdout'
+        endif
       endif
 
       let i = matchend(a:script, '^\s*\zs\f*', i)

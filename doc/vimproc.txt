@@ -197,6 +197,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-07-16
+- Supported 2>&1 redirection(Experimental).
+
 2011-07-15
 - Fixed vimproc#system().
 

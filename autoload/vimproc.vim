@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Jul 2011.
+" Last Modified: 16 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -436,6 +436,7 @@ function! s:plineopen(npipe, commands)"{{{
   let l:stdin_list = []
   let l:stdout_list = []
   let l:stderr_list = []
+  let l:npipe = a:npipe
 
   " Open input.
   let l:hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
@@ -457,10 +458,13 @@ function! s:plineopen(npipe, commands)"{{{
     endif
     let l:hstderr = s:is_pseudo_device(l:command.fd.stderr) ?
           \ 0 : vimproc#fopen(l:command.fd.stderr, l:mode).fd
+    if l:command.fd.stderr ==# '/dev/stdout'
+      let l:npipe = 2
+    endif
 
-    let l:pipe = s:vp_pipe_open(a:npipe, l:hstdin, l:hstdout, l:hstderr,
+    let l:pipe = s:vp_pipe_open(l:npipe, l:hstdin, l:hstdout, l:hstderr,
           \ s:convert_args(l:command.args))
-    if a:npipe == 3
+    if l:npipe == 3
       let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
     else
       let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
@@ -469,7 +473,7 @@ function! s:plineopen(npipe, commands)"{{{
     call add(l:pid_list, l:pid)
     call add(l:stdin_list, s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     call add(l:stdout_list, s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
-    if a:npipe == 3
+    if l:npipe == 3
       call add(l:stderr_list, s:fdopen(l:fd_stderr, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     endif
 
@@ -481,8 +485,11 @@ function! s:plineopen(npipe, commands)"{{{
   let l:proc.pid = l:pid_list[-1]
   let l:proc.stdin = s:fdopen_pipes(l:stdin_list, 'vp_pipes_front_close', 'read_pipes', 'write_pipes')
   let l:proc.stdout = s:fdopen_pipes(l:stdout_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
-  if a:npipe == 3
+  if l:npipe == 3
     let l:proc.stderr = s:fdopen_pipes(l:stderr_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
+  elseif a:npipe == 3
+    " Same to stdout.
+    let l:proc.stderr = l:proc.stdout
   endif
   let l:proc.get_winsize = s:funcref('vp_get_winsize')
   let l:proc.set_winsize = s:funcref('vp_set_winsize')
