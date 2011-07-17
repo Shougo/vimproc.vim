@@ -1,6 +1,6 @@
 *vimproc.txt*	Asynchronous execution plugin for Vim
 
-Version: 5.2
+Version: 5.3
 Author : Shougo <Shougo.Matsu at gmail.com>
 Original Author : Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com>
 License: MIT license  {{{
@@ -200,6 +200,7 @@ CHANGELOG					*vimproc-changelog*
 2011-07-17
 - Added read_lines().
 - Fixed resource leak.
+- Ver.5.3 is released.
 
 2011-07-16
 - Supported 2>&1 redirection(Experimental).
