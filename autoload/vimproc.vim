@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 16 Jul 2011.
+" Last Modified: 17 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -710,29 +710,23 @@ function! s:read(...) dict"{{{
   let l:output .= s:hd2str([l:hd])
   return l:output
 endfunction"}}}
-function! s:read_line() dict
-  let l:output = self.buffer
-  let l:pos = stridx(l:output, "\n")
-  while l:pos < 0
-    let l:res = self.read(256)
-    let l:output .= l:res
+function! s:read_lines(...) dict"{{{
+  let l:timeout = get(a:000, 0, 1000)
 
-    if l:res == ''
-      break
-    endif
-    let l:pos = stridx(l:output, "\n")
-  endwhile
+  let l:res = self.buffer . self.read(-1, l:timeout)
+  let l:lines = split(l:res, '\r\?\n', 1)
 
-  let l:line = l:output[: l:pos - 1]
-  if l:line =~ '\r$'
-    " Chomp \r.
-    let l:line = l:line[: -2]
-  endif
-  let self.buffer = l:output[l:pos + 1 :]
+  let self.buffer = empty(l:lines)? '' : l:lines[-1]
+  let self.eof = (self.buffer != '') ? 0 : self.__eof
+  return l:lines[ : -2]
+endfunction"}}}
+function! s:read_line(...) dict"{{{
+  let l:lines = call(self.read_lines, a:000, self)
+  let self.buffer = join(l:lines[1:], "\n") . self.buffer
   let self.eof = (self.buffer != '') ? 0 : self.__eof
 
-  return l:line
-endfunction
+  return get(l:lines, 0, '')
+endfunction"}}}
 
 function! s:write(str, ...) dict"{{{
   let l:timeout = get(a:000, 0, s:write_timeout)
@@ -746,7 +740,7 @@ function! s:fdopen(fd, f_close, f_read, f_write)"{{{
         \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
         \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write),
         \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
-        \ 'read_line' : s:funcref('read_line'),
+        \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
         \}
 endfunction"}}}
 function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write)"{{{
@@ -754,7 +748,8 @@ function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write)"{{{
         \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
         \ 'fd_stdin' : a:fd_stdin, 'fd_stdout' : a:fd_stdout,
         \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
-        \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write')
+        \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
+        \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
         \}
 endfunction"}}}
 function! s:fdopen_pipes(fd, f_close, f_read, f_write)"{{{
@@ -762,7 +757,8 @@ function! s:fdopen_pipes(fd, f_close, f_read, f_write)"{{{
         \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
         \ 'fd' : a:fd,
         \ 'f_close' : s:funcref(a:f_close),
-        \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write)
+        \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write),
+        \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
         \}
 endfunction"}}}
 function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write)"{{{
@@ -771,7 +767,7 @@ function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write)"{{{
         \ 'proc' : a:proc, 'fd' : a:fd,
         \ 'f_close' : s:funcref(a:f_close),
         \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write),
-        \ 'read_line' : s:funcref('read_line'),
+        \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
         \}
 endfunction"}}}
 
@@ -1198,7 +1194,12 @@ endfunction
 function! s:waitpid(pid)
   try
     let [l:cond, l:status] = s:libcall('vp_waitpid', [a:pid])
+    " echomsg string([l:cond, l:status])
     if l:cond ==# 'run'
+      " Kill process.
+      " 15 == SIGTERM
+      call vimproc#kill(a:pid, 15)
+
       " Add process list.
       let s:bg_processes[a:pid] = a:pid
 
