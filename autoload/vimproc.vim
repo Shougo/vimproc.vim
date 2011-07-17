@@ -40,7 +40,7 @@ if s:is_mac && !&encoding
 endif
 "}}}
 function! vimproc#version()
-  return str2nr(printf('%2d%02d', 5, 2))
+  return str2nr(printf('%2d%02d', 5, 3))
 endfunction
 
 let s:last_status = 0
