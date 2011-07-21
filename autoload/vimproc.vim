@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 21 Jul 2011.
+" Last Modified: 22 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -776,7 +776,7 @@ function! s:garbage_collect()"{{{
   for pid in values(s:bg_processes)
     " Check processes.
     try
-      let [l:cond, l:status] = s:waitpid(pid)
+      let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
       " echomsg string([pid, l:cond, l:status])
       if l:cond !=# 'run'
         if l:cond !=# 'exit'
