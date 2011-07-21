@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 17 Jul 2011.
+" Last Modified: 21 Jul 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -148,7 +148,7 @@ function! vimproc#get_command_name(command, ...)"{{{
     " But findfile('perldoc', $PATH, 1) return whether file exist there.
     if fnamemodify(l:command, ':e') == ''
       let &l:suffixesadd = ''
-      " for l:ext in split($PATHEXT.';.LNK', ';')
+      " for l:ext in split($PATHEXT . ';.LNK', ';')
       "   let l:file = findfile(l:command . l:ext, l:path, l:count)
       if l:command =~ '[/\\]'
         " Absolute path.
@@ -161,7 +161,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
       let l:file = l:count < 0 ? [] : ''
       for l:head in split(l:path, ',')
-        for l:ext in split($PATHEXT.';.LNK', ';')
+        for l:ext in split($PATHEXT . ';.LNK', ';')
           let l:findfile = findfile(l:command . tolower(l:ext), l:head, l:count)
           if l:count >= 0 && l:findfile != ''
             let l:file = l:findfile
@@ -176,7 +176,7 @@ function! vimproc#get_command_name(command, ...)"{{{
         endif
       endfor
     else
-      let &l:suffixesadd = substitute($PATHEXT.';.LNK', ';', ',', 'g')
+      let &l:suffixesadd = substitute($PATHEXT . ';.LNK', ';', ',', 'g')
       let l:file = findfile(l:command, l:path, l:count)
     endif
   else
@@ -711,9 +711,10 @@ function! s:read(...) dict"{{{
   return l:output
 endfunction"}}}
 function! s:read_lines(...) dict"{{{
-  let l:timeout = get(a:000, 0, 1000)
+  let l:number = get(a:000, 0, -1)
+  let l:timeout = get(a:000, 1, s:read_timeout)
 
-  let l:res = self.buffer . self.read(-1, l:timeout)
+  let l:res = self.buffer . self.read(l:number, l:timeout)
   let l:lines = split(l:res, '\r\?\n', 1)
 
   let self.buffer = empty(l:lines)? '' : l:lines[-1]

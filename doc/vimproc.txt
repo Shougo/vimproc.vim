@@ -197,6 +197,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-07-21
+- Fixed $PATHEXT error.
+
 2011-07-17
 - Added read_lines().
 - Fixed resource leak.
