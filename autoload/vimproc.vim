@@ -711,10 +711,7 @@ function! s:read(...) dict"{{{
   return l:output
 endfunction"}}}
 function! s:read_lines(...) dict"{{{
-  let l:timeout = get(a:000, 0, s:read_timeout)
-  let l:number = get(a:000, 1, -1)
-
-  let l:res = self.buffer . self.read(l:number, l:timeout)
+  let l:res = self.buffer . call(self.read, a:000, self)
   let l:lines = split(l:res, '\r\?\n', 1)
 
   let self.buffer = empty(l:lines)? '' : l:lines[-1]
