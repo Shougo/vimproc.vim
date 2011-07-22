@@ -696,8 +696,9 @@ function! s:close() dict"{{{
 endfunction"}}}
 function! s:read(...) dict"{{{
   let l:output = self.buffer
-
+  let self.buffer = ''
   if self.__eof
+    let self.eof = 1
     return l:output
   endif
 
@@ -707,21 +708,32 @@ function! s:read(...) dict"{{{
   let self.eof = l:eof
   let self.__eof = l:eof
 
-  let l:output .= s:hd2str([l:hd])
-  return l:output
+  return l:output . s:hd2str([l:hd])
 endfunction"}}}
 function! s:read_lines(...) dict"{{{
-  let l:res = self.buffer . call(self.read, a:000, self)
+  let l:res = ''
+
+  while !self.eof && stridx(l:res, "\n") < 0
+    let l:res .= call(self.read, a:000, self)
+  endwhile
+
   let l:lines = split(l:res, '\r\?\n', 1)
 
-  let self.buffer = empty(l:lines)? '' : l:lines[-1]
-  let self.eof = (self.buffer != '') ? 0 : self.__eof
-  return l:lines[ : -2]
+  if self.eof
+    let self.buffer = ''
+    return l:lines
+  else
+    let self.buffer = empty(l:lines)? '' : l:lines[-1]
+    let l:lines = l:lines[ : -2]
+  endif
+
+  let self.eof = (self.buffer != '') ? 1 : self.__eof
+  return l:lines
 endfunction"}}}
 function! s:read_line(...) dict"{{{
   let l:lines = call(self.read_lines, a:000, self)
   let self.buffer = join(l:lines[1:], "\n") . self.buffer
-  let self.eof = (self.buffer != '') ? 0 : self.__eof
+  let self.eof = (self.buffer != '') ? 1 : self.__eof
 
   return get(l:lines, 0, '')
 endfunction"}}}

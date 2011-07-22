@@ -199,6 +199,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-07-22
 - Fixed read_lines().
+- Improved read functions.
 
 2011-07-21
 - Fixed $PATHEXT error.
