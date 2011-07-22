@@ -148,7 +148,7 @@ function! vimproc#get_command_name(command, ...)"{{{
     " But findfile('perldoc', $PATH, 1) return whether file exist there.
     if fnamemodify(l:command, ':e') == ''
       let &l:suffixesadd = ''
-      " for l:ext in split($PATHEXT.';.LNK', ';')
+      " for l:ext in split($PATHEXT . ';.LNK', ';')
       "   let l:file = findfile(l:command . l:ext, l:path, l:count)
       if l:command =~ '[/\\]'
         " Absolute path.
@@ -161,7 +161,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
       let l:file = l:count < 0 ? [] : ''
       for l:head in split(l:path, ',')
-        for l:ext in split($PATHEXT.';.LNK', ';')
+        for l:ext in split($PATHEXT . ';.LNK', ';')
           let l:findfile = findfile(l:command . tolower(l:ext), l:head, l:count)
           if l:count >= 0 && l:findfile != ''
             let l:file = l:findfile
@@ -176,7 +176,7 @@ function! vimproc#get_command_name(command, ...)"{{{
         endif
       endfor
     else
-      let &l:suffixesadd = substitute($PATHEXT.';.LNK', ';', ',', 'g')
+      let &l:suffixesadd = substitute($PATHEXT . ';.LNK', ';', ',', 'g')
       let l:file = findfile(l:command, l:path, l:count)
     endif
   else
@@ -711,8 +711,13 @@ function! s:read(...) dict"{{{
   return l:output
 endfunction"}}}
 function! s:read_lines(...) dict"{{{
+<<<<<<< HEAD
   let l:timeout = get(a:000, 0, s:read_timeout)
   let l:number = get(a:000, 1, -1)
+=======
+  let l:number = get(a:000, 0, -1)
+  let l:timeout = get(a:000, 1, s:read_timeout)
+>>>>>>> c33244c82b4559fad7770390a1a6deeb11a57598
 
   let l:res = self.buffer . self.read(l:number, l:timeout)
   let l:lines = split(l:res, '\r\?\n', 1)
@@ -776,7 +781,7 @@ function! s:garbage_collect()"{{{
   for pid in values(s:bg_processes)
     " Check processes.
     try
-      let [l:cond, l:status] = s:waitpid(pid)
+      let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
       " echomsg string([pid, l:cond, l:status])
       if l:cond !=# 'run'
         if l:cond !=# 'exit'

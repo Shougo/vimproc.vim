@@ -200,6 +200,10 @@ CHANGELOG					*vimproc-changelog*
 2011-07-22
 - Fixed read_lines().
 
+2011-07-21
+- Fixed $PATHEXT error.
+- Fixed garbage collect.
+
 2011-07-17
 - Added read_lines().
 - Fixed resource leak.
