@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 02 Aug 2011.
+" Last Modified: 03 Aug 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -31,7 +31,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-let s:is_win = has('win32') || has('win64')
+let s:is_win = (has('win32') || has('win64')) && $MAKE_MODE !=? 'unix' && $MSYSTEM == ''
 let s:is_mac = !s:is_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
 
 " MacVim trouble shooter {{{

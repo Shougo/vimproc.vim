@@ -197,6 +197,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-08-03
+- Fixed for MSYS.
+
 2011-08-02
 - Improved garbage collect timing.
 - Ver.5.4 development is started.
