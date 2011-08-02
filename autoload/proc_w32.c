@@ -622,10 +622,6 @@ vp_kill(char *args)
                 lasterror());
     }
 
-    if (!CloseHandle(handle))
-        return vp_stack_return_error(&_result, "CloseHandle() error: %s",
-                lasterror());
-
     return NULL;
 }
 
@@ -662,13 +658,23 @@ vp_waitpid(char *args)
                 "GetExitCodeProcess() error: %s", lasterror());
 
     vp_stack_push_str(&_result, (exitcode == STILL_ACTIVE) ? "run" : "exit");
-    if (exitcode != STILL_ACTIVE) {
-        if (!CloseHandle(handle))
-            return vp_stack_return_error(&_result, "CloseHandle() error: %s",
-                    lasterror());
-    }
     vp_stack_push_num(&_result, "%u", exitcode);
     return vp_stack_return(&_result);
+}
+
+const char *
+vp_close_handle(char *args)
+{
+    vp_stack_t stack;
+    HANDLE handle;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%p", &handle));
+
+    if (!CloseHandle(handle))
+        return vp_stack_return_error(&_result,
+                "CloseHandle() error: %s", lasterror());
+    return NULL;
 }
 
 /*

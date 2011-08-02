@@ -794,6 +794,9 @@ function! s:garbage_collect()"{{{
           call vimproc#kill(pid, 15)
         endif
 
+        if s:is_win
+          call s:libcall('vp_close_handle', [pid])
+        endif
         call remove(s:bg_processes, pid)
       endif
     catch /waitpid() error:\|kill() error:/
@@ -1214,6 +1217,8 @@ function! s:waitpid(pid)
       let s:bg_processes[a:pid] = a:pid
 
       let [l:cond, l:status] = ['exit', '0']
+    elseif s:is_win
+      call s:libcall('vp_close_handle', [a:pid])
     endif
 
     let s:last_status = l:status
