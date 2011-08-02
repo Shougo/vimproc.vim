@@ -31,7 +31,8 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-let s:is_win = (has('win32') || has('win64')) && $MAKE_MODE !=? 'unix' && $MSYSTEM == ''
+let s:is_win = (has('win32') || has('win64')) || $MSYSTEM != ''
+let s:is_msys = $MSYSTEM != ''
 let s:is_mac = !s:is_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
 
 " MacVim trouble shooter {{{
@@ -53,7 +54,7 @@ let s:password_regex =
 
 " Global options definition."{{{
 if !exists('g:vimproc_dll_path')
-  let g:vimproc_dll_path = expand("<sfile>:p:h") . (has('win32') || has('win64')? '/proc.dll' : has('win32unix') ? '/proc_cygwin.dll' : '/proc.so')
+  let g:vimproc_dll_path = expand("<sfile>:p:h") . (s:is_win ? '/proc.dll' : has('win32unix') ? '/proc_cygwin.dll' : '/proc.so')
 endif
 "}}}
 
@@ -112,7 +113,7 @@ function! vimproc#get_command_name(command, ...)"{{{
   endif
 
   " Expand path.
-  let l:path = substitute(l:path, (s:is_win ? ';' : ':'), ',', 'g')
+  let l:path = substitute(l:path, (s:is_win && s:is_msys ? ';' : ':'), ',', 'g')
   if s:is_win
     let l:path = substitute(l:path, '\\', '/', 'g')
   endif
@@ -124,7 +125,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
   let l:command = expand(a:command)
 
-  let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win ? '/\\' : '/')
+  let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win && !s:is_msys ? '/\\' : '/')
   if l:command =~ l:pattern && (!s:is_win || fnamemodify(l:command, ':e') != '')
     if !executable(l:command)
       let l:command = resolve(l:command)
