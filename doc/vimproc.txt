@@ -1,6 +1,6 @@
 *vimproc.txt*	Asynchronous execution plugin for Vim
 
-Version: 5.3
+Version: 5.4
 Author : Shougo <Shougo.Matsu at gmail.com>
 Original Author : Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com>
 License: MIT license  {{{
@@ -199,6 +199,8 @@ CHANGELOG					*vimproc-changelog*
 
 2011-08-02
 - Improved garbage collect timing.
+- Ver.5.4 development is started.
+- Fixed resource leak in Windows environment!
 
 2011-07-23
 - Fixed read_lines eof.
