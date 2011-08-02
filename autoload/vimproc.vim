@@ -774,7 +774,7 @@ endfunction"}}}
 function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write)"{{{
   return {
         \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
-        \ 'proc' : a:proc, 'fd' : a:fd,
+        \ 'proc' : a:proc, 'fd' : a:fd, 'cond' : 'run', 'status' : 1,
         \ 'f_close' : s:funcref(a:f_close),
         \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write),
         \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
@@ -1198,10 +1198,14 @@ endfunction
 
 function! s:vp_pgroup_kill(sig) dict
   call s:close_all(self)
+  let self.is_valid = 0
+
+  if self.pid == 0
+    " Ignore.
+    return
+  endif
 
   call self.current_proc.kill(a:sig)
-
-  let self.is_valid = 0
 endfunction
 
 function! s:waitpid(pid)
@@ -1234,15 +1238,10 @@ function! s:vp_waitpid() dict
 
   let self.is_valid = 0
 
-  while 1
-    let [l:cond, l:status] = s:waitpid(self.pid)
-
-    " echomsg string([l:cond, l:status])
-    " For zombie process.
-    if !(l:cond ==# 'signal' && vimproc#decode_signal(l:status) != 'UNKNOWN')
-      break
-    endif
-  endwhile
+  let [l:cond, l:status] = s:waitpid(self.pid)
+  if l:cond ==# 'exit'
+    let self.pid = 0
+  endif
 
   if has_key(self, 'pid_list')
     for pid in self.pid_list[: -2]
@@ -1250,15 +1249,11 @@ function! s:vp_waitpid() dict
     endfor
   endif
 
-  return [l:cond, l:status]
+  return [l:cond, str2nr(l:status)]
 endfunction
 
 function! s:vp_pgroup_waitpid() dict
-  let self.is_valid = 0
-
-  let [l:cond, l:status] = self.current_proc.waitpid()
-
-  return [l:cond, str2nr(l:status)]
+  return [self.cond, self.status]
 endfunction
 
 function! s:vp_socket_open(host, port)

@@ -201,6 +201,7 @@ CHANGELOG					*vimproc-changelog*
 - Improved garbage collect timing.
 - Ver.5.4 development is started.
 - Fixed resource leak in Windows environment!
+- Fixed waitpid().
 
 2011-07-23
 - Fixed read_lines eof.
