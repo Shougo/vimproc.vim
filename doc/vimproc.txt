@@ -197,6 +197,9 @@ BUGS						*vimproc-bugs*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-08-02
+- Improved garbage collect timing.
+
 2011-07-23
 - Fixed read_lines eof.
 
