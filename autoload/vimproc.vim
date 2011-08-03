@@ -31,7 +31,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-let s:is_win = (has('win32') || has('win64')) || $MSYSTEM != ''
+let s:is_win = has('win32') || has('win64')
 let s:is_msys = $MSYSTEM != ''
 let s:is_mac = !s:is_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
 
@@ -113,7 +113,7 @@ function! vimproc#get_command_name(command, ...)"{{{
   endif
 
   " Expand path.
-  let l:path = substitute(l:path, (s:is_win && s:is_msys ? ';' : ':'), ',', 'g')
+  let l:path = substitute(l:path, (s:is_win ? ';' : ':'), ',', 'g')
   if s:is_win
     let l:path = substitute(l:path, '\\', '/', 'g')
   endif
