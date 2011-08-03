@@ -1,6 +1,6 @@
 *vimproc.jax*	Vim用非同期実行ライブラリ
 
-Version: 5.3
+Version: 5.4
 Author : Shougo <Shougo.Matsu at gmail.com>
 Original Author : Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com>
 License: MIT license  {{{
@@ -33,8 +33,6 @@ Interface		|vimproc-interface|
   Variables		  |vimproc-variables|
 Tips			|vimproc-tips|
 Examples		|vimproc-examples|
-ToDo			|vimproc-todo|
-Bugs			|vimproc-bugs|
 Changelog		|vimproc-changelog|
 
 ==============================================================================
@@ -271,11 +269,36 @@ TIPS						*vimproc-tips*
 		|quickfix|に出力する。
 
 ==============================================================================
-TODO						*vimproc-todo*
-
-==============================================================================
-BUGS						*vimproc-bugs*
-
+EXAMPLES					*vimproc-examples*
+>
+	" File open test.
+	let file = vimproc#fopen("./test1.vim", "O_RDONLY", 0)
+	let res = file.read()
+	call file.close()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n'))
+	
+	" Pipe open test.
+	let sub = vimproc#parser#popen2('ls')
+	let res = ''
+	while !sub.stdout.eof
+	let res .= sub.stdout.read()
+	endwhile
+	let [cond, status] = sub.waitpid()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n') + [string([cond, status])])
+	
+	" Socket open test.
+	let sock = vimproc#socket_open('www.yahoo.com', 80)
+	call sock.write("GET / HTTP/1.0\r\n\r\n")
+	let res = ''
+	while !sock.eof
+	let res .= sock.read()
+	endwhile
+	call sock.close()
+	new
+	call append(0, split(res, '\r\n\|\r\|\n'))
+<
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 

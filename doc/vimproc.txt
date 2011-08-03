@@ -31,9 +31,8 @@ Interface		|vimproc-interface|
   Commands		  |vimproc-commands|
   Functions		  |vimproc-functions|
   Variables		  |vimproc-variables|
+Tips			|vimproc-tips|
 Examples		|vimproc-examples|
-ToDo			|vimproc-todo|
-Bugs			|vimproc-bugs|
 Changelog		|vimproc-changelog|
 
 ==============================================================================
@@ -102,14 +101,28 @@ vimproc#open({filename})			*vimproc#open()*
 		Open {filename} with system associated command.
 
 vimproc#get_command_name({command} [, {path}, {count}])	*vimproc#get_command_name()*
-		
+		Todo
 
 vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
-		
+		Todo
+
+vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
+		Same as |vimproc#system()|. But this function convert
+		encoding.
+
+vimproc#system_passwd({expr} [, {input}, {timeout}])
+						*vimproc#system_passwd()*
+		Same as |vimproc#system()|. But this function supports
+		password input.
 
 vimproc#system_bg({expr})			*vimproc#system_bg()*
-		Same as |vimproc#parser#system()|, but execute command in
+		Same as |vimproc#parser#system()|. But execute command in
 		background.
+		Note: This function disabled input.
+
+vimproc#system_gui({expr})			*vimproc#system_gui()*
+		Same as |vimproc#system_bg()|. But this function execute GUI
+		program in background.
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
 		Get last |vimproc#system()| status value.
@@ -118,33 +131,36 @@ vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
 		Get last |vimproc#system()| error message.
 
 vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
-		
+		Todo
 
 vimproc#socket_open({host}, {port})		*vimproc#socket_open()*
-		
+		Todo
 
 vimproc#popen2({args})				*vimproc#popen2()*
-		
+		Todo
 
 vimproc#popen3({args})				*vimproc#popen3()*
 		Same as |vimproc#popen2()|, but this function splits
 		stderr output.
 
 vimproc#plineopen2({commands})			*vimproc#plineopen2()*
-		
+		Todo
 
 vimproc#plineopen3({commands})			*vimproc#plineopen3()*
 		Same as |vimproc#plineopen2()|, but this function splits
 		stderr output.
 
 vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
-		
+		Todo
 
 vimproc#ptyopen({args})				*vimproc#ptyopen()*
-		
+		Todo
 
 vimproc#kill({pid}, {sig})			*vimproc#kill()*
 		Send {sig} signal to {pid} process.
+
+vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
+		Todo
 
 ------------------------------------------------------------------------------
 VARIABLES 					*vimproc-variables*
@@ -156,6 +172,33 @@ g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/proc.dll"
 		This variable is dll name used by vimproc.  You must compile
 		this dll file. If this dll is not exist, vimproc will echo
 		error.
+
+						*g:stdinencoding*
+g:stdinencoding			(default : 'termencoding')
+		Todo
+
+						*g:stdoutencoding*
+g:stdoutencoding		(default : 'termencoding')
+		Todo
+
+						*g:stderrencoding*
+g:stderrencoding		(default : 'termencoding')
+		Todo
+
+==============================================================================
+TIPS						*vimproc-tips*
+
+Pseudo devices					*vimproc-tips-pseudo-devices*
+		Todo
+		
+		/dev/null
+		Remove all output.
+		
+		/dev/clip
+		Print to clipboard.
+		
+		/dev/quickfix
+		Print to |quickfix|.
 
 ==============================================================================
 EXAMPLES					*vimproc-examples*
@@ -189,17 +232,12 @@ EXAMPLES					*vimproc-examples*
 	call append(0, split(res, '\r\n\|\r\|\n'))
 <
 ==============================================================================
-TODO						*vimproc-todo*
-
-==============================================================================
-BUGS						*vimproc-bugs*
-
-==============================================================================
 CHANGELOG					*vimproc-changelog*
 
 2011-08-03
 - Fixed for MSYS.
 - Fixed waitpid error.
+- Improved documentation.
 
 2011-08-02
 - Improved garbage collect timing.
