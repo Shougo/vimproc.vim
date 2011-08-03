@@ -775,7 +775,7 @@ endfunction"}}}
 function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write)"{{{
   return {
         \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
-        \ 'proc' : a:proc, 'fd' : a:fd, 'cond' : 'run', 'status' : 1,
+        \ 'proc' : a:proc, 'fd' : a:fd,
         \ 'f_close' : s:funcref(a:f_close),
         \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write),
         \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
@@ -1254,6 +1254,11 @@ function! s:vp_waitpid() dict
 endfunction
 
 function! s:vp_pgroup_waitpid() dict
+  if !has_key(self, 'cond') ||
+        \ !has_key(self, 'status')
+    return s:waitpid(self.pid)
+  endif
+
   return [self.cond, self.status]
 endfunction
 
