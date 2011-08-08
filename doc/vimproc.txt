@@ -234,6 +234,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-08-08
+- Fixed export.
+
 2011-08-03
 - Fixed for MSYS.
 - Fixed waitpid error.

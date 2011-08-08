@@ -75,6 +75,7 @@ EXPORT const char *vp_pty_set_winsize(char *args); /* [] (fd, width, height) */
 
 EXPORT const char *vp_kill(char *args);        /* [] (pid, sig) */
 EXPORT const char *vp_waitpid(char *args);     /* [cond, status] (pid) */
+EXPORT const char *vp_close_handle(char *args); /* [] (fd) */
 
 EXPORT const char *vp_socket_open(char *args); /* [socket] (host, port) */
 EXPORT const char *vp_socket_close(char *args);/* [] (socket) */
