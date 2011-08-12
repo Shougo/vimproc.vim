@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 16 Jul 2011.
+" Last Modified: 12 Aug 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -150,12 +150,14 @@ function! vimproc#parser#parse_statements(script)"{{{
     return [ { 'statement' : a:script, 'condition' : 'always' } ]
   endif
 
-  let l:max = len(a:script)
+  let l:script = type(a:script) == type([]) ?
+        \ a:script : split(a:script, '\zs')
+  let l:max = len(l:script)
   let l:statements = []
   let l:statement = ''
   let i = 0
   while i < l:max
-    if a:script[i] == ';'
+    if l:script[i] == ';'
       if l:statement != ''
         call add(l:statements,
               \ { 'statement' : l:statement,
@@ -164,8 +166,8 @@ function! vimproc#parser#parse_statements(script)"{{{
       endif
       let l:statement = ''
       let i += 1
-    elseif a:script[i] == '&'
-      if i+1 < len(a:script) && a:script[i+1] == '&'
+    elseif l:script[i] == '&'
+      if i+1 < l:max && l:script[i+1] == '&'
         if l:statement != ''
           call add(l:statements,
                 \ { 'statement' : l:statement,
@@ -175,12 +177,12 @@ function! vimproc#parser#parse_statements(script)"{{{
         let l:statement = ''
         let i += 2
       else
-        let l:statement .= a:script[i]
+        let l:statement .= l:script[i]
 
         let i += 1
       endif
-    elseif a:script[i] == '|'
-      if i+1 < len(a:script) && a:script[i+1] == '|'
+    elseif l:script[i] == '|'
+      if i+1 < l:max && l:script[i+1] == '|'
         if l:statement != ''
           call add(l:statements,
                 \ { 'statement' : l:statement,
@@ -190,37 +192,37 @@ function! vimproc#parser#parse_statements(script)"{{{
         let l:statement = ''
         let i += 2
       else
-        let l:statement .= a:script[i]
+        let l:statement .= l:script[i]
 
         let i += 1
       endif
-    elseif a:script[i] == "'"
+    elseif l:script[i] == "'"
       " Single quote.
-      let [l:string, i] = s:skip_single_quote(a:script, i)
+      let [l:string, i] = s:skip_single_quote(l:script, i)
       let l:statement .= l:string
-    elseif a:script[i] == '"'
+    elseif l:script[i] == '"'
       " Double quote.
-      let [l:string, i] = s:skip_double_quote(a:script, i)
+      let [l:string, i] = s:skip_double_quote(l:script, i)
       let l:statement .= l:string
-    elseif a:script[i] == '`'
+    elseif l:script[i] == '`'
       " Back quote.
-      let [l:string, i] = s:skip_back_quote(a:script, i)
+      let [l:string, i] = s:skip_back_quote(l:script, i)
       let l:statement .= l:string
-    elseif a:script[i] == '\'
+    elseif l:script[i] == '\'
       " Escape.
       let i += 1
 
-      if i >= len(a:script)
+      if i >= l:max
         throw 'Exception: Join to next line (\).'
       endif
 
-      let l:statement .= '\' . a:script[i]
+      let l:statement .= '\' . l:script[i]
       let i += 1
-    elseif a:script[i] == '#'
+    elseif l:script[i] == '#'
       " Comment.
       break
     else
-      let l:statement .= a:script[i]
+      let l:statement .= l:script[i]
       let i += 1
     endif
   endwhile
@@ -240,7 +242,8 @@ function! vimproc#parser#split_statements(script)"{{{
         \ 'v:val.statement')
 endfunction"}}}
 function! vimproc#parser#split_args(script)"{{{
-  let l:script = a:script
+  let l:script = type(a:script) == type([]) ?
+        \ a:script : split(a:script, '\zs')
   let l:max = len(l:script)
   let l:args = []
   let l:arg = ''
@@ -313,7 +316,8 @@ function! vimproc#parser#split_args(script)"{{{
   return l:ret
 endfunction"}}}
 function! vimproc#parser#split_args_through(script)"{{{
-  let l:script = a:script
+  let l:script = type(a:script) == type([]) ?
+        \ a:script : split(a:script, '\zs')
   let l:max = len(l:script)
   let l:args = []
   let l:arg = ''
@@ -372,47 +376,50 @@ function! vimproc#parser#split_args_through(script)"{{{
   return l:args
 endfunction"}}}
 function! vimproc#parser#split_pipe(script)"{{{
-  let l:script = ''
+  let l:script = type(a:script) == type([]) ?
+        \ a:script : split(a:script, '\zs')
+  let l:max = len(l:script)
+  let l:command = ''
 
   let i = 0
-  let l:max = len(a:script)
   let l:commands = []
   while i < l:max
-    if a:script[i] == '|'
+    if l:script[i] == '|'
       " Pipe.
-      call add(l:commands, l:script)
+      call add(l:commands, l:command)
 
       " Search next command.
-      let l:script = ''
+      let l:command = ''
       let i += 1
-    elseif a:script[i] == "'"
+    elseif l:script[i] == "'"
       " Single quote.
-      let [l:string, i] = s:skip_single_quote(a:script, i)
-      let l:script .= l:string
-    elseif a:script[i] == '"'
+      let [l:string, i] = s:skip_single_quote(l:script, i)
+      let l:command .= l:string
+    elseif l:script[i] == '"'
       " Double quote.
-      let [l:string, i] = s:skip_double_quote(a:script, i)
-      let l:script .= l:string
-    elseif a:script[i] == '`'
+      let [l:string, i] = s:skip_double_quote(l:script, i)
+      let l:command .= l:string
+    elseif l:script[i] == '`'
       " Back quote.
-      let [l:string, i] = s:skip_back_quote(a:script, i)
-      let l:script .= l:string
-    elseif a:script[i] == '\' && i + 1 < l:max
+      let [l:string, i] = s:skip_back_quote(l:script, i)
+      let l:command .= l:string
+    elseif l:script[i] == '\' && i + 1 < l:max
       " Escape.
-      let l:script .= '\' . a:script[i+1]
+      let l:command .= '\' . l:script[i+1]
       let i += 2
     else
-      let l:script .= a:script[i]
+      let l:command .= l:script[i]
       let i += 1
     endif
   endwhile
 
-  call add(l:commands, l:script)
+  call add(l:commands, l:command)
 
   return l:commands
 endfunction"}}}
 function! vimproc#parser#split_commands(script)"{{{
-  let l:script = a:script
+  let l:script = type(a:script) == type([]) ?
+        \ a:script : split(a:script, '\zs')
   let l:max = len(l:script)
   let l:commands = []
   let l:command = ''
@@ -783,12 +790,14 @@ function! s:parse_double_quote(script, i)"{{{
         \}
   let l:arg = ''
   let i = a:i + 1
-  let l:max = len(a:script)
+  let l:script = type(a:script) == type([]) ?
+        \ a:script : split(a:script, '\zs')
+  let l:max = len(l:script)
   while i < l:max
-    if a:script[i] == '"'
+    if l:script[i] == '"'
       " Quote end.
       return [l:arg, i+1]
-    elseif a:script[i] == '\'
+    elseif l:script[i] == '\'
       " Escape.
       let i += 1
 
@@ -796,18 +805,18 @@ function! s:parse_double_quote(script, i)"{{{
         throw 'Exception: Join to next line (\).'
       endif
 
-      if a:script[i] == 'x'
-        let l:num = matchstr(a:script, '^\x\+', i+1)
+      if l:script[i] == 'x'
+        let l:num = matchstr(join(l:script[i+1 :], ''), '^\x\+')
         let l:arg .= nr2char(str2nr(l:num, 16))
         let i += len(l:num)
-      elseif has_key(l:escape_sequences, a:script[i])
-        let l:arg .= l:escape_sequences[a:script[i]]
+      elseif has_key(l:escape_sequences, l:script[i])
+        let l:arg .= l:escape_sequences[l:script[i]]
       else
-        let l:arg .= '\' . a:script[i]
+        let l:arg .= '\' . l:script[i]
       endif
       let i += 1
     else
-      let l:arg .= a:script[i]
+      let l:arg .= l:script[i]
       let i += 1
     endif
   endwhile
@@ -854,25 +863,54 @@ endfunction"}}}
 
 " Skip helper.
 function! s:skip_single_quote(script, i)"{{{
-  let l:end = matchend(a:script, "^'[^']*'", a:i)
-  if l:end == -1
-    throw 'Exception: Quote ('') is not found.'
-  endif
-  return [matchstr(a:script, "^'[^']*'", a:i), l:end]
+  let l:max = len(a:script)
+  let l:string = ''
+
+  let i = a:i
+  while i < l:max && a:script[i] != ''''
+    if a:script[i] == ''''
+          \ && i+1 < l:max && a:script[i+1] == ''''
+      " Escape quote.
+      let l:string .= a:script[i]
+      let i += 1
+    endif
+
+    let l:string .= a:script[i]
+    let i += 1
+  endwhile
+
+  return [l:string, i+1]
 endfunction"}}}
 function! s:skip_double_quote(script, i)"{{{
-  let l:end = matchend(a:script, '^"\%([^"]\|\"\)*"', a:i)
-  if l:end == -1
-    throw 'Exception: Quote (") is not found.'
-  endif
-  return [matchstr(a:script, '^"\%([^"]\|\"\)*"', a:i), l:end]
+  let l:max = len(a:script)
+  let l:string = ''
+
+  let i = a:i
+  while i < l:max && a:script[i] != '"'
+    if a:script[i] == '\'
+          \ && i+1 < l:max && a:script[i+1] == '"'
+      " Escape quote.
+      let l:string .= a:script[i]
+      let i += 1
+    endif
+
+    let l:string .= a:script[i]
+    let i += 1
+  endwhile
+
+  return [l:string, i+1]
 endfunction"}}}
 function! s:skip_back_quote(script, i)"{{{
-  let l:end = matchend(a:script, '^`[^`]*`', a:i)
-  if l:end == -1
-    throw 'Exception: Quote (`) is not found.'
-  endif
-  return [matchstr(a:script, '^`[^`]*`', a:i), l:end]
+  let l:max = len(a:script)
+  let l:string = ''
+
+  let i = a:i
+  while i < l:max && a:script[i] != '`'
+    let l:string .= a:script[i]
+    let i += 1
+  endwhile
+
+  return [l:string, i+1]
 endfunction"}}}
 function! s:skip_else(args, script, i)"{{{
   if a:script[a:i] == "'"
