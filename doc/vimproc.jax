@@ -72,7 +72,7 @@ Make方法
 	$ make -f make_cygwin.mak
 
 コンパイルが通ったら、autoload/にあるファイルやディレクトリ、plugin/にあるファ
-イルを|'runtimepath'|オプションで示されるディレクトリにコピーする。doc/にあ
+イルを'runtimepath'オプションで示されるディレクトリにコピーする。doc/にあ
 るのはヘルプファイルである。Windowsユーザーでコンパイルするのが嫌な場合は、
 githubのダウンロードに32bit/64bit版のproc.dllファイルがある。
 ただし動作の保証はしない。
