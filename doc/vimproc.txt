@@ -70,7 +70,7 @@ Below is Make command.
 * Cygwin: >
 	$ make -f make_cygwin.mak
 
-After compile, you copy autoload/* files to your |$VIMRUNTIME|.
+After compile, you copy autoload/* and plugin/* files to your |$VIMRUNTIME|.
 
 I compiled proc.dll in 32/64 bit Windows, and distributed it below URL.
 Note: I DON'T recommend to use it.

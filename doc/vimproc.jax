@@ -71,10 +71,11 @@ Make方法
 * Cygwin: >
 	$ make -f make_cygwin.mak
 
-コンパイルが通ったら、autoload/にあるファイルやディレクトリを.vimのautoloadディ
-レクトリにコピーする。 doc/にあるのはヘルプファイルである。Windowsユーザーでコ
-ンパイルするのが嫌な場合は、githubのダウンロードに32bit/64bit版のproc.dllファ
-イルがある。ただし動作の保証はしない。
+コンパイルが通ったら、autoload/にあるファイルやディレクトリ、plugin/にあるファ
+イルを|$VIMRUNTIME|のautoloadディレクトリにコピーする。doc/にあるのはヘルプ
+ファイルである。Windowsユーザーでコンパイルするのが嫌な場合は、githubのダウ
+ンロードに32bit/64bit版のproc.dllファイルがある。
+ただし動作の保証はしない。
 http://github.com/Shougo/vimproc/downloads
 
 ==============================================================================
