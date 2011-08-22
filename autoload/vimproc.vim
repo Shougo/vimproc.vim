@@ -1070,8 +1070,8 @@ function! s:read_pgroup(...) dict"{{{
     let [l:cond, l:status] = self.proc.current_proc.waitpid()
 
     if empty(self.proc.statements)
-          \ || (self.proc.condition ==# 'true' && !l:status)
-          \ || (self.proc.condition ==# 'false' && l:status)
+          \ || (self.proc.condition ==# 'true' && l:status)
+          \ || (self.proc.condition ==# 'false' && !l:status)
       let self.proc.statements = []
 
       " Caching status.

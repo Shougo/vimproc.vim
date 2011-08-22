@@ -171,7 +171,7 @@ function! vimproc#parser#parse_statements(script)"{{{
         if l:statement != ''
           call add(l:statements,
                 \ { 'statement' : l:statement,
-                \   'condition' : 'false',
+                \   'condition' : 'true',
                 \})
         endif
         let l:statement = ''
@@ -186,7 +186,7 @@ function! vimproc#parser#parse_statements(script)"{{{
         if l:statement != ''
           call add(l:statements,
                 \ { 'statement' : l:statement,
-                \   'condition' : 'true',
+                \   'condition' : 'false',
                 \})
         endif
         let l:statement = ''
