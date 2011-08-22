@@ -237,6 +237,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-08-12
 - Improved parser(experimental).
+- Fixed parser.
 
 2011-08-08
 - Fixed export.

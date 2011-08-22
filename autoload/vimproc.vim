@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 03 Aug 2011.
+" Last Modified: 22 Aug 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1070,8 +1070,8 @@ function! s:read_pgroup(...) dict"{{{
     let [l:cond, l:status] = self.proc.current_proc.waitpid()
 
     if empty(self.proc.statements)
-          \ || (self.proc.condition ==# 'true' && l:status)
-          \ || (self.proc.condition ==# 'false' && !l:status)
+          \ || (self.proc.condition ==# 'true' && !l:status)
+          \ || (self.proc.condition ==# 'false' && l:status)
       let self.proc.statements = []
 
       " Caching status.

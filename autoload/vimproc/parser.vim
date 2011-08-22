@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 12 Aug 2011.
+" Last Modified: 22 Aug 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -171,7 +171,7 @@ function! vimproc#parser#parse_statements(script)"{{{
         if l:statement != ''
           call add(l:statements,
                 \ { 'statement' : l:statement,
-                \   'condition' : 'true',
+                \   'condition' : 'false',
                 \})
         endif
         let l:statement = ''
@@ -186,7 +186,7 @@ function! vimproc#parser#parse_statements(script)"{{{
         if l:statement != ''
           call add(l:statements,
                 \ { 'statement' : l:statement,
-                \   'condition' : 'false',
+                \   'condition' : 'true',
                 \})
         endif
         let l:statement = ''
