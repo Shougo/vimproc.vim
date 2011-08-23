@@ -865,21 +865,38 @@ endfunction"}}}
 function! s:skip_single_quote(script, i)"{{{
   let l:max = len(a:script)
   let l:string = ''
-
   let i = a:i
-  while i < l:max && a:script[i] != ''''
+
+  " a:script[i] is always "'" when this function is called
+  if a:script[i] != ''''
+    throw 'Exception: Quote ('') is not found.'
+  endif
+  let l:string .= a:script[i]
+  let i += 1
+
+  while i < l:max
     if a:script[i] == ''''
-          \ && i+1 < l:max && a:script[i+1] == ''''
-      " Escape quote.
-      let l:string .= a:script[i]
-      let i += 1
+      if i+1 < l:max && a:script[i+1] == ''''
+        " Escape quote.
+        let l:string .= a:script[i]
+        let i += 1
+      else
+        break
+      endif
     endif
 
     let l:string .= a:script[i]
     let i += 1
   endwhile
 
-  return [l:string, i+1]
+  " must end with "'"
+  if a:script[i] != ''''
+    throw 'Exception: Quote ('') is not found.'
+  endif
+  let l:string .= a:script[i]
+  let i += 1
+
+  return [l:string, i]
 endfunction"}}}
 function! s:skip_double_quote(script, i)"{{{
   let l:max = len(a:script)
