@@ -235,6 +235,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-08-24
+- Fixed statement parse.
+
 2011-08-12
 - Improved parser(experimental).
 - Fixed parser.
