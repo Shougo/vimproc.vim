@@ -889,12 +889,14 @@ function! s:skip_single_quote(script, i)"{{{
     let i += 1
   endwhile
 
-  " must end with "'"
-  if a:script[i] != ''''
-    throw 'Exception: Quote ('') is not found.'
+  if i < l:max
+    " must end with "'"
+    if a:script[i] != ''''
+      throw 'Exception: Quote ('') is not found.'
+    endif
+    let l:string .= a:script[i]
+    let i += 1
   endif
-  let l:string .= a:script[i]
-  let i += 1
 
   return [l:string, i]
 endfunction"}}}
@@ -924,12 +926,14 @@ function! s:skip_double_quote(script, i)"{{{
     let i += 1
   endwhile
 
-  " must end with '"'
-  if a:script[i] != '"'
-    throw 'Exception: Quote (") is not found.'
+  if i < l:max
+    " must end with '"'
+    if a:script[i] != '"'
+      throw 'Exception: Quote (") is not found.'
+    endif
+    let l:string .= a:script[i]
+    let i += 1
   endif
-  let l:string .= a:script[i]
-  let i += 1
 
   return [l:string, i]
 endfunction"}}}
