@@ -940,6 +940,7 @@ endfunction"}}}
 function! s:skip_back_quote(script, i)"{{{
   let l:max = len(a:script)
   let l:string = ''
+  let i = a:i
 
   " a:script[i] is always '`' when this function is called
   if a:script[i] != '`'
@@ -948,7 +949,6 @@ function! s:skip_back_quote(script, i)"{{{
   let l:string .= a:script[i]
   let i += 1
 
-  let i = a:i
   while i < l:max && a:script[i] != '`'
     let l:string .= a:script[i]
     let i += 1
