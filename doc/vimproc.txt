@@ -1,6 +1,6 @@
 *vimproc.txt*	Asynchronous execution plugin for Vim
 
-Version: 5.4
+Version: 6.0
 Author : Shougo <Shougo.Matsu at gmail.com>
 Original Author : Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com>
 License: MIT license  {{{
@@ -237,6 +237,10 @@ CHANGELOG					*vimproc-changelog*
 
 2011-09-07
 - Implemented pty_open2(experimental).
+- Ver.6 development is started.
+
+------------------------------------------------------------------------------
+ChangeLog 5.0-5.4
 
 2011-08-26
 - Fixed quote parse.
@@ -506,6 +510,7 @@ CHANGELOG					*vimproc-changelog*
 
 ------------------------------------------------------------------------------
 ChangeLog 4.1-4.2
+
 2010-09-04
 - Implemented VimProcBang and VimProcRead commands.
 
