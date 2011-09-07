@@ -5,6 +5,8 @@
  *         Nico Raffo <nicoraffo@gmail.com> (modified)
  */
 
+#define _XOPEN_SOURCE 600
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -360,7 +362,6 @@ vp_pipe_open(char *args)
     int argc;
     int fd[3][2];
     pid_t pid;
-    int i;
     int dummy;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
@@ -409,6 +410,7 @@ vp_pipe_open(char *args)
     } else if (pid == 0) {
         /* child */
         char **argv;
+        int i;
 
         if (!hstdin) {
             close(fd[0][1]);
@@ -512,7 +514,6 @@ vp_pty_open(char *args)
     pid_t pid;
     struct winsize ws = {0, 0, 0, 0};
     struct termios ti;
-    int i;
     int dummy;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
@@ -546,6 +547,7 @@ vp_pty_open(char *args)
     } else if (pid == 0) {
         /* child */
         char **argv;
+        int i;
 
         argv = malloc(sizeof(char *) * (argc+1));
         if (argv == NULL) {
@@ -568,6 +570,163 @@ vp_pty_open(char *args)
 
         vp_stack_push_num(&_result, "%d", pid);
         vp_stack_push_num(&_result, "%d", fdm);
+        /* XXX - ttyname(fdm) breaks in OS X */
+        vp_stack_push_str(&_result, "unused");
+        return vp_stack_return(&_result);
+    }
+    /* DO NOT REACH HERE */
+    return NULL;
+
+    /* error */
+child_error:
+    dummy = write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
+    _exit(EXIT_FAILURE);
+}
+
+const char *
+vp_pty_open2(char *args)
+{
+    vp_stack_t stack;
+    int argc;
+    int fdm_out, fdm_err;
+    int fd[3][2];
+    pid_t pid;
+    struct winsize ws = {0, 0, 0, 0};
+    int dummy;
+    int hstdin, hstderr, hstdout;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_col)));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_row)));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdin));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdout));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstderr));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
+
+    /* Open fd master */
+    fdm_out = posix_openpt(O_RDWR);
+    grantpt(fdm_out);
+    unlockpt(fdm_out);
+    fdm_err = posix_openpt(O_RDWR);
+    grantpt(fdm_err);
+    unlockpt(fdm_err);
+
+    /* Set pipe */
+    if (hstdin) {
+        fd[0][0] = hstdin;
+        fd[0][1] = 0;
+    } else {
+        fd[0][0] = 0;
+        fd[0][1] = fdm_out;
+    }
+    if (hstdout) {
+        fd[1][1] = hstdout;
+        fd[1][0] = 0;
+    } else {
+        fd[1][1] = 0;
+        fd[1][0] = fdm_out;
+    }
+    if (hstderr) {
+        fd[2][1] = hstderr;
+        fd[2][0] = 0;
+    } else {
+        fd[2][1] = 0;
+        fd[2][0] = fdm_err;
+    }
+
+    pid = fork();
+    if (pid < 0) {
+        return vp_stack_return_error(&_result, "fork() error: %s",
+                strerror(errno));
+    } else if (pid == 0) {
+        /* child */
+        char **argv;
+        struct termios ti;
+        int i;
+
+        /* Set terminal */
+        setsid();
+
+        /* Set pipe */
+        if (!hstdin) {
+            close(fd[0][1]);
+        }
+        if (!hstdout) {
+            close(fd[1][0]);
+        }
+        if (!hstderr) {
+            close(fd[2][0]);
+        }
+
+        if (fd[0][0] != STDIN_FILENO) {
+            fd[0][0] = open(ptsname(fdm_out), O_RDWR);
+            ioctl(fd[0][0], TIOCSCTTY, (char *)0);
+            ioctl(fd[0][0], TIOCSWINSZ, &ws);
+            if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
+                close(fdm_out);
+                goto child_error;
+            }
+            close(fd[0][0]);
+        }
+        if (fd[1][1] != STDOUT_FILENO) {
+            fd[1][1] = open(ptsname(fdm_out), O_RDWR);
+            ioctl(fd[1][1], TIOCSCTTY, (char *)0);
+            ioctl(fd[1][1], TIOCSWINSZ, &ws);
+            tcsetattr(fd[1][1], TCSANOW, &ti);
+
+            if (dup2(fd[1][1], STDOUT_FILENO) != STDOUT_FILENO) {
+                close(fdm_out);
+                goto child_error;
+            }
+            close(fd[1][1]);
+        }
+
+        close(fdm_out);
+        if (fd[2][1] != STDERR_FILENO) {
+            fd[2][1] = open(ptsname(fdm_err), O_RDWR);
+            ioctl(fd[2][1], TIOCSCTTY, (char *)0);
+            ioctl(fd[2][1], TIOCSWINSZ, &ws);
+            close(fdm_err);
+            tcsetattr(fd[2][1], TCSANOW, &ti);
+
+            if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
+                goto child_error;
+            }
+            close(fd[2][1]);
+        }
+
+        argv = malloc(sizeof(char *) * (argc+1));
+        if (argv == NULL) {
+            goto child_error;
+        }
+        for (i = 0; i < argc; ++i) {
+            VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
+        }
+        argv[argc] = NULL;
+
+        if (execv(argv[0], argv) < 0) {
+            /* error */
+            free(argv);
+
+            goto child_error;
+        }
+        free(argv);
+    } else {
+        /* parent */
+        if (!hstdin) {
+            close(fd[0][0]);
+        }
+        if (!hstdout) {
+            close(fd[1][1]);
+        }
+        if (!hstderr) {
+            close(fd[2][1]);
+        }
+
+        vp_stack_push_num(&_result, "%d", pid);
+        vp_stack_push_num(&_result, "%d", fd[0][1]);
+        vp_stack_push_num(&_result, "%d", fd[1][0]);
+        vp_stack_push_num(&_result, "%d", fd[2][0]);
         /* XXX - ttyname(fdm) breaks in OS X */
         vp_stack_push_str(&_result, "unused");
         return vp_stack_return(&_result);

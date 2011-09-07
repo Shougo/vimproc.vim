@@ -235,6 +235,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-09-07
+- Implemented pty_open2(experimental).
+
 2011-08-26
 - Fixed quote parse.
 
