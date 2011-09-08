@@ -22,6 +22,10 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#ifndef OPEN_MAX
+  #define OPEN_MAX (sysconf(_SC_OPEN_MAX))
+#endif
+
 typedef struct pollfd {
     int fd;                         /* file desc to poll */
     short events;                   /* events of interest on fd */
@@ -80,7 +84,7 @@ int poll(struct pollfd *pollSet, int pollCount, int pollTimeout)
             if (p->fd > maxFD) maxFD = p->fd;
         }
 
-        if (maxFD >= sysconf(_SC_OPEN_MAX)) {
+        if (maxFD >= OPEN_MAX) {
             /*  At least one fd is too big */
             errno = EINVAL;
             return -1;
