@@ -628,6 +628,7 @@ vp_pty_open2(char *args)
             return vp_stack_return_error(&_result, "openpty() error: %s",
                     strerror(errno));
         }
+        ioctl(fd[1][1], TIOCSCTTY, NULL);
     }
     if (hstderr == 1) {
         if (pipe(fd[2]) < 0) {
@@ -642,6 +643,7 @@ vp_pty_open2(char *args)
             return vp_stack_return_error(&_result, "openpty() error: %s",
                     strerror(errno));
         }
+        ioctl(fd[2][1], TIOCSCTTY, NULL);
     }
 
     pid = fork();
@@ -684,6 +686,9 @@ vp_pty_open2(char *args)
             }
             close(fd[2][1]);
         }
+
+        setsid();
+        ioctl(fd[0][0], TIOCSCTTY, 0);
 
         argv = malloc(sizeof(char *) * (argc+1));
         if (argv == NULL) {
