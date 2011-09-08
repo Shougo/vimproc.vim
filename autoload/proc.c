@@ -591,7 +591,7 @@ vp_pty_open2(char *args)
 {
     vp_stack_t stack;
     int argc;
-    int fdm_out, fdm_err;
+    int fdm_in, fdm_out, fdm_err;
     int fd[3][2];
     pid_t pid;
     struct winsize ws = {0, 0, 0, 0};
@@ -607,6 +607,9 @@ vp_pty_open2(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
 
     /* Open fd master */
+    fdm_in = posix_openpt(O_RDWR);
+    grantpt(fdm_in);
+    unlockpt(fdm_in);
     fdm_out = posix_openpt(O_RDWR);
     grantpt(fdm_out);
     unlockpt(fdm_out);
@@ -619,8 +622,8 @@ vp_pty_open2(char *args)
         fd[0][0] = hstdin;
         fd[0][1] = 0;
     } else {
-        fd[0][0] = fdm_out;
-        fd[0][1] = fdm_out;
+        fd[0][0] = fdm_in;
+        fd[0][1] = fdm_in;
     }
     if (hstdout) {
         fd[1][1] = hstdout;
@@ -657,9 +660,6 @@ vp_pty_open2(char *args)
         struct termios ti;
         int i;
 
-        /* Set terminal */
-        setsid();
-
         /* Close pipe */
         if (hstdout == 1) {
             close(fd[1][0]);
@@ -669,15 +669,17 @@ vp_pty_open2(char *args)
         }
 
         if (fd[0][0] != STDIN_FILENO) {
-            fd[0][0] = open(ptsname(fdm_out), O_RDWR);
+            fd[0][0] = open(ptsname(fdm_in), O_RDWR);
             ioctl(fd[0][0], TIOCSCTTY, (char *)0);
             ioctl(fd[0][0], TIOCSWINSZ, &ws);
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
-                close(fdm_out);
+                close(fdm_in);
                 goto child_error;
             }
             close(fd[0][0]);
         }
+        close(fdm_in);
+
         if (fd[1][1] != STDOUT_FILENO) {
             if (hstdout != 1) {
                 fd[1][1] = open(ptsname(fdm_out), O_RDWR);
