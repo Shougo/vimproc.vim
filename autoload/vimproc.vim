@@ -1143,14 +1143,17 @@ function! s:vp_set_winsize(width, height) dict
   endif
 
   if self.is_pty
-    if self.stdin.fd.eof >= 0
-      call s:libcall('vp_pty_set_winsize', [self.stdin.fd.fd, a:width-5, a:height])
+    if self.stdin.eof >= 0
+      call s:libcall('vp_pty_set_winsize',
+            \ [self.stdin.fd[-1].fd, a:width-5, a:height])
     endif
-    if self.stdout.fd.eof >= 0
-      call s:libcall('vp_pty_set_winsize', [self.stdout.fd.fd, a:width-5, a:height])
+    if self.stdout.eof >= 0
+      call s:libcall('vp_pty_set_winsize',
+            \ [self.stdout.fd[0].fd, a:width-5, a:height])
     endif
-    if self.stderr.fd.eof >= 0
-      call s:libcall('vp_pty_set_winsize', [self.stderr.fd.fd, a:width-5, a:height])
+    if self.stderr.eof >= 0
+      call s:libcall('vp_pty_set_winsize',
+            \ [self.stderr.fd[0].fd, a:width-5, a:height])
     endif
   endif
 

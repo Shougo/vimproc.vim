@@ -591,7 +591,6 @@ vp_pty_open2(char *args)
 {
     vp_stack_t stack;
     int argc;
-    int fdm_in, fdm_out, fdm_err;
     int fd[3][2];
     pid_t pid;
     struct winsize ws = {0, 0, 0, 0};
@@ -606,24 +605,15 @@ vp_pty_open2(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstderr));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
 
-    /* Open fd master */
-    fdm_in = posix_openpt(O_RDWR);
-    grantpt(fdm_in);
-    unlockpt(fdm_in);
-    fdm_out = posix_openpt(O_RDWR);
-    grantpt(fdm_out);
-    unlockpt(fdm_out);
-    fdm_err = posix_openpt(O_RDWR);
-    grantpt(fdm_err);
-    unlockpt(fdm_err);
-
     /* Set pipe */
     if (hstdin) {
         fd[0][0] = hstdin;
         fd[0][1] = 0;
     } else {
-        fd[0][0] = fdm_in;
-        fd[0][1] = fdm_in;
+        if (openpty(&fd[0][0], &fd[0][1], NULL, NULL, &ws) < 0) {
+            return vp_stack_return_error(&_result, "openpty() error: %s",
+                    strerror(errno));
+        }
     }
     if (hstdout == 1) {
         if (pipe(fd[1]) < 0) {
@@ -634,8 +624,10 @@ vp_pty_open2(char *args)
         fd[1][1] = hstdout;
         fd[1][0] = 0;
     } else {
-        fd[1][1] = fdm_out;
-        fd[1][0] = fdm_out;
+        if (openpty(&fd[1][0], &fd[1][1], NULL, NULL, &ws) < 0) {
+            return vp_stack_return_error(&_result, "openpty() error: %s",
+                    strerror(errno));
+        }
     }
     if (hstderr == 1) {
         if (pipe(fd[2]) < 0) {
@@ -646,8 +638,10 @@ vp_pty_open2(char *args)
         fd[2][1] = hstderr;
         fd[2][0] = 0;
     } else {
-        fd[2][1] = fdm_err;
-        fd[2][0] = fdm_err;
+        if (openpty(&fd[2][0], &fd[2][1], NULL, NULL, &ws) < 0) {
+            return vp_stack_return_error(&_result, "openpty() error: %s",
+                    strerror(errno));
+        }
     }
 
     pid = fork();
@@ -657,63 +651,39 @@ vp_pty_open2(char *args)
     } else if (pid == 0) {
         /* child */
         char **argv;
-        struct termios ti;
         int i;
 
         /* Close pipe */
-        if (hstdout == 1) {
+        if (hstdin == 0) {
+            close(fd[0][1]);
+        }
+        if (hstdout == 0 || hstdout == 1) {
             close(fd[1][0]);
         }
-        if (hstderr == 1) {
+        if (hstderr == 0 || hstderr == 1) {
             close(fd[2][0]);
         }
 
         if (fd[0][0] != STDIN_FILENO) {
-            if (hstdin == 0) {
-                fd[0][0] = open(ptsname(fdm_in), O_RDWR);
-                ioctl(fd[0][0], TIOCSCTTY, (char *)0);
-                ioctl(fd[0][0], TIOCSWINSZ, &ws);
-                tcsetattr(fd[0][0], TCSANOW, &ti);
-            }
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
-                close(fdm_in);
                 goto child_error;
             }
             close(fd[0][0]);
         }
-        close(fdm_in);
 
         if (fd[1][1] != STDOUT_FILENO) {
-            if (hstdout == 0) {
-                fd[1][1] = open(ptsname(fdm_out), O_RDWR);
-                ioctl(fd[1][1], TIOCSCTTY, (char *)0);
-                ioctl(fd[1][1], TIOCSWINSZ, &ws);
-                tcsetattr(fd[1][1], TCSANOW, &ti);
-            }
-
             if (dup2(fd[1][1], STDOUT_FILENO) != STDOUT_FILENO) {
-                close(fdm_out);
                 goto child_error;
             }
             close(fd[1][1]);
         }
-        close(fdm_out);
 
         if (fd[2][1] != STDERR_FILENO) {
-            if (hstderr == 0) {
-                fd[2][1] = open(ptsname(fdm_err), O_RDWR);
-                ioctl(fd[2][1], TIOCSCTTY, (char *)0);
-                ioctl(fd[2][1], TIOCSWINSZ, &ws);
-                tcsetattr(fd[2][1], TCSANOW, &ti);
-            }
-
             if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
-                close(fdm_err);
                 goto child_error;
             }
             close(fd[2][1]);
         }
-        close(fdm_err);
 
         argv = malloc(sizeof(char *) * (argc+1));
         if (argv == NULL) {
@@ -733,10 +703,13 @@ vp_pty_open2(char *args)
         free(argv);
     } else {
         /* parent */
-        if (hstdout == 1) {
+        if (hstdin == 0) {
+            close(fd[0][0]);
+        }
+        if (hstdout == 0 || hstdout == 1) {
             close(fd[1][1]);
         }
-        if (hstderr == 1) {
+        if (hstderr == 0 || hstderr == 1) {
             close(fd[2][1]);
         }
 
