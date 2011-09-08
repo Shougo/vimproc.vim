@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 27 Aug 2011.
+" Last Modified: 08 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -58,20 +58,6 @@ function! vimproc#parser#system_bg(cmdline)"{{{
     let l:args = vimproc#parser#split_args(l:cmdline)
     return vimproc#system_bg(l:args)
   endif
-endfunction"}}}
-
-function! vimproc#parser#popen2(cmdline)"{{{
-  return vimproc#popen2(vimproc#parser#split_args(a:cmdline))
-endfunction"}}}
-function! vimproc#parser#plineopen2(args)"{{{
-  return vimproc#popen2(vimproc#parser#parse_pipe(a:args))
-endfunction"}}}
-
-function! vimproc#parser#popen3(cmdline)"{{{
-  return vimproc#popen3(vimproc#parser#split_args(a:cmdline))
-endfunction"}}}
-function! vimproc#parser#plineopen3(args)"{{{
-  return vimproc#popen3(vimproc#parser#parse_pipe(a:args))
 endfunction"}}}
 
 function! vimproc#parser#ptyopen(cmdline)"{{{

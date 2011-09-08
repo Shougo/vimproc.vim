@@ -382,41 +382,42 @@ function! vimproc#fopen(path, flags, ...)"{{{
 endfunction"}}}
 
 function! vimproc#popen2(args)"{{{
-  if type(a:args) == type('')
-    return vimproc#parser#popen2(a:args)
-  endif
+  let l:args = type(a:args) == type('') ?
+        \ vimproc#parser#split_args(a:args) :
+        \ a:args
 
   return s:plineopen(2, [{
         \ 'args' : a:commands,
         \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' }
-        \ ])
+        \ ], 0)
 endfunction"}}}
 function! vimproc#popen3(args)"{{{
-  if type(a:args) == type('')
-    return vimproc#parser#popen3(a:args)
-  endif
+  let l:args = type(a:args) == type('') ?
+        \ vimproc#parser#split_args(a:args) :
+        \ a:args
 
   return s:plineopen(3, [{
-        \ 'args' : a:commands,
+        \ 'args' : l:args,
         \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' }
-        \ ])
+        \ ], 0)
 endfunction"}}}
 
 function! vimproc#plineopen2(commands)"{{{
-  if type(a:commands) == type('')
-    return vimproc#parser#plineopen2(a:commands)
-  endif
+  let l:commands = type(a:commands) == type('') ?
+        \ vimproc#parser#parse_pipe(a:commands) :
+        \ a:commands
 
-  return s:plineopen(2, a:commands)
+  return s:plineopen(2, a:commands, 0)
 endfunction"}}}
-function! vimproc#plineopen3(commands)"{{{
-  if type(a:commands) == type('')
-    return vimproc#parser#plineopen3(a:commands)
-  endif
+function! vimproc#plineopen3(commands, ...)"{{{
+  let l:commands = type(a:commands) == type('') ?
+        \ vimproc#parser#parse_pipe(a:commands) :
+        \ a:commands
+  let l:is_pty = get(a:000, 0, 0)
 
-  return s:plineopen(3, a:commands)
+  return s:plineopen(3, l:commands, l:is_pty)
 endfunction"}}}
-function! s:plineopen(npipe, commands)"{{{
+function! s:plineopen(npipe, commands, is_pty)"{{{
   let l:pid_list = []
   let l:stdin_list = []
   let l:stdout_list = []
@@ -498,8 +499,12 @@ function! vimproc#pgroup_open(statements)"{{{
     return vimproc#parser#pgroup_open(a:statements)
   endif
 
+  return s:pgroup_open(a:statements, 0)
+endfunction"}}}
+
+function! s:pgroup_open(statements, is_pty)"{{{
   let l:proc = {}
-  let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement)
+  let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement, a:is_pty)
 
   let l:proc.pid = l:proc.current_proc.pid
   let l:proc.pid_list = l:proc.current_proc.pid_list

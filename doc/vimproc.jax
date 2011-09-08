@@ -280,7 +280,7 @@ EXAMPLES					*vimproc-examples*
 	call append(0, split(res, '\r\n\|\r\|\n'))
 	
 	" Pipe open test.
-	let sub = vimproc#parser#popen2('ls')
+	let sub = vimproc#popen2('ls')
 	let res = ''
 	while !sub.stdout.eof
 	let res .= sub.stdout.read()
