@@ -185,7 +185,7 @@ vimproc#plineopen2({commands})			*vimproc#plineopen2()*
 vimproc#plineopen3({commands})			*vimproc#plineopen3()*
 		標準エラー出力を分けること以外は|vimproc#plineopen2()|と同じである。
 
-vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
+vimproc#pgroup_open({commands}, [{is-pty}])	*vimproc#pgroup_open()*
 		{commands}で指定されるコマンド列を実行し、プロセス情報を返す。
 		引数に文字列を指定すると、コマンドは自前のパーサによってパース
 		される。
@@ -200,12 +200,14 @@ vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
 					alwaysなら必ず実行される。
 					trueならコマンドが成功したときに実行、
 					falseならコマンドが失敗したときに実行。
+		{is-pty}を1にすると、ptyが使用可能な環境の場合、ptyを使用して入
+		出力を行う。
 
 vimproc#ptyopen({args})				*vimproc#ptyopen()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
 		引数に文字列を指定すると、コマンドは自前のパーサによってパース
 		される。
-		パイプは解釈されない。
+		パイプも解釈される。
 		
 		{args}は引数を区切ったリストである。
 
@@ -280,7 +282,7 @@ EXAMPLES					*vimproc-examples*
 	call append(0, split(res, '\r\n\|\r\|\n'))
 	
 	" Pipe open test.
-	let sub = vimproc#parser#popen2('ls')
+	let sub = vimproc#popen2('ls')
 	let res = ''
 	while !sub.stdout.eof
 	let res .= sub.stdout.read()

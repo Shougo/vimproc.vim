@@ -151,7 +151,7 @@ vimproc#plineopen3({commands})			*vimproc#plineopen3()*
 		Same as |vimproc#plineopen2()|, but this function splits
 		stderr output.
 
-vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
+vimproc#pgroup_open({commands}, [{is-pty}])	*vimproc#pgroup_open()*
 		Todo
 
 vimproc#ptyopen({args})				*vimproc#ptyopen()*
@@ -212,7 +212,7 @@ EXAMPLES					*vimproc-examples*
 	call append(0, split(res, '\r\n\|\r\|\n'))
 	
 	" Pipe open test.
-	let sub = vimproc#parser#popen2('ls')
+	let sub = vimproc#popen2('ls')
 	let res = ''
 	while !sub.stdout.eof
 	let res .= sub.stdout.read()
@@ -237,6 +237,11 @@ CHANGELOG					*vimproc-changelog*
 
 2011-09-08
 - Fixed for Mac OS X.
+- Improved popen().
+- Improved interface.
+- Improved pty_open().
+- Fixed pty_open().
+- Improved :VimProcBang.
 
 2011-09-07
 - Implemented pty_open2(experimental).

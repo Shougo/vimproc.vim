@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 22 Apr 2011.
+" Last Modified: 08 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -57,7 +57,7 @@ function! s:bang(cmdline)"{{{
         \ 'substitute(expand(v:val), "\n", " ", "g")'))
 
   " Open pipe.
-  let l:subproc = vimproc#pgroup_open(l:cmdline)
+  let l:subproc = vimproc#pgroup_open(l:cmdline, 1)
 
   call l:subproc.stdin.close()
 
