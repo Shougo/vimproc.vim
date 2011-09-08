@@ -520,7 +520,7 @@ function! s:is_pseudo_device(filename)"{{{
         \ || a:filename ==# '/dev/quickfix'
 endfunction"}}}
 
-function! vimproc#pgroup_open(statements)"{{{
+function! vimproc#pgroup_open(statements, ...)"{{{
   if type(a:statements) == type('')
     let l:statements = vimproc#parser#parse_statements(a:statements)
     for l:statement in l:statements
@@ -530,12 +530,14 @@ function! vimproc#pgroup_open(statements)"{{{
     let l:statements = a:statements
   endif
 
-  return s:pgroup_open(l:statements)
+  let l:is_pty = get(a:000, 0, 0)
+
+  return s:pgroup_open(l:statements, l:is_pty && !s:is_win)
 endfunction"}}}
 
-function! s:pgroup_open(statements)"{{{
+function! s:pgroup_open(statements, is_pty)"{{{
   let l:proc = {}
-  let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement)
+  let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement, a:is_pty)
 
   let l:proc.pid = l:proc.current_proc.pid
   let l:proc.pid_list = l:proc.current_proc.pid_list
