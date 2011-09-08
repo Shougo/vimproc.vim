@@ -151,7 +151,7 @@ vimproc#plineopen3({commands})			*vimproc#plineopen3()*
 		Same as |vimproc#plineopen2()|, but this function splits
 		stderr output.
 
-vimproc#pgroup_open({commands})			*vimproc#pgroup_open()*
+vimproc#pgroup_open({commands}, [{is-pty}])	*vimproc#pgroup_open()*
 		Todo
 
 vimproc#ptyopen({args})				*vimproc#ptyopen()*
