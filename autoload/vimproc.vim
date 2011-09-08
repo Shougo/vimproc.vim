@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 07 Sep 2011.
+" Last Modified: 08 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -386,35 +386,20 @@ function! vimproc#popen2(args)"{{{
     return vimproc#parser#popen2(a:args)
   endif
 
-  return s:popen(2, a:args)
+  return s:plineopen(2, [{
+        \ 'args' : a:commands,
+        \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' }
+        \ ])
 endfunction"}}}
 function! vimproc#popen3(args)"{{{
   if type(a:args) == type('')
     return vimproc#parser#popen3(a:args)
   endif
 
-  return s:popen(3, a:args)
-endfunction"}}}
-function! s:popen(npipe, args)"{{{
-  let l:pipe = s:vp_pipe_open(a:npipe, 0, 0, 0, s:convert_args(a:args))
-  if a:npipe == 3
-    let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
-  else
-    let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
-  endif
-
-  let l:proc = {}
-  let l:proc.pid = l:pid
-  let l:proc.stdin = s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-  let l:proc.stdout = s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-  if a:npipe == 3
-    let l:proc.stderr = s:fdopen(l:fd_stderr, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-  endif
-  let l:proc.kill = s:funcref('vp_kill')
-  let l:proc.waitpid = s:funcref('vp_waitpid')
-  let l:proc.is_valid = 1
-
-  return proc
+  return s:plineopen(3, [{
+        \ 'args' : a:commands,
+        \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' }
+        \ ])
 endfunction"}}}
 
 function! vimproc#plineopen2(commands)"{{{
