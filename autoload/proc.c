@@ -669,11 +669,11 @@ vp_pty_open2(char *args)
         }
 
         if (fd[0][0] != STDIN_FILENO) {
-            if (hstdin != 0) {
-                fd[1][1] = open(ptsname(fdm_out), O_RDWR);
-                ioctl(fd[1][1], TIOCSCTTY, (char *)0);
-                ioctl(fd[1][1], TIOCSWINSZ, &ws);
-                tcsetattr(fd[1][1], TCSANOW, &ti);
+            if (hstdin == 0) {
+                fd[0][0] = open(ptsname(fdm_in), O_RDWR);
+                ioctl(fd[0][0], TIOCSCTTY, (char *)0);
+                ioctl(fd[0][0], TIOCSWINSZ, &ws);
+                tcsetattr(fd[0][0], TCSANOW, &ti);
             }
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 close(fdm_in);
@@ -684,7 +684,7 @@ vp_pty_open2(char *args)
         close(fdm_in);
 
         if (fd[1][1] != STDOUT_FILENO) {
-            if (hstdout != 0 && hstdout != 1) {
+            if (hstdout == 0) {
                 fd[1][1] = open(ptsname(fdm_out), O_RDWR);
                 ioctl(fd[1][1], TIOCSCTTY, (char *)0);
                 ioctl(fd[1][1], TIOCSWINSZ, &ws);
@@ -700,7 +700,7 @@ vp_pty_open2(char *args)
         close(fdm_out);
 
         if (fd[2][1] != STDERR_FILENO) {
-            if (hstderr != 0 && hstderr != 1) {
+            if (hstderr == 0) {
                 fd[2][1] = open(ptsname(fdm_err), O_RDWR);
                 ioctl(fd[2][1], TIOCSCTTY, (char *)0);
                 ioctl(fd[2][1], TIOCSWINSZ, &ws);
