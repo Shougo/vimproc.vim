@@ -60,18 +60,6 @@ function! vimproc#parser#system_bg(cmdline)"{{{
   endif
 endfunction"}}}
 
-function! vimproc#parser#ptyopen(cmdline)"{{{
-  return vimproc#ptyopen(vimproc#parser#split_args(a:cmdline))
-endfunction"}}}
-
-function! vimproc#parser#pgroup_open(cmdline)"{{{
-  let l:statements = vimproc#parser#parse_statements(a:cmdline)
-  for l:statement in l:statements
-    let l:statement.statement = vimproc#parser#parse_pipe(l:statement.statement)
-  endfor
-  return vimproc#pgroup_open(l:statements)
-endfunction"}}}
-
 " For vimshell parser.
 function! vimproc#parser#parse_pipe(statement)"{{{
   let l:commands = []

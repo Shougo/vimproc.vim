@@ -77,13 +77,16 @@ const char *vp_file_read(char *args);   /* [hd, eof] (fd, nr, timeout) */
 const char *vp_file_write(char *args);  /* [nleft] (fd, hd, timeout) */
 
 const char *vp_pipe_open(char *args);   /* [pid, [fd] * npipe]
-                                           (npipe, argc, [argv]) */
+                                           (npipe, hstdin, hstdout, hstderr, argc, [argv]) */
 const char *vp_pipe_close(char *args);  /* [] (fd) */
 const char *vp_pipe_read(char *args);   /* [hd, eof] (fd, nr, timeout) */
 const char *vp_pipe_write(char *args);  /* [nleft] (fd, hd, timeout) */
 
 const char *vp_pty_open(char *args);    /* [pid, fd, ttyname]
                                            (width, height, argc, [argv]) */
+const char *vp_pty_open2(char *args);
+/* [pid, stdin, stdout, stderr]
+   (width, height,hstdin, hstdout, hstderr, argc, [argv]) */
 const char *vp_pty_close(char *args);   /* [] (fd) */
 const char *vp_pty_read(char *args);    /* [hd, eof] (fd, nr, timeout) */
 const char *vp_pty_write(char *args);   /* [nleft] (fd, hd, timeout) */
@@ -736,8 +739,6 @@ vp_pty_open2(char *args)
         vp_stack_push_num(&_result, "%d", fd[0][1]);
         vp_stack_push_num(&_result, "%d", fd[1][0]);
         vp_stack_push_num(&_result, "%d", fd[2][0]);
-        /* XXX - ttyname(fdm) breaks in OS X */
-        vp_stack_push_str(&_result, "unused");
         return vp_stack_return(&_result);
     }
     /* DO NOT REACH HERE */

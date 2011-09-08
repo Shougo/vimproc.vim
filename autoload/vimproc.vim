@@ -428,42 +428,63 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
   let l:hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
         \ 0 : vimproc#fopen(a:commands[0].fd.stdin, 'O_RDONLY').fd
 
+  let l:cnt = 0
   for l:command in a:commands
-    let l:mode = 'O_WRONLY | O_CREAT'
-    if l:command.fd.stdout =~ '^>'
-      let l:mode .= ' | O_APPEND'
-      let l:command.fd.stdout = l:command.fd.stdout[1:]
-    endif
-    let l:hstdout = s:is_pseudo_device(l:command.fd.stdout) ?
-          \ 0 : vimproc#fopen(l:command.fd.stdout, l:mode).fd
+    if a:is_pty && l:command.fd.stdout == '' && l:cnt == 0
+      " pty_open() use pipe.
+      let l:hstdout = 1
+    else
+      let l:mode = 'O_WRONLY | O_CREAT'
+      if l:command.fd.stdout =~ '^>'
+        let l:mode .= ' | O_APPEND'
+        let l:command.fd.stdout = l:command.fd.stdout[1:]
+      endif
 
-    let l:mode = 'O_WRONLY | O_CREAT'
-    if l:command.fd.stderr =~ '^>'
-      let l:mode .= ' | O_APPEND'
-      let l:command.fd.stderr = l:command.fd.stderr[1:]
+      let l:hstdout = s:is_pseudo_device(l:command.fd.stdout) ?
+            \ 0 : vimproc#fopen(l:command.fd.stdout, l:mode).fd
     endif
-    let l:hstderr = s:is_pseudo_device(l:command.fd.stderr) ?
-          \ 0 : vimproc#fopen(l:command.fd.stderr, l:mode).fd
+
+    if a:is_pty && l:command.fd.stderr == '' && l:cnt == 0
+      " pty_open() use pipe.
+      let l:hstderr = 1
+    else
+      let l:mode = 'O_WRONLY | O_CREAT'
+      if l:command.fd.stderr =~ '^>'
+        let l:mode .= ' | O_APPEND'
+        let l:command.fd.stderr = l:command.fd.stderr[1:]
+      endif
+      let l:hstderr = s:is_pseudo_device(l:command.fd.stderr) ?
+            \ 0 : vimproc#fopen(l:command.fd.stderr, l:mode).fd
+    endif
+
     if l:command.fd.stderr ==# '/dev/stdout'
       let l:npipe = 2
     endif
 
-    let l:pipe = s:vp_pipe_open(l:npipe, l:hstdin, l:hstdout, l:hstderr,
-          \ s:convert_args(l:command.args))
-    if l:npipe == 3
+    if a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
+      " Use pty_open().
+      let l:pipe = s:vp_pty_open(l:npipe, winwidth(0)-5, winheight(0),
+            \ l:hstdin, l:hstdout, l:hstderr,
+            \ s:convert_args(l:command.args))
+    else
+      let l:pipe = s:vp_pipe_open(l:npipe, l:hstdin, l:hstdout, l:hstderr,
+            \ s:convert_args(l:command.args))
+    endif
+
+    if len(l:pipe) == 4
       let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
     else
       let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
+      let l:fd_stderr = l:fd_stdout
     endif
 
     call add(l:pid_list, l:pid)
     call add(l:stdin_list, s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     call add(l:stdout_list, s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
-    if l:npipe == 3
-      call add(l:stderr_list, s:fdopen(l:fd_stderr, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
-    endif
+    call add(l:stderr_list, s:fdopen(l:fd_stderr, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
 
     let l:hstdin = l:stdout_list[-1].fd
+    let l:cnt += 1
   endfor
 
   let l:proc = {}
@@ -473,16 +494,13 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
   let l:proc.stdout = s:fdopen_pipes(l:stdout_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
   if l:npipe == 3
     let l:proc.stderr = s:fdopen_pipes(l:stderr_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
-  elseif a:npipe == 3
-    " Same to stdout.
-    let l:proc.stderr = l:proc.stdout
   endif
   let l:proc.get_winsize = s:funcref('vp_get_winsize')
   let l:proc.set_winsize = s:funcref('vp_set_winsize')
   let l:proc.kill = s:funcref('vp_kill')
   let l:proc.waitpid = s:funcref('vp_waitpid')
   let l:proc.is_valid = 1
-  let l:proc.is_pty = 0
+  let l:proc.is_pty = a:is_pty
 
   return proc
 endfunction"}}}
@@ -496,7 +514,12 @@ endfunction"}}}
 
 function! vimproc#pgroup_open(statements)"{{{
   if type(a:statements) == type('')
-    return vimproc#parser#pgroup_open(a:statements)
+    let l:statements = vimproc#parser#parse_statements(a:cmdline)
+    for l:statement in l:statements
+      let l:statement.statement = vimproc#parser#parse_pipe(l:statement.statement)
+    endfor
+  else
+    let l:statements = a:statements
   endif
 
   return s:pgroup_open(a:statements, 0)
@@ -516,37 +539,27 @@ function! s:pgroup_open(statements, is_pty)"{{{
   let l:proc.kill = s:funcref('vp_pgroup_kill')
   let l:proc.waitpid = s:funcref('vp_pgroup_waitpid')
   let l:proc.is_valid = 1
+  if a:is_pty
+    let l:proc.ttyname = ''
+    let l:proc.get_winsize = s:funcref('vp_get_winsize')
+    let l:proc.set_winsize = s:funcref('vp_set_winsize')
+  endif
+  let l:proc.is_pty = a:is_pty
 
   return proc
 endfunction"}}}
 
 function! vimproc#ptyopen(args)"{{{
-  if type(a:args) == type('')
-    return vimproc#parser#ptyopen(a:args)
-  endif
-
-  if s:is_win
-    let [l:pid, l:fd_stdin, l:fd_stdout] = s:vp_pipe_open(2, 0, 0, 0,
-          \ s:convert_args(a:args))
-    let l:ttyname = ''
-
-    let l:proc = s:fdopen_pty(l:fd_stdin, l:fd_stdout, 'vp_pty_close', 'vp_pty_read', 'vp_pty_write')
+  if type(a:statements) == type('')
+    let l:statements = vimproc#parser#parse_statements(a:cmdline)
+    for l:statement in l:statements
+      let l:statement.statement = vimproc#parser#parse_pipe(l:statement.statement)
+    endfor
   else
-    let [l:pid, l:fd, l:ttyname] = s:vp_pty_open(winwidth(0)-5, winheight(0), s:convert_args(a:args))
-
-    let l:proc = s:fdopen(l:fd, 'vp_pty_close', 'vp_pty_read', 'vp_pty_write')
+    let l:statements = a:statements
   endif
 
-  let l:proc.pid = l:pid
-  let l:proc.ttyname = l:ttyname
-  let l:proc.get_winsize = s:funcref('vp_get_winsize')
-  let l:proc.set_winsize = s:funcref('vp_set_winsize')
-  let l:proc.kill = s:funcref('vp_kill')
-  let l:proc.waitpid = s:funcref('vp_waitpid')
-  let l:proc.is_valid = 1
-  let l:proc.is_pty = 1
-
-  return l:proc
+  return s:pgroup_open(a:statements, !s:is_win)
 endfunction"}}}
 
 function! vimproc#socket_open(host, port)"{{{
@@ -1097,63 +1110,34 @@ function! s:write_pgroup(str, ...) dict"{{{
   return l:nleft
 endfunction"}}}
 
-if s:is_win
-  " For Windows.
-  function! s:vp_pty_open(width, height, argv)
-    let l:cmdline = ''
-    for arg in a:argv
-      let l:cmdline .= '"' . substitute(arg, '"', '\\"', 'g') . '" '
-    endfor
-    let [l:pid, l:fd_stdin, l:fd_stdout, l:ttyname] = s:libcall('vp_pty_open',
-          \ [a:width, a:height, l:cmdline])
-    return [l:pid, l:fd_stdin, l:fd_stdout, l:ttyname]
-  endfunction
+function! s:vp_pty_open(hstdin, hstdout, hstderr, width, height, argv)
+  let [l:pid; l:fdlist] = s:libcall('vp_pty_open2',
+          \ [a:width, a:height, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
+  return [l:pid] + l:fdlist
+endfunction
 
-  function! s:vp_pty_close() dict
-    if self.fd_stdin != 0
-      call s:libcall('vp_pipe_close', [self.fd_stdin])
-      call s:libcall('vp_pipe_close', [self.fd_stdout])
-      let self.fd_stdin = 0
-      let self.fd_stdout = 0
-    endif
-  endfunction
+function! s:vp_pty_close() dict
+  call s:libcall('vp_pty_close', [self.fd])
+endfunction
 
-  function! s:vp_pty_read(number, timeout) dict
-    let [l:hd, l:eof] = s:libcall('vp_pipe_read', [self.fd_stdout, a:number, a:timeout])
-    return [l:hd, l:eof]
-  endfunction
+function! s:vp_pty_read(number, timeout) dict
+  let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd, a:number, a:timeout])
+  return [l:hd, l:eof]
+endfunction
 
-  function! s:vp_pty_write(hd, timeout) dict
-    let [l:nleft] = s:libcall('vp_pipe_write', [self.fd_stdin, a:hd, a:timeout])
-    return l:nleft
-  endfunction
-else
-  function! s:vp_pty_open(width, height, argv)
-    let [l:pid, l:fd, l:ttyname] = s:libcall('vp_pty_open',
-          \ [a:width, a:height, len(a:argv)] + a:argv)
-    return [l:pid, l:fd, l:ttyname]
-  endfunction
-
-  function! s:vp_pty_close() dict
-    call s:libcall('vp_pty_close', [self.fd])
-  endfunction
-
-  function! s:vp_pty_read(number, timeout) dict
-    let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd, a:number, a:timeout])
-    return [l:hd, l:eof]
-  endfunction
-
-  function! s:vp_pty_write(hd, timeout) dict
-    let [l:nleft] = s:libcall('vp_pty_write', [self.fd, a:hd, a:timeout])
-    return l:nleft
-  endfunction
-
-endif
+function! s:vp_pty_write(hd, timeout) dict
+  let [l:nleft] = s:libcall('vp_pty_write', [self.fd, a:hd, a:timeout])
+  return l:nleft
+endfunction
 
 function! s:vp_get_winsize() dict
-  let [width, height] = self.is_pty && !s:is_win
-        \ s:libcall('vp_pty_get_winsize', [self.fd]) :
-        \ [winwidth(0)-5, winheight(0)]
+  if self.is_pty && s:is_win
+    return [winwidth(0)-5, winheight(0)]
+  endif
+
+  for l:pid in self.pid_list
+    let [width, height] = s:libcall('vp_pty_get_winsize', [l:pid])
+  endfor
 
   return [width, height]
 endfunction
@@ -1165,11 +1149,21 @@ function! s:vp_set_winsize(width, height) dict
   endif
 
   if self.is_pty
-    call s:libcall('vp_pty_set_winsize', [self.fd, a:width-5, a:height])
+    if self.stdin >= 0
+      call s:libcall('vp_pty_set_winsize', [self.stdin, a:width-5, a:height])
+    endif
+    if self.stdout >= 0
+      call s:libcall('vp_pty_set_winsize', [self.stdout, a:width-5, a:height])
+    endif
+    if self.stderr >= 0
+      call s:libcall('vp_pty_set_winsize', [self.stderr, a:width-5, a:height])
+    endif
   endif
 
   " Send SIGWINCH = 28 signal.
-  call vimproc#kill(self.pid, 28)
+  for l:pid in self.pid_list
+    call vimproc#kill(l:pid, 28)
+  endfor
 endfunction
 
 function! s:vp_kill(sig) dict

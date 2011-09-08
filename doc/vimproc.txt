@@ -238,6 +238,7 @@ CHANGELOG					*vimproc-changelog*
 2011-09-08
 - Improved popen().
 - Improved interface.
+- Improved pty_open().
 
 2011-09-07
 - Implemented pty_open2(experimental).
