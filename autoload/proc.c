@@ -625,26 +625,26 @@ vp_pty_open2(char *args)
         fd[0][0] = fdm_in;
         fd[0][1] = fdm_in;
     }
-    if (hstdout) {
-        fd[1][1] = hstdout;
-        fd[1][0] = 0;
-    } else if (hstdout == 1) {
+    if (hstdout == 1) {
         if (pipe(fd[1]) < 0) {
             return vp_stack_return_error(&_result, "pipe() error: %s",
                     strerror(errno));
         }
+    } else if (hstdout) {
+        fd[1][1] = hstdout;
+        fd[1][0] = 0;
     } else {
         fd[1][1] = fdm_out;
         fd[1][0] = fdm_out;
     }
-    if (hstderr) {
-        fd[2][1] = hstderr;
-        fd[2][0] = 0;
-    } else if (hstderr == 1) {
+    if (hstderr == 1) {
         if (pipe(fd[2]) < 0) {
             return vp_stack_return_error(&_result, "pipe() error: %s",
                     strerror(errno));
         }
+    } else if (hstderr == 1) {
+        fd[2][1] = hstderr;
+        fd[2][0] = 0;
     } else {
         fd[2][1] = fdm_err;
         fd[2][0] = fdm_err;
@@ -669,9 +669,12 @@ vp_pty_open2(char *args)
         }
 
         if (fd[0][0] != STDIN_FILENO) {
-            fd[0][0] = open(ptsname(fdm_in), O_RDWR);
-            ioctl(fd[0][0], TIOCSCTTY, (char *)0);
-            ioctl(fd[0][0], TIOCSWINSZ, &ws);
+            if (hstdin != 0) {
+                fd[1][1] = open(ptsname(fdm_out), O_RDWR);
+                ioctl(fd[1][1], TIOCSCTTY, (char *)0);
+                ioctl(fd[1][1], TIOCSWINSZ, &ws);
+                tcsetattr(fd[1][1], TCSANOW, &ti);
+            }
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 close(fdm_in);
                 goto child_error;
@@ -681,7 +684,7 @@ vp_pty_open2(char *args)
         close(fdm_in);
 
         if (fd[1][1] != STDOUT_FILENO) {
-            if (hstdout != 1) {
+            if (hstdout != 0 && hstdout != 1) {
                 fd[1][1] = open(ptsname(fdm_out), O_RDWR);
                 ioctl(fd[1][1], TIOCSCTTY, (char *)0);
                 ioctl(fd[1][1], TIOCSWINSZ, &ws);
@@ -697,7 +700,7 @@ vp_pty_open2(char *args)
         close(fdm_out);
 
         if (fd[2][1] != STDERR_FILENO) {
-            if (hstderr != 1) {
+            if (hstderr != 0 && hstderr != 1) {
                 fd[2][1] = open(ptsname(fdm_err), O_RDWR);
                 ioctl(fd[2][1], TIOCSCTTY, (char *)0);
                 ioctl(fd[2][1], TIOCSWINSZ, &ws);

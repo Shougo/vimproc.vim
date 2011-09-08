@@ -1102,9 +1102,11 @@ function! s:write_pgroup(str, ...) dict"{{{
 endfunction"}}}
 
 function! s:vp_pty_open(width, height, hstdin, hstdout, hstderr, argv)
+  echomsg string([a:hstdin, a:hstdout, a:hstderr])
   let [l:pid; l:fdlist] = s:libcall('vp_pty_open2',
           \ [a:width, a:height,
           \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
+  echomsg string([l:pid] + l:fdlist)
   return [l:pid] + l:fdlist
 endfunction
 
