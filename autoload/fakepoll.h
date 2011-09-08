@@ -10,7 +10,6 @@
 
 /*  Updated Sep 2009:  */
 /*  * fix crash when an fd is less than 0 */
-/*  * set errno=EINVAL if an fd is greater or equal to FD_SETSIZE */
 /*  * don't set POLLIN or POLLOUT in revents if it wasn't requested  */
 /*    in events (only happens when an fd is in the poll set twice) */
 
@@ -18,9 +17,6 @@
 #define _FAKE_POLL_H
 
 #include <limits.h>
-#ifndef FD_SETSIZE
-#define FD_SETSIZE OPEN_MAX
-#endif
 #include <sys/types.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -84,7 +80,7 @@ int poll(struct pollfd *pollSet, int pollCount, int pollTimeout)
             if (p->fd > maxFD) maxFD = p->fd;
         }
 
-        if (maxFD >= FD_SETSIZE) {
+        if (maxFD >= sysconf(_SC_OPEN_MAX)) {
             /*  At least one fd is too big */
             errno = EINVAL;
             return -1;
