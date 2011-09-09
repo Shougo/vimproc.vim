@@ -686,7 +686,7 @@ vp_pty_open2(char *args)
                 ti.c_cflag |= CS8;
                 tcsetattr(fd[0][0], TCSANOW, &ti);
 
-                if (tcgetpgrp(fd[0][0]) < 0) {
+                // if (tcgetpgrp(fd[0][0]) < 0) {
                     /* Create new session. */
                     pgid = getpid();
                     if (pgid == -1) {
@@ -701,7 +701,7 @@ vp_pty_open2(char *args)
                     ioctl(fd[0][0], TIOCSCTTY, 1);
 
                     sigprocmask(SIG_SETMASK, &oldsigs, NULL);
-                }
+                // }
             }
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 goto child_error;
