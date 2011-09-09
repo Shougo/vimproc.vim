@@ -697,6 +697,7 @@ vp_pty_open2(char *args)
                     sigaddset(&sigs, SIGTTOU);
                     sigprocmask(SIG_BLOCK, &sigs, &oldsigs);
 
+                    ioctl(fd[0][0], TIOCSCTTY, 1);
                     tcsetpgrp(fd[0][0], pgid);
 
                     sigprocmask(SIG_SETMASK, &oldsigs, NULL);
