@@ -248,7 +248,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-09-07
 - Implemented pty_open2(experimental).
-- Ver.6 development is started.
+- Ver.6 development started.
 
 ------------------------------------------------------------------------------
 ChangeLog 5.0-5.4
@@ -273,7 +273,7 @@ ChangeLog 5.0-5.4
 
 2011-08-02
 - Improved garbage collect timing.
-- Ver.5.4 development is started.
+- Ver.5.4 development started.
 - Fixed resource leak in Windows environment!
 - Fixed waitpid().
 
@@ -350,7 +350,7 @@ ChangeLog 5.0-5.4
 
 2011-05-13
 - Added system_gui().
-- Ver.5.2 development is started.
+- Ver.5.2 development started.
 - Fixed some bugs.
 
 2011-05-08
@@ -513,7 +513,7 @@ ChangeLog 5.0-5.4
 - Improved :VimProcBang.
 
 2010-09-05
-- Ver.5 Development is started.
+- Ver.5 Development started.
 - Independented from vimshell.
 - Revised documentation.
 - Improved status.
@@ -672,7 +672,7 @@ ChangeLog 4.0
 - Fixed error.
 
 2010-04-20
-- Ver.4 development is started.
+- Ver.4 development started.
 - Implemented vimproc#version().
 - Splited parser.
 
