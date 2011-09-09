@@ -681,8 +681,9 @@ vp_pty_open2(char *args)
                 ti.c_cflag &= ~(CSIZE | PARENB);
                 ti.c_cflag |= CS8;
                 tcsetattr(fd[0][0], TCSANOW, &ti);
-            }
-            if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
+
+                login_tty(fd[0][0]);
+            } else if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 goto child_error;
             }
             close(fd[0][0]);
