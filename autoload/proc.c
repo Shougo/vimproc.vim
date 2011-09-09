@@ -31,9 +31,10 @@
 #include <poll.h>
 #endif
 
-/* for forkpty() */
+/* for forkpty() / login_tty() */
 #if defined __linux__ || defined __CYGWIN__
 # include <pty.h>
+# include <utmp.h>
 #elif defined __APPLE__ 
 # include <util.h>
 #else
@@ -628,7 +629,6 @@ vp_pty_open2(char *args)
             return vp_stack_return_error(&_result, "openpty() error: %s",
                     strerror(errno));
         }
-        ioctl(fd[1][1], TIOCSCTTY, NULL);
     }
     if (hstderr == 1) {
         if (pipe(fd[2]) < 0) {
@@ -654,6 +654,7 @@ vp_pty_open2(char *args)
         /* child */
         char **argv;
         int i;
+        struct termios ti;
 
         /* Close pipe */
         if (hstdin == 0) {
@@ -667,6 +668,20 @@ vp_pty_open2(char *args)
         }
 
         if (fd[0][0] != STDIN_FILENO) {
+            if (hstdin == 0) {
+                /* Set termios. */
+                if (tcgetattr(fd[0][0], &ti) < 0) {
+                    goto child_error;
+                }
+                ti.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+                        | INLCR | IGNCR | ICRNL | IXON);
+                ti.c_oflag &= ~OPOST;
+                ti.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+                ti.c_lflag |= ECHO | ECHONL;
+                ti.c_cflag &= ~(CSIZE | PARENB);
+                ti.c_cflag |= CS8;
+                tcsetattr(fd[0][0], TCSANOW, &ti);
+            }
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 goto child_error;
             }
@@ -686,9 +701,6 @@ vp_pty_open2(char *args)
             }
             close(fd[2][1]);
         }
-
-        setsid();
-        ioctl(fd[0][0], TIOCSCTTY, 0);
 
         argv = malloc(sizeof(char *) * (argc+1));
         if (argv == NULL) {
