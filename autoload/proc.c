@@ -574,8 +574,7 @@ vp_pty_open(char *args)
 
         vp_stack_push_num(&_result, "%d", pid);
         vp_stack_push_num(&_result, "%d", fdm);
-        /* XXX - ttyname(fdm) breaks in OS X */
-        vp_stack_push_str(&_result, "unused");
+        vp_stack_push_num(&_result, "%d", dup(fdm));
         return vp_stack_return(&_result);
     }
     /* DO NOT REACH HERE */
@@ -686,7 +685,7 @@ vp_pty_open2(char *args)
                 ti.c_cflag |= CS8;
                 tcsetattr(fd[0][0], TCSANOW, &ti);
 
-                // if (tcgetpgrp(fd[0][0]) < 0) {
+                if (tcgetpgrp(fd[0][0]) < 0) {
                     /* Create new session. */
                     pgid = getpid();
                     if (pgid == -1) {
@@ -701,7 +700,7 @@ vp_pty_open2(char *args)
                     ioctl(fd[0][0], TIOCSCTTY, 1);
 
                     sigprocmask(SIG_SETMASK, &oldsigs, NULL);
-                // }
+                }
             }
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 goto child_error;

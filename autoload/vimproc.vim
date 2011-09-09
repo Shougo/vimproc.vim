@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 08 Sep 2011.
+" Last Modified: 09 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -476,15 +476,19 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
 
     if len(l:pipe) == 4
       let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
+      call add(l:stderr_list, s:fdopen(l:fd_stderr,
+            \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     else
       let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
-      let l:fd_stderr = l:fd_stdout
+      call add(l:stderr_list, s:closed_fdopen(
+            \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
     endif
 
     call add(l:pid_list, l:pid)
-    call add(l:stdin_list, s:fdopen(l:fd_stdin, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
-    call add(l:stdout_list, s:fdopen(l:fd_stdout, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
-    call add(l:stderr_list, s:fdopen(l:fd_stderr, 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
+    call add(l:stdin_list, s:fdopen(l:fd_stdin,
+          \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
+    call add(l:stdout_list, s:fdopen(l:fd_stdout,
+          \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
 
     let l:hstdin = l:stdout_list[-1].fd
     let l:cnt += 1
@@ -495,9 +499,7 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
   let l:proc.pid = l:pid_list[-1]
   let l:proc.stdin = s:fdopen_pipes(l:stdin_list, 'vp_pipes_front_close', 'read_pipes', 'write_pipes')
   let l:proc.stdout = s:fdopen_pipes(l:stdout_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
-  if l:npipe == 3
-    let l:proc.stderr = s:fdopen_pipes(l:stderr_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
-  endif
+  let l:proc.stderr = s:fdopen_pipes(l:stderr_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
   let l:proc.get_winsize = s:funcref('vp_get_winsize')
   let l:proc.set_winsize = s:funcref('vp_set_winsize')
   let l:proc.kill = s:funcref('vp_kill')
@@ -744,6 +746,15 @@ function! s:fdopen(fd, f_close, f_read, f_write)"{{{
   return {
         \ 'fd' : a:fd,
         \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write),
+        \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
+        \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
+        \}
+endfunction"}}}
+function! s:closed_fdopen(f_close, f_read, f_write)"{{{
+  return {
+        \ 'fd' : -1,
+        \ 'eof' : 1, '__eof' : 1, 'is_valid' : 0, 'buffer' : '',
         \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write),
         \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
         \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
@@ -1017,6 +1028,7 @@ function! s:read_pipes(...) dict"{{{
   let l:timeout = get(a:000, 1, s:read_timeout)
 
   if self.fd[-1].eof
+    let self.eof = self.fd[-1].eof
     return ''
   endif
 
@@ -1107,6 +1119,8 @@ function! s:vp_pty_open(width, height, hstdin, hstdout, hstderr, argv)
   let [l:pid; l:fdlist] = s:libcall('vp_pty_open2',
           \ [a:width, a:height,
           \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
+  " let [l:pid; l:fdlist] = s:libcall('vp_pty_open',
+  "         \ [a:width, a:height, len(a:argv)] + a:argv)
   return [l:pid] + l:fdlist
 endfunction
 
