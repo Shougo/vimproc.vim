@@ -684,7 +684,7 @@ vp_pty_open2(char *args)
                 ti.c_lflag |= ECHO | ECHONL;
                 ti.c_cflag &= ~(CSIZE | PARENB);
                 ti.c_cflag |= CS8;
-                ioctl(fd[0][0], TCSETS, &ti);
+                tcsetattr(fd[0][0], TCSANOW, &ti);
 
                 if (tcgetpgrp(fd[0][0]) < 0) {
                     /* Create new session. */
