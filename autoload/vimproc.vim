@@ -464,9 +464,8 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
     endif
 
     if a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
-    " if 0
       " Use pty_open().
-      let l:pipe = s:vp_pty_open(winwidth(0)-5, winheight(0),
+      let l:pipe = s:vp_pty_open(l:npipe, winwidth(0)-5, winheight(0),
             \ l:hstdin, l:hstdout, l:hstderr,
             \ s:convert_args(l:command.args))
     else
@@ -1115,13 +1114,10 @@ function! s:write_pgroup(str, ...) dict"{{{
   return l:nleft
 endfunction"}}}
 
-function! s:vp_pty_open(width, height, hstdin, hstdout, hstderr, argv)
-  " let [l:pid; l:fdlist] = s:libcall('vp_pty_open2',
-  let [l:pid; l:fdlist] = s:libcall('vp_pty_open3',
-          \ [a:width, a:height,
+function! s:vp_pty_open(npipe, width, height, hstdin, hstdout, hstderr, argv)
+  let [l:pid; l:fdlist] = s:libcall('vp_pty_open',
+          \ [a:npipe, a:width, a:height,
           \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
-  " let [l:pid; l:fdlist] = s:libcall('vp_pty_open',
-  "         \ [a:width, a:height, len(a:argv)] + a:argv)
   return [l:pid] + l:fdlist
 endfunction
 

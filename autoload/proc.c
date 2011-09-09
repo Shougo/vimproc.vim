@@ -83,11 +83,9 @@ const char *vp_pipe_close(char *args);  /* [] (fd) */
 const char *vp_pipe_read(char *args);   /* [hd, eof] (fd, nr, timeout) */
 const char *vp_pipe_write(char *args);  /* [nleft] (fd, hd, timeout) */
 
-const char *vp_pty_open(char *args);    /* [pid, fd, ttyname]
-                                           (width, height, argc, [argv]) */
-const char *vp_pty_open2(char *args);
+const char *vp_pty_open(char *args);
 /* [pid, stdin, stdout, stderr]
-   (width, height,hstdin, hstdout, hstderr, argc, [argv]) */
+   (npipe, width, height,hstdin, hstdout, hstderr, argc, [argv]) */
 const char *vp_pty_close(char *args);   /* [] (fd) */
 const char *vp_pty_read(char *args);    /* [hd, eof] (fd, nr, timeout) */
 const char *vp_pty_write(char *args);   /* [nleft] (fd, hd, timeout) */
@@ -514,272 +512,18 @@ vp_pty_open(char *args)
 {
     vp_stack_t stack;
     int argc;
-    int fdm;
-    pid_t pid;
-    struct winsize ws = {0, 0, 0, 0};
-    struct termios ti;
-    int dummy;
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_col)));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_row)));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
-
-    /* Set termios parameter */
-    /*if (tcgetattr(STDIN_FILENO, &ti) < 0) {*/
-        /*[> tcgetattr will fail when gvim is executed from gnome menu. <]*/
-        /*[> Because, gvim hasn't terminal. <]*/
-        
-        /*[>return vp_stack_return_error(&_result, "tcgetattr() error: %s",<]*/
-                /*[>strerror(errno));<]*/
-        /*pid = forkpty(&fdm, NULL, NULL, &ws);*/
-    /*} else {*/
-        /*ti.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP*/
-                /*| INLCR | IGNCR | ICRNL | IXON);*/
-        /*ti.c_oflag &= ~OPOST;*/
-        /*ti.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);*/
-        /*ti.c_cflag &= ~(CSIZE | PARENB);*/
-        /*ti.c_cflag |= CS8;*/
-
-        /*pid = forkpty(&fdm, NULL, &ti, &ws);*/
-    /*}*/
-    pid = forkpty(&fdm, NULL, NULL, &ws);
-
-    if (pid < 0) {
-        return vp_stack_return_error(&_result, "forkpty() error: %s",
-                strerror(errno));
-    } else if (pid == 0) {
-        /* child */
-        char **argv;
-        int i;
-
-        argv = malloc(sizeof(char *) * (argc+1));
-        if (argv == NULL) {
-            goto child_error;
-        }
-        for (i = 0; i < argc; ++i) {
-            VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
-        }
-        argv[argc] = NULL;
-
-        if (execv(argv[0], argv) < 0) {
-            /* error */
-            free(argv);
-
-            goto child_error;
-        }
-        free(argv);
-    } else {
-        /* parent */
-
-        vp_stack_push_num(&_result, "%d", pid);
-        vp_stack_push_num(&_result, "%d", fdm);
-        vp_stack_push_num(&_result, "%d", dup(fdm));
-        return vp_stack_return(&_result);
-    }
-    /* DO NOT REACH HERE */
-    return NULL;
-
-    /* error */
-child_error:
-    dummy = write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
-    _exit(EXIT_FAILURE);
-}
-
-const char *
-vp_pty_open2(char *args)
-{
-    vp_stack_t stack;
-    int argc;
-    int fd[3][2];
-    pid_t pid;
-    struct winsize ws = {0, 0, 0, 0};
-    int dummy;
-    int hstdin, hstderr, hstdout;
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_col)));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_row)));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdin));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdout));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstderr));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
-
-    /* Set pipe */
-    if (hstdin) {
-        fd[0][0] = hstdin;
-        fd[0][1] = 0;
-    } else {
-        if (openpty(&fd[0][0], &fd[0][1], NULL, NULL, &ws) < 0) {
-            return vp_stack_return_error(&_result, "openpty() error: %s",
-                    strerror(errno));
-        }
-    }
-    if (hstdout == 1) {
-        if (pipe(fd[1]) < 0) {
-            return vp_stack_return_error(&_result, "pipe() error: %s",
-                    strerror(errno));
-        }
-    } else if (hstdout) {
-        fd[1][1] = hstdout;
-        fd[1][0] = 0;
-    } else {
-        if (openpty(&fd[1][0], &fd[1][1], NULL, NULL, &ws) < 0) {
-            return vp_stack_return_error(&_result, "openpty() error: %s",
-                    strerror(errno));
-        }
-    }
-    if (hstderr == 1) {
-        if (pipe(fd[2]) < 0) {
-            return vp_stack_return_error(&_result, "pipe() error: %s",
-                    strerror(errno));
-        }
-    } else if (hstderr == 1) {
-        fd[2][1] = hstderr;
-        fd[2][0] = 0;
-    } else {
-        if (openpty(&fd[2][0], &fd[2][1], NULL, NULL, &ws) < 0) {
-            return vp_stack_return_error(&_result, "openpty() error: %s",
-                    strerror(errno));
-        }
-        ioctl(fd[2][1], TIOCSCTTY, NULL);
-    }
-
-    pid = fork();
-    if (pid < 0) {
-        return vp_stack_return_error(&_result, "fork() error: %s",
-                strerror(errno));
-    } else if (pid == 0) {
-        /* child */
-        char **argv;
-        int i;
-        struct termios ti;
-
-        /* Close pipe */
-        if (hstdin == 0) {
-            close(fd[0][1]);
-        }
-        if (hstdout == 0 || hstdout == 1) {
-            close(fd[1][0]);
-        }
-        if (hstderr == 0 || hstderr == 1) {
-            close(fd[2][0]);
-        }
-
-        if (fd[0][0] != STDIN_FILENO) {
-            if (hstdin == 0) {
-                /* Set termios. */
-                if (tcgetattr(fd[0][0], &ti) < 0) {
-                    goto child_error;
-                }
-                ti.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-                        | INLCR | IGNCR | ICRNL | IXON);
-                ti.c_oflag &= ~OPOST;
-                ti.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-                ti.c_lflag |= ECHO | ECHONL;
-                ti.c_cflag &= ~(CSIZE | PARENB);
-                ti.c_cflag |= CS8;
-                tcsetattr(fd[0][0], TCSANOW, &ti);
-
-                if (tcgetpgrp(fd[0][0]) < 0) {
-                    pid_t pgid;
-                    sigset_t sigs;
-                    sigset_t oldsigs;
-
-                    /* Create new session. */
-                    pgid = getpid();
-                    if (pgid == -1) {
-                        return vp_stack_return_error(&_result, "getpid() error: %s",
-                                strerror(errno));
-                    }
-
-                    sigemptyset(&sigs);
-                    sigaddset(&sigs, SIGTTOU);
-                    sigprocmask(SIG_BLOCK, &sigs, &oldsigs);
-
-                    tcsetpgrp(fd[0][0], pgid);
-                    ioctl(fd[0][0], TIOCSCTTY, 1);
-
-                    sigprocmask(SIG_SETMASK, &oldsigs, NULL);
-                }
-            }
-            if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
-                goto child_error;
-            }
-            close(fd[0][0]);
-        }
-
-        if (fd[1][1] != STDOUT_FILENO) {
-            /* Set termios. */
-            if (dup2(fd[1][1], STDOUT_FILENO) != STDOUT_FILENO) {
-                goto child_error;
-            }
-            close(fd[1][1]);
-        }
-
-        if (fd[2][1] != STDERR_FILENO) {
-            if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
-                goto child_error;
-            }
-            close(fd[2][1]);
-        }
-
-        argv = malloc(sizeof(char *) * (argc+1));
-        if (argv == NULL) {
-            goto child_error;
-        }
-        for (i = 0; i < argc; ++i) {
-            VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
-        }
-        argv[argc] = NULL;
-
-        if (execv(argv[0], argv) < 0) {
-            /* error */
-            free(argv);
-
-            goto child_error;
-        }
-        free(argv);
-    } else {
-        /* parent */
-        if (hstdin == 0) {
-            close(fd[0][0]);
-        }
-        if (hstdout == 0 || hstdout == 1) {
-            close(fd[1][1]);
-        }
-        if (hstderr == 0 || hstderr == 1) {
-            close(fd[2][1]);
-        }
-
-        vp_stack_push_num(&_result, "%d", pid);
-        vp_stack_push_num(&_result, "%d", fd[0][1]);
-        vp_stack_push_num(&_result, "%d", fd[1][0]);
-        vp_stack_push_num(&_result, "%d", fd[2][0]);
-        return vp_stack_return(&_result);
-    }
-    /* DO NOT REACH HERE */
-    return NULL;
-
-    /* error */
-child_error:
-    dummy = write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
-    _exit(EXIT_FAILURE);
-}
-
-const char *
-vp_pty_open3(char *args)
-{
-    vp_stack_t stack;
-    int argc;
     int fd[3][2];
     pid_t pid;
     struct winsize ws = {0, 0, 0, 0};
     int dummy;
     int hstdin, hstderr, hstdout;
     int fdm;
+    int npipe;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &npipe));
+    if (npipe != 2 && npipe != 3)
+        return vp_stack_return_error(&_result, "npipe range error. wrong pipes.");
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_col)));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%hu", &(ws.ws_row)));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstdin));
@@ -801,20 +545,22 @@ vp_pty_open3(char *args)
         fd[1][1] = hstdout;
         fd[1][0] = 0;
     }
-    if (hstderr == 1) {
-        if (pipe(fd[2]) < 0) {
-            return vp_stack_return_error(&_result, "pipe() error: %s",
-                    strerror(errno));
+    if (npipe == 3) {
+        if (hstderr == 1) {
+            if (pipe(fd[2]) < 0) {
+                return vp_stack_return_error(&_result, "pipe() error: %s",
+                        strerror(errno));
+            }
+        } else if (hstderr == 1) {
+            fd[2][1] = hstderr;
+            fd[2][0] = 0;
+        } else {
+            if (openpty(&fd[2][0], &fd[2][1], NULL, NULL, &ws) < 0) {
+                return vp_stack_return_error(&_result, "openpty() error: %s",
+                        strerror(errno));
+            }
+            ioctl(fd[2][1], TIOCSCTTY, NULL);
         }
-    } else if (hstderr == 1) {
-        fd[2][1] = hstderr;
-        fd[2][0] = 0;
-    } else {
-        if (openpty(&fd[2][0], &fd[2][1], NULL, NULL, &ws) < 0) {
-            return vp_stack_return_error(&_result, "openpty() error: %s",
-                    strerror(errno));
-        }
-        ioctl(fd[2][1], TIOCSCTTY, NULL);
     }
 
     pid = forkpty(&fdm, NULL, NULL, &ws);
@@ -840,7 +586,7 @@ vp_pty_open3(char *args)
         if (hstdout == 1) {
             close(fd[1][0]);
         }
-        if (hstderr == 1) {
+        if (npipe == 3 && hstderr == 1) {
             close(fd[2][0]);
         }
 
@@ -859,7 +605,7 @@ vp_pty_open3(char *args)
             close(fd[1][1]);
         }
 
-        if (fd[2][1] != STDERR_FILENO) {
+        if (npipe == 3 && fd[2][1] != STDERR_FILENO) {
             if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
                 goto child_error;
             }
@@ -887,14 +633,16 @@ vp_pty_open3(char *args)
         if (hstdout == 1) {
             close(fd[1][1]);
         }
-        if (hstderr == 0 || hstderr == 1) {
+        if (npipe == 3 && (hstderr == 0 || hstderr == 1)) {
             close(fd[2][1]);
         }
 
         vp_stack_push_num(&_result, "%d", pid);
         vp_stack_push_num(&_result, "%d", fd[0][1]);
         vp_stack_push_num(&_result, "%d", fd[1][0]);
-        vp_stack_push_num(&_result, "%d", fd[2][0]);
+        if (npipe == 3) {
+            vp_stack_push_num(&_result, "%d", fd[2][0]);
+        }
         return vp_stack_return(&_result);
     }
     /* DO NOT REACH HERE */
