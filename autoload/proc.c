@@ -668,10 +668,6 @@ vp_pty_open2(char *args)
 
         if (fd[0][0] != STDIN_FILENO) {
             if (hstdin == 0) {
-                pid_t pgid;
-                sigset_t sigs;
-                sigset_t oldsigs;
-
                 /* Set termios. */
                 if (tcgetattr(fd[0][0], &ti) < 0) {
                     goto child_error;
@@ -686,10 +682,15 @@ vp_pty_open2(char *args)
                 tcsetattr(fd[0][0], TCSANOW, &ti);
 
                 if (tcgetpgrp(fd[0][0]) < 0) {
+                    pid_t pgid;
+                    sigset_t sigs;
+                    sigset_t oldsigs;
+
                     /* Create new session. */
                     pgid = getpid();
                     if (pgid == -1) {
-                        goto child_error;
+                        return vp_stack_return_error(&_result, "getpid() error: %s",
+                                strerror(errno));
                     }
 
                     sigemptyset(&sigs);
