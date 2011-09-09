@@ -555,8 +555,13 @@ function! s:pgroup_open(statements, is_pty)"{{{
   return proc
 endfunction"}}}
 
-function! vimproc#ptyopen(commands)"{{{
-  return vimproc#plineopen3(a:commands, !s:is_win)
+function! vimproc#ptyopen(commands, ...)"{{{
+  let l:commands = type(a:commands) == type('') ?
+        \ vimproc#parser#parse_pipe(a:commands) :
+        \ a:commands
+  let l:npipe = get(a:000, 0, 3)
+
+  return s:plineopen(l:npipe, l:commands, !s:is_win)
 endfunction"}}}
 
 function! vimproc#socket_open(host, port)"{{{
@@ -1115,8 +1120,14 @@ function! s:write_pgroup(str, ...) dict"{{{
 endfunction"}}}
 
 function! s:vp_pty_open(npipe, width, height, hstdin, hstdout, hstderr, argv)
+  let l:command = fnamemodify(a:argv[0], ':t:r')
+  let l:npipe = a:hstdin == 0 && a:hstdout == 0 && a:hstderr == 0
+        \ && has_key(g:vimproc_shell_commands, l:command)
+        \        && g:vimproc_shell_commands[l:command] ?
+        \ 2 : a:npipe
+
   let [l:pid; l:fdlist] = s:libcall('vp_pty_open',
-          \ [a:npipe, a:width, a:height,
+          \ [l:npipe, a:width, a:height,
           \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
   return [l:pid] + l:fdlist
 endfunction

@@ -154,7 +154,7 @@ vimproc#plineopen3({commands})			*vimproc#plineopen3()*
 vimproc#pgroup_open({commands}, [{is-pty}])	*vimproc#pgroup_open()*
 		Todo
 
-vimproc#ptyopen({args})				*vimproc#ptyopen()*
+vimproc#ptyopen({args}, [{npipe}])		*vimproc#ptyopen()*
 		Todo
 
 vimproc#kill({pid}, {sig})			*vimproc#kill()*
@@ -241,6 +241,7 @@ CHANGELOG					*vimproc-changelog*
 - Fixed forkpty().
 - Fixed pty problems.
 - Refactored pty.
+- Improved pty_open().
 
 2011-09-08
 - Fixed for Mac OS X.

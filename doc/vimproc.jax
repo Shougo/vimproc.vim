@@ -203,11 +203,11 @@ vimproc#pgroup_open({commands}, [{is-pty}])	*vimproc#pgroup_open()*
 		{is-pty}を1にすると、ptyが使用可能な環境の場合、ptyを使用して入
 		出力を行う。
 
-vimproc#ptyopen({args})				*vimproc#ptyopen()*
+vimproc#ptyopen({args}, [{npipe}])		*vimproc#ptyopen()*
 		{args}で指定されるコマンド列を実行し、プロセス情報を返す。
 		引数に文字列を指定すると、コマンドは自前のパーサによってパース
-		される。
-		パイプも解釈される。
+		される。{npipe}には、2か3を指定する。2を指定すると標準エラー出
+		力と標準出力は統合される。パイプも解釈される。
 		
 		{args}は引数を区切ったリストである。
 
