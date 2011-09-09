@@ -451,7 +451,10 @@ vp_pipe_open(char *args)
             goto child_error;
         }
         for (i = 0; i < argc; ++i) {
-            VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
+            if (vp_stack_pop_str(&stack, &(argv[i]))) {
+                free(argv);
+                goto child_error;
+            }
         }
         argv[argc] = NULL;
 
@@ -617,7 +620,10 @@ vp_pty_open(char *args)
             goto child_error;
         }
         for (i = 0; i < argc; ++i) {
-            VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &(argv[i])));
+            if (vp_stack_pop_str(&stack, &(argv[i]))) {
+                free(argv);
+                goto child_error;
+            }
         }
         argv[argc] = NULL;
 
