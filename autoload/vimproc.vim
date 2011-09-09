@@ -1116,7 +1116,8 @@ function! s:write_pgroup(str, ...) dict"{{{
 endfunction"}}}
 
 function! s:vp_pty_open(width, height, hstdin, hstdout, hstderr, argv)
-  let [l:pid; l:fdlist] = s:libcall('vp_pty_open2',
+  " let [l:pid; l:fdlist] = s:libcall('vp_pty_open2',
+  let [l:pid; l:fdlist] = s:libcall('vp_pty_open3',
           \ [a:width, a:height,
           \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
   " let [l:pid; l:fdlist] = s:libcall('vp_pty_open',

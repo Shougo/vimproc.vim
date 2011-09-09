@@ -239,6 +239,7 @@ CHANGELOG					*vimproc-changelog*
 - Fixed stdin problem.
 - Assign new terminal.
 - Fixed forkpty().
+- Fixed pty problems.
 
 2011-09-08
 - Fixed for Mac OS X.
