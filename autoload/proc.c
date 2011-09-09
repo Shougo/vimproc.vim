@@ -669,6 +669,10 @@ vp_pty_open2(char *args)
 
         if (fd[0][0] != STDIN_FILENO) {
             if (hstdin == 0) {
+                pid_t pgid;
+                sigset_t sigs;
+                sigset_t oldsigs;
+
                 /* Set termios. */
                 if (tcgetattr(fd[0][0], &ti) < 0) {
                     goto child_error;
@@ -680,12 +684,22 @@ vp_pty_open2(char *args)
                 ti.c_lflag |= ECHO | ECHONL;
                 ti.c_cflag &= ~(CSIZE | PARENB);
                 ti.c_cflag |= CS8;
-                tcsetattr(fd[0][0], TCSANOW, &ti);
+                ioctl(fd[0][0], TCSETS, &ti);
 
                 if (tcgetpgrp(fd[0][0]) < 0) {
-                    /* Create process group. */
-                    setsid();
-                    ioctl(fd[0][0], TIOCSCTTY,1);
+                    /* Create new session. */
+                    pgid = getpid();
+                    if (pgid == -1) {
+                        goto child_error;
+                    }
+
+                    sigemptyset(&sigs);
+                    sigaddset(&sigs, SIGTTOU);
+                    sigprocmask(SIG_BLOCK, &sigs, &oldsigs);
+
+                    tcsetpgrp(fd[0][0], pgid);
+
+                    sigprocmask(SIG_SETMASK, &oldsigs, NULL);
                 }
             }
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
