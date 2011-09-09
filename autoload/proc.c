@@ -682,8 +682,13 @@ vp_pty_open2(char *args)
                 ti.c_cflag |= CS8;
                 tcsetattr(fd[0][0], TCSANOW, &ti);
 
-                login_tty(fd[0][0]);
-            } else if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
+                if (tcgetpgrp(fd[0][0]) < 0) {
+                    /* Create process group. */
+                    setsid();
+                    ioctl(fd[0][0], TIOCSCTTY,1);
+                }
+            }
+            if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 goto child_error;
             }
             close(fd[0][0]);
