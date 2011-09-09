@@ -463,14 +463,22 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
       let l:npipe = 2
     endif
 
+    let l:args = s:convert_args(l:command.args)
+    let l:command_name = fnamemodify(l:args[0], ':t:r')
+    let l:pty_npipe = l:cnt == 0
+          \ && l:hstdin == 0 && l:hstdout == 0 && l:hstderr == 0
+          \ && has_key(g:vimproc_shell_commands, l:command_name)
+          \        && g:vimproc_shell_commands[l:command_name] ?
+          \ 2 : l:npipe
+
     if a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
       " Use pty_open().
-      let l:pipe = s:vp_pty_open(l:npipe, winwidth(0)-5, winheight(0),
+      let l:pipe = s:vp_pty_open(l:pty_npipe, winwidth(0)-5, winheight(0),
             \ l:hstdin, l:hstdout, l:hstderr,
-            \ s:convert_args(l:command.args))
+            \ l:args)
     else
-      let l:pipe = s:vp_pipe_open(l:npipe, l:hstdin, l:hstdout, l:hstderr,
-            \ s:convert_args(l:command.args))
+      let l:pipe = s:vp_pipe_open(l:pty_npipe, l:hstdin, l:hstdout, l:hstderr,
+            \ l:args)
     endif
 
     if len(l:pipe) == 4
@@ -1120,14 +1128,8 @@ function! s:write_pgroup(str, ...) dict"{{{
 endfunction"}}}
 
 function! s:vp_pty_open(npipe, width, height, hstdin, hstdout, hstderr, argv)
-  let l:command = fnamemodify(a:argv[0], ':t:r')
-  let l:npipe = a:hstdin == 0 && a:hstdout == 0 && a:hstderr == 0
-        \ && has_key(g:vimproc_shell_commands, l:command)
-        \        && g:vimproc_shell_commands[l:command] ?
-        \ 2 : a:npipe
-
   let [l:pid; l:fdlist] = s:libcall('vp_pty_open',
-          \ [l:npipe, a:width, a:height,
+          \ [a:npipe, a:width, a:height,
           \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
   return [l:pid] + l:fdlist
 endfunction

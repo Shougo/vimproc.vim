@@ -240,6 +240,13 @@ g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/proc.dll"
 		らかじめコンパイルしておかなければならない。このファイルが存
 		在しないとエラーになる。
 
+						*g:vimproc_shell_commands*
+				(default : plugin/vimproc.vimを参照せよ)
+g:vimproc_shell_commands
+		vimprocがシェルとして認識するコマンドを辞書形式で指定する。
+		辞書の値を1にすると、そのコマンドを対話形式で実行した場合、
+		標準エラー出力と標準出力は統合される。
+
 						*g:stdinencoding*
 g:stdinencoding			(default : 'termencoding'の値が使用される)
 		vimprocがプログラムへの標準入力を変換する際に使用するエンコーデ

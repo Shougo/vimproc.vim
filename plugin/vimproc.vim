@@ -36,6 +36,12 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
+if !exists('g:vimproc_shell_commands')
+  let g:vimproc_shell_commands = {
+        \ 'sh' : 1, 'bash' : 1, 'zsh' : 1, 'csh' : 1, 'tcsh' : 1,
+        \ 'tmux' : 1, 'screen' : 1,
+        \ }
+endif
 if !exists('g:stdinencoding')
   let g:stdinencoding = &termencoding
 endif
@@ -44,12 +50,6 @@ if !exists('g:stdoutencoding')
 endif
 if !exists('g:stderrencoding')
   let g:stderrencoding = &termencoding
-endif
-if !exists('g:vimproc_shell_commands')
-  let g:vimproc_shell_commands = {
-        \ 'sh' : 1, 'bash' : 1, 'zsh' : 1, 'csh' : 1, 'tcsh' : 1,
-        \ 'tmux' : 1, 'screen' : 1,
-        \ }
 endif
 
 command! -nargs=+ -complete=shellcmd VimProcBang call s:bang(<q-args>)
