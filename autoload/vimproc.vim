@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 09 Sep 2011.
+" Last Modified: 12 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1167,15 +1167,15 @@ function! s:vp_set_winsize(width, height) dict
   endif
 
   if self.is_pty
-    if self.stdin.eof >= 0
+    if self.stdin.eof == 0
       call s:libcall('vp_pty_set_winsize',
             \ [self.stdin.fd[-1].fd, a:width-5, a:height])
     endif
-    if self.stdout.eof >= 0
+    if self.stdout.eof == 0
       call s:libcall('vp_pty_set_winsize',
             \ [self.stdout.fd[0].fd, a:width-5, a:height])
     endif
-    if self.stderr.eof >= 0
+    if self.stderr.eof == 0
       call s:libcall('vp_pty_set_winsize',
             \ [self.stderr.fd[0].fd, a:width-5, a:height])
     endif
