@@ -483,19 +483,28 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
 
     if len(l:pipe) == 4
       let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
-      call add(l:stderr_list, s:fdopen(l:fd_stderr,
-            \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
+      let l:stderr = s:fdopen(l:fd_stderr,
+            \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
     else
       let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
-      call add(l:stderr_list, s:closed_fdopen(
-            \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
+      let l:stderr = s:closed_fdopen(
+            \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
     endif
 
     call add(l:pid_list, l:pid)
-    call add(l:stdin_list, s:fdopen(l:fd_stdin,
-          \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
-    call add(l:stdout_list, s:fdopen(l:fd_stdout,
-          \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write'))
+    let l:stdin = s:fdopen(l:fd_stdin,
+          \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
+    let l:stdin.is_pty = a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
+          \ && l:hstdin == 0
+    call add(l:stdin_list, l:stdin)
+    let l:stdout = s:fdopen(l:fd_stdout,
+          \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
+    let l:stdout.is_pty = a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
+          \ && l:hstdout == 0
+    call add(l:stdout_list, l:stdout)
+    let l:stderr.is_pty = a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
+          \ && l:hstderr == 0
+    call add(l:stderr_list, l:stderr)
 
     let l:hstdin = l:stdout_list[-1].fd
     let l:cnt += 1
@@ -1167,15 +1176,15 @@ function! s:vp_set_winsize(width, height) dict
   endif
 
   if self.is_pty
-    if self.stdin.eof == 0
+    if self.stdin.eof == 0 && self.stdin.fd[-1].is_pty
       call s:libcall('vp_pty_set_winsize',
             \ [self.stdin.fd[-1].fd, a:width-5, a:height])
     endif
-    if self.stdout.eof == 0
+    if self.stdout.eof == 0 && self.stdout.fd[0].is_pty
       call s:libcall('vp_pty_set_winsize',
             \ [self.stdout.fd[0].fd, a:width-5, a:height])
     endif
-    if self.stderr.eof == 0
+    if self.stderr.eof == 0 && self.stderr.fd[0].is_pty
       call s:libcall('vp_pty_set_winsize',
             \ [self.stderr.fd[0].fd, a:width-5, a:height])
     endif
