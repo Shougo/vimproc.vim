@@ -1170,7 +1170,7 @@ function! s:vp_get_winsize() dict
 endfunction
 
 function! s:vp_set_winsize(width, height) dict
-  if s:is_win
+  if s:is_win || !self.is_valid
     " Not implemented.
     return
   endif
