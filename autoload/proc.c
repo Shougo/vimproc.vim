@@ -562,7 +562,9 @@ vp_pty_open(char *args)
                 return vp_stack_return_error(&_result, "openpty() error: %s",
                         strerror(errno));
             }
+#ifdef TIOCSCTTY
             ioctl(fd[2][1], TIOCSCTTY, NULL);
+#endif
         }
     }
 

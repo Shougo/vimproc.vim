@@ -240,6 +240,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-09-15
+- Fixed for Cygwin.
+
 2011-09-12
 - Improved g:vimproc_shell_commands default value.
 
