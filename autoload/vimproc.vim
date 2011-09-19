@@ -120,7 +120,7 @@ function! vimproc#get_command_name(command, ...)"{{{
   " Escape ' ' and ".
   let path = escape(path, ' "')
 
-  let count = a:0 < 2 ? 1 : a:2
+  let cnt = a:0 < 2 ? 1 : a:2
 
   let command = expand(a:command)
 
@@ -136,7 +136,7 @@ function! vimproc#get_command_name(command, ...)"{{{
       throw printf('vimproc#get_command_name: File "%s" is not executable.', command)
     endif
 
-    return count < 0 ? [ command ] : command
+    return cnt < 0 ? [ command ] : command
   endif
 
   " Command search.
@@ -149,7 +149,7 @@ function! vimproc#get_command_name(command, ...)"{{{
     if fnamemodify(command, ':e') == ''
       let &l:suffixesadd = ''
       " for ext in split($PATHEXT . ';.LNK', ';')
-      "   let file = findfile(command . ext, path, count)
+      "   let file = findfile(command . ext, path, cnt)
       if command =~ '[/\\]'
         " Absolute path.
         let path = fnamemodify(command, ':h')
@@ -159,33 +159,33 @@ function! vimproc#get_command_name(command, ...)"{{{
         let path = substitute(path, ',\{2,}', ',', 'g')
       endif
 
-      let file = count < 0 ? [] : ''
+      let file = cnt < 0 ? [] : ''
       for head in split(path, ',')
         for ext in split($PATHEXT . ';.LNK', ';')
-          let findfile = findfile(command . tolower(ext), head, count)
-          if count >= 0 && findfile != ''
+          let findfile = findfile(command . tolower(ext), head, cnt)
+          if cnt >= 0 && findfile != ''
             let file = findfile
             break
-          elseif count < 0 && !empty(findfile)
+          elseif cnt < 0 && !empty(findfile)
             let file += findfile
           endif
         endfor
 
-        if count >= 0 && file != ''
+        if cnt >= 0 && file != ''
           break
         endif
       endfor
     else
       let &l:suffixesadd = substitute($PATHEXT . ';.LNK', ';', ',', 'g')
-      let file = findfile(command, path, count)
+      let file = findfile(command, path, cnt)
     endif
   else
     let &l:suffixesadd = ''
-    let file = findfile(command, path, count)
+    let file = findfile(command, path, cnt)
   endif
   let &l:suffixesadd = suffixesadd_save
 
-  if count < 0
+  if cnt < 0
     return map(filter(file, 'executable(v:val)'), 'fnamemodify(v:val, ":p")')
   else
     if file != ''
