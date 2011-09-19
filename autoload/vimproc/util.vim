@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 22 Apr 2011.
+" Last Modified: 19 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -38,8 +38,8 @@ function! vimproc#util#iconv(expr, from, to)"{{{
     return a:expr
   endif
 
-  let l:result = iconv(a:expr, a:from, a:to)
-  return l:result != '' ? l:result : a:expr
+  let result = iconv(a:expr, a:from, a:to)
+  return result != '' ? result : a:expr
 endfunction"}}}
 function! vimproc#util#termencoding()"{{{
   return s:is_win && &termencoding == '' ?
