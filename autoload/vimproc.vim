@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 18 Sep 2011.
+" Last Modified: 19 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -68,32 +68,32 @@ endif
 " API
 
 function! vimproc#open(filename)"{{{
-  let l:filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'), &encoding, vimproc#util#termencoding())
+  let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'), &encoding, vimproc#util#termencoding())
 
   " Detect desktop environment.
   if s:is_win
     " For URI only.
-    "execute '!start rundll32 url.dll,FileProtocolHandler' l:filename
+    "execute '!start rundll32 url.dll,FileProtocolHandler' filename
 
-    call s:libcall('vp_open', [l:filename])
+    call s:libcall('vp_open', [filename])
   elseif has('win32unix')
     " Cygwin.
-    call vimproc#system(['cygstart', l:filename])
+    call vimproc#system(['cygstart', filename])
   elseif executable('xdg-open')
     " Linux.
-    call vimproc#system_bg(['xdg-open', l:filename])
+    call vimproc#system_bg(['xdg-open', filename])
   elseif exists('$KDE_FULL_SESSION') && $KDE_FULL_SESSION ==# 'true'
     " KDE.
-    call vimproc#system_bg(['kioclient', 'exec', l:filename])
+    call vimproc#system_bg(['kioclient', 'exec', filename])
   elseif exists('$GNOME_DESKTOP_SESSION_ID')
     " GNOME.
-    call vimproc#system_bg(['gnome-open', l:filename])
+    call vimproc#system_bg(['gnome-open', filename])
   elseif executable('exo-open')
     " Xfce.
-    call vimproc#system_bg(['exo-open', l:filename])
+    call vimproc#system_bg(['exo-open', filename])
   elseif s:is_mac && executable('open')
     " Mac OS.
-    call vimproc#system_bg(['open', l:filename])
+    call vimproc#system_bg(['open', filename])
   else
     " Give up.
     throw 'vimproc#open: Not supported.'
@@ -106,104 +106,104 @@ function! vimproc#get_command_name(command, ...)"{{{
   endif
 
   if a:0 >= 1
-    let l:path = a:1
+    let path = a:1
   else
-    let l:path = $PATH
+    let path = $PATH
   endif
 
   " Expand path.
-  let l:path = substitute(l:path, (s:is_win ? ';' : ':'), ',', 'g')
+  let path = substitute(path, (s:is_win ? ';' : ':'), ',', 'g')
   if s:is_win
-    let l:path = substitute(l:path, '\\', '/', 'g')
+    let path = substitute(path, '\\', '/', 'g')
   endif
 
   " Escape ' ' and ".
-  let l:path = escape(l:path, ' "')
+  let path = escape(path, ' "')
 
-  let l:count = a:0 < 2 ? 1 : a:2
+  let count = a:0 < 2 ? 1 : a:2
 
-  let l:command = expand(a:command)
+  let command = expand(a:command)
 
-  let l:pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win && !s:is_msys ? '/\\' : '/')
-  if l:command =~ l:pattern && (!s:is_win || fnamemodify(l:command, ':e') != '')
-    if !executable(l:command)
-      let l:command = resolve(l:command)
+  let pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win && !s:is_msys ? '/\\' : '/')
+  if command =~ pattern && (!s:is_win || fnamemodify(command, ':e') != '')
+    if !executable(command)
+      let command = resolve(command)
     endif
 
-    if !filereadable(l:command)
-      throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
-    elseif !s:is_win && !executable(l:command)
-      throw printf('vimproc#get_command_name: File "%s" is not executable.', l:command)
+    if !filereadable(command)
+      throw printf('vimproc#get_command_name: File "%s" is not found.', command)
+    elseif !s:is_win && !executable(command)
+      throw printf('vimproc#get_command_name: File "%s" is not executable.', command)
     endif
 
-    return l:count < 0 ? [ l:command ] : l:command
+    return count < 0 ? [ command ] : command
   endif
 
   " Command search.
-  let l:suffixesadd_save = &l:suffixesadd
+  let suffixesadd_save = &l:suffixesadd
   if s:is_win
     " On Windows, findfile() search a file which don't have file extension
     " also. When there are 'perldoc', 'perldoc.bat' in your $PATH,
     " executable('perldoc')  return 1 cause by you have 'perldoc.bat'.
     " But findfile('perldoc', $PATH, 1) return whether file exist there.
-    if fnamemodify(l:command, ':e') == ''
+    if fnamemodify(command, ':e') == ''
       let &l:suffixesadd = ''
-      " for l:ext in split($PATHEXT . ';.LNK', ';')
-      "   let l:file = findfile(l:command . l:ext, l:path, l:count)
-      if l:command =~ '[/\\]'
+      " for ext in split($PATHEXT . ';.LNK', ';')
+      "   let file = findfile(command . ext, path, count)
+      if command =~ '[/\\]'
         " Absolute path.
-        let l:path = fnamemodify(l:command, ':h')
-        let l:command = fnamemodify(l:command, ':t')
+        let path = fnamemodify(command, ':h')
+        let command = fnamemodify(command, ':t')
       else
         " substitute ,, -> ,
-        let l:path = substitute(l:path, ',\{2,}', ',', 'g')
+        let path = substitute(path, ',\{2,}', ',', 'g')
       endif
 
-      let l:file = l:count < 0 ? [] : ''
-      for l:head in split(l:path, ',')
-        for l:ext in split($PATHEXT . ';.LNK', ';')
-          let l:findfile = findfile(l:command . tolower(l:ext), l:head, l:count)
-          if l:count >= 0 && l:findfile != ''
-            let l:file = l:findfile
+      let file = count < 0 ? [] : ''
+      for head in split(path, ',')
+        for ext in split($PATHEXT . ';.LNK', ';')
+          let findfile = findfile(command . tolower(ext), head, count)
+          if count >= 0 && findfile != ''
+            let file = findfile
             break
-          elseif l:count < 0 && !empty(l:findfile)
-            let l:file += l:findfile
+          elseif count < 0 && !empty(findfile)
+            let file += findfile
           endif
         endfor
 
-        if l:count >= 0 && l:file != ''
+        if count >= 0 && file != ''
           break
         endif
       endfor
     else
       let &l:suffixesadd = substitute($PATHEXT . ';.LNK', ';', ',', 'g')
-      let l:file = findfile(l:command, l:path, l:count)
+      let file = findfile(command, path, count)
     endif
   else
     let &l:suffixesadd = ''
-    let l:file = findfile(l:command, l:path, l:count)
+    let file = findfile(command, path, count)
   endif
-  let &l:suffixesadd = l:suffixesadd_save
+  let &l:suffixesadd = suffixesadd_save
 
-  if l:count < 0
-    return map(filter(l:file, 'executable(v:val)'), 'fnamemodify(v:val, ":p")')
+  if count < 0
+    return map(filter(file, 'executable(v:val)'), 'fnamemodify(v:val, ":p")')
   else
-    if l:file != ''
-      let l:file = fnamemodify(l:file, ':p')
+    if file != ''
+      let file = fnamemodify(file, ':p')
     endif
 
-    if !executable(l:command)
-      let l:file = resolve(l:file)
+    if !executable(command)
+      let file = resolve(file)
     endif
 
-    if l:file == ''
-      throw printf('vimproc#get_command_name: File "%s" is not found.', l:command)
-    elseif !s:is_win && !executable(l:file)
-      throw printf('vimproc#get_command_name: File "%s" is not executable.', l:file)
+    if file == ''
+      throw printf('vimproc#get_command_name: File "%s" is not found.', command)
+    elseif !s:is_win && !executable(file)
+      throw printf('vimproc#get_command_name: File "%s" is not executable.', file)
     endif
   endif
 
-  return l:file
+  return file
 endfunction"}}}
 
 function! s:system(cmdline, is_passwd, input, timeout)"{{{
@@ -214,37 +214,37 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
   endif
 
   " Open pipe.
-  let l:subproc = (type(a:cmdline[0]) == type('')) ?
+  let subproc = (type(a:cmdline[0]) == type('')) ?
         \ vimproc#popen3(a:cmdline) : vimproc#pgroup_open(a:cmdline)
 
   if a:input != ''
     " Write input.
-    call l:subproc.stdin.write(a:input)
+    call subproc.stdin.write(a:input)
   endif
 
   if a:timeout > 0 && has('reltime') && v:version >= 702
-    let l:start = reltime()
-    let l:timeout = 0
+    let start = reltime()
+    let timeout = 0
   else
-    let l:timeout = 0
+    let timeout = 0
   endif
 
   if !a:is_passwd
-    call l:subproc.stdin.close()
+    call subproc.stdin.close()
   endif
 
-  let l:output = ''
+  let output = ''
   let s:last_errmsg = ''
-  while !l:subproc.stdout.eof || !l:subproc.stderr.eof
-    if l:timeout > 0
+  while !subproc.stdout.eof || !subproc.stderr.eof
+    if timeout > 0
       " Check timeout.
-      let l:end = split(reltimestr(reltime(l:start)))[0] * 1000
-      if l:end > l:timeout && !l:subproc.stdout.eof
+      let end = split(reltimestr(reltime(start)))[0] * 1000
+      if end > timeout && !subproc.stdout.eof
         " Kill process.
         " 15 == SIGTERM
         try
-          call l:subproc.kill(15)
-          call l:subproc.waitpid()
+          call subproc.kill(15)
+          call subproc.waitpid()
         catch
           " Ignore error.
         endtry
@@ -253,65 +253,65 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
       endif
     endif
 
-    if !l:subproc.stdout.eof
-      let l:out = l:subproc.stdout.read(-1, 40)
+    if !subproc.stdout.eof
+      let out = subproc.stdout.read(-1, 40)
 
-      if a:is_passwd && l:out =~ s:password_regex
+      if a:is_passwd && out =~ s:password_regex
         redraw
 
         " Password input.
         set imsearch=0
-        let l:in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
+        let in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
 
-        call l:subproc.stdin.write(l:in)
+        call subproc.stdin.write(in)
       endif
 
-      let l:output .= l:out
+      let output .= out
     endif
 
-    if !l:subproc.stderr.eof
-      let l:out = l:subproc.stderr.read(-1, 40)
+    if !subproc.stderr.eof
+      let out = subproc.stderr.read(-1, 40)
 
-      if a:is_passwd && l:out =~ s:password_regex
+      if a:is_passwd && out =~ s:password_regex
         redraw
 
         " Password input.
         set imsearch=0
-        let l:in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
+        let in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
 
-        call l:subproc.stdin.write(l:in)
+        call subproc.stdin.write(in)
       endif
 
-      let s:last_errmsg .= l:out
-      let l:output .= l:out
+      let s:last_errmsg .= out
+      let output .= out
     endif
   endwhile
 
-  let [l:cond, l:status] = l:subproc.waitpid()
+  let [cond, status] = subproc.waitpid()
 
   " Newline convert.
   if s:is_mac
-    let l:output = substitute(l:output, '\r', '\n', 'g')
+    let output = substitute(output, '\r', '\n', 'g')
   elseif has('win32') || has('win64')
-    let l:output = substitute(l:output, '\r\n', '\n', 'g')
+    let output = substitute(output, '\r\n', '\n', 'g')
   endif
 
-  return l:output
+  return output
 endfunction"}}}
 function! vimproc#system(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
     if a:cmdline =~ '&\s*$'
-      let l:cmdline = substitute(a:cmdline, '&\s*$', '', '')
-      return vimproc#system_bg(l:cmdline)
+      let cmdline = substitute(a:cmdline, '&\s*$', '', '')
+      return vimproc#system_bg(cmdline)
     elseif (!has('unix') || a:cmdline !~ '^\s*man ')
       return call('vimproc#parser#system', [a:cmdline]+a:000)
     endif
   endif
 
-  let l:timeout = a:0 >= 2 ? a:2 : 0
-  let l:input = a:0 >= 1 ? a:1 : ''
+  let timeout = a:0 >= 2 ? a:2 : 0
+  let input = a:0 >= 1 ? a:1 : ''
 
-  return s:system(a:cmdline, 0, l:input, l:timeout)
+  return s:system(a:cmdline, 0, input, timeout)
 endfunction"}}}
 function! vimproc#system2(...)"{{{
   if empty(a:000)
@@ -319,42 +319,42 @@ function! vimproc#system2(...)"{{{
   endif
 
   if len(a:0) > 1
-    let l:args = deepcopy(a:000)
-    let l:args[1] = vimproc#util#iconv(l:args[1], &encoding, vimproc#util#stdinencoding())
+    let args = deepcopy(a:000)
+    let args[1] = vimproc#util#iconv(args[1], &encoding, vimproc#util#stdinencoding())
   else
-    let l:args = a:000
+    let args = a:000
   endif
-  let l:output = call('vimproc#system', l:args)
+  let output = call('vimproc#system', args)
 
   " This function converts application encoding to &encoding.
-  let l:output = vimproc#util#iconv(l:output, vimproc#util#stdoutencoding(), &encoding)
+  let output = vimproc#util#iconv(output, vimproc#util#stdoutencoding(), &encoding)
   let s:last_errmsg = vimproc#util#iconv(s:last_errmsg, vimproc#util#stderrencoding(), &encoding)
 
-  return l:output
+  return output
 endfunction"}}}
 function! vimproc#system_passwd(cmdline, ...)"{{{
   if type(a:cmdline) == type('')
     if a:cmdline =~ '&\s*$'
-      let l:cmdline = substitute(a:cmdline, '&\s*$', '', '')
-      return vimproc#system_bg(l:cmdline)
+      let cmdline = substitute(a:cmdline, '&\s*$', '', '')
+      return vimproc#system_bg(cmdline)
     elseif (!has('unix') || a:cmdline !~ '^\s*man ')
       return call('vimproc#parser#system', [a:cmdline]+a:000)
     endif
   endif
 
-  let l:timeout = a:0 >= 2 ? a:2 : 0
-  let l:input = a:0 >= 1 ? a:1 : ''
+  let timeout = a:0 >= 2 ? a:2 : 0
+  let input = a:0 >= 1 ? a:1 : ''
 
-  return s:system(a:cmdline, 1, l:input, l:timeout)
+  return s:system(a:cmdline, 1, input, timeout)
 endfunction"}}}
 function! vimproc#system_bg(cmdline)"{{{
   " Open pipe.
-  let l:subproc = vimproc#popen3(a:cmdline)
+  let subproc = vimproc#popen3(a:cmdline)
 
   " Close handles.
-  call s:close_all(l:subproc)
+  call s:close_all(subproc)
 
-  let s:bg_processes[l:subproc.pid] = l:subproc.pid
+  let s:bg_processes[subproc.pid] = subproc.pid
 
   return ''
 endfunction"}}}
@@ -375,157 +375,157 @@ function! vimproc#get_last_errmsg()"{{{
 endfunction"}}}
 
 function! vimproc#fopen(path, flags, ...)"{{{
-  let l:mode = get(a:000, 0, 0644)
-  let l:fd = s:vp_file_open(a:path, a:flags, l:mode)
-  let l:proc = s:fdopen(l:fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
-  return l:proc
+  let mode = get(a:000, 0, 0644)
+  let fd = s:vp_file_open(a:path, a:flags, mode)
+  let proc = s:fdopen(fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
+  return proc
 endfunction"}}}
 
 function! vimproc#popen2(args)"{{{
-  let l:args = type(a:args) == type('') ?
+  let args = type(a:args) == type('') ?
         \ vimproc#parser#split_args(a:args) :
         \ a:args
 
   return s:plineopen(2, [{
-        \ 'args' : l:args,
+        \ 'args' : args,
         \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
         \ }], 0)
 endfunction"}}}
 function! vimproc#popen3(args)"{{{
-  let l:args = type(a:args) == type('') ?
+  let args = type(a:args) == type('') ?
         \ vimproc#parser#split_args(a:args) :
         \ a:args
 
   return s:plineopen(3, [{
-        \ 'args' : l:args,
+        \ 'args' : args,
         \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
         \ }], 0)
 endfunction"}}}
 
 function! vimproc#plineopen2(commands)"{{{
-  let l:commands = type(a:commands) == type('') ?
+  let commands = type(a:commands) == type('') ?
         \ vimproc#parser#parse_pipe(a:commands) :
         \ a:commands
 
   return s:plineopen(2, a:commands, 0)
 endfunction"}}}
 function! vimproc#plineopen3(commands, ...)"{{{
-  let l:commands = type(a:commands) == type('') ?
+  let commands = type(a:commands) == type('') ?
         \ vimproc#parser#parse_pipe(a:commands) :
         \ a:commands
-  let l:is_pty = get(a:000, 0, 0)
+  let is_pty = get(a:000, 0, 0)
 
-  return s:plineopen(3, l:commands, l:is_pty)
+  return s:plineopen(3, commands, is_pty)
 endfunction"}}}
 function! s:plineopen(npipe, commands, is_pty)"{{{
-  let l:pid_list = []
-  let l:stdin_list = []
-  let l:stdout_list = []
-  let l:stderr_list = []
-  let l:npipe = a:npipe
+  let pid_list = []
+  let stdin_list = []
+  let stdout_list = []
+  let stderr_list = []
+  let npipe = a:npipe
 
   " Open input.
-  let l:hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
+  let hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
         \ 0 : vimproc#fopen(a:commands[0].fd.stdin, 'O_RDONLY').fd
 
-  let l:cnt = 0
-  for l:command in a:commands
-    if a:is_pty && l:command.fd.stdout == '' && l:cnt == 0
+  let cnt = 0
+  for command in a:commands
+    if a:is_pty && command.fd.stdout == '' && cnt == 0
           \ && len(a:commands) != 1
       " pty_open() use pipe.
-      let l:hstdout = 1
+      let hstdout = 1
     else
-      let l:mode = 'O_WRONLY | O_CREAT'
-      if l:command.fd.stdout =~ '^>'
-        let l:mode .= ' | O_APPEND'
-        let l:command.fd.stdout = l:command.fd.stdout[1:]
+      let mode = 'O_WRONLY | O_CREAT'
+      if command.fd.stdout =~ '^>'
+        let mode .= ' | O_APPEND'
+        let command.fd.stdout = command.fd.stdout[1:]
       endif
 
-      let l:hstdout = s:is_pseudo_device(l:command.fd.stdout) ?
-            \ 0 : vimproc#fopen(l:command.fd.stdout, l:mode).fd
+      let hstdout = s:is_pseudo_device(command.fd.stdout) ?
+            \ 0 : vimproc#fopen(command.fd.stdout, mode).fd
     endif
 
-    if a:is_pty && l:command.fd.stderr == '' && l:cnt == 0
+    if a:is_pty && command.fd.stderr == '' && cnt == 0
           \ && len(a:commands) != 1
       " pty_open() use pipe.
-      let l:hstderr = 1
+      let hstderr = 1
     else
-      let l:mode = 'O_WRONLY | O_CREAT'
-      if l:command.fd.stderr =~ '^>'
-        let l:mode .= ' | O_APPEND'
-        let l:command.fd.stderr = l:command.fd.stderr[1:]
+      let mode = 'O_WRONLY | O_CREAT'
+      if command.fd.stderr =~ '^>'
+        let mode .= ' | O_APPEND'
+        let command.fd.stderr = command.fd.stderr[1:]
       endif
-      let l:hstderr = s:is_pseudo_device(l:command.fd.stderr) ?
-            \ 0 : vimproc#fopen(l:command.fd.stderr, l:mode).fd
+      let hstderr = s:is_pseudo_device(command.fd.stderr) ?
+            \ 0 : vimproc#fopen(command.fd.stderr, mode).fd
     endif
 
-    if l:command.fd.stderr ==# '/dev/stdout'
-      let l:npipe = 2
+    if command.fd.stderr ==# '/dev/stdout'
+      let npipe = 2
     endif
 
-    let l:args = s:convert_args(l:command.args)
-    let l:command_name = fnamemodify(l:args[0], ':t:r')
-    let l:pty_npipe = l:cnt == 0
-          \ && l:hstdin == 0 && l:hstdout == 0 && l:hstderr == 0
-          \ && has_key(g:vimproc_shell_commands, l:command_name)
-          \        && g:vimproc_shell_commands[l:command_name] ?
-          \ 2 : l:npipe
+    let args = s:convert_args(command.args)
+    let command_name = fnamemodify(args[0], ':t:r')
+    let pty_npipe = cnt == 0
+          \ && hstdin == 0 && hstdout == 0 && hstderr == 0
+          \ && has_key(g:vimproc_shell_commands, command_name)
+          \        && g:vimproc_shell_commands[command_name] ?
+          \ 2 : npipe
 
-    if a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
+    if a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
       " Use pty_open().
-      let l:pipe = s:vp_pty_open(l:pty_npipe, winwidth(0)-5, winheight(0),
-            \ l:hstdin, l:hstdout, l:hstderr,
-            \ l:args)
+      let pipe = s:vp_pty_open(pty_npipe, winwidth(0)-5, winheight(0),
+            \ hstdin, hstdout, hstderr,
+            \ args)
     else
-      let l:pipe = s:vp_pipe_open(l:pty_npipe, l:hstdin, l:hstdout, l:hstderr,
-            \ l:args)
+      let pipe = s:vp_pipe_open(pty_npipe, hstdin, hstdout, hstderr,
+            \ args)
     endif
 
-    if len(l:pipe) == 4
-      let [l:pid, l:fd_stdin, l:fd_stdout, l:fd_stderr] = l:pipe
-      let l:stderr = s:fdopen(l:fd_stderr,
+    if len(pipe) == 4
+      let [pid, fd_stdin, fd_stdout, fd_stderr] = pipe
+      let stderr = s:fdopen(fd_stderr,
             \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
     else
-      let [l:pid, l:fd_stdin, l:fd_stdout] = l:pipe
-      let l:stderr = s:closed_fdopen(
+      let [pid, fd_stdin, fd_stdout] = pipe
+      let stderr = s:closed_fdopen(
             \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
     endif
 
     call add(l:pid_list, l:pid)
-    let l:stdin = s:fdopen(l:fd_stdin,
+    let stdin = s:fdopen(fd_stdin,
           \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-    let l:stdin.is_pty = a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
-          \ && l:hstdin == 0
-    call add(l:stdin_list, l:stdin)
-    let l:stdout = s:fdopen(l:fd_stdout,
+    let stdin.is_pty = a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
+          \ && hstdin == 0
+    call add(stdin_list, stdin)
+    let stdout = s:fdopen(fd_stdout,
           \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-    let l:stdout.is_pty = a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
-          \ && l:hstdout == 0
-    call add(l:stdout_list, l:stdout)
-    let l:stderr.is_pty = a:is_pty && (l:cnt == 0 || l:cnt == len(a:commands)-1)
-          \ && l:hstderr == 0
-    call add(l:stderr_list, l:stderr)
+    let stdout.is_pty = a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
+          \ && hstdout == 0
+    call add(stdout_list, stdout)
+    let stderr.is_pty = a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
+          \ && hstderr == 0
+    call add(stderr_list, stderr)
 
-    let l:hstdin = l:stdout_list[-1].fd
-    let l:cnt += 1
+    let hstdin = stdout_list[-1].fd
+    let cnt += 1
   endfor
 
-  let l:proc = {}
-  let l:proc.pid_list = l:pid_list
-  let l:proc.pid = l:pid_list[-1]
-  let l:proc.stdin = s:fdopen_pipes(l:stdin_list, 'vp_pipes_front_close', 'read_pipes', 'write_pipes')
-  let l:proc.stdout = s:fdopen_pipes(l:stdout_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
-  let l:proc.stderr = s:fdopen_pipes(l:stderr_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
-  let l:proc.get_winsize = s:funcref('vp_get_winsize')
-  let l:proc.set_winsize = s:funcref('vp_set_winsize')
-  let l:proc.kill = s:funcref('vp_kill')
-  let l:proc.waitpid = s:funcref('vp_waitpid')
-  let l:proc.is_valid = 1
-  let l:proc.is_pty = a:is_pty
+  let proc = {}
+  let proc.pid_list = pid_list
+  let proc.pid = pid_list[-1]
+  let proc.stdin = s:fdopen_pipes(stdin_list, 'vp_pipes_front_close', 'read_pipes', 'write_pipes')
+  let proc.stdout = s:fdopen_pipes(stdout_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
+  let proc.stderr = s:fdopen_pipes(stderr_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
+  let proc.get_winsize = s:funcref('vp_get_winsize')
+  let proc.set_winsize = s:funcref('vp_set_winsize')
+  let proc.kill = s:funcref('vp_kill')
+  let proc.waitpid = s:funcref('vp_waitpid')
+  let proc.is_valid = 1
+  let proc.is_pty = a:is_pty
   if a:is_pty
-    let l:proc.ttyname = ''
-    let l:proc.get_winsize = s:funcref('vp_get_winsize')
-    let l:proc.set_winsize = s:funcref('vp_set_winsize')
+    let proc.ttyname = ''
+    let proc.get_winsize = s:funcref('vp_get_winsize')
+    let proc.set_winsize = s:funcref('vp_set_winsize')
   endif
 
   return proc
@@ -540,50 +540,50 @@ endfunction"}}}
 
 function! vimproc#pgroup_open(statements, ...)"{{{
   if type(a:statements) == type('')
-    let l:statements = vimproc#parser#parse_statements(a:statements)
-    for l:statement in l:statements
-      let l:statement.statement = vimproc#parser#parse_pipe(l:statement.statement)
+    let statements = vimproc#parser#parse_statements(a:statements)
+    for statement in statements
+      let statement.statement = vimproc#parser#parse_pipe(statement.statement)
     endfor
   else
-    let l:statements = a:statements
+    let statements = a:statements
   endif
 
-  let l:is_pty = get(a:000, 0, 0)
+  let is_pty = get(a:000, 0, 0)
 
-  return s:pgroup_open(l:statements, l:is_pty && !s:is_win)
+  return s:pgroup_open(statements, is_pty && !s:is_win)
 endfunction"}}}
 
 function! s:pgroup_open(statements, is_pty)"{{{
-  let l:proc = {}
-  let l:proc.current_proc = vimproc#plineopen3(a:statements[0].statement, a:is_pty)
+  let proc = {}
+  let proc.current_proc = vimproc#plineopen3(a:statements[0].statement, a:is_pty)
 
-  let l:proc.pid = l:proc.current_proc.pid
-  let l:proc.pid_list = l:proc.current_proc.pid_list
-  let l:proc.condition = a:statements[0].condition
-  let l:proc.statements = a:statements[1:]
-  let l:proc.stdin = s:fdopen_pgroup(l:proc, l:proc.current_proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-  let l:proc.stdout = s:fdopen_pgroup(l:proc, l:proc.current_proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-  let l:proc.stderr = s:fdopen_pgroup(l:proc, l:proc.current_proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-  let l:proc.kill = s:funcref('vp_pgroup_kill')
-  let l:proc.waitpid = s:funcref('vp_pgroup_waitpid')
-  let l:proc.is_valid = 1
-  let l:proc.is_pty = 0
+  let proc.pid = proc.current_proc.pid
+  let proc.pid_list = proc.current_proc.pid_list
+  let proc.condition = a:statements[0].condition
+  let proc.statements = a:statements[1:]
+  let proc.stdin = s:fdopen_pgroup(proc, proc.current_proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let proc.stdout = s:fdopen_pgroup(proc, proc.current_proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let proc.stderr = s:fdopen_pgroup(proc, proc.current_proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let proc.kill = s:funcref('vp_pgroup_kill')
+  let proc.waitpid = s:funcref('vp_pgroup_waitpid')
+  let proc.is_valid = 1
+  let proc.is_pty = 0
 
   return proc
 endfunction"}}}
 
 function! vimproc#ptyopen(commands, ...)"{{{
-  let l:commands = type(a:commands) == type('') ?
+  let commands = type(a:commands) == type('') ?
         \ vimproc#parser#parse_pipe(a:commands) :
         \ a:commands
-  let l:npipe = get(a:000, 0, 3)
+  let npipe = get(a:000, 0, 3)
 
-  return s:plineopen(l:npipe, l:commands, !s:is_win)
+  return s:plineopen(npipe, commands, !s:is_win)
 endfunction"}}}
 
 function! vimproc#socket_open(host, port)"{{{
-  let l:fd = s:vp_socket_open(a:host, a:port)
-  return s:fdopen(l:fd, 'vp_socket_close', 'vp_socket_read', 'vp_socket_write')
+  let fd = s:vp_socket_open(a:host, a:port)
+  return s:fdopen(fd, 'vp_socket_close', 'vp_socket_read', 'vp_socket_write')
 endfunction"}}}
 
 function! vimproc#kill(pid, sig)"{{{
@@ -637,58 +637,58 @@ function! vimproc#write(filename, string, ...)"{{{
     return
   endif
 
-  let l:mode = get(a:000, 0,
+  let mode = get(a:000, 0,
         \ a:filename =~ '^>' ? 'a' : 'w')
 
-  let l:filename = a:filename =~ '^>' ?
+  let filename = a:filename =~ '^>' ?
         \ a:filename[1:] : a:filename
 
-  if l:filename ==# '/dev/null'
+  if filename ==# '/dev/null'
     " Nothing.
-  elseif l:filename ==# '/dev/clip'
+  elseif filename ==# '/dev/clip'
     " Write to clipboard.
 
-    if l:mode =~ 'a'
+    if mode =~ 'a'
       let @+ .= a:string
     else
       let @+ = a:string
     endif
-  elseif l:filename ==# '/dev/quickfix'
+  elseif filename ==# '/dev/quickfix'
     " Write to quickfix.
-    let l:qflist = getqflist()
+    let qflist = getqflist()
 
     for str in split(a:string, '\n\|\r\n')
       if str =~ '^.\+:.\+:.\+$'
-        let l:line = split(str[2:], ':')
-        let l:filename = str[:1] . l:line[0]
+        let line = split(str[2:], ':')
+        let filename = str[:1] . line[0]
 
-        if len(l:line) >= 3 && l:line[1] =~ '^\d\+$'
-          call add(l:qflist, {
-                \ 'filename' : l:filename,
-                \ 'lnum' : l:line[1],
-                \ 'text' : join(l:line[2:], ':'),
+        if len(line) >= 3 && line[1] =~ '^\d\+$'
+          call add(qflist, {
+                \ 'filename' : filename,
+                \ 'lnum' : line[1],
+                \ 'text' : join(line[2:], ':'),
                 \ })
         else
-          call add(l:qflist, {
+          call add(qflist, {
                 \ 'text' : str,
                 \ })
         endif
       endif
     endfor
 
-    call setqflist(l:qflist)
+    call setqflist(qflist)
   else
     " Write file.
 
-    let l:mode = 'O_WRONLY | O_CREAT'
-    if l:mode =~ 'a'
+    let mode = 'O_WRONLY | O_CREAT'
+    if mode =~ 'a'
       " Append mode.
-      let l:mode .= '| O_APPEND'
+      let mode .= '| O_APPEND'
     endif
 
-    let l:hfile = vimproc#fopen(l:filename, l:mode)
-    call l:hfile.write(a:string)
-    call l:hfile.close()
+    let hfile = vimproc#fopen(filename, mode)
+    call hfile.write(a:string)
+    call hfile.close()
   endif
 endfunction"}}}
 
@@ -714,53 +714,53 @@ function! s:close() dict"{{{
   let self.fd = -1
 endfunction"}}}
 function! s:read(...) dict"{{{
-  let l:output = self.buffer
+  let output = self.buffer
   let self.buffer = ''
   if self.__eof
     let self.eof = 1
-    return l:output
+    return output
   endif
 
-  let l:number = get(a:000, 0, -1)
-  let l:timeout = get(a:000, 1, s:read_timeout)
-  let [l:hd, l:eof] = self.f_read(l:number, l:timeout)
-  let self.eof = l:eof
-  let self.__eof = l:eof
+  let number = get(a:000, 0, -1)
+  let timeout = get(a:000, 1, s:read_timeout)
+  let [hd, eof] = self.f_read(number, timeout)
+  let self.eof = eof
+  let self.__eof = eof
 
-  return l:output . s:hd2str([l:hd])
+  return output . s:hd2str([hd])
 endfunction"}}}
 function! s:read_lines(...) dict"{{{
-  let l:res = ''
+  let res = ''
 
-  while !self.eof && stridx(l:res, "\n") < 0
-    let l:res .= call(self.read, a:000, self)
+  while !self.eof && stridx(res, "\n") < 0
+    let res .= call(self.read, a:000, self)
   endwhile
 
-  let l:lines = split(l:res, '\r\?\n', 1)
+  let lines = split(res, '\r\?\n', 1)
 
   if self.eof
     let self.buffer = ''
-    return l:lines
+    return lines
   else
-    let self.buffer = empty(l:lines)? '' : l:lines[-1]
-    let l:lines = l:lines[ : -2]
+    let self.buffer = empty(lines)? '' : lines[-1]
+    let lines = lines[ : -2]
   endif
 
   let self.eof = (self.buffer != '') ? 0 : self.__eof
-  return l:lines
+  return lines
 endfunction"}}}
 function! s:read_line(...) dict"{{{
-  let l:lines = call(self.read_lines, a:000, self)
-  let self.buffer = join(l:lines[1:], "\n") . self.buffer
+  let lines = call(self.read_lines, a:000, self)
+  let self.buffer = join(lines[1:], "\n") . self.buffer
   let self.eof = (self.buffer != '') ? 0 : self.__eof
 
-  return get(l:lines, 0, '')
+  return get(lines, 0, '')
 endfunction"}}}
 
 function! s:write(str, ...) dict"{{{
-  let l:timeout = get(a:000, 0, s:write_timeout)
-  let l:hd = s:str2hd(a:str)
-  return self.f_write(l:hd, l:timeout)
+  let timeout = get(a:000, 0, s:write_timeout)
+  let hd = s:str2hd(a:str)
+  return self.f_write(hd, timeout)
 endfunction"}}}
 
 function! s:fdopen(fd, f_close, f_read, f_write)"{{{
@@ -813,10 +813,10 @@ function! s:garbage_collect()"{{{
   for pid in values(s:bg_processes)
     " Check processes.
     try
-      let [l:cond, l:status] = s:libcall('vp_waitpid', [pid])
-      " echomsg string([pid, l:cond, l:status])
-      if l:cond !=# 'run'
-        if l:cond !=# 'exit'
+      let [cond, status] = s:libcall('vp_waitpid', [pid])
+      " echomsg string([pid, cond, status])
+      if cond !=# 'run'
+        if cond !=# 'exit'
           " Kill process.
           " 15 == SIGTERM
           call vimproc#kill(pid, 15)
@@ -886,21 +886,21 @@ function! s:analyze_shebang(filename)"{{{
     return [a:filename]
   endif
 
-  let l:lines = readfile(a:filename, '', 1)
-  if empty(l:lines) || l:lines[0] !~ '^#!.\+'
+  let lines = readfile(a:filename, '', 1)
+  if empty(lines) || lines[0] !~ '^#!.\+'
     " Shebang not found.
     return [a:filename]
   endif
 
   " Get shebang line.
-  let l:shebang = split(matchstr(l:lines[0], '^#!\zs.\+'))
+  let shebang = split(matchstr(lines[0], '^#!\zs.\+'))
 
   " Convert command name.
-  if s:is_win && l:shebang[0] =~ '^/'
-    let l:shebang[0] = vimproc#get_command_name(fnamemodify(l:shebang[0], ':t'))
+  if s:is_win && shebang[0] =~ '^/'
+    let shebang[0] = vimproc#get_command_name(fnamemodify(shebang[0], ':t'))
   endif
 
-  return l:shebang + [a:filename]
+  return shebang + [a:filename]
 endfunction"}}}
 
 "-----------------------------------------------------------
@@ -920,15 +920,15 @@ let s:bg_processes = {}
 
 function! s:libcall(func, args)"{{{
   " End Of Value
-  let l:EOV = "\xFF"
-  let l:args = empty(a:args) ? '' : (join(reverse(copy(a:args)), l:EOV) . l:EOV)
-  let l:stack_buf = libcall(g:vimproc_dll_path, a:func, l:args)
-  let l:result = split(l:stack_buf, '[\xFF]', 1)
-  if !empty(l:result) && l:result[-1] != ''
-    let s:lasterr = l:result
-    let l:msg = vimproc#util#iconv(string(l:result), vimproc#util#termencoding(), &encoding)
+  let EOV = "\xFF"
+  let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), EOV) . EOV)
+  let stack_buf = libcall(g:vimproc_dll_path, a:func, args)
+  let result = split(stack_buf, '[\xFF]', 1)
+  if !empty(result) && result[-1] != ''
+    let s:lasterr = result
+    let msg = vimproc#util#iconv(string(result), vimproc#util#termencoding(), &encoding)
 
-    throw printf('proc: %s: %s', a:func, l:msg)
+    throw printf('proc: %s: %s', a:func, msg)
   endif
   return l:result[:-2]
 endfunction"}}}
@@ -962,8 +962,8 @@ function! s:vp_dlclose(handle)
 endfunction
 
 function! s:vp_file_open(path, flags, mode)
-  let [l:fd] = s:libcall('vp_file_open', [a:path, a:flags, a:mode])
-  return l:fd
+  let [fd] = s:libcall('vp_file_open', [a:path, a:flags, a:mode])
+  return fd
 endfunction
 
 function! s:vp_file_close() dict
@@ -975,36 +975,36 @@ endfunction
 
 function! s:vp_file_read(number, timeout) dict
   let self.buffer = ''
-  let [l:hd, l:eof] = s:libcall('vp_file_read', [self.fd, a:number, a:timeout])
-  let l:hd = self.buffer . l:hd
-  return [l:hd, l:eof]
+  let [hd, eof] = s:libcall('vp_file_read', [self.fd, a:number, a:timeout])
+  let hd = self.buffer . hd
+  return [hd, eof]
 endfunction
 
 function! s:vp_file_write(hd, timeout) dict
-  let [l:nleft] = s:libcall('vp_file_write', [self.fd, a:hd, a:timeout])
-  return l:nleft
+  let [nleft] = s:libcall('vp_file_write', [self.fd, a:hd, a:timeout])
+  return nleft
 endfunction
 
 function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
   if s:is_win
-    let l:cmdline = ''
+    let cmdline = ''
     for arg in a:argv
-      let l:cmdline .= '"' . substitute(arg, '"', '\\"', 'g') . '" '
+      let cmdline .= '"' . substitute(arg, '"', '\\"', 'g') . '" '
     endfor
-    let [l:pid; l:fdlist] = s:libcall('vp_pipe_open',
-          \ [a:npipe, a:hstdin, a:hstdout, a:hstderr, l:cmdline])
+    let [pid; fdlist] = s:libcall('vp_pipe_open',
+          \ [a:npipe, a:hstdin, a:hstdout, a:hstderr, cmdline])
   else
-    let [l:pid; l:fdlist] = s:libcall('vp_pipe_open',
+    let [pid; fdlist] = s:libcall('vp_pipe_open',
           \ [a:npipe, a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
   endif
 
-  if a:npipe != len(l:fdlist)
-    echoerr 'Bug behavior is detected!: ' . l:pid
+  if a:npipe != len(fdlist)
+    echoerr 'Bug behavior is detected!: ' . pid
     echoerr printf('a:npipe = %d, a:argv = %s', a:npipe, string(a:argv))
-    echoerr printf('l:fdlist = %s', string(l:fdlist))
+    echoerr printf('fdlist = %s', string(fdlist))
   endif
 
-  return [l:pid] + l:fdlist
+  return [pid] + fdlist
 endfunction"}}}
 
 function! s:vp_pipe_close() dict
@@ -1031,8 +1031,8 @@ function! s:vp_pipe_read(number, timeout) dict
     return ['', 1]
   endif
 
-  let [l:hd, l:eof] = s:libcall('vp_pipe_read', [self.fd, a:number, a:timeout])
-  return [l:hd, l:eof]
+  let [hd, eof] = s:libcall('vp_pipe_read', [self.fd, a:number, a:timeout])
+  return [hd, eof]
 endfunction
 
 function! s:vp_pipe_write(hd, timeout) dict
@@ -1040,47 +1040,47 @@ function! s:vp_pipe_write(hd, timeout) dict
     return 0
   endif
 
-  let [l:nleft] = s:libcall('vp_pipe_write', [self.fd, a:hd, a:timeout])
-  return l:nleft
+  let [nleft] = s:libcall('vp_pipe_write', [self.fd, a:hd, a:timeout])
+  return nleft
 endfunction
 
 function! s:read_pipes(...) dict"{{{
-  let l:number = get(a:000, 0, -1)
-  let l:timeout = get(a:000, 1, s:read_timeout)
+  let number = get(a:000, 0, -1)
+  let timeout = get(a:000, 1, s:read_timeout)
 
   if self.fd[-1].eof
     let self.eof = self.fd[-1].eof
     return ''
   endif
 
-  let l:output = self.fd[-1].read(l:number, l:timeout)
+  let output = self.fd[-1].read(number, timeout)
   let self.eof = self.fd[-1].eof
 
-  return l:output
+  return output
 endfunction"}}}
 
 function! s:write_pipes(str, ...) dict"{{{
-  let l:timeout = get(a:000, 0, s:write_timeout)
+  let timeout = get(a:000, 0, s:write_timeout)
 
   if self.fd[0].eof
     return 0
   endif
 
   " Write data.
-  let l:nleft = self.fd[0].write(a:str, l:timeout)
+  let nleft = self.fd[0].write(a:str, timeout)
   let self.eof = self.fd[0].eof
 
-  return l:nleft
+  return nleft
 endfunction"}}}
 
 function! s:read_pgroup(...) dict"{{{
-  let l:number = get(a:000, 0, -1)
-  let l:timeout = get(a:000, 1, s:read_timeout)
+  let number = get(a:000, 0, -1)
+  let timeout = get(a:000, 1, s:read_timeout)
 
-  let l:output = ''
+  let output = ''
 
   if !self.fd.eof
-    let l:output = self.fd.read(l:number, l:timeout)
+    let output = self.fd.read(number, timeout)
   endif
 
   if self.proc.current_proc.stdout.eof
@@ -1095,52 +1095,52 @@ function! s:read_pgroup(...) dict"{{{
 
   if self.proc.current_proc.stdout.eof && self.proc.current_proc.stderr.eof
     " Get status.
-    let [l:cond, l:status] = self.proc.current_proc.waitpid()
+    let [cond, status] = self.proc.current_proc.waitpid()
 
     if empty(self.proc.statements)
-          \ || (self.proc.condition ==# 'true' && l:status)
-          \ || (self.proc.condition ==# 'false' && !l:status)
+          \ || (self.proc.condition ==# 'true' && status)
+          \ || (self.proc.condition ==# 'false' && !status)
       let self.proc.statements = []
 
       " Caching status.
-      let self.proc.cond = l:cond
-      let self.proc.status = l:status
+      let self.proc.cond = cond
+      let self.proc.status = status
     else
       " Initialize next statement.
-      let l:proc = vimproc#plineopen3(self.proc.statements[0].statement)
-      let self.proc.current_proc = l:proc
+      let proc = vimproc#plineopen3(self.proc.statements[0].statement)
+      let self.proc.current_proc = proc
 
-      let self.pid = l:proc.pid
-      let self.pid_list = l:proc.pid_list
+      let self.pid = proc.pid
+      let self.pid_list = proc.pid_list
       let self.proc.condition = self.proc.statements[0].condition
       let self.proc.statements = self.proc.statements[1:]
 
-      let self.proc.stdin = s:fdopen_pgroup(self.proc, l:proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-      let self.proc.stdout = s:fdopen_pgroup(self.proc, l:proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-      let self.proc.stderr = s:fdopen_pgroup(self.proc, l:proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+      let self.proc.stdin = s:fdopen_pgroup(self.proc, proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+      let self.proc.stdout = s:fdopen_pgroup(self.proc, proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+      let self.proc.stderr = s:fdopen_pgroup(self.proc, proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
     endif
   endif
 
-  return l:output
+  return output
 endfunction"}}}
 
 function! s:write_pgroup(str, ...) dict"{{{
-  let l:timeout = get(a:000, 0, s:write_timeout)
+  let timeout = get(a:000, 0, s:write_timeout)
 
-  let l:nleft = 0
+  let nleft = 0
   if !self.fd.eof
     " Write data.
-    let l:nleft = self.fd.write(a:str, l:timeout)
+    let nleft = self.fd.write(a:str, timeout)
   endif
 
-  return l:nleft
+  return nleft
 endfunction"}}}
 
 function! s:vp_pty_open(npipe, width, height, hstdin, hstdout, hstderr, argv)
-  let [l:pid; l:fdlist] = s:libcall('vp_pty_open',
+  let [pid; fdlist] = s:libcall('vp_pty_open',
           \ [a:npipe, a:width, a:height,
           \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
-  return [l:pid] + l:fdlist
+  return [pid] + fdlist
 endfunction
 
 function! s:vp_pty_close() dict
@@ -1148,13 +1148,13 @@ function! s:vp_pty_close() dict
 endfunction
 
 function! s:vp_pty_read(number, timeout) dict
-  let [l:hd, l:eof] = s:libcall('vp_pty_read', [self.fd, a:number, a:timeout])
-  return [l:hd, l:eof]
+  let [hd, eof] = s:libcall('vp_pty_read', [self.fd, a:number, a:timeout])
+  return [hd, eof]
 endfunction
 
 function! s:vp_pty_write(hd, timeout) dict
-  let [l:nleft] = s:libcall('vp_pty_write', [self.fd, a:hd, a:timeout])
-  return l:nleft
+  let [nleft] = s:libcall('vp_pty_write', [self.fd, a:hd, a:timeout])
+  return nleft
 endfunction
 
 function! s:vp_get_winsize() dict
@@ -1162,8 +1162,8 @@ function! s:vp_get_winsize() dict
     return [winwidth(0)-5, winheight(0)]
   endif
 
-  for l:pid in self.pid_list
-    let [width, height] = s:libcall('vp_pty_get_winsize', [l:pid])
+  for pid in self.pid_list
+    let [width, height] = s:libcall('vp_pty_get_winsize', [pid])
   endfor
 
   return [width, height]
@@ -1191,8 +1191,8 @@ function! s:vp_set_winsize(width, height) dict
   endif
 
   " Send SIGWINCH = 28 signal.
-  for l:pid in self.pid_list
-    call vimproc#kill(l:pid, 28)
+  for pid in self.pid_list
+    call vimproc#kill(pid, 28)
   endfor
 endfunction
 
@@ -1224,9 +1224,9 @@ endfunction
 
 function! s:waitpid(pid)
   try
-    let [l:cond, l:status] = s:libcall('vp_waitpid', [a:pid])
-    " echomsg string([l:cond, l:status])
-    if l:cond ==# 'run'
+    let [cond, status] = s:libcall('vp_waitpid', [a:pid])
+    " echomsg string([cond, status])
+    if cond ==# 'run'
       " Kill process.
       " 15 == SIGTERM
       call vimproc#kill(a:pid, 15)
@@ -1234,17 +1234,17 @@ function! s:waitpid(pid)
       " Add process list.
       let s:bg_processes[a:pid] = a:pid
 
-      let [l:cond, l:status] = ['exit', '0']
+      let [cond, status] = ['exit', '0']
     elseif s:is_win
       call s:libcall('vp_close_handle', [a:pid])
     endif
 
-    let s:last_status = l:status
+    let s:last_status = status
   catch /waitpid() error:/
-    let [l:cond, l:status] = ['exit', '0']
+    let [cond, status] = ['exit', '0']
   endtry
 
-  return [l:cond, str2nr(l:status)]
+  return [cond, str2nr(status)]
 endfunction
 
 function! s:vp_waitpid() dict
@@ -1252,8 +1252,8 @@ function! s:vp_waitpid() dict
 
   let self.is_valid = 0
 
-  let [l:cond, l:status] = s:waitpid(self.pid)
-  if l:cond ==# 'exit'
+  let [cond, status] = s:waitpid(self.pid)
+  if cond ==# 'exit'
     let self.pid = 0
   endif
 
@@ -1263,7 +1263,7 @@ function! s:vp_waitpid() dict
     endfor
   endif
 
-  return [l:cond, str2nr(l:status)]
+  return [cond, str2nr(status)]
 endfunction
 
 function! s:vp_pgroup_waitpid() dict
@@ -1286,13 +1286,13 @@ function! s:vp_socket_close() dict
 endfunction
 
 function! s:vp_socket_read(number, timeout) dict
-  let [l:hd, l:eof] = s:libcall('vp_socket_read', [self.fd, a:number, a:timeout])
-  return [l:hd, l:eof]
+  let [hd, eof] = s:libcall('vp_socket_read', [self.fd, a:number, a:timeout])
+  return [hd, eof]
 endfunction
 
 function! s:vp_socket_write(hd, timeout) dict
-  let [l:nleft] = s:libcall('vp_socket_write', [self.fd, a:hd, a:timeout])
-  return l:nleft
+  let [nleft] = s:libcall('vp_socket_write', [self.fd, a:hd, a:timeout])
+  return nleft
 endfunction
 
 " Initialize.
