@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 19 Sep 2011.
+" Last Modified: 23 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -841,12 +841,22 @@ function! s:str2hd(str)
 endfunction
 
 function! s:hd2str(hd)
-  " Since Vim can not handle \x00 byte, remove it.
-  " do not use nr2char()
-  " nr2char(255) => "\xc3\xbf" (utf8)
-  "
   " a:hd is a list because to avoid copying the value.
-  return join(map(split(a:hd[0], '..\zs'), 'v:val == "00" ? "" : eval(''"\x'' . v:val . ''"'')'), '')
+
+  " Old routine.
+  " let start1 = reltime()
+  " let _ = join(map(split(a:hd[0], '..\zs'), 'v:val == "00" ? "" : eval(''"\x'' . v:val . ''"'')'), '')
+
+  " To use nr2char(), change encoding option.
+  " nr2char(255) => "\xc3\xbf" (utf8)
+  " nr2char(255) => "\xff" (latin1)
+  "
+  " This routine is 4x faster.
+  " let start2 = reltime()
+  let _ = substitute(a:hd[0], '..', '\=submatch(0) == "00" ? "" : eval(''"\x''.submatch(0).''"'')', 'g')
+
+  " echomsg string([reltimestr(reltime(start1)), reltimestr(reltime(start2))])
+  return _
 endfunction
 
 function! s:str2list(str)
