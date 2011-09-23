@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <ctype.h>
 
 /* For GetConsoleWindow() for Windows 2000 or later. */
 #define WINVER        0x0500
@@ -81,6 +82,8 @@ EXPORT const char *vp_socket_open(char *args); /* [socket] (host, port) */
 EXPORT const char *vp_socket_close(char *args);/* [] (socket) */
 EXPORT const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
 EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
+
+EXPORT const char *vp_decode(char *args);      /* [decoded_str] (encode_str) */
 
 EXPORT const char *vp_open(char *args);      /* [] (path) */
 
@@ -858,16 +861,55 @@ vp_open(char *args)
 {
     vp_stack_t stack;
     char *path;
-    
+
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
-    
+
     if ((int)ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL) < 32) {
         return vp_stack_return_error(&_result, "ShellExecute() error: %s",
                 lasterror());
     }
 
     return NULL;
+}
+
+const char *
+vp_decode(char *args)
+{
+    vp_stack_t stack;
+    unsigned num = 0;
+    unsigned i = 0;
+    size_t length;
+    char *str;
+    char *buf;
+    char *p;
+    char *bp;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &str));
+
+    length = strlen(str);
+    buf = (char *)malloc(length);
+
+    p = str;
+    bp = buf;
+    for (i = 0; i < length; i++, p++) {
+        if (isdigit(*p))
+            num |= (*p & 15);
+        else
+            num |= (*p & 15) + 9;
+
+        if (i % 2) {
+            *bp++ = num;
+            num = 0;
+        } else {
+            num <<= 4;
+        }
+    }
+    *bp = '\0';
+    vp_stack_push_str(&_result, buf);
+    free(buf);
+    return vp_stack_return(&_result);
 }
 
 /* 

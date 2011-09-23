@@ -843,19 +843,19 @@ endfunction
 function! s:hd2str(hd)
   " a:hd is a list because to avoid copying the value.
 
-  " let start1 = reltime()
-  let _ = join(map(split(a:hd[0], '..\zs'),
-        \ 'v:val=="00"?"":eval(''"\x''.v:val.''"'')'), '')
-        " \ 'nr2char(v:val)'), '')
-  " echomsg '1:'.reltimestr(reltime(start1))
-
   " To use nr2char(), change encoding option.
   " nr2char(255) => "\xc3\xbf" (utf8)
   " nr2char(255) => "\xff" (latin1)
   "
+  " let start1 = reltime()
+  " let _ = join(map(split(a:hd[0], '..\zs'),
+        " \ 'v:val=="00"?"":eval(''"\x''.v:val.''"'')'), '')
+        " \ 'nr2char(v:val)'), '')
+  " echomsg '1:'.reltimestr(reltime(start1))
+
+  " This routine is 30x faster.
   " let start2 = reltime()
-  " let _ = substitute(a:hd[0], '\d\d',
-        " \ '\=submatch(0)=="00"?"":eval(''"\x''.submatch(0).''"'')', 'g')
+  let _ = s:decode(a:hd[0])
   " echomsg '2:'.reltimestr(reltime(start2))
 
   return _

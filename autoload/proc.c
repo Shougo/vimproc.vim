@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <stddef.h>
 #include <dlfcn.h>
+#include <ctype.h>
 
 #if !defined __APPLE__
 # include <sys/types.h>
@@ -847,12 +848,12 @@ vp_decode(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &str));
 
     length = strlen(str);
-    buf = (char *)malloc(length / 2);
+    buf = (char *)malloc(length);
 
     p = str;
     bp = buf;
     for (i = 0; i < length; i++, p++) {
-        if (*p >= '0' && *p <= '9')
+        if (isdigit(*p))
             num |= (*p & 15);
         else
             num |= (*p & 15) + 9;
@@ -869,3 +870,7 @@ vp_decode(char *args)
     free(buf);
     return vp_stack_return(&_result);
 }
+
+/* 
+ * vim:set sw=4 sts=4 et:
+ */
