@@ -861,6 +861,11 @@ function! s:hd2str(hd)
   return _
 endfunction
 
+function! s:decode(encode_str)
+  let [decoded_str] = s:libcall('vp_decode', [a:encode_str])
+  return decoded_str
+endfunction
+
 function! s:str2list(str)
   return map(range(len(a:str)), 'char2nr(a:str[v:val])')
 endfunction
