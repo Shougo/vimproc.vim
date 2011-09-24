@@ -240,6 +240,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-09-24
+- Improved decode.
+
 2011-09-23
 - Fixed hd2str().
 - Optimized hd2str()(Thanks SKAhack!).

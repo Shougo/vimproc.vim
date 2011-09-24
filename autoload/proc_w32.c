@@ -889,7 +889,7 @@ vp_decode(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &str));
 
     length = strlen(str);
-    buf = (char *)malloc(length);
+    buf = (char *)malloc(length/2 + 2);
 
     p = str;
     bp = buf;
