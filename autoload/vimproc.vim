@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 23 Sep 2011.
+" Last Modified: 28 Sep 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -254,7 +254,7 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
     endif
 
     if !subproc.stdout.eof
-      let out = subproc.stdout.read(-1, 40)
+      let out = subproc.stdout.read(1000, 0)
 
       if a:is_passwd && out =~ s:password_regex
         redraw
@@ -270,7 +270,7 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
     endif
 
     if !subproc.stderr.eof
-      let out = subproc.stderr.read(-1, 40)
+      let out = subproc.stderr.read(1000, 0)
 
       if a:is_passwd && out =~ s:password_regex
         redraw
