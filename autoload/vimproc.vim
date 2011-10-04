@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 04 Oct 2011.
+" Last Modified: 05 Oct 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -842,28 +842,7 @@ endfunction
 
 function! s:hd2str(hd)
   " a:hd is a list because to avoid copying the value.
-
-  " To use nr2char(), change encoding option.
-  " nr2char(255) => "\xc3\xbf" (utf8)
-  " nr2char(255) => "\xff" (latin1)
-  "
-  " let start1 = reltime()
-  " let _ = join(map(split(a:hd[0], '..\zs'),
-        " \ 'v:val=="00"?"":eval(''"\x''.v:val.''"'')'), '')
-        " \ 'nr2char(v:val)'), '')
-  " echomsg '1:'.reltimestr(reltime(start1))
-
-  " This routine is 30x faster.
-  " let start2 = reltime()
-  let _ = s:decode(a:hd[0])
-  " echomsg '2:'.reltimestr(reltime(start2))
-
-  return _
-endfunction
-
-function! s:decode(encode_str)
-  let _ = s:libcall('vp_decode', [a:encode_str])
-  return empty(_) ? '' : _[0]
+  return get(s:libcall('vp_decode', [a:hd[0]]), 0, '')
 endfunction
 
 function! s:str2list(str)
