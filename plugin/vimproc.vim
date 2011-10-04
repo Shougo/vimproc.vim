@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 28 Sep 2011.
+" Last Modified: 04 Oct 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -70,7 +70,7 @@ function! s:bang(cmdline)"{{{
 
   while !subproc.stdout.eof || !subproc.stderr.eof
     if !subproc.stdout.eof
-      let output = subproc.stdout.read(1000, 0)
+      let output = subproc.stdout.read(10000, 0)
       if output != ''
         let output = vimproc#util#iconv(output, vimproc#util#stdoutencoding(), &encoding)
 
@@ -80,7 +80,7 @@ function! s:bang(cmdline)"{{{
     endif
 
     if !subproc.stderr.eof
-      let output = subproc.stderr.read(1000, 0)
+      let output = subproc.stderr.read(10000, 0)
       if output != ''
         let output = vimproc#util#iconv(output, vimproc#util#stderrencoding(), &encoding)
         echohl WarningMsg | echon output | echohl None
