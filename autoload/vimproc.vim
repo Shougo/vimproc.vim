@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 28 Sep 2011.
+" Last Modified: 04 Oct 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -862,8 +862,8 @@ function! s:hd2str(hd)
 endfunction
 
 function! s:decode(encode_str)
-  let [decoded_str] = s:libcall('vp_decode', [a:encode_str])
-  return decoded_str
+  let _ = s:libcall('vp_decode', [a:encode_str])
+  return empty(_) ? '' : _[0]
 endfunction
 
 function! s:str2list(str)
