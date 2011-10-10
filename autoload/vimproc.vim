@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 05 Oct 2011.
+" Last Modified: 10 Oct 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -439,6 +439,8 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
       if command.fd.stdout =~ '^>'
         let mode .= ' | O_APPEND'
         let command.fd.stdout = command.fd.stdout[1:]
+      else
+        let mode .= ' | O_TRUNC'
       endif
 
       let hstdout = s:is_pseudo_device(command.fd.stdout) ?
@@ -454,6 +456,8 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
       if command.fd.stderr =~ '^>'
         let mode .= ' | O_APPEND'
         let command.fd.stderr = command.fd.stderr[1:]
+      else
+        let mode .= ' | O_TRUNC'
       endif
       let hstderr = s:is_pseudo_device(command.fd.stderr) ?
             \ 0 : vimproc#fopen(command.fd.stderr, mode).fd
