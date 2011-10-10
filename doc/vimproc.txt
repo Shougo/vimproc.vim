@@ -242,6 +242,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-10-10
 - Fixed file open bugs.
+- Fixed variables initialize.
 
 2011-10-05
 - Improved hd2str().

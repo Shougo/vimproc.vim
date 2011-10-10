@@ -52,9 +52,11 @@ let s:password_regex =
       \'\|^\|\n\|''s \)[Pp]assword'
 
 " Global options definition."{{{
-if !exists('g:vimproc_dll_path')
-  let g:vimproc_dll_path = expand("<sfile>:p:h") . (s:is_win ? '/proc.dll' : has('win32unix') ? '/proc_cygwin.dll' : '/proc.so')
-endif
+let g:vimproc_dll_path =
+      \ get(g:, 'vimproc_dll_path', expand("<sfile>:p:h") .
+      \     (s:is_win ? '/proc.dll' :
+      \      has('win32unix') ? '/proc_cygwin.dll'
+      \      : '/proc.so'))
 "}}}
 
 let g:vimproc_dll_path = vimproc#util#iconv(g:vimproc_dll_path, &encoding, vimproc#util#termencoding())
