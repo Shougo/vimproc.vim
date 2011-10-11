@@ -240,6 +240,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-10-11
+- Fixed for Vim 7.2.
+
 2011-10-10
 - Fixed file open bugs.
 - Fixed variables initialize.
