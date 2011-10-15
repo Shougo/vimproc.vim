@@ -240,6 +240,10 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-10-15
+- Fixed plineopen2().
+- Improved pgroup_open().
+
 2011-10-11
 - Fixed for Vim 7.2.
 

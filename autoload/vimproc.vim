@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 10 Oct 2011.
+" Last Modified: 15 Oct 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -404,12 +404,13 @@ function! vimproc#popen3(args)"{{{
         \ }], 0)
 endfunction"}}}
 
-function! vimproc#plineopen2(commands)"{{{
+function! vimproc#plineopen2(commands, ...)"{{{
   let commands = type(a:commands) == type('') ?
         \ vimproc#parser#parse_pipe(a:commands) :
         \ a:commands
+  let is_pty = get(a:000, 0, 0)
 
-  return s:plineopen(2, a:commands, 0)
+  return s:plineopen(2, commands, is_pty)
 endfunction"}}}
 function! vimproc#plineopen3(commands, ...)"{{{
   let commands = type(a:commands) == type('') ?
@@ -555,13 +556,15 @@ function! vimproc#pgroup_open(statements, ...)"{{{
   endif
 
   let is_pty = get(a:000, 0, 0)
+  let npipe = get(a:000, 1, 3)
 
-  return s:pgroup_open(statements, is_pty && !s:is_win)
+  return s:pgroup_open(statements, is_pty && !s:is_win, npipe)
 endfunction"}}}
 
-function! s:pgroup_open(statements, is_pty)"{{{
+function! s:pgroup_open(statements, is_pty, npipe)"{{{
   let proc = {}
-  let proc.current_proc = vimproc#plineopen3(a:statements[0].statement, a:is_pty)
+  let proc.current_proc =
+        \ vimproc#plineopen{a:npipe}(a:statements[0].statement, a:is_pty)
 
   let proc.pid = proc.current_proc.pid
   let proc.pid_list = proc.current_proc.pid_list
