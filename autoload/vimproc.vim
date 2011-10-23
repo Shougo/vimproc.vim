@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Oct 2011.
+" Last Modified: 23 Oct 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -931,7 +931,8 @@ function! s:libcall(func, args)"{{{
   let result = split(stack_buf, '[\xFF]', 1)
   if !empty(result) && result[-1] != ''
     let s:lasterr = result
-    let msg = vimproc#util#iconv(string(result), vimproc#util#termencoding(), &encoding)
+    let msg = vimproc#util#iconv(string(result),
+          \ vimproc#util#termencoding(), &encoding)
 
     throw printf('proc: %s: %s', a:func, msg)
   endif
