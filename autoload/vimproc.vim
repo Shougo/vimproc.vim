@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Oct 2011.
+" Last Modified: 25 Oct 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1088,16 +1088,6 @@ function! s:read_pgroup(...) dict"{{{
     let output = self.fd.read(number, timeout)
   endif
 
-  if self.proc.current_proc.stdout.eof
-    let self.proc.stdout.eof = 1
-    let self.proc.stdout.__eof = 1
-  endif
-
-  if self.proc.current_proc.stderr.eof
-    let self.proc.stderr.eof = 1
-    let self.proc.stderr.__eof = 1
-  endif
-
   if self.proc.current_proc.stdout.eof && self.proc.current_proc.stderr.eof
     " Get status.
     let [cond, status] = self.proc.current_proc.waitpid()
@@ -1124,6 +1114,16 @@ function! s:read_pgroup(...) dict"{{{
       let self.proc.stdout = s:fdopen_pgroup(self.proc, proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
       let self.proc.stderr = s:fdopen_pgroup(self.proc, proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
     endif
+  endif
+
+  if self.proc.current_proc.stdout.eof
+    let self.proc.stdout.eof = 1
+    let self.proc.stdout.__eof = 1
+  endif
+
+  if self.proc.current_proc.stderr.eof
+    let self.proc.stderr.eof = 1
+    let self.proc.stderr.__eof = 1
   endif
 
   return output
