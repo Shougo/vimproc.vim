@@ -931,7 +931,8 @@ function! s:libcall(func, args)"{{{
   let result = split(stack_buf, '[\xFF]', 1)
   if !empty(result) && result[-1] != ''
     let s:lasterr = result
-    let msg = vimproc#util#iconv(string(result), vimproc#util#termencoding(), &encoding)
+    let msg = vimproc#util#iconv(string(result),
+          \ vimproc#util#termencoding(), &encoding)
 
     throw printf('proc: %s: %s', a:func, msg)
   endif
