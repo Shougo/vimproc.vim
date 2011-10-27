@@ -240,6 +240,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-10-27
+- Improved g:vimproc_shell_commands option.
+
 2011-10-25
 - Fixed read_pgroup().
 
