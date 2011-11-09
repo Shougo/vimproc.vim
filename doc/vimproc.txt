@@ -240,6 +240,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-11-09
+- Fixed for ipython.
+
 2011-10-27
 - Improved g:vimproc_shell_commands option.
 
