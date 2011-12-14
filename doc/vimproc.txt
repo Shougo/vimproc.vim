@@ -242,6 +242,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-12-14
 - Ver.6.1 development is started.
+- Added vimproc#readdir().
 
 ------------------------------------------------------------------------------
 ChangeLog 6.0

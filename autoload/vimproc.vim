@@ -701,6 +701,22 @@ function! vimproc#write(filename, string, ...)"{{{
   endif
 endfunction"}}}
 
+function! vimproc#readdir(dirname)"{{{
+  return !isdirectory(a:dirname) ?
+        \ [] : s:libcall('vp_readdir', [a:dirname])
+        " \ [] : map(s:libcall('vp_readdir', [a:dirname]), 'a:dirname."/".')
+endfunction"}}}
+
+function! vimproc#test_readdir(dirname)"{{{
+  let start = reltime()
+  call split(glob(a:dirname.'/*'), '\n')
+  echomsg reltimestr(reltime(start))
+
+  let start = reltime()
+  call vimproc#readdir(a:dirname)
+  echomsg reltimestr(reltime(start))
+endfunction"}}}
+
 function! s:close_all(self)"{{{
   if has_key(a:self, 'stdin')
     call a:self.stdin.close()

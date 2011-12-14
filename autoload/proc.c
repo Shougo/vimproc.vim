@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include <dlfcn.h>
 #include <ctype.h>
+#include <dirent.h>
 
 #if !defined __APPLE__
 # include <sys/types.h>
@@ -830,6 +831,31 @@ const char *
 vp_socket_write(char *args)
 {
     return vp_file_write(args);
+}
+
+const char *
+vp_readdir(char *args)
+{
+    vp_stack_t stack;
+    char *dirname;
+
+    DIR *dir;
+    struct dirent *dp;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &dirname));
+
+    if ((dir=opendir(dirname)) == NULL) {
+        return vp_stack_return_error(&_result, "opendir() error: %s",
+                strerror(errno));
+    }
+
+    for (dp = readdir(dir); dp != NULL; dp = readdir(dir)) {
+        vp_stack_push_str(&_result, dp->d_name);
+    }
+    closedir(dir);
+
+    return vp_stack_return(&_result);
 }
 
 const char *
