@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 25 Oct 2011.
+" Last Modified: 14 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -40,7 +40,7 @@ if s:is_mac && !&encoding
 endif
 "}}}
 function! vimproc#version()
-  return str2nr(printf('%2d%02d', 6, 0))
+  return str2nr(printf('%2d%02d', 6, 1))
 endfunction
 
 let s:last_status = 0
