@@ -37,7 +37,7 @@
 #if defined __linux__ || defined __CYGWIN__
 # include <pty.h>
 # include <utmp.h>
-#elif defined __APPLE__ 
+#elif defined __APPLE__ || defined __NetBSD__
 # include <util.h>
 #else
 # include <termios.h>
@@ -59,6 +59,9 @@
 /* for waitpid() */
 #include <sys/types.h>
 #include <sys/wait.h>
+#if defined __NetBSD__
+#define WIFCONTINUED(x) (_WSTATUS(x) == _WSTOPPED && WSTOPSIG(x) == 0x13)
+#endif
 
 /* for socket */
 #include <sys/types.h>
@@ -879,7 +882,7 @@ vp_decode(char *args)
     p = str;
     bp = buf;
     for (i = 0; i < length; i++, p++) {
-        if (isdigit(*p))
+        if (isdigit((int)*p))
             num |= (*p & 15);
         else
             num |= (*p & 15) + 9;
