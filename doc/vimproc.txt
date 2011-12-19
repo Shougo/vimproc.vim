@@ -242,6 +242,7 @@ CHANGELOG					*vimproc-changelog*
 
 2011-12-19
 - Fixed s:waitpid().
+- Fixed win32 pipe duplicate bug.
 
 2011-12-14
 - Ver.6.1 development is started.
