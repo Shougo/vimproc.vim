@@ -240,6 +240,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2011-12-19
+- Fixed s:waitpid().
+
 2011-12-14
 - Ver.6.1 development is started.
 - Added vimproc#readdir().
