@@ -856,6 +856,42 @@ vp_socket_write(char *args)
     return vp_stack_return(&_result);
 }
 
+/* Referenced from */
+/* http://www.syuhitu.org/other/dir.html */
+const char *
+vp_readdir(char *args)
+{
+    vp_stack_t stack;
+    char *dirname;
+    char buf[1024];
+
+    WIN32_FIND_DATA fd;
+    HANDLE h;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &dirname));
+
+    snprintf(buf, sizeof(buf), "%s\\*", dirname);
+
+    /* Get handle. */
+    h = FindFirstFileEx(buf, FindExInfoStandard, &fd,
+        FindExSearchNameMatch, NULL, 0
+    );
+
+    if (h == INVALID_HANDLE_VALUE) {
+        return vp_stack_return_error(&_result, "FindFirstFileEx() error: %s",
+                GetLastError());
+    }
+
+    do {
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, fd.cFileName);
+        vp_stack_push_str(&_result, buf);
+    } while (FindNextFile(h, &fd));
+
+    FindClose(h);
+    return vp_stack_return(&_result);
+}
+
 const char *
 vp_open(char *args)
 {
@@ -890,6 +926,10 @@ vp_decode(char *args)
 
     length = strlen(str);
     buf = (char *)malloc(length/2 + 2);
+    if (buf == NULL) {
+        return vp_stack_return_error(&_result, "malloc() error: %s",
+                "Memory cannot allocate");
+    }
 
     p = str;
     bp = buf;

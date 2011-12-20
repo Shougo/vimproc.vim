@@ -878,6 +878,10 @@ vp_decode(char *args)
 
     length = strlen(str);
     buf = (char *)malloc(length/2 + 2);
+    if (buf == NULL) {
+        return vp_stack_return_error(&_result, "malloc() error: %s",
+                "Memory cannot allocate");
+    }
 
     p = str;
     bp = buf;
