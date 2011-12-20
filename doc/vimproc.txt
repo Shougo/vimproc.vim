@@ -241,8 +241,8 @@ EXAMPLES					*vimproc-examples*
 CHANGELOG					*vimproc-changelog*
 
 2011-12-20
-- Implemented vimproc#read_dir() in Windows.
-- Improved vimproc#read_dir() in Unix.
+- Implemented vimproc#readdir() in Windows.
+- Improved vimproc#readdir() in Unix.
 
 2011-12-19
 - Fixed s:waitpid().

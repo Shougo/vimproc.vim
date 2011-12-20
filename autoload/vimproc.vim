@@ -702,7 +702,11 @@ function! vimproc#write(filename, string, ...)"{{{
 endfunction"}}}
 
 function! vimproc#readdir(dirname)"{{{
-  let dirname = substitute(a:dirname, '[\\/]$', '', '')
+  let dirname = substitute(substitute(
+        \ expand(a:dirname), '\\', '/', 'g'), '/$', '', '')
+  if dirname == ''
+    let dirname = '.'
+  endif
   return !isdirectory(dirname) ? [] : s:libcall('vp_readdir', [dirname])
 endfunction"}}}
 
