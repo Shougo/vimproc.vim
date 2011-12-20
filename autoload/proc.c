@@ -841,6 +841,7 @@ vp_readdir(char *args)
 {
     vp_stack_t stack;
     char *dirname;
+    char buf[1024];
 
     DIR *dir;
     struct dirent *dp;
@@ -854,7 +855,8 @@ vp_readdir(char *args)
     }
 
     for (dp = readdir(dir); dp != NULL; dp = readdir(dir)) {
-        vp_stack_push_str(&_result, dp->d_name);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, dp->d_name);
+        vp_stack_push_str(&_result, buf);
     }
     closedir(dir);
 
