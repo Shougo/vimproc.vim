@@ -228,6 +228,12 @@ vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
 		"/dev/null"		何も出力しない。
 		"/dev/clip"		Vimのクリックボードへ書き出す。
 
+vimproc#readdir({dirname})				*vimproc#readdir()*
+		{dirname}で指定されるディレクトリに存在するファイルをリストで返
+		す。ディレクトリが存在しない場合は空となる。
+		Note: エンコーディングは自動的に'termencoding'に変換する。特に
+		Windows環境で'encoding'を変更している場合は注意すること。
+
 ------------------------------------------------------------------------------
 VARIABLES 					*vimproc-variables*
 

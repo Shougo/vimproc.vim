@@ -163,6 +163,9 @@ vimproc#kill({pid}, {sig})			*vimproc#kill()*
 vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
 		Todo
 
+vimproc#readdir({dirname})				*vimproc#readdir()*
+		Todo
+
 ------------------------------------------------------------------------------
 VARIABLES 					*vimproc-variables*
 
@@ -239,6 +242,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2011-12-22
+- Fixed encoding conversion.
 
 2011-12-21
 - Fixed vimproc#readdir().
