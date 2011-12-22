@@ -51,6 +51,10 @@ const int debug = 0;
 # define EXPORT
 #endif
 
+#ifdef _MSC_VER
+# define snprintf _snprintf
+#endif
+
 /* API */
 EXPORT const char *vp_dlopen(char *args);      /* [handle] (path) */
 EXPORT const char *vp_dlclose(char *args);     /* [] (handle) */
