@@ -712,15 +712,14 @@ function! vimproc#readdir(dirname)"{{{
     return []
   endif
 
+  let termencoding = vimproc#util#termencoding()
   if vimproc#util#termencoding() !=# &encoding
-    let dirname = vimproc#util#iconv(dirname,
-          \ &encoding, vimproc#util#termencoding())
+    let dirname = iconv(dirname, &encoding, termencoding)
   endif
 
   let files = s:libcall('vp_readdir', [dirname])
   if vimproc#util#termencoding() !=# &encoding
-    call map(files, 'vimproc#util#iconv(v:val,
-        \ vimproc#util#termencoding(), &encoding)')
+    call map(files, 'iconv(v:val, termencoding, &encoding)')
   endif
 
   return files
