@@ -90,6 +90,7 @@ EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) 
 EXPORT const char *vp_decode(char *args);      /* [decoded_str] (encode_str) */
 
 EXPORT const char *vp_open(char *args);      /* [] (path) */
+EXPORT const char *vp_readdir(char *args);  /* [files] (dirname) */
 
 static BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode);
 
