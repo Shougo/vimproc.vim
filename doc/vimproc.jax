@@ -1,6 +1,6 @@
 *vimproc.jax*	Vim用非同期実行ライブラリ
 
-Version: 6.0
+Version: 6.1
 Author : Shougo <Shougo.Matsu at gmail.com>
 Original Author : Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com>
 License: MIT license  {{{
@@ -231,6 +231,12 @@ vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
 vimproc#readdir({dirname})				*vimproc#readdir()*
 		{dirname}で指定されるディレクトリに存在するファイルをリストで返
 		す。ディレクトリが存在しない場合は空となる。
+		Note: エンコーディングは自動的に'termencoding'に変換する。特に
+		Windows環境で'encoding'を変更している場合は注意すること。
+
+vimproc#delete_trash({filename})			*vimproc#delete_trash()*
+		{filename}で指定されるファイルをゴミ箱に移動する。
+		Note: 現在はWindows環境でしか利用できない。
 		Note: エンコーディングは自動的に'termencoding'に変換する。特に
 		Windows環境で'encoding'を変更している場合は注意すること。
 

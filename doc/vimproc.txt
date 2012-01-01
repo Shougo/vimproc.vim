@@ -166,6 +166,10 @@ vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
 vimproc#readdir({dirname})				*vimproc#readdir()*
 		Todo
 
+vimproc#delete_trash({filename})			*vimproc#delete_trash()*
+		Move file to trashbox directory.
+		Note: Windows environment only.
+
 ------------------------------------------------------------------------------
 VARIABLES 					*vimproc-variables*
 
@@ -242,6 +246,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-01-01
+- Implemented vimproc#delete_trash().
 
 2011-12-22
 - Fixed encoding conversion.

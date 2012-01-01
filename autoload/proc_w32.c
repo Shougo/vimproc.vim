@@ -87,6 +87,8 @@ EXPORT const char *vp_decode(char *args);      /* [decoded_str] (encode_str) */
 
 EXPORT const char *vp_open(char *args);      /* [] (path) */
 
+EXPORT const char * vp_delete_trash(char *args);  /* [filename] */
+
 static BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode);
 
 /* --- */
@@ -889,6 +891,44 @@ vp_readdir(char *args)
     } while (FindNextFile(h, &fd));
 
     FindClose(h);
+    return vp_stack_return(&_result);
+}
+
+const char *
+vp_delete_trash(char *args)
+{
+    vp_stack_t stack;
+    char *filename;
+    char *buf;
+    size_t len;
+    SHFILEOPSTRUCT fs;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &filename));
+
+    len = strlen(filename);
+
+    buf = malloc(len + 2);
+    if (buf == NULL) {
+        return vp_stack_return_error(&_result, "malloc() error: %s",
+                "Memory cannot allocate");
+    }
+
+    /* Copy filename + '\0\0' */
+    strcpy(buf, filename);
+    buf[len + 1] = 0;
+
+    ZeroMemory(&fs, sizeof(SHFILEOPSTRUCT));
+    fs.hwnd = NULL;
+    fs.wFunc = FO_DELETE;
+    fs.pFrom = buf;
+    fs.pTo = NULL;
+    fs.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
+
+    vp_stack_push_num(&_result, "%d", SHFileOperation(&fs));
+
+    free(buf);
+
     return vp_stack_return(&_result);
 }
 
