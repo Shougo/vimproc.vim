@@ -252,6 +252,8 @@ CHANGELOG					*vimproc-changelog*
 
 2011-12-22
 - Fixed encoding conversion.
+- Improved vimproc#readdir().
+- Fixed for Visual Studio.
 
 2011-12-21
 - Fixed vimproc#readdir().

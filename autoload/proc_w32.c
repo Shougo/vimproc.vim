@@ -51,6 +51,10 @@ const int debug = 0;
 # define EXPORT
 #endif
 
+#ifdef _MSC_VER
+# define snprintf _snprintf
+#endif
+
 /* API */
 EXPORT const char *vp_dlopen(char *args);      /* [handle] (path) */
 EXPORT const char *vp_dlclose(char *args);     /* [] (handle) */
@@ -86,6 +90,7 @@ EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) 
 EXPORT const char *vp_decode(char *args);      /* [decoded_str] (encode_str) */
 
 EXPORT const char *vp_open(char *args);      /* [] (path) */
+EXPORT const char *vp_readdir(char *args);  /* [files] (dirname) */
 
 EXPORT const char * vp_delete_trash(char *args);  /* [filename] */
 
