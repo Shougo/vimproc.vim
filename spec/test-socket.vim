@@ -1,4 +1,3 @@
-" vim:foldmethod=marker:fen:sw=2:sts=2
 scriptencoding utf-8
 
 " Saving 'cpoptions' {{{
@@ -6,27 +5,33 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
+source spec/base.vim
 
-
-function! s:run()
-  let sock = vimproc#socket_open("www.yahoo.com", 80)
+Context Fopen.run()
+  let sock = vimproc#socket_open('www.yahoo.com', 80)
   call sock.write("GET / HTTP/1.0\r\n\r\n")
-  let res = ""
+  let res = ''
   while !sock.eof
     let res .= sock.read()
   endwhile
 
-  Ok sock.is_valid, "yet not closed"
+  It yet not closed
+    Should sock.is_valid
+  End
+
   call sock.close()
-  Ok !sock.is_valid, "closed"
 
-  Diag res
-endfunction
+  It closed
+    Should !sock.is_valid
+  End
 
-call s:run()
-Done
+  echo res
+End
 
+Fin
 
 " Restore 'cpoptions' {{{
 let &cpo = s:save_cpo
 " }}}
+
+" vim:foldmethod=marker:fen:
