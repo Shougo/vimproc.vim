@@ -135,7 +135,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
   let cnt = a:0 < 2 ? 1 : a:2
 
-  let command = expand(a:command)
+  let command = vimproc#util#expand(a:command)
 
   let pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win && !s:is_msys ? '/\\' : '/')
   if command =~ pattern && (!s:is_win || fnamemodify(command, ':e') != '')
@@ -714,7 +714,8 @@ endfunction"}}}
 
 function! vimproc#readdir(dirname)"{{{
   let dirname = substitute(substitute(
-        \ expand(a:dirname), '\\', '/', 'g'), '/$', '', '')
+        \ vimproc#util#expand(a:dirname),
+        \ '\\', '/', 'g'), '/$', '', '')
   if dirname == ''
     let dirname = getcwd()
   endif
