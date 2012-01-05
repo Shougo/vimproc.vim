@@ -247,6 +247,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-01-05
+- Check encoding option.
+
 2012-01-02
 - Added spec files.
 

@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 02 Jan 2012.
+" Last Modified: 05 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -59,10 +59,21 @@ let g:vimproc_dll_path =
       \      : '/proc.so'))
 "}}}
 
-let g:vimproc_dll_path = vimproc#util#iconv(g:vimproc_dll_path, &encoding, vimproc#util#termencoding())
+let g:vimproc_dll_path = vimproc#util#iconv(g:vimproc_dll_path,
+      \ &encoding, vimproc#util#termencoding())
+
+" Check 'encoding'
+if s:is_win && &encoding ==# 'utf-8'
+      \ && (vimproc#util#termencoding() ==# 'default' ||
+      \     vimproc#util#termencoding() ==# '')
+  echoerr printf('You changed "encoding" option to "utf-8",
+        \ but "termencoding" option is not set.')
+  echoerr printf('Multibyte characters may be broken.')
+endif
 
 if !filereadable(g:vimproc_dll_path)
-  echoerr printf('vimproc''s DLL: "%s" is not found. Please read :help vimproc and make it.', g:vimproc_dll_path)
+  echoerr printf('vimproc''s DLL: "%s" is not found.
+        \ Please read :help vimproc and make it.', g:vimproc_dll_path)
   finish
 endif
 
