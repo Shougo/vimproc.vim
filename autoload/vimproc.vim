@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 08 Jan 2012.
+" Last Modified: 09 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -491,11 +491,10 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
     if a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
       " Use pty_open().
       let pipe = s:vp_pty_open(pty_npipe, winwidth(0)-5, winheight(0),
-            \ hstdin, hstdout, hstderr,
-            \ args)
+            \ hstdin, hstdout, hstderr, args)
     else
-      let pipe = s:vp_pipe_open(pty_npipe, hstdin, hstdout, hstderr,
-            \ args)
+      let pipe = s:vp_pipe_open(pty_npipe,
+            \ hstdin, hstdout, hstderr, args)
     endif
 
     if len(pipe) == 4
@@ -511,15 +510,18 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
     call add(l:pid_list, l:pid)
     let stdin = s:fdopen(fd_stdin,
           \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-    let stdin.is_pty = a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
+    let stdin.is_pty = a:is_pty
+          \ && (cnt == 0 || cnt == len(a:commands)-1)
           \ && hstdin == 0
     call add(stdin_list, stdin)
     let stdout = s:fdopen(fd_stdout,
           \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-    let stdout.is_pty = a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
+    let stdout.is_pty = a:is_pty
+          \ && (cnt == 0 || cnt == len(a:commands)-1)
           \ && hstdout == 0
     call add(stdout_list, stdout)
-    let stderr.is_pty = a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
+    let stderr.is_pty = a:is_pty
+          \ && (cnt == 0 || cnt == len(a:commands)-1)
           \ && hstderr == 0
     call add(stderr_list, stderr)
 
@@ -530,9 +532,12 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
   let proc = {}
   let proc.pid_list = pid_list
   let proc.pid = pid_list[-1]
-  let proc.stdin = s:fdopen_pipes(stdin_list, 'vp_pipes_front_close', 'read_pipes', 'write_pipes')
-  let proc.stdout = s:fdopen_pipes(stdout_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
-  let proc.stderr = s:fdopen_pipes(stderr_list, 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
+  let proc.stdin = s:fdopen_pipes(stdin_list,
+        \ 'vp_pipes_front_close', 'read_pipes', 'write_pipes')
+  let proc.stdout = s:fdopen_pipes(stdout_list,
+        \ 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
+  let proc.stderr = s:fdopen_pipes(stderr_list,
+        \ 'vp_pipes_back_close', 'read_pipes', 'write_pipes')
   let proc.get_winsize = s:funcref('vp_get_winsize')
   let proc.set_winsize = s:funcref('vp_set_winsize')
   let proc.kill = s:funcref('vp_kill')
@@ -557,9 +562,11 @@ endfunction"}}}
 
 function! vimproc#pgroup_open(statements, ...)"{{{
   if type(a:statements) == type('')
-    let statements = vimproc#parser#parse_statements(a:statements)
+    let statements =
+          \ vimproc#parser#parse_statements(a:statements)
     for statement in statements
-      let statement.statement = vimproc#parser#parse_pipe(statement.statement)
+      let statement.statement =
+            \ vimproc#parser#parse_pipe(statement.statement)
     endfor
   else
     let statements = a:statements
@@ -580,9 +587,12 @@ function! s:pgroup_open(statements, is_pty, npipe)"{{{
   let proc.pid_list = proc.current_proc.pid_list
   let proc.condition = a:statements[0].condition
   let proc.statements = a:statements[1:]
-  let proc.stdin = s:fdopen_pgroup(proc, proc.current_proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-  let proc.stdout = s:fdopen_pgroup(proc, proc.current_proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-  let proc.stderr = s:fdopen_pgroup(proc, proc.current_proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let proc.stdin = s:fdopen_pgroup(proc, proc.current_proc.stdin,
+        \ 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let proc.stdout = s:fdopen_pgroup(proc, proc.current_proc.stdout,
+        \ 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+  let proc.stderr = s:fdopen_pgroup(proc, proc.current_proc.stderr,
+        \ 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
   let proc.kill = s:funcref('vp_pgroup_kill')
   let proc.waitpid = s:funcref('vp_pgroup_waitpid')
   let proc.is_valid = 1
