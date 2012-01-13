@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 05 Jan 2012.
+" Last Modified: 14 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -58,7 +58,7 @@ function! vimproc#util#stderrencoding()"{{{
         \ g:stderrencoding : vimproc#util#termencoding()
 endfunction"}}}
 function! vimproc#util#expand(path)"{{{
-  return expand(escape(a:path, '*?[]"={}'))
+  return expand(escape(a:path, s:is_win ? '*?"={}' : '*?"={}[]'))
 endfunction"}}}
 
 " Restore 'cpoptions' {{{
