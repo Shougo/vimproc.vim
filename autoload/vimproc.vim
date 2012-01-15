@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 09 Jan 2012.
+" Last Modified: 15 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -738,7 +738,14 @@ function! vimproc#readdir(dirname)"{{{
     let dirname = iconv(dirname, &encoding, termencoding)
   endif
 
-  let files = s:libcall('vp_readdir', [dirname])
+  try
+    let files = s:libcall('vp_readdir', [dirname])
+  catch
+    echoerr v:throwpoint
+    echoerr v:exception
+    echoerr 'Your vimproc binary is too old!'
+    echoerr 'Please re-compile it.'
+  endtry
 
   if termencoding !=# &encoding
     call map(files, 'iconv(v:val, termencoding, &encoding)')
@@ -768,7 +775,14 @@ function! vimproc#delete_trash(filename)"{{{
           \ &encoding, vimproc#util#termencoding())
   endif
 
-  let [ret] = s:libcall('vp_delete_trash', [filename])
+  try
+    let [ret] = s:libcall('vp_delete_trash', [filename])
+  catch
+    echoerr v:throwpoint
+    echoerr v:exception
+    echoerr 'Your vimproc binary is too old!'
+    echoerr 'Please re-compile it.'
+  endtry
 
   return str2nr(ret)
 endfunction"}}}

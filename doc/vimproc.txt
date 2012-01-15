@@ -247,6 +247,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-01-15
+- Improved error catch.
+
 2012-01-08
 - Improved check encoding.
 
