@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Jan 2012.
+" Last Modified: 22 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -218,7 +218,7 @@ function! vimproc#get_command_name(command, ...)"{{{
   return file
 endfunction"}}}
 
-function! s:system(cmdline, is_passwd, input, timeout)"{{{
+function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
   if empty(a:cmdline)
     let s:last_status = 0
     let s:last_errmsg = ''
@@ -226,8 +226,9 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
   endif
 
   " Open pipe.
-  let subproc = (type(a:cmdline[0]) == type('')) ?
-        \ vimproc#popen3(a:cmdline) : vimproc#pgroup_open(a:cmdline)
+  let subproc = (type(a:cmdline[0]) == type('')) ? vimproc#popen3(a:cmdline) :
+        \ a:is_pty ? vimproc#ptyopen(a:cmdline):
+        \ vimproc#pgroup_open(a:cmdline)
 
   if a:input != ''
     " Write input.
@@ -273,7 +274,8 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
 
         " Password input.
         set imsearch=0
-        let in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
+        let in = vimproc#util#iconv(inputsecret('Input Secret : '),
+              \ &encoding, vimproc#util#termencoding())
 
         call subproc.stdin.write(in)
       endif
@@ -289,7 +291,8 @@ function! s:system(cmdline, is_passwd, input, timeout)"{{{
 
         " Password input.
         set imsearch=0
-        let in = vimproc#util#iconv(inputsecret('Input Secret : '), &encoding, vimproc#util#termencoding())
+        let in = vimproc#util#iconv(inputsecret('Input Secret : '),
+              \ &encoding, vimproc#util#termencoding())
 
         call subproc.stdin.write(in)
       endif
@@ -323,7 +326,7 @@ function! vimproc#system(cmdline, ...)"{{{
   let timeout = a:0 >= 2 ? a:2 : 0
   let input = a:0 >= 1 ? a:1 : ''
 
-  return s:system(a:cmdline, 0, input, timeout)
+  return s:system(a:cmdline, 0, input, timeout, 0)
 endfunction"}}}
 function! vimproc#system2(...)"{{{
   if empty(a:000)
@@ -357,7 +360,7 @@ function! vimproc#system_passwd(cmdline, ...)"{{{
   let timeout = a:0 >= 2 ? a:2 : 0
   let input = a:0 >= 1 ? a:1 : ''
 
-  return s:system(a:cmdline, 1, input, timeout)
+  return s:system(a:cmdline, 1, input, timeout, 1)
 endfunction"}}}
 function! vimproc#system_bg(cmdline)"{{{
   " Open pipe.
