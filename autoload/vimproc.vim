@@ -279,9 +279,9 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
               \ &encoding, vimproc#util#termencoding())
 
         call subproc.stdin.write(in)
+      else
+        let output .= out
       endif
-
-      let output .= out
     endif"}}}
 
     if !subproc.stderr.eof"{{{
@@ -297,10 +297,10 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
               \ &encoding, vimproc#util#termencoding())
 
         call subproc.stdin.write(in)
+      else
+        let s:last_errmsg .= out
+        let output .= out
       endif
-
-      let s:last_errmsg .= out
-      let output .= out
     endif"}}}
   endwhile
 
