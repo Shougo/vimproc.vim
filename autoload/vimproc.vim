@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 Jan 2012.
+" Last Modified: 23 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -249,7 +249,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
   let output = ''
   let s:last_errmsg = ''
   while !subproc.stdout.eof || !subproc.stderr.eof
-    if timeout > 0
+    if timeout > 0"{{{
       " Check timeout.
       let end = split(reltimestr(reltime(start)))[0] * 1000
       if end > timeout && !subproc.stdout.eof
@@ -264,34 +264,36 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
 
         return ''
       endif
-    endif
+    endif"}}}
 
-    if !subproc.stdout.eof
+    if !subproc.stdout.eof"{{{
       let out = subproc.stdout.read(1000, 0)
 
       if a:is_passwd && out =~ s:password_regex
         redraw
+        echo out
 
         " Password input.
         set imsearch=0
-        let in = vimproc#util#iconv(inputsecret('Input Secret : '),
+        let in = vimproc#util#iconv(inputsecret('Input Secret : ')."\<NL>",
               \ &encoding, vimproc#util#termencoding())
 
         call subproc.stdin.write(in)
       endif
 
       let output .= out
-    endif
+    endif"}}}
 
-    if !subproc.stderr.eof
+    if !subproc.stderr.eof"{{{
       let out = subproc.stderr.read(1000, 0)
 
       if a:is_passwd && out =~ s:password_regex
         redraw
+        echo out
 
         " Password input.
         set imsearch=0
-        let in = vimproc#util#iconv(inputsecret('Input Secret : '),
+        let in = vimproc#util#iconv(inputsecret('Input Secret : ') . "\<NL>",
               \ &encoding, vimproc#util#termencoding())
 
         call subproc.stdin.write(in)
@@ -299,7 +301,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
 
       let s:last_errmsg .= out
       let output .= out
-    endif
+    endif"}}}
   endwhile
 
   let [cond, status] = subproc.waitpid()
@@ -318,15 +320,20 @@ function! vimproc#system(cmdline, ...)"{{{
     if a:cmdline =~ '&\s*$'
       let cmdline = substitute(a:cmdline, '&\s*$', '', '')
       return vimproc#system_bg(cmdline)
-    elseif (!has('unix') || a:cmdline !~ '^\s*man ')
-      return call('vimproc#parser#system', [a:cmdline]+a:000)
     endif
+
+    let args = vimproc#parser#parse_statements(a:cmdline)
+    for arg in args
+      let arg.statement = vimproc#parser#parse_pipe(arg.statement)
+    endfor
+  else
+    let args = a:cmdline
   endif
 
   let timeout = a:0 >= 2 ? a:2 : 0
   let input = a:0 >= 1 ? a:1 : ''
 
-  return s:system(a:cmdline, 0, input, timeout, 0)
+  return s:system(args, 0, input, timeout, 0)
 endfunction"}}}
 function! vimproc#system2(...)"{{{
   if empty(a:000)
@@ -352,15 +359,17 @@ function! vimproc#system_passwd(cmdline, ...)"{{{
     if a:cmdline =~ '&\s*$'
       let cmdline = substitute(a:cmdline, '&\s*$', '', '')
       return vimproc#system_bg(cmdline)
-    elseif (!has('unix') || a:cmdline !~ '^\s*man ')
-      return call('vimproc#parser#system', [a:cmdline]+a:000)
     endif
+
+    let args = vimproc#parser#parse_pipe(a:cmdline)
+  else
+    let args = a:cmdline
   endif
 
   let timeout = a:0 >= 2 ? a:2 : 0
   let input = a:0 >= 1 ? a:1 : ''
 
-  return s:system(a:cmdline, 1, input, timeout, 1)
+  return s:system(args, 1, input, timeout, 1)
 endfunction"}}}
 function! vimproc#system_bg(cmdline)"{{{
   " Open pipe.
