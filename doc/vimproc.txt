@@ -247,6 +247,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-01-24
+- Fixed g:vimproc_shell_commands error.
+
 2012-01-23
 - Fixed password input.
 
