@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 19 Sep 2011.
+" Last Modified: 25 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -48,8 +48,8 @@ function! vimproc#parser#system(cmdline, ...)"{{{
   endif
 endfunction"}}}
 function! vimproc#parser#system_bg(cmdline)"{{{
-  let cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[: match(a:cmdline, '&\s*$') - 1] : a:cmdline
-  
+  let cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[:match(a:cmdline, '&\s*$') - 1] : a:cmdline
+
   if s:is_win
     silent execute '!start' cmdline
     return ''
@@ -100,14 +100,16 @@ function! vimproc#parser#parse_pipe(statement)"{{{
     endif
 
     for key in ['stdout', 'stderr']
-      if fd[key] != '' && fd[key] !~ '^>'
-        if fd[key] ==# '/dev/clip'
-          " Clear.
-          let @+ = ''
-        elseif fd[key] ==# '/dev/quickfix'
-          " Clear quickfix.
-          call setqflist([])
-        endif
+      if fd[key] == '' || fd[key] =~ '^>'
+        continue
+      endif
+
+      if fd[key] ==# '/dev/clip'
+        " Clear.
+        let @+ = ''
+      elseif fd[key] ==# '/dev/quickfix'
+        " Clear quickfix.
+        call setqflist([])
       endif
     endfor
 
@@ -643,10 +645,13 @@ function! s:parse_variables(script)"{{{
         " Eval variables.
         if exists('b:vimshell')
           " For vimshell.
-          if match(a:script, '^$\l', i) >= 0
-            let script .= string(eval(printf("b:vimshell.variables['%s']", matchstr(a:script, '^$\zs\l\w*', i))))
-          elseif match(a:script, '^$$', i) >= 0
-            let script .= string(eval(printf("b:vimshell.system_variables['%s']", matchstr(a:script, '^$$\zs\h\w*', i))))
+          let script_head = a:script[i:]
+          if script_head =~ '^$\l'
+            let script .= string(eval(printf("b:vimshell.variables['%s']",
+                  \ matchstr(a:script, '^$\zs\l\w*', i))))
+          elseif script_head =~ '^$$'
+            let script .= string(eval(printf("b:vimshell.system_variables['%s']",
+                  \ matchstr(a:script, '^$$\zs\h\w*', i))))
           else
             let script .= string(eval(matchstr(a:script, '^$\h\w*', i)))
           endif
