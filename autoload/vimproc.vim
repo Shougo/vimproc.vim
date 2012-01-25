@@ -832,11 +832,9 @@ function! s:close() dict"{{{
   let self.fd = -1
 endfunction"}}}
 function! s:read(...) dict"{{{
-  let output = self.buffer
-  let self.buffer = ''
   if self.__eof
     let self.eof = 1
-    return output
+    return ''
   endif
 
   let number = get(a:000, 0, -1)
@@ -845,10 +843,10 @@ function! s:read(...) dict"{{{
   let self.eof = eof
   let self.__eof = eof
 
-  return output . s:hd2str([hd])
+  return s:hd2str([hd])
 endfunction"}}}
 function! s:read_lines(...) dict"{{{
-  let res = ''
+  let res = self.buffer
 
   while !self.eof && stridx(res, "\n") < 0
     let res .= call(self.read, a:000, self)
