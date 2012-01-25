@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 24 Jan 2012.
+" Last Modified: 25 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1089,9 +1089,7 @@ function! s:vp_file_close() dict
 endfunction
 
 function! s:vp_file_read(number, timeout) dict
-  let self.buffer = ''
   let [hd, eof] = s:libcall('vp_file_read', [self.fd, a:number, a:timeout])
-  let hd = self.buffer . hd
   return [hd, eof]
 endfunction
 
