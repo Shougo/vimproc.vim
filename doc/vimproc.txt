@@ -250,6 +250,7 @@ CHANGELOG					*vimproc-changelog*
 2012-02-01
 - Fixed encoding check.
 - Added g:vimproc_popen2_commands option.
+- Improved error detection.
 
 2012-01-31
 - Improved error check.

@@ -39,10 +39,8 @@ if s:is_win && &encoding ==# 'utf-8'
       \ && (vimproc#util#termencoding() ==# 'default' ||
       \     vimproc#util#termencoding() ==# '')
   echoerr 'You changed "encoding" option to "utf-8", but "termencoding" option is not set.'
-  echoerr 'Multibyte characters may be broken.'
 elseif &encoding =~# '^euc-jp'
   echoerr 'Sorry, vimproc is not supported this encoding environment.'
-  echoerr 'vimproc is disabled.'
   finish
 endif
 "}}}
@@ -758,10 +756,10 @@ function! vimproc#readdir(dirname)"{{{
   try
     let files = s:libcall('vp_readdir', [dirname])
   catch
-    echoerr v:throwpoint
-    echoerr v:exception
-    echoerr 'Your vimproc binary is too old!'
-    echoerr 'Please re-compile it.'
+    call s:print_error(v:throwpoint)
+    call s:print_error(v:exception)
+    call s:print_error('Your vimproc binary is too old!')
+    call s:print_error('Please re-compile it.')
   endtry
 
   if termencoding !=# &encoding
@@ -773,7 +771,7 @@ endfunction"}}}
 
 function! vimproc#delete_trash(filename)"{{{
   if !s:is_win
-    echoerr 'Not implemented in this platform.'
+    call s:print_error('Not implemented in this platform.')
     return
   endif
 
@@ -795,10 +793,10 @@ function! vimproc#delete_trash(filename)"{{{
   try
     let [ret] = s:libcall('vp_delete_trash', [filename])
   catch
-    echoerr v:throwpoint
-    echoerr v:exception
-    echoerr 'Your vimproc binary is too old!'
-    echoerr 'Please re-compile it.'
+    call s:print_error(v:throwpoint)
+    call s:print_error(v:exception)
+    call s:print_error('Your vimproc binary is too old!')
+    call s:print_error('Please re-compile it.')
   endtry
 
   return str2nr(ret)
@@ -1114,8 +1112,8 @@ function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
   endif
 
   if a:npipe != len(fdlist)
-    echohl WarningMsg | echomsg printf('a:npipe = %d, a:argv = %s', a:npipe, string(a:argv)) | echohl None
-    echohl WarningMsg | echomsg printf('fdlist = %s', string(fdlist)) | echohl None
+    call s:print_error(printf('a:npipe = %d, a:argv = %s', a:npipe, string(a:argv)))
+    call s:print_error(printf('fdlist = %s', string(fdlist)))
     echoerr 'Bug behavior is detected!: ' . pid
   endif
 
