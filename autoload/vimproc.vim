@@ -501,9 +501,8 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
     let command_name = fnamemodify(args[0], ':t:r')
     let pty_npipe = cnt == 0
           \ && hstdin == 0 && hstdout == 0 && hstderr == 0
-          \ && exists('g:vimproc_shell_commands')
-          \ && has_key(g:vimproc_shell_commands, command_name)
-          \ && g:vimproc_shell_commands[command_name] ?
+          \ && exists('g:vimproc_popen2_commands')
+          \ && get(g:vimproc_popen2_commands, command_name, 0) != 0 ?
           \ 2 : npipe
 
     if a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
