@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 31 Jan 2012.
+" Last Modified: 01 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -34,6 +34,19 @@ let s:is_win = has('win32') || has('win64')
 let s:is_msys = $MSYSTEM != ''
 let s:is_mac = !s:is_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
 
+" Check 'encoding'"{{{
+if s:is_win && &encoding ==# 'utf-8'
+      \ && (vimproc#util#termencoding() ==# 'default' ||
+      \     vimproc#util#termencoding() ==# '')
+  echoerr 'You changed "encoding" option to "utf-8", but "termencoding" option is not set.'
+  echoerr 'Multibyte characters may be broken.'
+elseif &encoding =~# '^euc-jp'
+  echoerr 'Sorry, vimproc is not supported this encoding environment.'
+  echoerr 'vimproc is disabled.'
+  finish
+endif
+"}}}
+
 " MacVim trouble shooter {{{
 if s:is_mac && !&encoding
   set encoding=utf-8
@@ -61,19 +74,6 @@ let g:vimproc_dll_path =
 
 let g:vimproc_dll_path = vimproc#util#iconv(g:vimproc_dll_path,
       \ &encoding, vimproc#util#termencoding())
-
-" Check 'encoding'"{{{
-if s:is_win && &encoding ==# 'utf-8'
-      \ && (vimproc#util#termencoding() ==# 'default' ||
-      \     vimproc#util#termencoding() ==# '')
-  echoerr 'You changed "encoding" option to "utf-8", but "termencoding" option is not set.'
-  echoerr 'Multibyte characters may be broken.'
-elseif &encoding =~# '^euc-jp'
-  echoerr 'Sorry, vimproc is not supported this encoding environment.'
-  echoerr 'vimproc is disabled.'
-  finish
-endif
-"}}}
 
 if !filereadable(g:vimproc_dll_path)
   echoerr printf('vimproc''s DLL: "%s" is not found.
