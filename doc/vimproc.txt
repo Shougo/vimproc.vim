@@ -247,6 +247,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-02-02
+- Fixed vimproc#version().
+
 2012-02-01
 - Fixed encoding check.
 - Added g:vimproc_popen2_commands option.

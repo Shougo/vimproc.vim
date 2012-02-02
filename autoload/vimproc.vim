@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 01 Feb 2012.
+" Last Modified: 02 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -50,9 +50,6 @@ if s:is_mac && !&encoding
   set encoding=utf-8
 endif
 "}}}
-function! vimproc#version()
-  return str2nr(printf('%2d%02d', 6, 1))
-endfunction
 
 let s:last_status = 0
 let s:last_errmsg = ''
@@ -79,8 +76,13 @@ if !filereadable(g:vimproc_dll_path)
   finish
 endif
 
+function! vimproc#version()"{{{
+  return str2nr(printf('%2d%02d', 6, 1))
+endfunction"}}}
+
 "-----------------------------------------------------------
 " API
+
 
 function! vimproc#open(filename)"{{{
   let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'), &encoding, vimproc#util#termencoding())
@@ -1413,5 +1415,6 @@ endif
 let &cpo = s:save_cpo
 unlet s:save_cpo
 " }}}
+
 " __END__
 " vim:foldmethod=marker:fen:sw=2:sts=2
