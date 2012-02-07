@@ -66,6 +66,8 @@ Below is Make command.
 
 * Visual Studio: >
 	$ make -f make_msvc.mak
+	or
+	$ nmake /f make_msvc.mak
 
 * Cygwin: >
 	$ make -f make_cygwin.mak
