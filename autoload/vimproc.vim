@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 02 Feb 2012.
+" Last Modified: 08 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -32,15 +32,20 @@ set cpo&vim
 
 let s:is_win = has('win32') || has('win64')
 let s:is_msys = $MSYSTEM != ''
-let s:is_mac = !s:is_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
+let s:is_mac = !s:is_win && (has('mac') || has('macunix')
+      \ || has('gui_macvim') || system('uname') =~? '^darwin')
+
+function! s:print_error(string)
+  echohl Error | echomsg a:string | echohl None
+endfunction
 
 " Check 'encoding'"{{{
 if s:is_win && &encoding ==# 'utf-8'
       \ && (vimproc#util#termencoding() ==# 'default' ||
       \     vimproc#util#termencoding() ==# '')
-  echoerr 'You changed "encoding" option to "utf-8", but "termencoding" option is not set.'
+  call s:print_error('You changed "encoding" option to "utf-8", but "termencoding" option is not set.')
 elseif &encoding =~# '^euc-jp'
-  echoerr 'Sorry, vimproc is not supported this encoding environment.'
+  call s:print_error('Sorry, vimproc is not supported this encoding environment.')
   finish
 endif
 "}}}
@@ -1052,10 +1057,6 @@ endfunction"}}}
 
 function! s:SID_PREFIX()
   return matchstr(expand('<sfile>'), '<SNR>\d\+_\zeSID_PREFIX$')
-endfunction
-
-function! s:print_error(string)
-  echohl Error | echomsg a:string | echohl None
 endfunction
 
 " Get funcref.
