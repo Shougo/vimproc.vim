@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 25 Jan 2012.
+" Last Modified: 10 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -645,7 +645,7 @@ function! s:parse_variables(script)"{{{
         " Eval variables.
         if exists('b:vimshell')
           " For vimshell.
-          let script_head = a:script[i:]
+          let script_head = a:script[i :]
           if script_head =~ '^$\l'
             let script .= string(eval(printf("b:vimshell.variables['%s']",
                   \ matchstr(a:script, '^$\zs\l\w*', i))))
