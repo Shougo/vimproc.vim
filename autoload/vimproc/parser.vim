@@ -517,7 +517,7 @@ function! vimproc#parser#expand_wildcard(wildcard)"{{{
       elseif modifier[i] ==# '%'
         " Device.
 
-        if modifier[i:] =~# '^%[bc]'
+        if modifier[i :] =~# '^%[bc]'
           if modifier[i] ==# 'b'
             " Block device.
             let expr = 'getftype(v:val) ==# "bdev"'
