@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 08 Feb 2012.
+" Last Modified: 11 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -30,9 +30,8 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-let s:is_win = has('win32') || has('win64')
 let s:is_msys = $MSYSTEM != ''
-let s:is_mac = !s:is_win && (has('mac') || has('macunix')
+let s:is_mac = !vimproc#util#is_windows() && (has('mac') || has('macunix')
       \ || has('gui_macvim') || system('uname') =~? '^darwin')
 
 function! s:print_error(string)
@@ -40,7 +39,7 @@ function! s:print_error(string)
 endfunction
 
 " Check 'encoding'"{{{
-if s:is_win && &encoding ==# 'utf-8'
+if vimproc#util#is_windows() && &encoding ==# 'utf-8'
       \ && (vimproc#util#termencoding() ==# 'default' ||
       \     vimproc#util#termencoding() ==# '')
   call s:print_error('You changed "encoding" option to "utf-8", but "termencoding" option is not set.')
@@ -67,7 +66,7 @@ let s:password_regex =
 " Global options definition."{{{
 let g:vimproc_dll_path =
       \ get(g:, 'vimproc_dll_path', expand("<sfile>:p:h") .
-      \     (s:is_win ? '/proc.dll' :
+      \     (vimproc#util#is_windows() ? '/proc.dll' :
       \      has('win32unix') ? '/proc_cygwin.dll'
       \      : '/proc.so'))
 "}}}
@@ -93,7 +92,7 @@ function! vimproc#open(filename)"{{{
   let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'), &encoding, vimproc#util#termencoding())
 
   " Detect desktop environment.
-  if s:is_win
+  if vimproc#util#is_windows()
     " For URI only.
     "execute '!start rundll32 url.dll,FileProtocolHandler' filename
 
@@ -134,8 +133,8 @@ function! vimproc#get_command_name(command, ...)"{{{
   endif
 
   " Expand path.
-  let path = substitute(path, (s:is_win ? ';' : ':'), ',', 'g')
-  if s:is_win
+  let path = substitute(path, (vimproc#util#is_windows() ? ';' : ':'), ',', 'g')
+  if vimproc#util#is_windows()
     let path = substitute(path, '\\', '/', 'g')
   endif
 
@@ -146,15 +145,15 @@ function! vimproc#get_command_name(command, ...)"{{{
 
   let command = vimproc#util#expand(a:command)
 
-  let pattern = printf('[/~]\?\f\+[%s]\f*$', s:is_win && !s:is_msys ? '/\\' : '/')
-  if command =~ pattern && (!s:is_win || fnamemodify(command, ':e') != '')
+  let pattern = printf('[/~]\?\f\+[%s]\f*$', vimproc#util#is_windows() && !s:is_msys ? '/\\' : '/')
+  if command =~ pattern && (!vimproc#util#is_windows() || fnamemodify(command, ':e') != '')
     if !executable(command)
       let command = resolve(command)
     endif
 
     if !filereadable(command)
       throw printf('vimproc#get_command_name: File "%s" is not found.', command)
-    elseif !s:is_win && !executable(command)
+    elseif !vimproc#util#is_windows() && !executable(command)
       throw printf('vimproc#get_command_name: File "%s" is not executable.', command)
     endif
 
@@ -163,7 +162,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
   " Command search.
   let suffixesadd_save = &l:suffixesadd
-  if s:is_win
+  if vimproc#util#is_windows()
     " On Windows, findfile() search a file which don't have file extension
     " also. When there are 'perldoc', 'perldoc.bat' in your $PATH,
     " executable('perldoc')  return 1 cause by you have 'perldoc.bat'.
@@ -220,7 +219,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
     if file == ''
       throw printf('vimproc#get_command_name: File "%s" is not found.', command)
-    elseif !s:is_win && !executable(file)
+    elseif !vimproc#util#is_windows() && !executable(file)
       throw printf('vimproc#get_command_name: File "%s" is not executable.', file)
     endif
   endif
@@ -393,7 +392,7 @@ function! vimproc#system_bg(cmdline)"{{{
   return ''
 endfunction"}}}
 function! vimproc#system_gui(cmdline)"{{{
-  if s:is_win
+  if vimproc#util#is_windows()
     silent execute ':!start ' . join(map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""'))
     return ''
   else
@@ -597,7 +596,7 @@ function! vimproc#pgroup_open(statements, ...)"{{{
   let is_pty = get(a:000, 0, 0)
   let npipe = get(a:000, 1, 3)
 
-  return s:pgroup_open(statements, is_pty && !s:is_win, npipe)
+  return s:pgroup_open(statements, is_pty && !vimproc#util#is_windows(), npipe)
 endfunction"}}}
 
 function! s:pgroup_open(statements, is_pty, npipe)"{{{
@@ -629,7 +628,7 @@ function! vimproc#ptyopen(commands, ...)"{{{
         \ a:commands
   let npipe = get(a:000, 0, 3)
 
-  return s:plineopen(npipe, commands, !s:is_win)
+  return s:plineopen(npipe, commands, !vimproc#util#is_windows())
 endfunction"}}}
 
 function! vimproc#socket_open(host, port)"{{{
@@ -777,7 +776,7 @@ function! vimproc#readdir(dirname)"{{{
 endfunction"}}}
 
 function! vimproc#delete_trash(filename)"{{{
-  if !s:is_win
+  if !vimproc#util#is_windows()
     call s:print_error('Not implemented in this platform.')
     return
   endif
@@ -947,7 +946,7 @@ function! s:garbage_collect()"{{{
           call vimproc#kill(pid, 15)
         endif
 
-        if s:is_win
+        if vimproc#util#is_windows()
           call s:libcall('vp_close_handle', [pid])
         endif
         call remove(s:bg_processes, pid)
@@ -1002,7 +1001,7 @@ function! s:analyze_shebang(filename)"{{{
       " Maybe a binary file.
       return [a:filename]
     endif
-  elseif !s:is_win || '.'.fnamemodify(a:filename, ':e') !~?
+  elseif !vimproc#util#is_windows() || '.'.fnamemodify(a:filename, ':e') !~?
         \ '^' . substitute($PATHEXT, ';', '$\\|^', 'g') . '$'
     return [a:filename]
   endif
@@ -1017,7 +1016,7 @@ function! s:analyze_shebang(filename)"{{{
   let shebang = split(matchstr(lines[0], '^#!\zs.\+'))
 
   " Convert command name.
-  if s:is_win && shebang[0] =~ '^/'
+  if vimproc#util#is_windows() && shebang[0] =~ '^/'
     let shebang[0] = vimproc#get_command_name(fnamemodify(shebang[0], ':t'))
   endif
 
@@ -1102,7 +1101,7 @@ function! s:vp_file_write(hd, timeout) dict
 endfunction
 
 function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
-  if s:is_win
+  if vimproc#util#is_windows()
     let cmdline = ''
     for arg in a:argv
       let cmdline .= '"' . substitute(arg, '"', '\\"', 'g') . '" '
@@ -1274,7 +1273,7 @@ function! s:vp_pty_write(hd, timeout) dict
 endfunction
 
 function! s:vp_get_winsize() dict
-  if self.is_pty && s:is_win
+  if self.is_pty && vimproc#util#is_windows()
     return [winwidth(0)-5, winheight(0)]
   endif
 
@@ -1286,7 +1285,7 @@ function! s:vp_get_winsize() dict
 endfunction
 
 function! s:vp_set_winsize(width, height) dict
-  if s:is_win || !self.is_valid
+  if vimproc#util#is_windows() || !self.is_valid
     " Not implemented.
     return
   endif
@@ -1347,7 +1346,7 @@ function! s:waitpid(pid)
       let s:bg_processes[a:pid] = a:pid
 
       let [cond, status] = ['exit', '0']
-    elseif s:is_win
+    elseif vimproc#util#is_windows()
       call s:libcall('vp_close_handle', [a:pid])
     endif
 

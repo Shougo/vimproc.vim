@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 14 Jan 2012.
+" Last Modified: 11 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -28,7 +28,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-let s:is_win = has('win32') || has('win64')
+let s:is_windows = has('win32') || has('win64')
 
 " iconv() wrapper for safety.
 function! vimproc#util#iconv(expr, from, to)"{{{
@@ -42,7 +42,7 @@ function! vimproc#util#iconv(expr, from, to)"{{{
   return result != '' ? result : a:expr
 endfunction"}}}
 function! vimproc#util#termencoding()"{{{
-  return s:is_win && &termencoding == '' ?
+  return vimproc#util#is_windows() && &termencoding == '' ?
         \ 'default' : &termencoding
 endfunction"}}}
 function! vimproc#util#stdinencoding()"{{{
@@ -58,7 +58,10 @@ function! vimproc#util#stderrencoding()"{{{
         \ g:stderrencoding : vimproc#util#termencoding()
 endfunction"}}}
 function! vimproc#util#expand(path)"{{{
-  return expand(escape(a:path, s:is_win ? '*?"={}' : '*?"={}[]'))
+  return expand(escape(a:path, vimproc#util#is_windows() ? '*?"={}' : '*?"={}[]'))
+endfunction"}}}
+function! vimproc#util#is_windows()"{{{
+  return s:is_windows
 endfunction"}}}
 
 " Restore 'cpoptions' {{{

@@ -311,6 +311,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-02-11
+- Refactored is_windows.
+
 2012-02-10
 - Fixed parse variable error.
 

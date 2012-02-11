@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 10 Feb 2012.
+" Last Modified: 11 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -29,8 +29,6 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-let s:is_win = has('win32') || has('win64')
-
 function! vimproc#parser#system(cmdline, ...)"{{{
   let args = vimproc#parser#parse_statements(a:cmdline)
   for arg in args
@@ -50,7 +48,7 @@ endfunction"}}}
 function! vimproc#parser#system_bg(cmdline)"{{{
   let cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[:match(a:cmdline, '&\s*$') - 1] : a:cmdline
 
-  if s:is_win
+  if vimproc#util#is_windows()
     silent execute '!start' cmdline
     return ''
   else
