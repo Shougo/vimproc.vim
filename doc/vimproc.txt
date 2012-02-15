@@ -313,6 +313,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-02-15
 - Fixed block parse(but, incomplete).
+- Fixed not supported path error.
 
 2012-02-11
 - Refactored is_windows.
