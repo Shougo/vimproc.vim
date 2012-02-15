@@ -242,6 +242,10 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
   let subproc = (type(a:cmdline[0]) == type('')) ? vimproc#popen3(a:cmdline) :
         \ a:is_pty ? vimproc#ptyopen(a:cmdline):
         \ vimproc#pgroup_open(a:cmdline)
+  if empty(subproc)
+    " Not supported path error.
+    return ''
+  endif
 
   if a:input != ''
     " Write input.
@@ -387,6 +391,10 @@ endfunction"}}}
 function! vimproc#system_bg(cmdline)"{{{
   " Open pipe.
   let subproc = vimproc#popen3(a:cmdline)
+  if empty(subproc)
+    " Not supported path error.
+    return ''
+  endif
 
   " Close handles.
   call s:close_all(subproc)
@@ -506,6 +514,9 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
     endif
 
     let args = s:convert_args(command.args)
+    if empty(args)
+      return {}
+    endif
     let command_name = fnamemodify(args[0], ':t:r')
     let pty_npipe = cnt == 0
           \ && hstdin == 0 && hstdout == 0 && hstderr == 0
@@ -995,7 +1006,7 @@ function! s:convert_args(args)"{{{
   endif
 
   let command_name = vimproc#get_command_name(a:args[0])
-  if command_name =~ '^\a\+:'
+  if command_name =~ '^\a\a\+:'
     " Not supported.
     return []
   endif
