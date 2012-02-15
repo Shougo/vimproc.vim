@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 11 Feb 2012.
+" Last Modified: 15 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -62,33 +62,8 @@ endfunction"}}}
 function! vimproc#parser#parse_pipe(statement)"{{{
   let commands = []
   for cmdline in vimproc#parser#split_pipe(a:statement)
-    " Expand block.
-    if cmdline =~ '{'
-      let cmdline = s:parse_block(cmdline)
-    endif
-
-    " Expand tilde.
-    if cmdline =~ '\~'
-      let cmdline = s:parse_tilde(cmdline)
-    endif
-
-    " Expand filename.
-    if cmdline =~ ' ='
-      let cmdline = s:parse_equal(cmdline)
-    endif
-
-    " Expand variables.
-    if cmdline =~ '\$'
-      let cmdline = s:parse_variables(cmdline)
-    endif
-
-    " Expand wildcard.
-    if cmdline =~ '[[*?]\|\\[()|]'
-      let cmdline = s:parse_wildcard(cmdline)
-    endif
-
     " Split args.
-    let args = vimproc#parser#split_args(cmdline)
+    let args = s:parse_cmdline(cmdline)
 
     " Parse redirection.
     if cmdline =~ '[<>]'
@@ -112,12 +87,43 @@ function! vimproc#parser#parse_pipe(statement)"{{{
     endfor
 
     call add(commands, {
-          \ 'args' : vimproc#parser#split_args(cmdline),
+          \ 'args' : args,
           \ 'fd' : fd
           \})
   endfor
 
   return commands
+endfunction"}}}
+function! s:parse_cmdline(cmdline)"{{{
+  let cmdline = a:cmdline
+
+  " Expand block.
+  if cmdline =~ '{'
+    let cmdline = s:parse_block(cmdline)
+  endif
+
+  " Expand tilde.
+  if cmdline =~ '\~'
+    let cmdline = s:parse_tilde(cmdline)
+  endif
+
+  " Expand filename.
+  if cmdline =~ ' ='
+    let cmdline = s:parse_equal(cmdline)
+  endif
+
+  " Expand variables.
+  if cmdline =~ '\$'
+    let cmdline = s:parse_variables(cmdline)
+  endif
+
+  " Expand wildcard.
+  if cmdline =~ '[[*?]\|\\[()|]'
+    let cmdline = s:parse_wildcard(cmdline)
+  endif
+
+  " Split args.
+  return vimproc#parser#split_args(cmdline)
 endfunction"}}}
 function! vimproc#parser#parse_statements(script)"{{{
   if a:script =~ '^\s*:'
@@ -554,6 +560,8 @@ function! s:parse_block(script)"{{{
       " Truncate script.
       let script = script[: -len(head)-1]
       let block = matchstr(a:script, '{\zs.*[^\\]\ze}', i)
+      let foot = join(s:parse_cmdline(
+            \ a:script[matchend(a:script, '{.*[^\\]}', i) :]))
       if block == ''
         throw 'Exception: Block is not found.'
       elseif block =~ '^\d\+\.\.\d\+$'
@@ -564,16 +572,16 @@ function! s:parse_block(script)"{{{
         let pattern = '%0' . zero . 'd'
         for b in range(start, end)
           " Concat.
-          let script .= head . printf(pattern, b) . ' '
+          let script .= head . printf(pattern, b) . foot . ' '
         endfor
       else
         " Normal block.
         for b in split(block, ',', 1)
           " Concat.
-          let script .= head . escape(b, ' ') . ' '
+          let script .= head . escape(b, ' ') . foot . ' '
         endfor
       endif
-      let i = matchend(a:script, '{.*[^\\]}', i)
+      return script
     else
       let [script, i] = s:skip_else(script, a:script, i)
     endif
