@@ -205,7 +205,14 @@ function! vimproc#get_command_name(command, ...)"{{{
     endif"}}}
   else
     let &l:suffixesadd = ''
-    let file = findfile(command, path, cnt)
+    while 1
+      let file = findfile(command, path, cnt)
+      if file == '' || file !~ '^\a\+:'
+        break
+      endif
+
+      let cnt += 1
+    endwhile
   endif
   let &l:suffixesadd = suffixesadd_save
 
