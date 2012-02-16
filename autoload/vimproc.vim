@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Feb 2012.
+" Last Modified: 16 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -210,22 +210,27 @@ function! vimproc#get_command_name(command, ...)"{{{
   let &l:suffixesadd = suffixesadd_save
 
   if cnt < 0
-    return map(filter(file, 'executable(v:val)'), 'fnamemodify(v:val, ":p")')
-  endif
-
-  if file != ''
-    let file = fnamemodify(file, ':p')
-  endif
-
-  if !executable(command)
-    let file = resolve(file)
+    return map(filter(file, 'executable(v:val)'),
+          \ 'fnamemodify(v:val, ":p")')
   endif
 
   if file == ''
-    throw printf('vimproc#get_command_name: File "%s" is not found.', command)
-  elseif !vimproc#util#is_windows() && !executable(file)
-        \ && file !~ '^\a\+:'
-    throw printf('vimproc#get_command_name: File "%s" is not executable.', file)
+    throw printf(
+          \ 'vimproc#get_command_name: File "%s" is not found.', command)
+  endif
+
+  if file !~ '^\%(/\|\a\+:\)'
+    " Convert to full path.
+    let file = fnamemodify(file, ':p')
+  endif
+
+  if !executable(file)
+    let file = resolve(file)
+  endif
+
+  if !vimproc#util#is_windows() && !executable(file)
+    throw printf(
+          \ 'vimproc#get_command_name: File "%s" is not executable.', file)
   endif
 
   return file
@@ -242,10 +247,6 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
   let subproc = (type(a:cmdline[0]) == type('')) ? vimproc#popen3(a:cmdline) :
         \ a:is_pty ? vimproc#ptyopen(a:cmdline):
         \ vimproc#pgroup_open(a:cmdline)
-  if empty(subproc)
-    " Not supported path error.
-    return ''
-  endif
 
   if a:input != ''
     " Write input.
@@ -514,9 +515,6 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
     endif
 
     let args = s:convert_args(command.args)
-    if empty(args)
-      return {}
-    endif
     let command_name = fnamemodify(args[0], ':t:r')
     let pty_npipe = cnt == 0
           \ && hstdin == 0 && hstdout == 0 && hstderr == 0
@@ -1006,10 +1004,6 @@ function! s:convert_args(args)"{{{
   endif
 
   let command_name = vimproc#get_command_name(a:args[0])
-  if command_name =~ '^\a\a\+:'
-    " Not supported.
-    return []
-  endif
 
   return s:analyze_shebang(command_name) + a:args[1:]
 endfunction"}}}
