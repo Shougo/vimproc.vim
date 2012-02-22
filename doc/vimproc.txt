@@ -311,6 +311,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-02-22
+- Added checkpid memeber.
+
 2012-02-16
 - Fixed vimproc#get_command_name().
 

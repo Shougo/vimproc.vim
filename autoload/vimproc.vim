@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 16 Feb 2012.
+" Last Modified: 22 Feb 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -583,6 +583,7 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
   let proc.set_winsize = s:funcref('vp_set_winsize')
   let proc.kill = s:funcref('vp_kill')
   let proc.waitpid = s:funcref('vp_waitpid')
+  let proc.checkpid = s:funcref('vp_checkpid')
   let proc.is_valid = 1
   let proc.is_pty = a:is_pty
   if a:is_pty
@@ -1380,12 +1381,27 @@ function! s:waitpid(pid)
   return [cond, str2nr(status)]
 endfunction
 
+function! s:vp_checkpid() dict
+  let [cond, status] = s:libcall('vp_waitpid', self.pid)
+  if cond !=# 'run'
+    let [self.cond, self.status] = [cond, status]
+  endif
+
+  return [cond, str2nr(status)]
+endfunction
+
 function! s:vp_waitpid() dict
   call s:close_all(self)
 
   let self.is_valid = 0
 
-  let [cond, status] = s:waitpid(self.pid)
+  if has_key(self, 'cond') && has_key(self, 'status')
+    " Use cache.
+    let [cond, status] = [self.cond, self.status]
+  else
+    let [cond, status] = s:waitpid(self.pid)
+  endif
+
   if cond ==# 'exit'
     let self.pid = 0
   endif
