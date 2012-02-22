@@ -1382,7 +1382,7 @@ function! s:waitpid(pid)
 endfunction
 
 function! s:vp_checkpid() dict
-  let [cond, status] = s:libcall('vp_waitpid', self.pid)
+  let [cond, status] = s:libcall('vp_waitpid', [self.pid])
   if cond !=# 'run'
     let [self.cond, self.status] = [cond, status]
   endif
