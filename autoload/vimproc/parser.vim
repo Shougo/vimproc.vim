@@ -63,7 +63,7 @@ function! vimproc#parser#parse_pipe(statement)"{{{
   let commands = []
   for cmdline in vimproc#parser#split_pipe(a:statement)
     " Split args.
-    let args = s:parse_cmdline(cmdline)
+    let cmdline = s:parse_cmdline(cmdline)
 
     " Parse redirection.
     if cmdline =~ '[<>]'
@@ -123,7 +123,7 @@ function! s:parse_cmdline(cmdline)"{{{
   endif
 
   " Split args.
-  return vimproc#parser#split_args(cmdline)
+  return cmdline
 endfunction"}}}
 function! vimproc#parser#parse_statements(script)"{{{
   if a:script =~ '^\s*:'
@@ -560,8 +560,8 @@ function! s:parse_block(script)"{{{
       " Truncate script.
       let script = script[: -len(head)-1]
       let block = matchstr(a:script, '{\zs.*[^\\]\ze}', i)
-      let foot = join(s:parse_cmdline(
-            \ a:script[matchend(a:script, '{.*[^\\]}', i) :]))
+      let foot = join(vimproc#parser#split_args(s:parse_cmdline(
+            \ a:script[matchend(a:script, '{.*[^\\]}', i) :])))
       if block == ''
         throw 'Exception: Block is not found.'
       elseif block =~ '^\d\+\.\.\d\+$'
@@ -600,6 +600,7 @@ function! s:parse_tilde(script)"{{{
       " Expand home directory.
       let script .= ' ' . escape(substitute($HOME, '\\', '/', 'g'), '\ ')
       let i += 2
+
     elseif i == 0 && a:script[i] == '~'
       " Tilde.
       " Expand home directory.

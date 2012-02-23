@@ -313,6 +313,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-02-24
 - Fixed redirection error.
+- Fixed parser.
 
 2012-02-22
 - Added checkpid memeber.
