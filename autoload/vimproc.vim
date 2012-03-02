@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 Feb 2012.
+" Last Modified: 03 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -71,8 +71,9 @@ let g:vimproc_dll_path =
       \      : '/proc.so'))
 "}}}
 
-let g:vimproc_dll_path = vimproc#util#iconv(g:vimproc_dll_path,
-      \ &encoding, vimproc#util#termencoding())
+let g:vimproc_dll_path = substitute(
+      \ vimproc#util#iconv(g:vimproc_dll_path,
+      \ &encoding, vimproc#util#termencoding()), '\\', '/', 'g')
 
 if !filereadable(g:vimproc_dll_path)
   echoerr printf('vimproc''s DLL: "%s" is not found.
