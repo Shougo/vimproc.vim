@@ -313,6 +313,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-03-05
 - Fixed expand() problem.
+- Improved version check.
 
 2012-03-03
 - Fixed path separator conversion.

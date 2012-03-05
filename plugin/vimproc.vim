@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 01 Feb 2012.
+" Last Modified: 05 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -24,10 +24,10 @@
 " }}}
 "=============================================================================
 
-if v:version < 702
-  echoerr 'vimproc does not work this version of Vim "' . v:version . '".'
+if exists('g:loaded_vimproc')
   finish
-elseif exists('g:loaded_vimproc')
+elseif v:version < 702
+  echoerr 'vimproc does not work this version of Vim "' . v:version . '".'
   finish
 endif
 
