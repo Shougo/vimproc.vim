@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 11 Feb 2012.
+" Last Modified: 05 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -58,7 +58,8 @@ function! vimproc#util#stderrencoding()"{{{
         \ g:stderrencoding : vimproc#util#termencoding()
 endfunction"}}}
 function! vimproc#util#expand(path)"{{{
-  return expand(escape(a:path, vimproc#util#is_windows() ? '*?"={}' : '*?"={}[]'))
+  return expand(escape(a:path,
+        \ vimproc#util#is_windows() ? '*?"={}' : '*?"={}[]'), 1)
 endfunction"}}}
 function! vimproc#util#is_windows()"{{{
   return s:is_windows
