@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 03 Mar 2012.
+" Last Modified: 07 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -37,17 +37,6 @@ let s:is_mac = !vimproc#util#is_windows() && (has('mac') || has('macunix')
 function! s:print_error(string)
   echohl Error | echomsg a:string | echohl None
 endfunction
-
-" Check 'encoding'"{{{
-if vimproc#util#is_windows() && &encoding ==# 'utf-8'
-      \ && (vimproc#util#termencoding() ==# 'default' ||
-      \     vimproc#util#termencoding() ==# '')
-  call s:print_error('You changed "encoding" option to "utf-8", but "termencoding" option is not set.')
-elseif &encoding =~# '^euc-jp'
-  call s:print_error('Sorry, vimproc is not supported this encoding environment.')
-  finish
-endif
-"}}}
 
 " MacVim trouble shooter {{{
 if s:is_mac && !&encoding
@@ -90,7 +79,8 @@ endfunction"}}}
 
 
 function! vimproc#open(filename)"{{{
-  let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'), &encoding, vimproc#util#termencoding())
+  let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'),
+        \ &encoding, vimproc#util#termencoding())
 
   " Detect desktop environment.
   if vimproc#util#is_windows()
@@ -776,10 +766,8 @@ function! vimproc#readdir(dirname)"{{{
     return []
   endif
 
-  let termencoding = vimproc#util#termencoding()
-  if termencoding !=# &encoding
-    let dirname = iconv(dirname, &encoding, termencoding)
-  endif
+  let dirname = iconv(dirname, &encoding,
+        \ vimproc#util#termencoding())
 
   try
     let files = s:libcall('vp_readdir', [dirname])
@@ -790,9 +778,7 @@ function! vimproc#readdir(dirname)"{{{
     call s:print_error('Please re-compile it.')
   endtry
 
-  if termencoding !=# &encoding
-    call map(files, 'iconv(v:val, termencoding, &encoding)')
-  endif
+  call map(files, 'iconv(v:val, termencoding, &encoding)')
 
   return files
 endfunction"}}}
@@ -813,10 +799,8 @@ function! vimproc#delete_trash(filename)"{{{
   endif
 
   " Encoding conversion.
-  if vimproc#util#termencoding() !=# &encoding
-    let filename = vimproc#util#iconv(filename,
-          \ &encoding, vimproc#util#termencoding())
-  endif
+  let filename = vimproc#util#iconv(filename,
+        \ &encoding, vimproc#util#termencoding())
 
   try
     let [ret] = s:libcall('vp_delete_trash', [filename])

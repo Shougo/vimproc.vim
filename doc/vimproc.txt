@@ -251,15 +251,15 @@ g:vimproc_popen2_commands
 		variable.
 
 						*g:stdinencoding*
-g:stdinencoding			(default : 'termencoding')
+g:stdinencoding			(default : "char")
 		The default vimproc stdin encoding.
 
 						*g:stdoutencoding*
-g:stdoutencoding		(default : 'termencoding')
+g:stdoutencoding		(default : "char")
 		The default vimproc stdout encoding.
 
 						*g:stderrencoding*
-g:stderrencoding		(default : 'termencoding')
+g:stderrencoding		(default : "char")
 		The default vimproc stderr encoding.
 
 ==============================================================================
@@ -310,6 +310,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-03-07
+- Don't use termencoding.
 
 2012-03-05
 - Fixed expand() problem.
