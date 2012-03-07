@@ -778,7 +778,7 @@ function! vimproc#readdir(dirname)"{{{
     call s:print_error('Please re-compile it.')
   endtry
 
-  call map(files, 'iconv(v:val, termencoding, &encoding)')
+  call map(files, 'iconv(v:val, vimproc#util#termencoding(), &encoding)')
 
   return files
 endfunction"}}}

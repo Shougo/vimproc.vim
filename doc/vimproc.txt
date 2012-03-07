@@ -313,6 +313,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-03-07
 - Don't use termencoding.
+- Fixed readdir() error.
 
 2012-03-05
 - Fixed expand() problem.
