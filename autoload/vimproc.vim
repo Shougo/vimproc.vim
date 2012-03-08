@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 07 Mar 2012.
+" Last Modified: 08 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -358,15 +358,18 @@ function! vimproc#system2(...)"{{{
 
   if len(a:0) > 1
     let args = deepcopy(a:000)
-    let args[1] = vimproc#util#iconv(args[1], &encoding, vimproc#util#stdinencoding())
+    let args[1] = vimproc#util#iconv(
+          \ args[1], &encoding, vimproc#util#stdinencoding())
   else
     let args = a:000
   endif
   let output = call('vimproc#system', args)
 
   " This function converts application encoding to &encoding.
-  let output = vimproc#util#iconv(output, vimproc#util#stdoutencoding(), &encoding)
-  let s:last_errmsg = vimproc#util#iconv(s:last_errmsg, vimproc#util#stderrencoding(), &encoding)
+  let output = vimproc#util#iconv(
+        \ output, vimproc#util#stdoutencoding(), &encoding)
+  let s:last_errmsg = vimproc#util#iconv(
+        \ s:last_errmsg, vimproc#util#stderrencoding(), &encoding)
 
   return output
 endfunction"}}}
