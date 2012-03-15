@@ -777,14 +777,7 @@ function! vimproc#readdir(dirname)"{{{
   let dirname = iconv(dirname, &encoding,
         \ vimproc#util#termencoding())
 
-  try
-    let files = s:libcall('vp_readdir', [dirname])
-  catch
-    call s:print_error(v:throwpoint)
-    call s:print_error(v:exception)
-    call s:print_error('Your vimproc binary is too old!')
-    call s:print_error('Please re-compile it.')
-  endtry
+  let files = s:libcall('vp_readdir', [dirname])
 
   call map(files, 'iconv(v:val, vimproc#util#termencoding(), &encoding)')
 
@@ -810,14 +803,7 @@ function! vimproc#delete_trash(filename)"{{{
   let filename = vimproc#util#iconv(filename,
         \ &encoding, vimproc#util#termencoding())
 
-  try
-    let [ret] = s:libcall('vp_delete_trash', [filename])
-  catch
-    call s:print_error(v:throwpoint)
-    call s:print_error(v:exception)
-    call s:print_error('Your vimproc binary is too old!')
-    call s:print_error('Please re-compile it.')
-  endtry
+  let [ret] = s:libcall('vp_delete_trash', [filename])
 
   return str2nr(ret)
 endfunction"}}}
