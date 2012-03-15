@@ -1432,7 +1432,7 @@ endif
 
 " vimproc dll version check."{{{
 try
-  let dll_version = s:libcall('vp_dlversion', [])
+  let dll_version = vimproc#dll_version()
   if dll_version < vimproc#version()
     throw printf('Your vimproc binary version is "%d",'
           \ ' but vimproc version is "%d".',
