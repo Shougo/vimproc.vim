@@ -58,6 +58,7 @@ const int debug = 0;
 /* API */
 EXPORT const char *vp_dlopen(char *args);      /* [handle] (path) */
 EXPORT const char *vp_dlclose(char *args);     /* [] (handle) */
+EXPORT const char *vp_dlversion(char *args);     /* [] (version) */
 
 EXPORT const char *vp_file_open(char *args);   /* [fd] (path, flags, mode) */
 EXPORT const char *vp_file_close(char *args);  /* [] (fd) */
@@ -152,6 +153,12 @@ vp_dlclose(char *args)
     return NULL;
 }
 
+const char *
+vp_dlversion(char *args)
+{
+    vp_stack_push_num(&_result, "%2d%02d", 7, 0);
+    return vp_stack_return(&_result);
+}
 
 const char *
 vp_file_open(char *args)

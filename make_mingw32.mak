@@ -1,7 +1,9 @@
-CFLAGS=-O2 -W -Wall -Wno-unused -use=gnu99 -shared
-TARGET=autoload/vimproc_cygwin.dll
-SRC=autoload/proc.c
-LDFLAGS+=-lutil
+# for MinGW.
+
+TARGET=autoload/vimproc_win32.dll
+SRC=autoload/proc_w32.c
+CFLAGS=-O2 -Wall -shared -m32
+LDFLAGS+=-lwsock32
 
 all: $(TARGET)
 

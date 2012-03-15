@@ -1,6 +1,6 @@
 CFLAGS=-W -O2 -Wall -Wno-unused -std=gnu99 -pedantic -shared
 
-TARGET=autoload/proc.so
+TARGET=autoload/vimproc_unix.so
 SRC=autoload/proc.c
 CFLAGS+=-fPIC
 LDFLAGS+=-lutil

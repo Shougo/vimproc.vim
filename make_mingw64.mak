@@ -1,8 +1,8 @@
 # for MinGW.
 
-TARGET=autoload/proc.dll
+TARGET=autoload/vimproc_win64.dll
 SRC=autoload/proc_w32.c
-CFLAGS=-O2 -Wall -shared
+CFLAGS=-O2 -Wall -shared -m64
 LDFLAGS+=-lwsock32
 
 all: $(TARGET)

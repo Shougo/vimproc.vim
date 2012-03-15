@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 07 Mar 2012.
+" Last Modified: 15 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -29,6 +29,8 @@ set cpo&vim
 " }}}
 
 let s:is_windows = has('win32') || has('win64')
+let s:is_mac = !s:is_windows && (has('mac') || has('macunix')
+      \ || has('gui_macvim') || system('uname') =~? '^darwin')
 
 " iconv() wrapper for safety.
 function! vimproc#util#iconv(expr, from, to)"{{{
@@ -62,6 +64,9 @@ function! vimproc#util#expand(path)"{{{
 endfunction"}}}
 function! vimproc#util#is_windows()"{{{
   return s:is_windows
+endfunction"}}}
+function! vimproc#util#is_mac()"{{{
+  return s:is_mac
 endfunction"}}}
 
 " Restore 'cpoptions' {{{

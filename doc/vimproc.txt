@@ -48,15 +48,19 @@ INSTALL						*vimproc-install*
 In first, you get vimproc from git repository.
 [http://github.com/Shougo/vimproc/tree/master](http://github.com/Shougo/vimproc/tree/master)
 
-Next, make external dll "proc.so(or proc.dll, proc_cygwin.dll)". Because
-vimproc depends on "proc.so(or proc.dll, proc_cygwin.dll)"'s function,
-vimproc echo error message when "proc.so(proc.dll)" don't exist.
+Next, make external dll "vimproc_xxx.so(or vimproc_win32.dll,
+vimproc_cygwin.dll)". Because vimproc depends on "vimproc_xxx.so(or
+vimproc_win32.dll, vimproc_cygwin.dll)"'s function, vimproc echo error message
+when "vimproc_xxx.so(vimproc_xxx.dll)" don't exist.
 
-Note: The proc_cygwin.dll compiled in Cygwin can't work for Windows Vim.
+Note: The vimproc_cygwin.dll compiled in Cygwin can't work for Windows Vim.
 
 Below is Make command.
-* Mingw: >
-	$ make -f make_mingw.mak
+* Mingw(32bit Vim): >
+	$ make -f make_mingw32.mak
+
+* Mingw(64bit Vim): >
+	$ make -f make_mingw64.mak
 
 * Mac OS X: >
 	$ make -f make_mac.mak
@@ -64,10 +68,10 @@ Below is Make command.
 * Linux BSD: >
 	$ make -f make_gcc.mak
 
-* Visual Studio: >
-	$ make -f make_msvc.mak
+* Visual Studio(32bit Vim): >
+	$ make -f make_msvc32.mak
 	or
-	$ nmake /f make_msvc.mak
+	$ nmake /f make_msvc32.mak
 
 * Cygwin: >
 	$ make -f make_cygwin.mak
@@ -75,7 +79,7 @@ Below is Make command.
 After compile, you copy autoload/* and plugin/* files to your
 'runtimepath' directory.
 
-I compiled proc.dll in 32/64 bit Windows, and distributed it below URL.
+I compiled vimproc_win**.dll in 32/64 bit Windows, and distributed it below URL.
 Note: I DON'T recommend to use it.
 http://github.com/Shougo/vimproc/downloads
 
@@ -99,6 +103,10 @@ FUNCTIONS 					*vimproc-functions*
 vimproc#version()				*vimproc#version()*
 		Returns vimproc version number as string. Version 5.0 is
 		"500".  Version 5.1 (5.01) is "501" same as |v:version|.
+
+vimproc#dll_version()				*vimproc#dll_version()*
+		Same to |vimproc#version()|, but it returns vimproc dll
+		version.
 
 vimproc#open({filename})			*vimproc#open()*
 		Opens {filename} with system associated command.
@@ -235,9 +243,11 @@ vimproc#delete_trash({filename})			*vimproc#delete_trash()*
 VARIABLES 					*vimproc-variables*
 
 						*g:vimproc_dll_path*
-g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/proc.dll"
-					Cygwin: "$VIMRUNTIME/autoload/proc_cygwin.dll"
-					others: "$VIMRUNTIME/autoload/proc.so")
+g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/vimproc_win32.dll"
+					Win64: "$VIMRUNTIME/autoload/vimproc_win64.dll"
+					Cygwin: "$VIMRUNTIME/autoload/vimproc_cygwin.dll"
+					Mac: "$VIMRUNTIME/autoload/vimproc_mac.dll"
+					others: "$VIMRUNTIME/autoload/vimproc_unix.so")
 		This variable is dll name used by vimproc.  You must compile
 		this dll file. If this dll is not exist, vimproc will echo
 		error.
@@ -313,6 +323,8 @@ CHANGELOG					*vimproc-changelog*
 
 2012-03-15
 - Ver.7 development started.
+- Changed g:vimproc_dll_path default path.
+- Added vimproc#dll_version().
 
 ------------------------------------------------------------------------------
 ChangeLog 6.1

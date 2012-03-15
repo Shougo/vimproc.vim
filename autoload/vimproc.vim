@@ -31,15 +31,13 @@ set cpo&vim
 " }}}
 
 let s:is_msys = $MSYSTEM != ''
-let s:is_mac = !vimproc#util#is_windows() && (has('mac') || has('macunix')
-      \ || has('gui_macvim') || system('uname') =~? '^darwin')
 
 function! s:print_error(string)
   echohl Error | echomsg a:string | echohl None
 endfunction
 
 " MacVim trouble shooter {{{
-if s:is_mac && !&encoding
+if vimproc#util#is_mac() && !&encoding
   set encoding=utf-8
 endif
 "}}}
@@ -54,10 +52,13 @@ let s:password_regex =
 
 " Global options definition."{{{
 let g:vimproc_dll_path =
-      \ get(g:, 'vimproc_dll_path', expand("<sfile>:p:h") .
-      \     (vimproc#util#is_windows() ? '/proc.dll' :
-      \      has('win32unix') ? '/proc_cygwin.dll'
-      \      : '/proc.so'))
+      \ get(g:, 'vimproc_dll_path', expand('<sfile>:p:h') . '/' .
+      \     (vimproc#util#is_windows() ?
+      \           (has('win64') ? 'vimproc_win64.dll' :
+      \                           'vimproc_win32.dll') :
+      \      has('win32unix') ? 'vimproc_cygwin.dll' :
+      \      vimproc#util#is_mac() ? 'vimproc_mac.so' :
+      \                              'vimproc_unix.so'))
 "}}}
 
 let g:vimproc_dll_path = substitute(
@@ -72,6 +73,10 @@ endif
 
 function! vimproc#version()"{{{
   return str2nr(printf('%2d%02d', 7, 0))
+endfunction"}}}
+function! vimproc#dll_version()"{{{
+  let [dll_version] = s:libcall('vp_dlversion', [])
+  return str2nr(dll_version)
 endfunction"}}}
 
 "-----------------------------------------------------------
@@ -103,7 +108,7 @@ function! vimproc#open(filename)"{{{
   elseif executable('exo-open')
     " Xfce.
     call vimproc#system_bg(['exo-open', filename])
-  elseif s:is_mac && executable('open')
+  elseif vimproc#util#is_mac() && executable('open')
     " Mac OS.
     call vimproc#system_bg(['open', filename])
   else
@@ -323,7 +328,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
   let [cond, status] = subproc.waitpid()
 
   " Newline convert.
-  if s:is_mac
+  if vimproc#util#is_mac()
     let output = substitute(output, '\r', '\n', 'g')
   elseif has('win32') || has('win64')
     let output = substitute(output, '\r\n', '\n', 'g')
@@ -1005,7 +1010,7 @@ function! s:convert_args(args)"{{{
 endfunction"}}}
 
 function! s:analyze_shebang(filename)"{{{
-  if s:is_mac
+  if vimproc#util#is_mac()
     " Mac OS X's shebang support is incomplete. :-(
     if getfsize(a:filename) > 100000
 
@@ -1423,12 +1428,14 @@ function! s:vp_socket_close() dict
 endfunction
 
 function! s:vp_socket_read(number, timeout) dict
-  let [hd, eof] = s:libcall('vp_socket_read', [self.fd, a:number, a:timeout])
+  let [hd, eof] = s:libcall('vp_socket_read',
+        \ [self.fd, a:number, a:timeout])
   return [hd, eof]
 endfunction
 
 function! s:vp_socket_write(hd, timeout) dict
-  let [nleft] = s:libcall('vp_socket_write', [self.fd, a:hd, a:timeout])
+  let [nleft] = s:libcall('vp_socket_write',
+        \ [self.fd, a:hd, a:timeout])
   return nleft
 endfunction
 
@@ -1436,6 +1443,24 @@ endfunction
 if !exists('s:dll_handle')
   let s:dll_handle = s:vp_dlopen(g:vimproc_dll_path)
 endif
+
+" vimproc dll version check."{{{
+try
+  let dll_version = s:libcall('vp_dlversion', [])
+  if dll_version < vimproc#version()
+    throw printf('Your vimproc binary version is "%d",'
+          \ ' but vimproc version is "%d".',
+          \ dll_version, vimproc#version())
+  endif
+catch
+  call s:print_error(v:throwpoint)
+  call s:print_error(v:exception)
+  call s:print_error('Your vimproc binary is too old!')
+  call s:print_error('Please re-compile it.')
+endtry
+
+unlet dll_version
+"}}}
 
 " Restore 'cpoptions' {{{
 let &cpo = s:save_cpo
