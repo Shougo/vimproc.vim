@@ -1,6 +1,6 @@
 *vimproc.txt*	Asynchronous execution plugin for Vim
 
-Version: 6.1
+Version: 7.0
 Author : Shougo <Shougo.Matsu at gmail.com>
 Original Author : Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com>
 License: MIT license  {{{
@@ -310,6 +310,12 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-03-15
+- Ver.7 development started.
+
+------------------------------------------------------------------------------
+ChangeLog 6.1
 
 2012-03-07
 - Don't use termencoding.
