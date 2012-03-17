@@ -246,7 +246,7 @@ VARIABLES 					*vimproc-variables*
 g:vimproc_dll_path		(default Win32: "$VIMRUNTIME/autoload/vimproc_win32.dll"
 					Win64: "$VIMRUNTIME/autoload/vimproc_win64.dll"
 					Cygwin: "$VIMRUNTIME/autoload/vimproc_cygwin.dll"
-					Mac: "$VIMRUNTIME/autoload/vimproc_mac.dll"
+					Mac: "$VIMRUNTIME/autoload/vimproc_mac.so"
 					others: "$VIMRUNTIME/autoload/vimproc_unix.so")
 		This variable is dll name used by vimproc.  You must compile
 		this dll file. If this dll is not exist, vimproc will echo
