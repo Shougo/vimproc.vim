@@ -1,7 +1,7 @@
-autoload/proc.so
-autoload/proc.dll
-autoload/proc_cygwin.dll
-autoload/proc.exp
-autoload/proc.lib
-proc_w32.obj
+autoload/vimproc_*.so
+autoload/vimproc_*.dll
+autoload/vimproc_*.exp
+autoload/vimproc_*.lib
+*.obj
+*.o
 *.swp

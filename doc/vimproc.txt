@@ -65,8 +65,8 @@ Below is Make command.
 * Mac OS X: >
 	$ make -f make_mac.mak
 
-* Linux BSD: >
-	$ make -f make_gcc.mak
+* Linux/BSD: >
+	$ make -f make_unix.mak
 
 * Visual Studio(32bit Vim): >
 	$ make -f make_msvc32.mak
@@ -320,6 +320,10 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-03-17
+- Changed Makefile name.
+- Changed .gitignore.
 
 2012-03-15
 - Ver.7 development started.
