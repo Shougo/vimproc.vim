@@ -321,6 +321,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-03-18
+- Fixed s:libcall() problem.
+
 2012-03-17
 - Changed Makefile name.
 - Changed .gitignore.

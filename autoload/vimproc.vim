@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Mar 2012.
+" Last Modified: 18 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -547,7 +547,7 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
             \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
     endif
 
-    call add(l:pid_list, l:pid)
+    call add(pid_list, pid)
     let stdin = s:fdopen(fd_stdin,
           \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
     let stdin.is_pty = a:is_pty
@@ -1047,13 +1047,18 @@ function! s:libcall(func, args)"{{{
   let stack_buf = libcall(g:vimproc_dll_path, a:func, args)
   let result = split(stack_buf, '[\xFF]', 1)
   if !empty(result) && result[-1] != ''
+    if stack_buf[len(stack_buf) - 1] == "\xFF"
+      " Note: If &encoding equals "cp932" and output ends multibyte first byte,
+      "       will fail split.
+      return result
+    endif
     let s:lasterr = result
     let msg = vimproc#util#iconv(string(result),
           \ vimproc#util#termencoding(), &encoding)
 
-    throw printf('proc: %s: %s', a:func, msg)
+    throw printf('vimproc: %s: %s', a:func, msg)
   endif
-  return l:result[:-2]
+  return result[:-2]
 endfunction"}}}
 
 function! s:SID_PREFIX()
