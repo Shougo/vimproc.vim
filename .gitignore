@@ -1,3 +1,4 @@
+autoload/proc.so
 autoload/vimproc_*.so
 autoload/vimproc_*.dll
 autoload/vimproc_*.exp
