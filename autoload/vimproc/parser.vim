@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 24 Feb 2012.
+" Last Modified: 24 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -660,10 +660,10 @@ function! s:parse_variables(script)"{{{
             let script .= string(eval(printf("b:vimshell.system_variables['%s']",
                   \ matchstr(a:script, '^$$\zs\h\w*', i))))
           else
-            let script .= string(eval(matchstr(a:script, '^$\h\w*', i)))
+            let script .= eval(matchstr(a:script, '^$\h\w*', i))
           endif
         else
-          let script .= string(eval(matchstr(a:script, '^$\h\w*', i)))
+          let script .= eval(matchstr(a:script, '^$\h\w*', i))
         endif
 
         let i = matchend(a:script, '^$$\?\h\w*', i)
@@ -783,6 +783,16 @@ function! s:parse_double_quote(script, i)"{{{
     if script[i] == '"'
       " Quote end.
       return [arg, i+1]
+    elseif script[i] == '$'
+      " Eval variables.
+      let var = matchstr(join(script[i :], ''), '^$\h\w*')
+      if var != ''
+        let arg .= s:parse_variables(var)
+        let i += len(var)
+      else
+        let arg .= '$'
+        let i += 1
+      endif
     elseif script[i] == '\'
       " Escape.
       let i += 1
