@@ -2,7 +2,7 @@
 
 TARGET=autoload/vimproc_mac.so
 SRC=autoload/proc.c
-CFLAGS=-O2 -W -Wall -Wno-unused -bundle -fPIC -arch i386 -arch x86_64
+CFLAGS=-O2 -W -Wall -Wno-unused -bundle -fPIC
 LDFLAGS+=-lutil
 
 all: $(TARGET)
