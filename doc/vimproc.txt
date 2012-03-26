@@ -323,6 +323,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-03-26
 - Fixed parse variables.
+- Fixed make_mac.mak.
 
 2012-03-25
 - Fixed make_mac.mak.
