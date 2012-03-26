@@ -65,6 +65,9 @@ Below is Make command.
 * Mac OS X: >
 	$ make -f make_mac.mak
 
+* Old Mac OS X(llvm-gcc is not installed): >
+	$ make -f make_mac_old.mak
+
 * Linux/BSD: >
 	$ make -f make_unix.mak
 
