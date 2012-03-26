@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 24 Mar 2012.
+" Last Modified: 26 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -660,10 +660,12 @@ function! s:parse_variables(script)"{{{
             let script .= string(eval(printf("b:vimshell.system_variables['%s']",
                   \ matchstr(a:script, '^$$\zs\h\w*', i))))
           else
-            let script .= eval(matchstr(a:script, '^$\h\w*', i))
+            let script .= vimproc#util#substitute_path_separator(
+                  \ eval(matchstr(a:script, '^$\h\w*', i)))
           endif
         else
-          let script .= eval(matchstr(a:script, '^$\h\w*', i))
+          let script .= vimproc#util#substitute_path_separator(
+                \ eval(matchstr(a:script, '^$\h\w*', i)))
         endif
 
         let i = matchend(a:script, '^$$\?\h\w*', i)

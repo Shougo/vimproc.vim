@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 15 Mar 2012.
+" Last Modified: 26 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -67,6 +67,9 @@ function! vimproc#util#is_windows()"{{{
 endfunction"}}}
 function! vimproc#util#is_mac()"{{{
   return s:is_mac
+endfunction"}}}
+function! vimproc#util#substitute_path_separator(path)"{{{
+  return s:is_windows ? substitute(a:path, '\\', '/', 'g') : a:path
 endfunction"}}}
 
 " Restore 'cpoptions' {{{
