@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: vimproc.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 07 Mar 2012.
+" Last Modified: 28 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -40,7 +40,7 @@ let g:vimproc_popen2_commands =
       \ get(g:, 'vimproc_popen2_commands', {
       \     'sh' : 1, 'bash' : 1, 'zsh' : 1, 'csh' : 1, 'tcsh' : 1,
       \     'tmux' : 1, 'screen' : 1, 'su' : 1,
-      \     'python' : 1, 'rhino' : 1, 'ipython' : 1, 'yaourt' : 1,
+      \     'python' : 1, 'rhino' : 1, 'ipython' : 1, 'ipython3' : 1, 'yaourt' : 1,
       \ })
 let g:stdinencoding =
       \ get(g:, 'stdinencoding', 'char')
