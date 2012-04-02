@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 18 Mar 2012.
+" Last Modified: 03 Apr 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1359,17 +1359,21 @@ function! s:waitpid(pid)
 
     let s:last_status = status
   catch /waitpid() error:/
-    let [cond, status] = ['exit', '0']
+    let [cond, status] = ['error', '0']
   endtry
 
   return [cond, str2nr(status)]
 endfunction
 
 function! s:vp_checkpid() dict
-  let [cond, status] = s:libcall('vp_waitpid', [self.pid])
-  if cond !=# 'run'
-    let [self.cond, self.status] = [cond, status]
-  endif
+  try
+    let [cond, status] = s:libcall('vp_waitpid', [self.pid])
+    if cond !=# 'run'
+      let [self.cond, self.status] = [cond, status]
+    endif
+  catch /waitpid() error:/
+    let [cond, status] = ['error', '0']
+  endtry
 
   return [cond, str2nr(status)]
 endfunction

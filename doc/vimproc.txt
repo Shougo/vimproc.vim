@@ -324,6 +324,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-04-03
+- Improved waitpid().
+
 2012-03-26
 - Fixed parse variables.
 - Fixed make_mac.mak.
