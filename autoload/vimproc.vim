@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 03 Apr 2012.
+" Last Modified: 10 Apr 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -329,7 +329,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
 
   " Newline convert.
   if vimproc#util#is_mac()
-    let output = substitute(output, '\r', '\n', 'g')
+    let output = substitute(output, '\r\n\@!', '\n', 'g')
   elseif has('win32') || has('win64')
     let output = substitute(output, '\r\n', '\n', 'g')
   endif

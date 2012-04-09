@@ -324,6 +324,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-04-10
+- Fixed newline conversion.
+
 2012-04-03
 - Improved waitpid().
 
