@@ -39,6 +39,8 @@
 # include <utmp.h>
 #elif defined __APPLE__ || defined __NetBSD__
 # include <util.h>
+#elif defined __sun
+# include "ptytty.c"
 #else
 # include <termios.h>
 # include <libutil.h>
