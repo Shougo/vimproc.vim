@@ -79,6 +79,9 @@ Below is Make command.
 * Cygwin: >
 	$ make -f make_cygwin.mak
 
+* Solaris/Sun  OS: >
+	$ make -f make_sunos.mak
+
 After compile, you copy autoload/* and plugin/* files to your
 'runtimepath' directory.
 
@@ -323,6 +326,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-04-19
+- Supported SunOS.
 
 2012-04-10
 - Fixed newline conversion.
