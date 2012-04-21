@@ -327,6 +327,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-04-22
+- Fixed read_lines bug.
+
 2012-04-19
 - Supported SunOS.
 
