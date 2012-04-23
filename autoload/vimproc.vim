@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 Apr 2012.
+" Last Modified: 24 Apr 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -59,6 +59,15 @@ let g:vimproc_dll_path =
       \      has('win32unix') ? 'vimproc_cygwin.dll' :
       \      vimproc#util#is_mac() ? 'vimproc_mac.so' :
       \                              'vimproc_unix.so'))
+"}}}
+
+" Check 'encoding'"{{{
+if &encoding =~# '^euc-jp'
+  call s:print_error('Sorry, vimproc is not supported this encoding environment.')
+  call s:print_error('You should set ''encoding'' option to "utf-8" '
+        \ .'and set ''termencoding'' option to "euc-jp".')
+  finish
+endif
 "}}}
 
 let g:vimproc_dll_path = substitute(
