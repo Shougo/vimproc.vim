@@ -66,6 +66,10 @@
 #endif
 
 /* for socket */
+#if defined __FreeBSD__
+#define __BSD_VISIBLE 1
+#include <arpa/inet.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
