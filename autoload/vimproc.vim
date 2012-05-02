@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 24 Apr 2012.
+" Last Modified: 02 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1273,9 +1273,10 @@ function! s:write_pgroup(str, ...) dict"{{{
 endfunction"}}}
 
 function! s:vp_pty_open(npipe, width, height, hstdin, hstdout, hstderr, argv)
-  let [pid; fdlist] = s:libcall('vp_pty_open',
-          \ [a:npipe, a:width, a:height,
-          \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
+  let [pid; fdlist] = s:libcall((vimproc#util#is_windows() ?
+        \ 'vp_pipe_open' : 'vp_pty_open'),
+        \ [a:npipe, a:width, a:height,
+        \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
   return [pid] + fdlist
 endfunction
 
