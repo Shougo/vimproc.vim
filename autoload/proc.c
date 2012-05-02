@@ -39,6 +39,8 @@
 # include <utmp.h>
 #elif defined __APPLE__ || defined __NetBSD__
 # include <util.h>
+#elif defined __sun
+# include "ptytty.c"
 #else
 # include <termios.h>
 # include <libutil.h>
@@ -64,6 +66,10 @@
 #endif
 
 /* for socket */
+#if defined __FreeBSD__
+#define __BSD_VISIBLE 1
+#include <arpa/inet.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

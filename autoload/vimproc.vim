@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 28 Mar 2012.
+" Last Modified: 02 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -59,6 +59,15 @@ let g:vimproc_dll_path =
       \      has('win32unix') ? 'vimproc_cygwin.dll' :
       \      vimproc#util#is_mac() ? 'vimproc_mac.so' :
       \                              'vimproc_unix.so'))
+"}}}
+
+" Check 'encoding'"{{{
+if &encoding =~# '^euc-jp'
+  call s:print_error('Sorry, vimproc is not supported this encoding environment.')
+  call s:print_error('You should set ''encoding'' option to "utf-8" '
+        \ .'and set ''termencoding'' option to "euc-jp".')
+  finish
+endif
 "}}}
 
 let g:vimproc_dll_path = substitute(
@@ -329,7 +338,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
 
   " Newline convert.
   if vimproc#util#is_mac()
-    let output = substitute(output, '\r', '\n', 'g')
+    let output = substitute(output, '\r\n\@!', '\n', 'g')
   elseif has('win32') || has('win64')
     let output = substitute(output, '\r\n', '\n', 'g')
   endif
@@ -857,7 +866,12 @@ function! s:read_lines(...) dict"{{{
   let res = self.buffer
 
   while !self.eof && stridx(res, "\n") < 0
-    let res .= call(self.read, a:000, self)
+    let out = call(self.read, a:000, self)
+    if out  == ''
+      break
+    endif
+
+    let res .= out
   endwhile
 
   let lines = split(res, '\r\?\n', 1)
@@ -1259,9 +1273,10 @@ function! s:write_pgroup(str, ...) dict"{{{
 endfunction"}}}
 
 function! s:vp_pty_open(npipe, width, height, hstdin, hstdout, hstderr, argv)
-  let [pid; fdlist] = s:libcall('vp_pty_open',
-          \ [a:npipe, a:width, a:height,
-          \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
+  let [pid; fdlist] = s:libcall((vimproc#util#is_windows() ?
+        \ 'vp_pipe_open' : 'vp_pty_open'),
+        \ [a:npipe, a:width, a:height,
+        \  a:hstdin, a:hstdout, a:hstderr, len(a:argv)] + a:argv)
   return [pid] + fdlist
 endfunction
 
@@ -1359,17 +1374,21 @@ function! s:waitpid(pid)
 
     let s:last_status = status
   catch /waitpid() error:/
-    let [cond, status] = ['exit', '0']
+    let [cond, status] = ['error', '0']
   endtry
 
   return [cond, str2nr(status)]
 endfunction
 
 function! s:vp_checkpid() dict
-  let [cond, status] = s:libcall('vp_waitpid', [self.pid])
-  if cond !=# 'run'
-    let [self.cond, self.status] = [cond, status]
-  endif
+  try
+    let [cond, status] = s:libcall('vp_waitpid', [self.pid])
+    if cond !=# 'run'
+      let [self.cond, self.status] = [cond, status]
+    endif
+  catch /waitpid() error:/
+    let [cond, status] = ['error', '0']
+  endtry
 
   return [cond, str2nr(status)]
 endfunction
