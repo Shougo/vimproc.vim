@@ -327,6 +327,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-05-03
+- Improved dll not found behavior.
+
 2012-05-02
 - Fixed pty error in Windows.
 

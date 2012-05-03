@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 02 May 2012.
+" Last Modified: 03 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -74,11 +74,24 @@ let g:vimproc_dll_path = substitute(
       \ vimproc#util#iconv(g:vimproc_dll_path,
       \ &encoding, vimproc#util#termencoding()), '\\', '/', 'g')
 
-if !filereadable(g:vimproc_dll_path)
+if !filereadable(g:vimproc_dll_path)"{{{
   echoerr printf('vimproc''s DLL: "%s" is not found.
         \ Please read :help vimproc and make it.', g:vimproc_dll_path)
+
+  function! vimproc#system(cmdline, ...)
+    return system(a:cmdline)
+  endfunction
+
+  function! vimproc#get_last_status()
+    return v:shell_error
+  endfunction
+
+  function! vimproc#get_last_errmsg()
+    return ''
+  endfunction
+
   finish
-endif
+endif"}}}
 
 function! vimproc#version()"{{{
   return str2nr(printf('%2d%02d', 7, 0))
@@ -432,7 +445,8 @@ function! vimproc#get_last_status()"{{{
   return s:last_status
 endfunction"}}}
 function! vimproc#get_last_errmsg()"{{{
-  return vimproc#util#iconv(s:last_errmsg, vimproc#util#stderrencoding(), &encoding)
+  return vimproc#util#iconv(s:last_errmsg,
+        \ vimproc#util#stderrencoding(), &encoding)
 endfunction"}}}
 
 function! vimproc#fopen(path, flags, ...)"{{{
