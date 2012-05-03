@@ -75,8 +75,8 @@ let g:vimproc_dll_path = substitute(
       \ &encoding, vimproc#util#termencoding()), '\\', '/', 'g')
 
 if !filereadable(g:vimproc_dll_path)"{{{
-  echoerr printf('vimproc''s DLL: "%s" is not found.
-        \ Please read :help vimproc and make it.', g:vimproc_dll_path)
+  call s:print_error(printf('vimproc''s DLL: "%s" is not found.
+        \ Please read :help vimproc and make it.', g:vimproc_dll_path))
 
   function! vimproc#system(cmdline, ...)
     return system(a:cmdline)
