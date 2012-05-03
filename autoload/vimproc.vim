@@ -83,6 +83,10 @@ if !filereadable(g:vimproc_dll_path)"{{{
     return ''
   endfunction
 
+  function! vimproc#system(...)
+    return call('system', a:000)
+  endfunction
+
   echoerr printf('vimproc''s DLL: "%s" is not found.
         \ Please read :help vimproc and make it.', g:vimproc_dll_path)
 
