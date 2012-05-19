@@ -28,8 +28,12 @@
 #include <ctype.h>
 
 /* For GetConsoleWindow() for Windows 2000 or later. */
+#ifndef WINVER
 #define WINVER        0x0500
+#endif
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT  0x0500
+#endif
 
 #include <windows.h>
 #include <winbase.h>
@@ -95,7 +99,7 @@ EXPORT const char *vp_readdir(char *args);  /* [files] (dirname) */
 
 EXPORT const char * vp_delete_trash(char *args);  /* [filename] */
 
-static BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode);
+static BOOL ExitRemoteProcess(HANDLE hProcess, UINT_PTR uExitCode);
 
 /* --- */
 
@@ -503,12 +507,12 @@ vp_pipe_open(char *args)
 
     vp_stack_push_num(&_result, "%p", pi.hProcess);
     vp_stack_push_num(&_result, "%d", hstdin ?
-            0 : _open_osfhandle((long)hInputWrite, 0));
+            0 : _open_osfhandle((size_t)hInputWrite, 0));
     vp_stack_push_num(&_result, "%d", hstdout ?
-            0 : _open_osfhandle((long)hOutputRead, _O_RDONLY));
+            0 : _open_osfhandle((size_t)hOutputRead, _O_RDONLY));
     if (npipe == 3)
         vp_stack_push_num(&_result, "%d", hstderr ?
-                0 : _open_osfhandle((long)hErrorRead, _O_RDONLY));
+                0 : _open_osfhandle((size_t)hErrorRead, _O_RDONLY));
     return vp_stack_return(&_result);
 }
 
@@ -645,7 +649,7 @@ vp_kill(char *args)
 
 /* Improved kill function. */
 /* http://homepage3.nifty.com/k-takata/diary/2009-05.html */
-static BOOL ExitRemoteProcess(HANDLE hProcess, UINT uExitCode)
+static BOOL ExitRemoteProcess(HANDLE hProcess, UINT_PTR uExitCode)
 {
     LPTHREAD_START_ROUTINE pfnExitProcess =
         (LPTHREAD_START_ROUTINE) GetProcAddress(
@@ -953,7 +957,7 @@ vp_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
 
-    if ((int)ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL) < 32) {
+    if ((size_t)ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL) < 32) {
         return vp_stack_return_error(&_result, "ShellExecute() error: %s",
                 lasterror());
     }
