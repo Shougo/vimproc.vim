@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 17 May 2012.
+" Last Modified: 26 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -504,9 +504,11 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
   let hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
         \ 0 : vimproc#fopen(a:commands[0].fd.stdin, 'O_RDONLY').fd
 
+  let is_pty = !vimproc#util#is_windows() && a:is_pty
+
   let cnt = 0
   for command in a:commands
-    if a:is_pty && command.fd.stdout == '' && cnt == 0
+    if is_pty && command.fd.stdout == '' && cnt == 0
           \ && len(a:commands) != 1
       " pty_open() use pipe.
       let hstdout = 1
@@ -523,7 +525,7 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
             \ 0 : vimproc#fopen(command.fd.stdout, mode).fd
     endif
 
-    if a:is_pty && command.fd.stderr == '' && cnt == 0
+    if is_pty && command.fd.stderr == '' && cnt == 0
           \ && len(a:commands) != 1
       " pty_open() use pipe.
       let hstderr = 1
@@ -551,8 +553,7 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
           \ && get(g:vimproc_popen2_commands, command_name, 0) != 0 ?
           \ 2 : npipe
 
-    if a:is_pty && (cnt == 0 || cnt == len(a:commands)-1)
-          \ && !vimproc#util#is_windows()
+    if is_pty && (cnt == 0 || cnt == len(a:commands)-1)
       " Use pty_open().
       let pipe = s:vp_pty_open(pty_npipe, winwidth(0)-5, winheight(0),
             \ hstdin, hstdout, hstderr, args)
@@ -574,17 +575,17 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
     call add(pid_list, pid)
     let stdin = s:fdopen(fd_stdin,
           \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-    let stdin.is_pty = a:is_pty
+    let stdin.is_pty = is_pty
           \ && (cnt == 0 || cnt == len(a:commands)-1)
           \ && hstdin == 0
     call add(stdin_list, stdin)
     let stdout = s:fdopen(fd_stdout,
           \ 'vp_pipe_close', 'vp_pipe_read', 'vp_pipe_write')
-    let stdout.is_pty = a:is_pty
+    let stdout.is_pty = is_pty
           \ && (cnt == 0 || cnt == len(a:commands)-1)
           \ && hstdout == 0
     call add(stdout_list, stdout)
-    let stderr.is_pty = a:is_pty
+    let stderr.is_pty = is_pty
           \ && (cnt == 0 || cnt == len(a:commands)-1)
           \ && hstderr == 0
     call add(stderr_list, stderr)
@@ -608,7 +609,7 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
   let proc.waitpid = s:funcref('vp_waitpid')
   let proc.checkpid = s:funcref('vp_checkpid')
   let proc.is_valid = 1
-  let proc.is_pty = a:is_pty
+  let proc.is_pty = is_pty
   if a:is_pty
     let proc.ttyname = ''
     let proc.get_winsize = s:funcref('vp_get_winsize')
