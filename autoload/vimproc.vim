@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 26 May 2012.
+" Last Modified: 06 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -218,14 +218,15 @@ function! vimproc#get_command_name(command, ...)"{{{
         endif
       endfor
     else
-      let &l:suffixesadd = substitute($PATHEXT . ';.LNK', ';', ',', 'g')
+      let &l:suffixesadd =
+            \ substitute($PATHEXT . ';.LNK', ';', ',', 'g')
       let file = findfile(command, path, cnt)
     endif"}}}
   else
     let &l:suffixesadd = ''
     while 1
       let file = findfile(command, path, cnt)
-      if cnt < 0 || file == '' || file !~ '^\a\+:'
+      if type(file) == type([]) || file == '' || file !~ '^\a\+:'
         break
       endif
 
@@ -234,7 +235,7 @@ function! vimproc#get_command_name(command, ...)"{{{
   endif
   let &l:suffixesadd = suffixesadd_save
 
-  if cnt < 0
+  if type(file) == type([])
     return map(filter(file, 'executable(v:val)'),
           \ 'fnamemodify(v:val, ":p")')
   endif
