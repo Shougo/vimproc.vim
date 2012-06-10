@@ -327,6 +327,10 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-06-10
+- Improved vimproc#get_command_name() implementation.
+- Vitalized.
+
 2012-06-06
 - Improved get_command_name().
 

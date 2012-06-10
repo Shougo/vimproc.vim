@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 26 Mar 2012.
+" Last Modified: 10 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -28,9 +28,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-let s:is_windows = has('win32') || has('win64')
-let s:is_mac = !s:is_windows && (has('mac') || has('macunix')
-      \ || has('gui_macvim') || system('uname') =~? '^darwin')
+let s:V = vital#of('vimproc')
 
 " iconv() wrapper for safety.
 function! vimproc#util#iconv(expr, from, to)"{{{
@@ -63,13 +61,13 @@ function! vimproc#util#expand(path)"{{{
         \ vimproc#util#is_windows() ? '*?"={}' : '*?"={}[]'), 1)
 endfunction"}}}
 function! vimproc#util#is_windows()"{{{
-  return s:is_windows
+  return call(s:V.is_windows, a:000)
 endfunction"}}}
 function! vimproc#util#is_mac()"{{{
-  return s:is_mac
+  return call(s:V.is_mac, a:000)
 endfunction"}}}
-function! vimproc#util#substitute_path_separator(path)"{{{
-  return s:is_windows ? substitute(a:path, '\\', '/', 'g') : a:path
+function! vimproc#util#substitute_path_separator(...)"{{{
+  return call(s:V.substitute_path_separator, a:000)
 endfunction"}}}
 
 " Restore 'cpoptions' {{{
