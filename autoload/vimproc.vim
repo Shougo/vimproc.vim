@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 10 Jun 2012.
+" Last Modified: 06 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -101,12 +101,9 @@ function! vimproc#dll_version()"{{{
   return str2nr(dll_version)
 endfunction"}}}
 
-" Create vital module for vimproc
-let s:V = vital#of('vimproc')
-let s:Filepath = s:V.import('System.Filepath')
-
 "-----------------------------------------------------------
 " API
+
 
 function! vimproc#open(filename)"{{{
   let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'),
@@ -143,6 +140,7 @@ function! vimproc#open(filename)"{{{
 endfunction"}}}
 
 function! vimproc#get_command_name(command, ...)"{{{
+<<<<<<< HEAD
   let path = get(a:000, 0, $PATH)
 
   let cnt = a:0 < 2 ? 1 : a:2
@@ -186,6 +184,8 @@ function! vimproc#get_command_name(command, ...)"{{{
   return file
 endfunction"}}}
 function! vimproc#get_command_name_old(command, ...)"{{{
+=======
+>>>>>>> parent of 39f65e0... - Improved vimproc#get_command_name() implementation.
   if a:0 > 3
     throw 'vimproc#get_command_name: Invalid argument.'
   endif
