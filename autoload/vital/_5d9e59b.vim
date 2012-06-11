@@ -1,3 +1,7 @@
+if exists('s:loaded')
+  finish
+endif
+
 let s:self_version = expand('<sfile>:t:r')
 
 let s:loaded = {}
