@@ -29,6 +29,11 @@ Context Lexer.run()
     Should lex.value() == 5678
     echomsg lex.value()
   End
+
+  It tests escape
+    Should vimproc#shellescape('hoge') == "'hoge'"
+    Should vimproc#shellescape('ho''ge') == "'ho''ge'"
+  End
 End
 
 Fin

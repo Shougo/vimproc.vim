@@ -164,6 +164,9 @@ vimproc#get_last_status()			*vimproc#get_last_status()*
 vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
 		Get last |vimproc#system()| error message.
 
+vimproc#shellescape({string})			*vimproc#shellescape()*
+		Escape {string} for vimproc function arguments.
+
 vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
 		Opens {path} file.
 		The {flags} is same flags to open() in C language as string.
@@ -326,6 +329,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-06-17
+- Added vimproc#shellescape().
 
 2012-06-11
 - Fixed vital infinity loop.
