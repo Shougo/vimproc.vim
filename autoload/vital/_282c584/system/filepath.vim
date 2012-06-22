@@ -43,7 +43,7 @@ function! s:which(command, ...)
     for ext in pathext
       let full = fnamemodify(dir . dirsep . a:command . ext, ':p')
       if filereadable(full)
-        return glob(substitute(toupper(full), '\u:\@!', '[\0\L\0]', 'g'))
+        return glob(substitute(toupper(full), '\u:\@!', '[\0\L\0]', 'g'), 1)
       endif
     endfor
   endfor

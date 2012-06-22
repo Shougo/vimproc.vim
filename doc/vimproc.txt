@@ -330,6 +330,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-06-23
+- Updated vital.
+
 2012-06-22
 - Improved vimproc#system().
 
