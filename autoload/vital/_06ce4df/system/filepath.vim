@@ -35,8 +35,8 @@ function! s:which(command, ...)
   \              !a:0                  ? split($PATH, s:path_separator) :
   \              type(a:1) == type([]) ? copy(a:1) :
   \                                      split(a:1, s:path_separator)
-  let pathext = s:is_windows ? split($PATHEXT, s:path_separator)
-  \                          : ['']
+  let pathext = s:is_windows && fnamemodify(a:command, ':e') == '' ?
+        \ split($PATHEXT, s:path_separator) : ['']
 
   let dirsep = s:separator()
   for dir in pathlist
