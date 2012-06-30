@@ -281,6 +281,12 @@ g:stdoutencoding		(default : "char")
 g:stderrencoding		(default : "char")
 		The default vimproc stderr encoding.
 
+						*g:vimproc_password_pattern*
+				(default : refer to autoload/vimproc.vim)
+g:vimproc_password_pattern
+		The default password pattern.
+		Note: This variable is used for vimshell.
+
 ==============================================================================
 TIPS						*vimproc-tips*
 
@@ -329,6 +335,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-06-30
+- Added g:vimproc_password_pattern variable.
 
 2012-06-25
 - Fixed vital which.

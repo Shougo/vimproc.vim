@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 Jun 2012.
+" Last Modified: 30 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -45,11 +45,6 @@ endif
 let s:last_status = 0
 let s:last_errmsg = ''
 
-let s:password_regex =
-      \'\%(Enter \|[Oo]ld \|[Nn]ew \|login '  .
-      \'\|Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
-      \'\|^\|\n\|''s \)[Pp]assword'
-
 " Global options definition."{{{
 let g:vimproc_dll_path =
       \ get(g:, 'vimproc_dll_path', expand('<sfile>:p:h') . '/' .
@@ -59,6 +54,11 @@ let g:vimproc_dll_path =
       \      has('win32unix') ? 'vimproc_cygwin.dll' :
       \      vimproc#util#is_mac() ? 'vimproc_mac.so' :
       \                              'vimproc_unix.so'))
+let g:vimproc_password_pattern =
+      \ get(g:, 'vimproc_password_pattern',
+      \'\%(Enter \|[Oo]ld \|[Nn]ew \|login '  .
+      \'\|Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
+      \'\|^\|\n\|''s \)[Pp]assword')
 "}}}
 
 " Check 'encoding'"{{{
@@ -360,7 +360,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
     if !subproc.stdout.eof"{{{
       let out = subproc.stdout.read(1000, 0)
 
-      if a:is_passwd && out =~ s:password_regex
+      if a:is_passwd && out =~ g:vimproc_password_pattern
         redraw
         echo out
 
@@ -378,7 +378,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
     if !subproc.stderr.eof"{{{
       let out = subproc.stderr.read(1000, 0)
 
-      if a:is_passwd && out =~ s:password_regex
+      if a:is_passwd && out =~ g:vimproc_password_pattern
         redraw
         echo out
 
