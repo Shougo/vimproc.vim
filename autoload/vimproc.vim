@@ -1062,11 +1062,15 @@ function! s:vp_file_write(hd, timeout) dict
   return nleft
 endfunction
 
+function! s:quote_arg(arg)
+  return a:arg =~ ' ' ? '"' . substitute(a:arg, '"', '\\"', 'g') . '"' : a:arg
+endfunction
+
 function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
   if vimproc#util#is_windows()
-    let cmdline = '"' . substitute(a:argv[0], '/', '\', 'g') . '"'
+    let cmdline = s:quote_arg(substitute(a:argv[0], '/', '\', 'g'))
     for arg in a:argv[1:]
-      let cmdline .= ' "' . substitute(arg, '"', '\\"', 'g') . '"'
+      let cmdline .= ' ' . s:quote_arg(arg)
     endfor
     let [pid; fdlist] = s:libcall('vp_pipe_open',
           \ [a:npipe, a:hstdin, a:hstdout, a:hstderr, cmdline])
