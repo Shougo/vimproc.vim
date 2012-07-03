@@ -1063,7 +1063,7 @@ function! s:vp_file_write(hd, timeout) dict
 endfunction
 
 function! s:quote_arg(arg)
-  return a:arg =~ ' ' ? '"' . substitute(a:arg, '"', '\\"', 'g') . '"' : a:arg
+  return a:arg =~ '[ "]' ? '"' . substitute(a:arg, '"', '\\"', 'g') . '"' : a:arg
 endfunction
 
 function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
