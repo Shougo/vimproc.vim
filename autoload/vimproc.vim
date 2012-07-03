@@ -1064,9 +1064,9 @@ endfunction
 
 function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv)"{{{
   if vimproc#util#is_windows()
-    let cmdline = ''
-    for arg in a:argv
-      let cmdline .= '"' . substitute(arg, '"', '\\"', 'g') . '" '
+    let cmdline = '"' . substitute(a:argv[0], '/', '\', 'g') . '"'
+    for arg in a:argv[1:]
+      let cmdline .= ' "' . substitute(arg, '"', '\\"', 'g') . '"'
     endfor
     let [pid; fdlist] = s:libcall('vp_pipe_open',
           \ [a:npipe, a:hstdin, a:hstdout, a:hstderr, cmdline])
