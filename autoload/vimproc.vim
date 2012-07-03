@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 30 Jun 2012.
+" Last Modified: 03 Jul 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -101,13 +101,8 @@ function! vimproc#dll_version()"{{{
   return str2nr(dll_version)
 endfunction"}}}
 
-" Create vital module for vimproc
-let s:V = vital#of('vimproc')
-let s:Filepath = s:V.import('System.Filepath')
-
 "-----------------------------------------------------------
 " API
-
 
 function! vimproc#open(filename)"{{{
   let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'),
@@ -160,7 +155,7 @@ function! vimproc#get_command_name(command, ...)"{{{
     let files = [ command ]
   else
     let files = split(substitute(vimproc#util#substitute_path_separator(
-          \ s:Filepath.which(command, path)), '//', '/', 'g'), '\n')
+          \ vimproc#filepath#which(command, path)), '//', '/', 'g'), '\n')
   endif
 
   if cnt < 0
@@ -177,128 +172,6 @@ function! vimproc#get_command_name(command, ...)"{{{
   if !executable(file)
     let command = vimproc#util#substitute_path_separator(
           \ resolve(file))
-  endif
-
-  if !vimproc#util#is_windows() && !executable(file)
-    throw printf(
-          \ 'vimproc#get_command_name: File "%s" is not executable.', file)
-  endif
-
-  return file
-endfunction"}}}
-function! vimproc#get_command_name_old(command, ...)"{{{
-  if a:0 > 3
-    throw 'vimproc#get_command_name: Invalid argument.'
-  endif
-
-  if a:0 >= 1
-    let path = a:1
-  else
-    let path = $PATH
-  endif
-
-  " Expand path.
-  let path = substitute(path,
-        \ (vimproc#util#is_windows() ? ';' : ':'), ',', 'g')
-  if vimproc#util#is_windows()
-    let path = substitute(path, '\\', '/', 'g')
-  endif
-
-  " Escape ' ' and ".
-  let path = escape(path, ' "')
-
-  let cnt = a:0 < 2 ? 1 : a:2
-
-  let command = vimproc#util#expand(a:command)
-
-  let pattern = printf('[/~]\?\f\+[%s]\f*$',
-        \ vimproc#util#is_windows() && !s:is_msys ? '/\\' : '/')
-  if command =~ pattern &&
-        \ (!vimproc#util#is_windows() || fnamemodify(command, ':e') != '')
-    if !executable(command)
-      let command = resolve(command)
-    endif
-
-    if !filereadable(command)
-      throw printf('vimproc#get_command_name: File "%s" is not found.', command)
-    elseif !vimproc#util#is_windows() && !executable(command)
-      throw printf('vimproc#get_command_name: File "%s" is not executable.', command)
-    endif
-
-    return cnt < 0 ? [ command ] : command
-  endif
-
-  " Command search.
-  let suffixesadd_save = &l:suffixesadd
-  if vimproc#util#is_windows()"{{{
-    " On Windows, findfile() search a file which don't have file extension
-    " also. When there are 'perldoc', 'perldoc.bat' in your $PATH,
-    " executable('perldoc')  return 1 cause by you have 'perldoc.bat'.
-    " But findfile('perldoc', $PATH, 1) return whether file exist there.
-    if fnamemodify(command, ':e') == ''
-      let &l:suffixesadd = ''
-      " for ext in split($PATHEXT . ';.LNK', ';')
-      "   let file = findfile(command . ext, path, cnt)
-      if command =~ '[/\\]'
-        " Absolute path.
-        let path = fnamemodify(command, ':h')
-        let command = fnamemodify(command, ':t')
-      else
-        " substitute ,, -> ,
-        let path = substitute(path, ',\{2,}', ',', 'g')
-      endif
-
-      let file = cnt < 0 ? [] : ''
-      for head in split(path, ',')
-        for ext in split($PATHEXT . ';.LNK', ';')
-          let findfile = findfile(command . tolower(ext), head, cnt)
-          if cnt >= 0 && findfile != ''
-            let file = findfile
-            break
-          elseif cnt < 0 && !empty(findfile)
-            let file += findfile
-          endif
-        endfor
-
-        if cnt >= 0 && file != ''
-          break
-        endif
-      endfor
-    else
-      let &l:suffixesadd =
-            \ substitute($PATHEXT . ';.LNK', ';', ',', 'g')
-      let file = findfile(command, path, cnt)
-    endif"}}}
-  else
-    let &l:suffixesadd = ''
-    while 1
-      let file = findfile(command, path, cnt)
-      if type(file) == type([]) || file == '' || file !~ '^\a\+:'
-        break
-      endif
-
-      let cnt += 1
-    endwhile
-  endif
-  let &l:suffixesadd = suffixesadd_save
-
-  if type(file) == type([])
-    return map(filter(file, 'executable(v:val)'),
-          \ 'fnamemodify(v:val, ":p")')
-  endif
-
-  if file == ''
-    throw printf(
-          \ 'vimproc#get_command_name: File "%s" is not found.', command)
-  endif
-
-  if file !~ '^\%(/\|\a\+:\)'
-    " Convert to full path.
-    let file = fnamemodify(file, ':p')
-  endif
-
-  if !executable(file)
-    let file = resolve(file)
   endif
 
   if !vimproc#util#is_windows() && !executable(file)
