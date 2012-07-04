@@ -705,14 +705,14 @@ function! s:parse_redirection(script)"{{{
       if a:script[i-2] == 1
         let fd.stdout = matchstr(a:script, '^\s*\zs\f*', i)
       else
-        let fd.stderr = matchstr(a:script, '^\s*\zs\f*', i)
+        let fd.stderr = matchstr(a:script, '^\s*\zs\(\f\+\|&\d\+\)', i)
         if fd.stderr ==# '&1'
           " Redirection to stdout.
           let fd.stderr = '/dev/stdout'
         endif
       endif
 
-      let i = matchend(a:script, '^\s*\zs\f*', i)
+      let i = matchend(a:script, '^\s*\zs\(\f\+\|&\d\+\)', i)
     elseif a:script[i] == '>'
       " Output redirection.
       if a:script[i :] =~ '^>&'
