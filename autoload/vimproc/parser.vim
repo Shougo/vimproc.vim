@@ -708,7 +708,7 @@ function! s:parse_redirection(script)"{{{
         let fd.stderr = matchstr(a:script, '^\s*\zs\(\f\+\|&\d\+\)', i)
         if fd.stderr ==# '&1'
           " Redirection to stdout.
-          let fd.stderr = 'stdout'
+          let fd.stderr = '/dev/stdout'
         endif
       endif
 
