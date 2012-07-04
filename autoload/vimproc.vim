@@ -545,6 +545,13 @@ function! s:plineopen(npipe, commands, is_pty)"{{{
 endfunction"}}}
 
 function! s:is_pseudo_device(filename)"{{{
+  if vimproc#util#is_windows() && (
+    \    a:filename ==# '/dev/stdin'
+    \ || a:filename ==# '/dev/stdout'
+    \ || a:filename ==# '/dev/stderr')
+    return 1
+  endif
+
   return a:filename == ''
         \ || a:filename ==# '/dev/null'
         \ || a:filename ==# '/dev/clip'
