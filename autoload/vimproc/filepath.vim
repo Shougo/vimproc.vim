@@ -58,9 +58,11 @@ endfunction
 
 " Get the full path of command.
 function! s:which(command, ...)
-  let pathlist = a:command =~# s:path_sep_pattern ? ['.'] :
-  \              !a:0                  ? split($PATH, s:path_separator) :
-  \              type(a:1) == type([]) ? copy(a:1) :
+  let pathlist =
+  \      a:command =~# '^\~\|^'.s:path_sep_pattern.'\|^\a\+:' ? [''] :
+  \      a:command =~# s:path_sep_pattern ? ['.'] :
+  \      !a:0                  ? split($PATH, s:path_separator) :
+  \      type(a:1) == type([]) ? copy(a:1) :
   \                                      split(a:1, s:path_separator)
 
   let pathext = s:path_extensions()

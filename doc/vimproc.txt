@@ -338,6 +338,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-07-06
 - Substitute NULL character to "^@".
+- Improved which.
 
 2012-07-03
 - Deleted vital dependency.

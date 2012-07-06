@@ -143,20 +143,8 @@ function! vimproc#get_command_name(command, ...)"{{{
 
   let cnt = a:0 < 2 ? 1 : a:2
 
-  let command = a:command
-  let pattern = printf('[/~]\?\f\+[%s]\f*$',
-        \ vimproc#util#is_windows() && !s:is_msys ? '/\\' : '/')
-  if command =~ pattern &&
-        \ (!vimproc#util#is_windows() || fnamemodify(command, ':e') != '')
-    if !executable(command)
-      let command = resolve(command)
-    endif
-
-    let files = [ command ]
-  else
-    let files = split(substitute(vimproc#util#substitute_path_separator(
-          \ vimproc#filepath#which(command, path)), '//', '/', 'g'), '\n')
-  endif
+  let files = split(substitute(vimproc#util#substitute_path_separator(
+        \ vimproc#filepath#which(a:command, path)), '//', '/', 'g'), '\n')
 
   if cnt < 0
     return files
@@ -166,7 +154,7 @@ function! vimproc#get_command_name(command, ...)"{{{
 
   if file == ''
     throw printf(
-          \ 'vimproc#get_command_name: File "%s" is not found.', command)
+          \ 'vimproc#get_command_name: File "%s" is not found.', a:command)
   endif
 
   if !executable(file)
