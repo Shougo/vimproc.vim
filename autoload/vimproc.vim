@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 03 Jul 2012.
+" Last Modified: 06 Jul 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -916,7 +916,8 @@ endfunction"}}}
 " UTILS
 
 function! s:str2hd(str)
-  return join(map(range(len(a:str)), 'printf("%02X", char2nr(a:str[v:val]))'), '')
+  return join(map(range(len(a:str)),
+        \ 'printf("%02X", char2nr(a:str[v:val]))'), '')
 endfunction
 
 function! s:hd2str(hd)

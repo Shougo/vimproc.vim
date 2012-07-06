@@ -10,6 +10,9 @@ source spec/base.vim
 Context Fopen.run()
   It equals to system() result
     Should vimproc#system('ls') == system('ls')
+    if executable('ruby')
+      Should vimproc#system('ruby -e ''print "a\0b"''') == 'a^@b'
+    endif
   End
 
   It calls vimproc#system_bg() implicitly
