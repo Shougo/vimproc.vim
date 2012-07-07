@@ -73,8 +73,8 @@ function! s:which(command, ...)
   let dirsep = s:separator()
   for dir in pathlist
     for ext in pathext
-        let full = (dir == '') ? a:command . ext :
-              \ fnamemodify(dir . dirsep . a:command . ext, ':p')
+      let full = (dir == '') ? a:command . ext :
+            \ fnamemodify(dir . dirsep . a:command . ext, ':p')
       if filereadable(full)
         let full = glob(substitute(toupper(full), '\u:\@!', '[\0\L\0]', 'g'), 1)
         if full != ''
