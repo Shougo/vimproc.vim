@@ -73,10 +73,12 @@ function! s:which(command, ...)
   let dirsep = s:separator()
   for dir in pathlist
     for ext in pathext
-      let full = (dir == '') ? a:command . ext :
-            \ fnamemodify(dir . dirsep . a:command . ext, ':p')
+      let full = fnamemodify(dir . dirsep . a:command . ext, ':p')
       if filereadable(full)
-        let full = glob(substitute(toupper(full), '\u:\@!', '[\0\L\0]', 'g'), 1)
+        if s:is_case_tolerant()
+          let full = glob(substitute(
+          \               toupper(full), '\u:\@!', '[\0\L\0]', 'g'), 1)
+        endif
         if full != ''
           return full
         endif
@@ -146,10 +148,11 @@ endfunction
 
 " Return true if filesystem ignores alphabetic case of a filename.
 " Return false otherwise.
-let s:is_case_tolerant = s:is_windows || s:is_cygwin || s:is_mac
+let s:is_case_tolerant = filereadable(expand('<sfile>:r') . '.VIM')
 function! s:is_case_tolerant()
   return s:is_case_tolerant
 endfunction
+
 
 
 let &cpo = s:save_cpo
