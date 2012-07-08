@@ -1,11 +1,11 @@
+" Tests for vesting.
+
 scriptencoding utf-8
 
 " Saving 'cpoptions' {{{
 let s:save_cpo = &cpo
 set cpo&vim
 " }}}
-
-source spec/base.vim
 
 Context Fopen.run()
   It equals to system() result
