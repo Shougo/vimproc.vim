@@ -76,12 +76,10 @@ function! s:which(command, ...)
       let full = (dir == '') ? a:command . ext :
             \ fnamemodify(dir . dirsep . a:command . ext, ':p')
       if filereadable(full)
-        echomsg full
         if s:is_case_tolerant()
           let full = glob(substitute(
           \               toupper(full), '\u:\@!', '[\0\L\0]', 'g'), 1)
         endif
-        echomsg full
         if full != ''
           return full
         endif
