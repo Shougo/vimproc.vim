@@ -338,6 +338,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-07-15
 - Fixed escape error.
+- Fixed vesting test.
 
 2012-07-08
 - Fixed for case sensitive system.

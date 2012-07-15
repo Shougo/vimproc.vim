@@ -8,7 +8,7 @@ set cpo&vim
 " }}}
 
 Context Fopen.run()
-  let filename = 'spec/test-fopen.vim'
+  let filename = expand('%')
   let file = vimproc#fopen(filename, 'O_RDONLY', 0)
   let res = file.read()
 
