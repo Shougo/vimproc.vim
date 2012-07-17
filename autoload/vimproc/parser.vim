@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 17 Jul 2012.
+" Last Modified: 18 Jul 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -887,12 +887,11 @@ function! s:skip_single_quote(script, i)"{{{
     let i += 1
   endwhile
 
-  " must end with "'"
-  if i >= max || a:script[i] != ''''
-    throw 'Exception: Quote ('') is not found.'
-  endif
-
   if i < max
+    " must end with "'"
+    if a:script[i] != ''''
+      throw 'Exception: Quote ('') is not found.'
+    endif
     let string .= a:script[i]
     let i += 1
   endif
@@ -929,12 +928,11 @@ function! s:skip_double_quote(script, i)"{{{
     let i += 1
   endwhile
 
-  " must end with '"'
-  if i >= max || a:script[i] != '"'
-    throw 'Exception: Quote (") is not found.'
-  endif
-
   if i < max
+    " must end with '"'
+    if a:script[i] != '"'
+      throw 'Exception: Quote (") is not found.'
+    endif
     let string .= a:script[i]
     let i += 1
   endif
