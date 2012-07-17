@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 15 Jul 2012.
+" Last Modified: 17 Jul 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -866,7 +866,7 @@ function! s:skip_single_quote(script, i)"{{{
   let i = a:i
 
   " a:script[i] is always "'" when this function is called
-  if a:script[i] != ''''
+  if i >= max || a:script[i] != ''''
     throw 'Exception: Quote ('') is not found.'
   endif
   let string .= a:script[i]
@@ -887,11 +887,12 @@ function! s:skip_single_quote(script, i)"{{{
     let i += 1
   endwhile
 
+  " must end with "'"
+  if i >= max || a:script[i] != ''''
+    throw 'Exception: Quote ('') is not found.'
+  endif
+
   if i < max
-    " must end with "'"
-    if a:script[i] != ''''
-      throw 'Exception: Quote ('') is not found.'
-    endif
     let string .= a:script[i]
     let i += 1
   endif
@@ -904,7 +905,7 @@ function! s:skip_double_quote(script, i)"{{{
   let i = a:i
 
   " a:script[i] is always '"' when this function is called
-  if a:script[i] != '"'
+  if i >= max || a:script[i] != '"'
     throw 'Exception: Quote (") is not found.'
   endif
   let string .= a:script[i]
@@ -916,6 +917,10 @@ function! s:skip_double_quote(script, i)"{{{
       " Escape quote.
       let string .= a:script[i] . a:script[i+1]
       let i += 2
+
+      if i >= max
+        throw 'Exception: Quote (") is not found.'
+      endif
     elseif a:script[i] == '"'
       break
     endif
@@ -924,11 +929,12 @@ function! s:skip_double_quote(script, i)"{{{
     let i += 1
   endwhile
 
+  " must end with '"'
+  if i >= max || a:script[i] != '"'
+    throw 'Exception: Quote (") is not found.'
+  endif
+
   if i < max
-    " must end with '"'
-    if a:script[i] != '"'
-      throw 'Exception: Quote (") is not found.'
-    endif
     let string .= a:script[i]
     let i += 1
   endif
