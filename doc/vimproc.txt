@@ -339,6 +339,8 @@ CHANGELOG					*vimproc-changelog*
 2012-07-18
 - Fixed escape.
 - Fixed double quote escape.
+- Added parser tests.
+- Improved tests.
 
 2012-07-17
 - Fixed double quote escape.

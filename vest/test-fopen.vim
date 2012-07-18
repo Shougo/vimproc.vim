@@ -8,7 +8,7 @@ set cpo&vim
 " }}}
 
 Context Fopen.run()
-  let filename = expand('%')
+  let filename = expand('<sfile>')
   let file = vimproc#fopen(filename, 'O_RDONLY', 0)
   let res = file.read()
 

@@ -12,27 +12,18 @@ Context Lexer.run()
     let lex = vimproc#lexer#init_lexer('1234 5678')
     Should lex.advance()
     Should lex.token() == g:vimproc#lexer#token_type.int
-    echomsg lex.token()
 
     Should lex.advance()
     Should lex.token() == g:vimproc#lexer#token_type.int
-    echomsg lex.token()
   End
 
   It tests lexer value
     let lex = vimproc#lexer#init_lexer('1234 5678')
     Should lex.advance()
     Should lex.value() == 1234
-    echomsg lex.value()
 
     Should lex.advance()
     Should lex.value() == 5678
-    echomsg lex.value()
-  End
-
-  It tests escape
-    Should vimproc#shellescape('hoge') == "'hoge'"
-    Should vimproc#shellescape('ho''ge') == "'ho''ge'"
   End
 End
 

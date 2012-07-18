@@ -8,11 +8,18 @@ set cpo&vim
 " }}}
 
 Context Fopen.run()
-  let sock = vimproc#socket_open('www.yahoo.com', 80)
-  call sock.write("GET / HTTP/1.0\r\n\r\n")
+  let answer = input('Want to execute socket test? ')
+  if answer !~? 'y\%[es]'
+    return
+  endif
+
+  " let sock = vimproc#socket_open('www.yahoo.com', 80)
+  call sock.write("GET / HTTP/1.0\r\n\r\n", 100)
   let res = ''
-  while !sock.eof
-    let res .= sock.read()
+  let out = sock.read(-1, 100)
+  while !sock.eof && out != ''
+    let out = sock.read(-1, 100)
+    let res .= out
   endwhile
 
   It yet not closed
