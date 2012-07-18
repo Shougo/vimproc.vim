@@ -40,7 +40,7 @@ Context Fopen.run()
   End
 
   It is same to readfile()
-    Should readfile(filename) == res2
+    Should readfile(filename, 'b') == res2
   End
 End
 

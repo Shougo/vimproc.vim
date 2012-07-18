@@ -342,6 +342,7 @@ CHANGELOG					*vimproc-changelog*
 - Added parser tests.
 - Improved tests.
 - Invalidate socket test.
+- Fixed fopen test.
 
 2012-07-17
 - Fixed double quote escape.
