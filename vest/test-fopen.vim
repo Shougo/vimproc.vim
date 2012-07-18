@@ -27,10 +27,7 @@ Context Fopen.run()
   End
 
   let file = vimproc#fopen(filename, 'O_RDONLY', 0)
-  let res2 = []
-  while !file.eof
-    call add(res2, file.read_line())
-  endwhile
+  let res2 = file.read_lines()
 
   It yet not closed
     Should file.is_valid
