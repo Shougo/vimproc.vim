@@ -914,12 +914,9 @@ function! s:skip_double_quote(script, i)"{{{
     if a:script[i] == '\'
           \ && i+1 < max && a:script[i+1] == '"'
       " Escape quote.
-      let string .= a:script[i] . a:script[i+1]
-      let i += 2
+      let string .= a:script[i]
+      let i += 1
 
-      if i >= max
-        throw 'Exception: Quote (") is not found.'
-      endif
     elseif a:script[i] == '"'
       break
     endif
