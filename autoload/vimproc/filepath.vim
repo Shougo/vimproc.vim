@@ -73,7 +73,7 @@ function! s:which(command, ...)
     let head = dir ==# '' ? '' : dir . dirsep
     for ext in pathext
       let full = fnamemodify(head . a:command . ext, ':p')
-      if filereadable(full)
+      if filereadable(full) || executable(full)
         if s:is_case_tolerant()
           let full = glob(substitute(
           \               toupper(full), '\u:\@!', '[\0\L\0]', 'g'), 1)
