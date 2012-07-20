@@ -13,6 +13,26 @@ Context Lexer.run()
           \ == ['echo', '"']
   End
 
+  It tests quote exeption
+    let is_catched = 0
+    try
+      call vimproc#parser#split_args('echo "\"')
+    catch /^Exception: Quote/
+      let is_catched = 1
+    endtry
+    Should is_catched
+  End
+
+  It tests join to next line exeption
+    let is_catched = 0
+    try
+      call vimproc#parser#split_args('echo \')
+    catch /^Exception: Join to next line/
+      let is_catched = 1
+    endtry
+    Should is_catched
+  End
+
   It tests vimproc#shellescape()
     Should vimproc#shellescape('hoge') == "'hoge'"
     Should vimproc#shellescape('ho''ge') == "'ho''ge'"
