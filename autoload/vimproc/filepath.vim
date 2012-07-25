@@ -73,7 +73,7 @@ function! s:which(command, ...)
     let head = dir ==# '' ? '' : dir . dirsep
     for ext in pathext
       let full = fnamemodify(head . a:command . ext, ':p')
-      if getftype(full) ==# 'link'
+      if getftype(full) ==# 'link' && s:is_windows
         let full = resolve(full)
       endif
 
