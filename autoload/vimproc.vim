@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 18 Jul 2012.
+" Last Modified: 01 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -933,19 +933,15 @@ function! s:convert_args(args)"{{{
 
   let command_name = vimproc#get_command_name(a:args[0])
 
-  return s:analyze_shebang(command_name) + a:args[1:]
+  return vimproc#analyze_shebang(command_name) + a:args[1:]
 endfunction"}}}
 
-function! s:analyze_shebang(filename)"{{{
-  if vimproc#util#is_mac()
-    " Mac OS X's shebang support is incomplete. :-(
-    if getfsize(a:filename) > 100000
-
+function! vimproc#analyze_shebang(filename)"{{{
+  if getfsize(a:filename) > 100000 ||
+        \ (vimproc#util#is_windows() &&
+        \ '.'.fnamemodify(a:filename, ':e') !~?
+        \   '^'.substitute($PATHEXT, ';', '$\\|^', 'g').'$')
       " Maybe a binary file.
-      return [a:filename]
-    endif
-  elseif !vimproc#util#is_windows() || '.'.fnamemodify(a:filename, ':e') !~?
-        \ '^' . substitute($PATHEXT, ';', '$\\|^', 'g') . '$'
     return [a:filename]
   endif
 
@@ -959,8 +955,10 @@ function! s:analyze_shebang(filename)"{{{
   let shebang = split(matchstr(lines[0], '^#!\zs.\+'))
 
   " Convert command name.
-  if vimproc#util#is_windows() && shebang[0] =~ '^/'
-    let shebang[0] = vimproc#get_command_name(fnamemodify(shebang[0], ':t'))
+  if vimproc#util#is_windows()
+        \ && shebang[0] =~ '^/'
+    let shebang[0] = vimproc#get_command_name(
+          \ fnamemodify(shebang[0], ':t'))
   endif
 
   return shebang + [a:filename]

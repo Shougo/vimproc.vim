@@ -336,6 +336,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-08-01
+- Improved analyze shebang.
+
 2012-07-25
 - Fixed symbolic link problem.
 
