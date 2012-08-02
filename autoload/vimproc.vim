@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 01 Aug 2012.
+" Last Modified: 02 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -937,7 +937,8 @@ function! s:convert_args(args)"{{{
 endfunction"}}}
 
 function! vimproc#analyze_shebang(filename)"{{{
-  if getfsize(a:filename) > 100000 ||
+  if !filereadable(a:filename) ||
+        \ getfsize(a:filename) > 100000 ||
         \ (vimproc#util#is_windows() &&
         \ '.'.fnamemodify(a:filename, ':e') !~?
         \   '^'.substitute($PATHEXT, ';', '$\\|^', 'g').'$')

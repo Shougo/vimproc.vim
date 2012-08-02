@@ -336,6 +336,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-08-02
+- Fixed analyze shebang.
+
 2012-08-01
 - Improved analyze shebang.
 
