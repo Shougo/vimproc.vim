@@ -94,7 +94,7 @@ if !filereadable(g:vimproc_dll_path)"{{{
 endif"}}}
 
 function! vimproc#version()"{{{
-  return str2nr(printf('%2d%02d', 7, 1))
+  return str2nr(printf('%2d%02d', 7, 0))
 endfunction"}}}
 function! vimproc#dll_version()"{{{
   let [dll_version] = s:libcall('vp_dlversion', [])
