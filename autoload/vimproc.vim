@@ -709,12 +709,12 @@ function! vimproc#readdir(dirname)"{{{
     return []
   endif
 
-  let dirname = iconv(dirname, &encoding,
+  let dirname = vimproc#util#iconv(dirname, &encoding,
         \ vimproc#util#termencoding())
 
   let files = s:libcall('vp_readdir', [dirname])
 
-  call map(files, 'iconv(v:val, vimproc#util#termencoding(), &encoding)')
+  call map(files, 'vimproc#util#iconv(v:val, vimproc#util#termencoding(), &encoding)')
 
   return files
 endfunction"}}}
