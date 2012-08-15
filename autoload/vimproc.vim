@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 14 Aug 2012.
+" Last Modified: 15 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -58,7 +58,7 @@ let g:vimproc_password_pattern =
       \ get(g:, 'vimproc_password_pattern',
       \'\%(Enter \|[Oo]ld \|[Nn]ew \|login '  .
       \'\|Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
-      \'\|^\|\n\|''s \)[Pp]assword')
+      \'\|^\|\n\|''s \)\%([Pp]assword\|[Pp]assphrase\)\>')
 "}}}
 
 " Check 'encoding'"{{{
@@ -211,7 +211,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
     if !subproc.stdout.eof"{{{
       let out = subproc.stdout.read(1000, 0)
 
-      if a:is_passwd && out =~ g:vimproc_password_pattern
+      if a:is_passwd && out =~# g:vimproc_password_pattern
         redraw
         echo out
 
@@ -229,7 +229,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty)"{{{
     if !subproc.stderr.eof"{{{
       let out = subproc.stderr.read(1000, 0)
 
-      if a:is_passwd && out =~ g:vimproc_password_pattern
+      if a:is_passwd && out =~# g:vimproc_password_pattern
         redraw
         echo out
 
