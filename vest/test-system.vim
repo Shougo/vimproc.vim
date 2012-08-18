@@ -24,6 +24,11 @@ Context Fopen.run()
     Should vimproc#system_bg('ls') == ''
     Should vimproc#system_bg(['ls']) == ''
   End
+
+  It matches password string
+    Should 'Enter passphrase for key ''.ssh/id_rsa'''
+          \ =~# g:vimproc_password_pattern
+  End
 End
 
 Fin

@@ -336,6 +336,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-08-18
+- Added test.
+
 2012-08-15
 - Improved g:vimproc_password_pattern.
 
