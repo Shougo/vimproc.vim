@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Aug 2012.
+" Last Modified: 29 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -70,9 +70,10 @@ if &encoding =~# '^euc-jp'
 endif
 "}}}
 
-let g:vimproc_dll_path = substitute(
-      \ vimproc#util#iconv(g:vimproc_dll_path,
-      \ &encoding, vimproc#util#termencoding()), '\\', '/', 'g')
+let g:vimproc_dll_path =
+      \ vimproc#util#iconv(
+      \   vimproc#util#substitute_path_separator(g:vimproc_dll_path),
+      \   &encoding, vimproc#util#termencoding())
 
 if !filereadable(g:vimproc_dll_path)"{{{
   function! vimproc#get_last_status()
