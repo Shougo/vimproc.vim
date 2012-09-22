@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 18 Jul 2012.
+" Last Modified: 22 Sep 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -568,7 +568,7 @@ function! s:parse_block(script)"{{{
         " Range block.
         let start = matchstr(block, '^\d\+')
         let end = matchstr(block, '\d\+$')
-        let zero = len(matchstr(block, '^0\+'))
+        let zero = len(matchstr(block, '^0\+'))+1
         let pattern = '%0' . zero . 'd'
         for b in range(start, end)
           " Concat.
