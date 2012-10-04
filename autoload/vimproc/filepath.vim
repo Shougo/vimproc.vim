@@ -62,6 +62,7 @@ function! s:which(command, ...)
   \              !a:0                  ? split($PATH, s:path_separator) :
   \              type(a:1) == type([]) ? copy(a:1) :
   \                                      split(a:1, s:path_separator)
+  let pathlist = s:uniq(pathlist)
 
   let pathext = s:path_extensions()
   if index(pathext, '.' . tolower(fnamemodify(a:command, ':e'))) != -1
@@ -156,6 +157,22 @@ function! s:is_case_tolerant()
   return s:is_case_tolerant
 endfunction
 
+" Removes duplicates from a list.
+function! s:uniq(list, ...)
+  let list = a:0 ? map(copy(a:list), printf('[v:val, %s]', a:1)) : copy(a:list)
+  let i = 0
+  let seen = {}
+  while i < len(list)
+    let key = string(a:0 ? list[i][1] : list[i])
+    if has_key(seen, key)
+      call remove(list, i)
+    else
+      let seen[key] = 1
+      let i += 1
+    endif
+  endwhile
+  return a:0 ? map(list, 'v:val[0]') : list
+endfunction
 
 
 let &cpo = s:save_cpo
