@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 29 Aug 2012.
+" Last Modified: 13 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -930,6 +930,11 @@ endfunction
 function! s:convert_args(args)"{{{
   if empty(a:args)
     return []
+  endif
+
+  if a:args[0] ==# 'echo' && vimproc#util#is_windows()
+    " Use cmd.exe
+    return ['cmd', '/c', 'echo'] + a:args[1:]
   endif
 
   let command_name = vimproc#get_command_name(a:args[0])

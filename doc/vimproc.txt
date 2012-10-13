@@ -338,6 +338,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-10-13
 - Fixed vimproc#get_command_name() error.
+- Fixed echo in Windows.
 
 2012-10-04
 - Uniq path searching.
