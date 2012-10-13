@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 03 Jul 2012.
+" Last Modified: 13 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -73,6 +73,22 @@ endfunction"}}}
 function! vimproc#util#substitute_path_separator(path)"{{{
   return s:is_windows ? substitute(a:path, '\\', '/', 'g') : a:path
 endfunction"}}}
+
+function! vimproc#util#uniq(list, ...)
+  let list = a:0 ? map(copy(a:list), printf('[v:val, %s]', a:1)) : copy(a:list)
+  let i = 0
+  let seen = {}
+  while i < len(list)
+    let key = string(a:0 ? list[i][1] : list[i])
+    if has_key(seen, key)
+      call remove(list, i)
+    else
+      let seen[key] = 1
+      let i += 1
+    endif
+  endwhile
+  return a:0 ? map(list, 'v:val[0]') : list
+endfunction
 
 " Restore 'cpoptions' {{{
 let &cpo = s:save_cpo

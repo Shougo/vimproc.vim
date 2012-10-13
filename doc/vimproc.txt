@@ -336,6 +336,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-10-13
+- Fixed vimproc#get_command_name() error.
+
 2012-08-29
 - Fixed g:vimproc_dll_path conversion.
 
