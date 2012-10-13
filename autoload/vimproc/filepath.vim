@@ -158,8 +158,6 @@ function! s:is_case_tolerant()
   return s:is_case_tolerant
 endfunction
 
-
-
 let &cpo = s:save_cpo
 
 " vim:set et ts=2 sts=2 sw=2 tw=0:
