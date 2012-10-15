@@ -177,6 +177,7 @@ vimproc#socket_open({host}, {port})		*vimproc#socket_open()*
 
 vimproc#host_exists({host})			*vimproc#host_exists()*
 		Check to see if {host} exists.
+		Note: Protocol name and path are ignored.
 
 vimproc#popen2({args})				*vimproc#popen2()*
 		Executes {args} command and returns the process object.
@@ -341,6 +342,7 @@ CHANGELOG					*vimproc-changelog*
 
 2012-10-16
 - Search from internal commands.
+- Improved vimproc#host_exists() behavior.
 
 2012-10-15
 - Added vimproc#host_exists().

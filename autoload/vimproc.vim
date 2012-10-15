@@ -593,7 +593,8 @@ function! vimproc#socket_open(host, port)"{{{
 endfunction"}}}
 
 function! vimproc#host_exists(host)"{{{
-  let rval = s:vp_host_exists(a:host)
+  let rval = s:vp_host_exists(
+        \ substitute(substitute(a:host, '^\a\+://', '', ''), '/.*$', '', ''))
   return 0 + rval
 endfunction"}}}
 
