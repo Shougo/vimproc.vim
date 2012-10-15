@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 13 Oct 2012.
+" Last Modified: 15 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -95,7 +95,7 @@ if !filereadable(g:vimproc_dll_path)"{{{
 endif"}}}
 
 function! vimproc#version()"{{{
-  return str2nr(printf('%2d%02d', 7, 0))
+  return str2nr(printf('%2d%02d', 7, 1))
 endfunction"}}}
 function! vimproc#dll_version()"{{{
   let [dll_version] = s:libcall('vp_dlversion', [])
@@ -590,6 +590,11 @@ endfunction"}}}
 function! vimproc#socket_open(host, port)"{{{
   let fd = s:vp_socket_open(a:host, a:port)
   return s:fdopen(fd, 'vp_socket_close', 'vp_socket_read', 'vp_socket_write')
+endfunction"}}}
+
+function! vimproc#host_exists(host)"{{{
+  let rval = s:vp_host_exists(a:host)
+  return 0 + rval
 endfunction"}}}
 
 function! vimproc#kill(pid, sig)"{{{
@@ -1384,6 +1389,11 @@ function! s:vp_socket_write(hd, timeout) dict
   return nleft
 endfunction
 
+function! s:vp_host_exists(host)
+  let [rval] = s:libcall('vp_host_exists', [a:host])
+  return rval
+endfunction
+
 " Initialize.
 if !exists('s:dll_handle')
   let s:dll_handle = s:vp_dlopen(g:vimproc_dll_path)
@@ -1393,7 +1403,7 @@ endif
 try
   let dll_version = vimproc#dll_version()
   if dll_version < vimproc#version()
-    throw printf('Your vimproc binary version is "%d",'
+    throw printf('Your vimproc binary version is "%d",'.
           \ ' but vimproc version is "%d".',
           \ dll_version, vimproc#version())
   endif

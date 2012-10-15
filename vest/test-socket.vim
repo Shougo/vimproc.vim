@@ -10,8 +10,12 @@ set cpo&vim
 Context Fopen.run()
   let answer = input('Want to execute socket test? ')
   if answer !~? 'y\%[es]'
-    return
+    finish
   endif
+
+  It checks host exists
+    Should vimproc#host_exists('www.yahoo.com') == 1
+  End
 
   let sock = vimproc#socket_open('www.yahoo.com', 80)
   call sock.write("GET / HTTP/1.0\r\n\r\n", 100)

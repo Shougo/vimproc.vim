@@ -92,10 +92,13 @@ EXPORT const char *vp_socket_close(char *args);/* [] (socket) */
 EXPORT const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
 EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 
+EXPORT const char *vp_host_exists(char *args); /* [int] (host) */
+
 EXPORT const char *vp_decode(char *args);      /* [decoded_str] (encode_str) */
 
 EXPORT const char *vp_open(char *args);      /* [] (path) */
 EXPORT const char *vp_readdir(char *args);  /* [files] (dirname) */
+
 
 EXPORT const char * vp_delete_trash(char *args);  /* [filename] */
 
@@ -160,7 +163,7 @@ vp_dlclose(char *args)
 const char *
 vp_dlversion(char *args)
 {
-    vp_stack_push_num(&_result, "%2d%02d", 7, 0);
+    vp_stack_push_num(&_result, "%2d%02d", 7, 1);
     return vp_stack_return(&_result);
 }
 
@@ -873,6 +876,32 @@ vp_socket_write(char *args)
     vp_stack_push_num(&_result, "%u", nleft);
     return vp_stack_return(&_result);
 }
+
+
+/*
+ * Added by Richard Emberson
+ * Check to see if a host exists.
+ */
+const char *
+vp_host_exists(char *args)
+{
+    vp_stack_t stack;
+    char *host;
+    struct hostent *hostent;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &host));
+
+    hostent = gethostbyname(host);
+    if (hostent) {
+        vp_stack_push_num(&_result, "%d", 1);
+    } else {
+        vp_stack_push_num(&_result, "%d", 0);
+    }
+
+    return vp_stack_return(&_result);
+}
+
 
 /* Referenced from */
 /* http://www.syuhitu.org/other/dir.html */

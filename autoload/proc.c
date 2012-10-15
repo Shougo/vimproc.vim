@@ -112,6 +112,8 @@ const char *vp_socket_close(char *args);/* [] (socket) */
 const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
 const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 
+const char *vp_host_exists(char *args); /* [int] (host) */
+
 const char *vp_decode(char *args);      /* [decoded_str] (encode_str) */
 /* --- */
 
@@ -155,7 +157,7 @@ vp_dlclose(char *args)
 const char *
 vp_dlversion(char *args)
 {
-    vp_stack_push_num(&_result, "%2d%02d", 7, 0);
+    vp_stack_push_num(&_result, "%2d%02d", 7, 1);
     return vp_stack_return(&_result);
 }
 
@@ -848,6 +850,30 @@ const char *
 vp_socket_write(char *args)
 {
     return vp_file_write(args);
+}
+
+/*
+ * Added by Richard Emberson
+ * Check to see if a host exists.
+ */
+const char *
+vp_host_exists(char *args)
+{
+    vp_stack_t stack;
+    char *host;
+    struct hostent *hostent;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &host));
+
+    hostent = gethostbyname(host);
+    if (hostent) {
+        vp_stack_push_num(&_result, "%d", 1);
+    } else {
+        vp_stack_push_num(&_result, "%d", 0);
+    }
+
+    return vp_stack_return(&_result);
 }
 
 const char *
