@@ -343,6 +343,7 @@ CHANGELOG					*vimproc-changelog*
 2012-10-16
 - Search from internal commands.
 - Improved vimproc#host_exists() behavior.
+- Added check host in vimproc#open().
 
 2012-10-15
 - Added vimproc#host_exists().

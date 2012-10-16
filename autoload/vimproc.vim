@@ -109,6 +109,13 @@ function! vimproc#open(filename)"{{{
   let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'),
         \ &encoding, vimproc#util#termencoding())
 
+  if filename =~ '^\%(https\?\|ftp\)://'
+          \ && !vimproc#host_exists(filename)
+    " URI is invalid.
+    call s:print_error('vimproc#open: URI "' . filename . '" is invalid.')
+    return
+  endif
+
   " Detect desktop environment.
   if vimproc#util#is_windows()
     " For URI only.
@@ -135,7 +142,7 @@ function! vimproc#open(filename)"{{{
     call vimproc#system_bg(['open', filename])
   else
     " Give up.
-    throw 'vimproc#open: Not supported.'
+    call s:print_error('vimproc#open: Not supported.')
   endif
 endfunction"}}}
 
@@ -1412,7 +1419,7 @@ endif
 try
   let dll_version = vimproc#dll_version()
   if dll_version < vimproc#version()
-    throw printf('Your vimproc binary version is "%d",'.
+    call s:print_error('Your vimproc binary version is "%d",'.
           \ ' but vimproc version is "%d".',
           \ dll_version, vimproc#version())
   endif
