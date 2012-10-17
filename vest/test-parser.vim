@@ -37,6 +37,18 @@ Context Lexer.run()
     Should vimproc#shellescape('hoge') == "'hoge'"
     Should vimproc#shellescape('ho''ge') == "'ho''ge'"
   End
+
+  It tests vimproc#parser#parse_statements()
+    let statements =
+          \ vimproc#parser#split_statements(
+          \ '"/usr/bin/clang++" --std=c++0x `pkg-config'.
+          \ ' --libs opencv` "/home/me/opencv/capture.cpp"'.
+          \ ' -o "/home/me/opencv/capture" && "/home/me/opencv/capture"')
+    Should statements == ['"/usr/bin/clang++" --std=c++0x `pkg-config'.
+          \ ' --libs opencv` "/home/me/opencv/capture.cpp"'.
+          \ ' -o "/home/me/opencv/capture" ', ' "/home/me/opencv/capture"'
+          \ ]
+  End
 End
 
 Fin

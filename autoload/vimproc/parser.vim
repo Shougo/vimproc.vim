@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 22 Sep 2012.
+" Last Modified: 17 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -137,6 +137,7 @@ function! vimproc#parser#parse_statements(script)"{{{
   let statement = ''
   let i = 0
   while i < max
+    echomsg script[i]
     if script[i] == ';'
       if statement != ''
         call add(statements,
@@ -952,6 +953,15 @@ function! s:skip_back_quote(script, i)"{{{
     let string .= a:script[i]
     let i += 1
   endwhile
+
+  if i < max
+    " must end with "`"
+    if a:script[i] != '`'
+      throw 'Exception: Quote (`) is not found.'
+    endif
+    let string .= a:script[i]
+    let i += 1
+  endif
 
   return [string, i]
 endfunction"}}}

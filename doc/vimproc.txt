@@ -340,6 +340,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-10-17
+- Fixed parse of backquote.
+
 2012-10-16
 - Search from internal commands.
 - Improved vimproc#host_exists() behavior.
