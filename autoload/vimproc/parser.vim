@@ -137,7 +137,6 @@ function! vimproc#parser#parse_statements(script)"{{{
   let statement = ''
   let i = 0
   while i < max
-    echomsg script[i]
     if script[i] == ';'
       if statement != ''
         call add(statements,
