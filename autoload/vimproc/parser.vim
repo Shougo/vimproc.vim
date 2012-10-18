@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 17 Oct 2012.
+" Last Modified: 18 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -245,11 +245,12 @@ function! vimproc#parser#split_args(script)"{{{
       endif
     elseif script[i] == '`'
       " Back quote.
+      let head = i > 0 ? script[: i-1] : []
       let [arg_quote, i] = s:parse_back_quote(script, i)
-      let arg .= arg_quote
-      if arg == ''
-        call add(args, '')
-      endif
+
+      " Re-parse script.
+      return vimproc#parser#split_args(
+            \ head + split(arg_quote, '\zs') + script[i :])
     elseif script[i] == '\'
       " Escape.
       let i += 1

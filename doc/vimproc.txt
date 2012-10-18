@@ -340,6 +340,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-10-18
+- Fixed parse of backquote.
+
 2012-10-17
 - Fixed parse of backquote.
 

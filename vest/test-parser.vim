@@ -49,6 +49,11 @@ Context Lexer.run()
           \ ' -o "/home/me/opencv/capture" ', ' "/home/me/opencv/capture"'
           \ ]
   End
+
+  It tests backquote
+    Should vimproc#parser#split_args('echo `echo "hoge" "piyo" "hogera"`') ==
+          \ [ 'echo', 'hoge', 'piyo', 'hogera' ]
+  End
 End
 
 Fin
