@@ -340,6 +340,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-10-21
+- Improved garbage collect.
+
 2012-10-18
 - Fixed parse of backquote.
 

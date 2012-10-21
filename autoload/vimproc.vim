@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 16 Oct 2012.
+" Last Modified: 21 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1038,6 +1038,8 @@ function! s:funcref(funcname)
 endfunction
 
 function! s:finalize()
+  call s:garbage_collect()
+
   if exists('s:dll_handle')
     call s:vp_dlclose(s:dll_handle)
   endif
