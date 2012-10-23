@@ -340,6 +340,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-10-23
+- Fixed parse system.
+
 2012-10-21
 - Improved garbage collect.
 
