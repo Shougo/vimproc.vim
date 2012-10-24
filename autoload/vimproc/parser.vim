@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 18 Oct 2012.
+" Last Modified: 24 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -28,35 +28,6 @@
 let s:save_cpo = &cpo
 set cpo&vim
 " }}}
-
-function! vimproc#parser#system(cmdline, ...)"{{{
-  let args = vimproc#parser#parse_statements(a:cmdline)
-  for arg in args
-    let arg.statement = vimproc#parser#parse_pipe(arg.statement)
-  endfor
-
-  if a:cmdline =~ '&\s*$'
-    return vimproc#parser#system_bg(args)
-  elseif a:0 == 0
-    return vimproc#system(args)
-  elseif a:0 == 1
-    return vimproc#system(args, a:1)
-  else
-    return vimproc#system(args, a:1, a:2)
-  endif
-endfunction"}}}
-function! vimproc#parser#system_bg(cmdline)"{{{
-  let cmdline = (a:cmdline =~ '&\s*$')? a:cmdline[:match(a:cmdline, '&\s*$') - 1] : a:cmdline
-
-  if vimproc#util#is_windows()
-    silent execute '!start' cmdline
-    return ''
-  else
-    " Background execution.
-    let args = vimproc#parser#split_args(cmdline)
-    return vimproc#system_bg(args)
-  endif
-endfunction"}}}
 
 " For vimshell parser.
 function! vimproc#parser#parse_pipe(statement)"{{{
@@ -126,7 +97,7 @@ function! s:parse_cmdline(cmdline)"{{{
   return cmdline
 endfunction"}}}
 function! vimproc#parser#parse_statements(script)"{{{
-  if a:script =~ '^\s*:'
+  if type(a:script) == type('')  && a:script =~ '^\s*:'
     return [ { 'statement' : a:script, 'condition' : 'always' } ]
   endif
 
