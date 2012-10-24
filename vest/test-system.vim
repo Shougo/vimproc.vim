@@ -13,6 +13,13 @@ Context Fopen.run()
     if executable('ruby')
       Should vimproc#system('ruby -e ''print "a\0b"''') == 'a^@b'
     endif
+
+    Should vimproc#system(['ls']) == system('ls')
+
+    Should vimproc#system_passwd('echo -n "test"')
+          \ == system('echo -n "test"')
+    Should vimproc#system_passwd(['echo', '-n', 'test'])
+          \ == system('echo -n "test"')
   End
 
   It calls vimproc#system_bg() implicitly
