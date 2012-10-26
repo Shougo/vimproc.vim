@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 24 Oct 2012.
+" Last Modified: 26 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -42,25 +42,6 @@ if vimproc#util#is_mac() && !&encoding
 endif
 "}}}
 
-let s:last_status = 0
-let s:last_errmsg = ''
-
-" Global options definition."{{{
-let g:vimproc_dll_path =
-      \ get(g:, 'vimproc_dll_path', expand('<sfile>:p:h') . '/' .
-      \     (vimproc#util#is_windows() ?
-      \           (has('win64') ? 'vimproc_win64.dll' :
-      \                           'vimproc_win32.dll') :
-      \      has('win32unix') ? 'vimproc_cygwin.dll' :
-      \      vimproc#util#is_mac() ? 'vimproc_mac.so' :
-      \                              'vimproc_unix.so'))
-let g:vimproc_password_pattern =
-      \ get(g:, 'vimproc_password_pattern',
-      \'\%(Enter \|[Oo]ld \|[Nn]ew \|login '  .
-      \'\|Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
-      \'\|^\|\n\|''s \)\%([Pp]assword\|[Pp]assphrase\)\>')
-"}}}
-
 " Check 'encoding'"{{{
 if &encoding =~# '^euc-jp'
   call s:print_error('Sorry, vimproc is not supported this encoding environment.')
@@ -70,12 +51,42 @@ if &encoding =~# '^euc-jp'
 endif
 "}}}
 
-let g:vimproc_dll_path =
-      \ vimproc#util#iconv(
-      \   vimproc#util#substitute_path_separator(g:vimproc_dll_path),
-      \   &encoding, vimproc#util#termencoding())
+" Global options definition."{{{
+call vimproc#util#set_default(
+      \ 'g:vimproc#dll_path', expand('<sfile>:p:h') . '/' .
+      \     (vimproc#util#is_windows() ?
+      \           (has('win64') ? 'vimproc_win64.dll' :
+      \                           'vimproc_win32.dll') :
+      \      has('win32unix') ? 'vimproc_cygwin.dll' :
+      \      vimproc#util#is_mac() ? 'vimproc_mac.so' :
+      \                              'vimproc_unix.so'),
+      \ 'g:vimproc_dll_path')
+call vimproc#util#set_default(
+      \ 'g:vimproc#password_pattern',
+      \ '\%(Enter \|[Oo]ld \|[Nn]ew \|login '  .
+      \'\|Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
+      \'\|^\|\n\|''s \)\%([Pp]assword\|[Pp]assphrase\)\>',
+      \ 'g:vimproc_password_pattern')
+call vimproc#util#set_default(
+      \ 'g:vimproc#popen2_commands', {
+      \     'sh' : 1, 'bash' : 1, 'zsh' : 1, 'csh' : 1, 'tcsh' : 1,
+      \     'tmux' : 1, 'screen' : 1, 'su' : 1,
+      \     'python' : 1, 'rhino' : 1, 'ipython' : 1, 'ipython3' : 1, 'yaourt' : 1,
+      \ }, 'g:vimproc_popen2_commands')
+call vimproc#util#set_default(
+      \ 'g:stdinencoding', 'char')
+call vimproc#util#set_default(
+      \ 'g:stdoutencoding', 'char')
+call vimproc#util#set_default(
+      \ 'g:stderrencoding', 'char')
+"}}}
 
-if !filereadable(g:vimproc_dll_path)"{{{
+let g:vimproc#dll_path =
+      \ vimproc#util#iconv(
+      \ vimproc#util#substitute_path_separator(g:vimproc#dll_path),
+      \ &encoding, vimproc#util#termencoding())
+
+if !filereadable(g:vimproc#dll_path)"{{{
   function! vimproc#get_last_status()
     return v:shell_error
   endfunction
@@ -89,7 +100,7 @@ if !filereadable(g:vimproc_dll_path)"{{{
   endfunction
 
   echoerr printf('vimproc''s DLL: "%s" is not found.
-        \ Please read :help vimproc and make it.', g:vimproc_dll_path)
+        \ Please read :help vimproc and make it.', g:vimproc#dll_path)
 
   finish
 endif"}}}
@@ -1014,7 +1025,7 @@ function! s:libcall(func, args)"{{{
   " End Of Value
   let EOV = "\xFF"
   let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), EOV) . EOV)
-  let stack_buf = libcall(g:vimproc_dll_path, a:func, args)
+  let stack_buf = libcall(g:vimproc#dll_path, a:func, args)
   let result = split(stack_buf, '[\xFF]', 1)
   if !empty(result) && result[-1] != ''
     if stack_buf[len(stack_buf) - 1] == "\xFF"
@@ -1417,7 +1428,9 @@ endfunction
 
 " Initialize.
 if !exists('s:dll_handle')
-  let s:dll_handle = s:vp_dlopen(g:vimproc_dll_path)
+  let s:dll_handle = s:vp_dlopen(g:vimproc#dll_path)
+  let s:last_status = 0
+  let s:last_errmsg = ''
 endif
 
 " vimproc dll version check."{{{
