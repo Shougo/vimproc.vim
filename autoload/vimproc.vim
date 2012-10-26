@@ -86,6 +86,9 @@ let g:vimproc#dll_path =
       \ vimproc#util#substitute_path_separator(g:vimproc#dll_path),
       \ &encoding, vimproc#util#termencoding())
 
+" Backward compatibility.
+let g:vimproc_password_pattern = g:vimproc#password_pattern
+
 if !filereadable(g:vimproc#dll_path)"{{{
   function! vimproc#get_last_status()
     return v:shell_error
