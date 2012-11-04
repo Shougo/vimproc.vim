@@ -85,9 +85,25 @@ Below is Make command.
 After compile, you copy autoload/* and plugin/* files to your
 'runtimepath' directory.
 
-I compiled vimproc_win**.dll in 32/64 bit Windows, and distributed it below URL.
-Note: I DON'T recommend to use it.
+I compiled vimproc_win**.dll in 32/64 bit Windows, and distributed it below
+URL.
+Note: I DON'T recommend to use it. You should build dll files manually.
 http://github.com/Shougo/vimproc/downloads
+
+If you use |neobundle.vim|, you can update and build vimproc automatically.
+http://github.com/Shougo/neobundle.vim
+
+Example for neobundle:
+>
+	NeoBundle 'Shougo/vimproc', {
+	      \ 'build' : {
+	      \     'windows' : 'make -f make_mingw32.mak',
+	      \     'cygwin' : 'make -f make_cygwin.mak',
+	      \     'mac' : 'make -f make_mac.mak',
+	      \     'unix' : 'make -f make_unix.mak',
+	      \    },
+	      \ }
+<
 
 ==============================================================================
 INTERFACE					*vimproc-interface*
@@ -344,6 +360,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-11-04
+- Added for neobundle description.
 
 2012-10-26
 - Changed variable names.
