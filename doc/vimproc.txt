@@ -139,7 +139,8 @@ vimproc#get_command_name({command} [, {path}, {count}])	*vimproc#get_command_nam
 		{count} candidate. If you set {count} is -1, returns as list.
 
 vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
-		This function replaces |system()|. If you call |system()| in Windows environment,
+		This function replaces |system()|. If you call |system()| in
+		Windows environment,
 		DOS window will appeared. But, |vimproc#system()| is not.
 		Note: This function is not execute shell. So shell internal
 		command is invalid.  Ex: pwd, cd, ...
