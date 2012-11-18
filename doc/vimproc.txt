@@ -362,6 +362,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2012-11-19
+- Improved vimproc#get_last_errmsg().
+
 2012-11-04
 - Added for neobundle description.
 
