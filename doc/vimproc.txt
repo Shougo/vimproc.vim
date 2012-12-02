@@ -55,6 +55,18 @@ when "vimproc_xxx.so(vimproc_xxx.dll)" don't exist.
 
 Note: The vimproc_cygwin.dll compiled in Cygwin can't work for Windows Vim.
 
+Supported platforms:
+* Windows 32/64bit (Compiled by MinGW or Visual Studio)
+* Mac OS X (10.5 or later)
+* Linux
+* Cygwin
+* Solaris
+* BSD (but cannot check)
+
+Not supported platforms:
+* Android (may work but no support)
+* Other UNIX platforms
+
 Below is Make command.
 * Mingw(32bit Vim): >
 	$ make -f make_mingw32.mak
