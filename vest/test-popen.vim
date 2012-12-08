@@ -109,10 +109,6 @@ Context Popen.popen3()
     Should res == system(cmd)
   End
 
-  It returns empty string
-    Should sub.stderr.read() == ""
-  End
-
   unlet cmd
   unlet sub
 End
