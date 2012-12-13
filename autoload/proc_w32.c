@@ -372,9 +372,9 @@ vp_pipe_open(char *args)
     vp_stack_t stack;
     int npipe, hstdin, hstderr, hstdout;
     char *cmdline;
-    HANDLE hInputWrite, hInputRead;
-    HANDLE hOutputWrite, hOutputRead;
-    HANDLE hErrorWrite, hErrorRead;
+    HANDLE hInputWrite = INVALID_HANDLE_VALUE, hInputRead;
+    HANDLE hOutputWrite, hOutputRead = INVALID_HANDLE_VALUE;
+    HANDLE hErrorWrite, hErrorRead = INVALID_HANDLE_VALUE;
     SECURITY_ATTRIBUTES sa;
     PROCESS_INFORMATION pi;
     STARTUPINFO si;
