@@ -35,7 +35,7 @@ let s:is_mac = !s:is_windows && !s:is_cygwin
       \   (!executable('xdg-open') && system('uname') =~? '^darwin'))
 
 " iconv() wrapper for safety.
-function! vimproc#util#iconv(expr, from, to)"{{{
+function! vimproc#util#iconv(expr, from, to) "{{{
   if !has('iconv')
         \ || a:expr == '' || a:from == ''
         \ || a:to == '' || a:from ==# a:to
@@ -45,36 +45,36 @@ function! vimproc#util#iconv(expr, from, to)"{{{
   let result = iconv(a:expr, a:from, a:to)
   return result != '' ? result : a:expr
 endfunction"}}}
-function! vimproc#util#termencoding()"{{{
+function! vimproc#util#termencoding() "{{{
   return 'char'
 endfunction"}}}
-function! vimproc#util#stdinencoding()"{{{
+function! vimproc#util#stdinencoding() "{{{
   return exists('g:stdinencoding') && type(g:stdinencoding) == type("") ?
         \ g:stdinencoding : vimproc#util#termencoding()
 endfunction"}}}
-function! vimproc#util#stdoutencoding()"{{{
+function! vimproc#util#stdoutencoding() "{{{
   return exists('g:stdoutencoding') && type(g:stdoutencoding) == type("") ?
         \ g:stdoutencoding : vimproc#util#termencoding()
 endfunction"}}}
-function! vimproc#util#stderrencoding()"{{{
+function! vimproc#util#stderrencoding() "{{{
   return exists('g:stderrencoding') && type(g:stderrencoding) == type("") ?
         \ g:stderrencoding : vimproc#util#termencoding()
 endfunction"}}}
-function! vimproc#util#expand(path)"{{{
+function! vimproc#util#expand(path) "{{{
   return expand(escape(a:path,
         \ vimproc#util#is_windows() ? '*?"={}' : '*?"={}[]'), 1)
 endfunction"}}}
-function! vimproc#util#is_windows()"{{{
+function! vimproc#util#is_windows() "{{{
   return s:is_windows
 endfunction"}}}
-function! vimproc#util#is_mac()"{{{
+function! vimproc#util#is_mac() "{{{
   return s:is_mac
 endfunction"}}}
-function! vimproc#util#substitute_path_separator(path)"{{{
+function! vimproc#util#substitute_path_separator(path) "{{{
   return s:is_windows ? substitute(a:path, '\\', '/', 'g') : a:path
 endfunction"}}}
 
-function! vimproc#util#uniq(list, ...)"{{{
+function! vimproc#util#uniq(list, ...) "{{{
   let list = a:0 ? map(copy(a:list), printf('[v:val, %s]', a:1)) : copy(a:list)
   let i = 0
   let seen = {}
@@ -98,7 +98,7 @@ function! vimproc#util#set_default(var, val, ...)  "{{{
   endif
 endfunction"}}}
 
-" Global options definition."{{{
+" Global options definition. "{{{
 call vimproc#util#set_default(
       \ 'g:stdinencoding', 'char')
 call vimproc#util#set_default(

@@ -40,7 +40,7 @@ command! -nargs=+ -complete=shellcmd VimProcBang call s:bang(<q-args>)
 command! -nargs=+ -complete=shellcmd VimProcRead call s:read(<q-args>)
 
 " Command functions:
-function! s:bang(cmdline)"{{{
+function! s:bang(cmdline) "{{{
   " Expand % and #.
   let cmdline = join(map(vimproc#parser#split_args_through(
         \ vimproc#util#iconv(a:cmdline,
@@ -81,7 +81,7 @@ function! s:bang(cmdline)"{{{
 
   let [cond, last_status] = subproc.waitpid()
 endfunction"}}}
-function! s:read(cmdline)"{{{
+function! s:read(cmdline) "{{{
   " Expand % and #.
   let cmdline = join(map(vimproc#parser#split_args_through(
         \ vimproc#util#iconv(a:cmdline,

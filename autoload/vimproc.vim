@@ -42,7 +42,7 @@ if vimproc#util#is_mac() && !&encoding
 endif
 "}}}
 
-" Check 'encoding'"{{{
+" Check 'encoding' "{{{
 if &encoding =~# '^euc-jp'
   call s:print_error('Sorry, vimproc is not supported this encoding environment.')
   call s:print_error('You should set ''encoding'' option to "utf-8" '
@@ -51,7 +51,7 @@ if &encoding =~# '^euc-jp'
 endif
 "}}}
 
-" Global options definition."{{{
+" Global options definition. "{{{
 call vimproc#util#set_default(
       \ 'g:vimproc#dll_path', expand('<sfile>:p:h') . '/' .
       \     (vimproc#util#is_windows() ?
@@ -213,7 +213,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
   let output = ''
   let s:last_errmsg = ''
   while !subproc.stdout.eof || !subproc.stderr.eof
-    if timeout > 0"{{{
+    if timeout > 0 "{{{
       " Check timeout.
       let end = split(reltimestr(reltime(start)))[0] * 1000
       if end > timeout && !subproc.stdout.eof
@@ -230,7 +230,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
       endif
     endif"}}}
 
-    if !subproc.stdout.eof"{{{
+    if !subproc.stdout.eof "{{{
       let out = subproc.stdout.read(1000, 0)
 
       if a:is_passwd && out =~# g:vimproc_password_pattern
@@ -248,7 +248,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
       endif
     endif"}}}
 
-    if !subproc.stderr.eof"{{{
+    if !subproc.stderr.eof "{{{
       let out = subproc.stderr.read(1000, 0)
 
       if a:is_passwd && out =~# g:vimproc_password_pattern
@@ -795,7 +795,7 @@ function! s:close_all(self) "{{{
     call a:self.stderr.close()
   endif
 endfunction"}}}
-function! s:close() dict"{{{
+function! s:close() dict "{{{
   if self.is_valid
     call self.f_close()
   endif
@@ -805,7 +805,7 @@ function! s:close() dict"{{{
   let self.__eof = 1
   let self.fd = -1
 endfunction"}}}
-function! s:read(...) dict"{{{
+function! s:read(...) dict "{{{
   if self.__eof
     let self.eof = 1
     return ''
@@ -819,7 +819,7 @@ function! s:read(...) dict"{{{
 
   return s:hd2str([hd])
 endfunction"}}}
-function! s:read_lines(...) dict"{{{
+function! s:read_lines(...) dict "{{{
   let res = self.buffer
 
   while !self.eof && stridx(res, "\n") < 0
@@ -844,7 +844,7 @@ function! s:read_lines(...) dict"{{{
   let self.eof = (self.buffer != '') ? 0 : self.__eof
   return lines
 endfunction"}}}
-function! s:read_line(...) dict"{{{
+function! s:read_line(...) dict "{{{
   let lines = call(self.read_lines, a:000, self)
   let self.buffer = join(lines[1:], "\n") . self.buffer
   let self.eof = (self.buffer != '') ? 0 : self.__eof
@@ -852,7 +852,7 @@ function! s:read_line(...) dict"{{{
   return get(lines, 0, '')
 endfunction"}}}
 
-function! s:write(str, ...) dict"{{{
+function! s:write(str, ...) dict "{{{
   let timeout = get(a:000, 0, s:write_timeout)
   let hd = s:str2hd(a:str)
   return self.f_write(hd, timeout)
@@ -1171,7 +1171,7 @@ function! s:vp_pipe_write(hd, timeout) dict
   return nleft
 endfunction
 
-function! s:read_pipes(...) dict"{{{
+function! s:read_pipes(...) dict "{{{
   if type(self.fd[-1]) != type({})
     let self.eof = 1
     return ''
@@ -1186,7 +1186,7 @@ function! s:read_pipes(...) dict"{{{
   return output
 endfunction"}}}
 
-function! s:write_pipes(str, ...) dict"{{{
+function! s:write_pipes(str, ...) dict "{{{
   let timeout = get(a:000, 0, s:write_timeout)
 
   if self.fd[0].eof
@@ -1200,7 +1200,7 @@ function! s:write_pipes(str, ...) dict"{{{
   return nleft
 endfunction"}}}
 
-function! s:read_pgroup(...) dict"{{{
+function! s:read_pgroup(...) dict "{{{
   let number = get(a:000, 0, -1)
   let timeout = get(a:000, 1, s:read_timeout)
 
@@ -1251,7 +1251,7 @@ function! s:read_pgroup(...) dict"{{{
   return output
 endfunction"}}}
 
-function! s:write_pgroup(str, ...) dict"{{{
+function! s:write_pgroup(str, ...) dict "{{{
   let timeout = get(a:000, 0, s:write_timeout)
 
   let nleft = 0
@@ -1451,7 +1451,7 @@ if !exists('s:dll_handle')
   let s:last_errmsg = ''
 endif
 
-" vimproc dll version check."{{{
+" vimproc dll version check. "{{{
 try
   let dll_version = vimproc#dll_version()
   if dll_version < vimproc#version()
