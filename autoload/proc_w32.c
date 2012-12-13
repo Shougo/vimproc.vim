@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <io.h>
 
 /* For GetConsoleWindow() for Windows 2000 or later. */
 #ifndef WINVER
@@ -122,6 +123,7 @@ lasterror()
 #define close _close
 #define read _read
 #define write _write
+#define lseek _lseek
 
 #define CSI_WndCols(csi) ((csi)->srWindow.Right - (csi)->srWindow.Left +1)
 #define CSI_WndRows(csi) ((csi)->srWindow.Bottom - (csi)->srWindow.Top +1)
