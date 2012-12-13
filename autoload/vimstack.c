@@ -197,7 +197,7 @@ vp_stack_pop_bin(vp_stack_t *stack, char **buf, size_t *size)
         /* "%0.2x" is warned by gcc. */
         if (sscanf(p, "%2x", &num) != 1)
             return "vp_stack_pop_bin: sscanf error";
-        (*buf)[*size] = num;
+        (*buf)[*size] = (char)(num & 0xff);
         *size += 1;
         p += 2;
     }
