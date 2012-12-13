@@ -22,7 +22,7 @@ VIMPROC=vimproc_win64
 VIMPROC=vimproc_win32
 !endif
 
-SRCS = autoload/proc_w32.c autoload/vimstack.c
+SRCS = autoload/proc_w32.c
 OBJS = $(SRCS:.c=.obj)
 
 DEFINES = -D_CRT_SECURE_NO_WARNINGS=1 -D_BIND_TO_CURRENT_VCLIBS_VERSION=1 
