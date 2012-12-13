@@ -350,7 +350,7 @@ vp_file_write(char *args)
             /* timeout */
             break;
         }
-        n = write(fd, buf + nleft, size - nleft);
+        n = write(fd, buf + nleft, (unsigned int)(size - nleft));
         if (n == -1) {
             return vp_stack_return_error(&_result, "write() error: %s",
                     strerror(errno));
@@ -735,7 +735,7 @@ vp_socket_open(char *args)
     }
 
     if (sscanf(port, "%d%n", &port_nr, &n) == 1 && port[n] == '\0') {
-        nport = htons(port_nr);
+        nport = htons((u_short)port_nr);
     } else {
         servent = getservbyname(port, NULL);
         if (servent == NULL)
@@ -744,7 +744,7 @@ vp_socket_open(char *args)
         nport = servent->s_port;
     }
 
-    sock = socket(PF_INET, SOCK_STREAM, 0);
+    sock = (int)socket(PF_INET, SOCK_STREAM, 0);
     hostent = gethostbyname(host);
     sockaddr.sin_family = AF_INET;
     sockaddr.sin_port = nport;
@@ -867,7 +867,7 @@ vp_socket_write(char *args)
             /* timeout */
             break;
         }
-        n = send(sock, buf + nleft, size - nleft, 0);
+        n = send(sock, buf + nleft, (int)(size - nleft), 0);
         if (n == -1)
             return vp_stack_return_error(&_result, "send() error: %s",
                     strerror(errno));
@@ -1048,7 +1048,7 @@ vp_decode(char *args)
             buf[bi] = '@';
             bi++;
         } else {
-            buf[bi] = num;
+            buf[bi] = (char)num;
             bi++;
         }
         num = 0;
