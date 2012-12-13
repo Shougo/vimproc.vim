@@ -1,0 +1,11 @@
+# vimproc
+
+## How to build on Windows
+
+  $ nmake -f Make_msvc.mak nodebug=1
+
+CPU architecture (32/64) is detected automatically.
+
+When you want to build debug version:
+
+  $ nmake -f Make_msvc.mak
