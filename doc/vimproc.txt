@@ -46,7 +46,8 @@ Instead of external shell(example: 'shell'), |vimproc| uses external dll file.
 INSTALL						*vimproc-install*
 
 In first, you get vimproc from git repository.
-[http://github.com/Shougo/vimproc/tree/master](http://github.com/Shougo/vimproc/tree/master)
+
+http://github.com/Shougo/vimproc
 
 Next, make external dll "vimproc_xxx.so(or vimproc_win32.dll,
 vimproc_cygwin.dll)". Because vimproc depends on "vimproc_xxx.so(or
@@ -98,7 +99,10 @@ After compile, you copy autoload/* and plugin/* files to your
 I compiled vimproc_win**.dll in 32/64 bit Windows, and distributed it below
 URL.
 Note: I DON'T recommend to use it. You should build dll files manually.
-http://github.com/Shougo/vimproc/downloads
+https://github.com/Shougo/vimproc-dll
+
+You can use Kaoriya Vim in Windows. It includes vimproc dll file.
+(http://www.kaoriya.net/news/2012/20121213)
 
 If you use |neobundle.vim|, you can update and build vimproc automatically.
 http://github.com/Shougo/neobundle.vim
