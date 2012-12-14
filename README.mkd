@@ -1,6 +1,6 @@
 # vimproc
 
-## How to build on Windows
+## How to build on Windows using Visual Studio
 
   $ nmake -f Make_msvc.mak nodebug=1
 
