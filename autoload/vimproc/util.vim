@@ -32,8 +32,7 @@ let s:is_windows = has('win16') || has('win32') || has('win64')
 let s:is_cygwin = has('win32unix')
 let s:is_mac = !s:is_windows
       \ && (has('mac') || has('macunix') || has('gui_macvim') ||
-      \   (!isdirectory('/proc') && !executable('xdg-open') &&
-      \     system('uname') =~? '^darwin'))
+      \   (!isdirectory('/proc') && executable('sw_vers')))
 
 " iconv() wrapper for safety.
 function! vimproc#util#iconv(expr, from, to) "{{{
