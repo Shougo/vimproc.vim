@@ -929,7 +929,7 @@ function! s:garbage_collect() "{{{
         endif
         call remove(s:bg_processes, pid)
       endif
-    catch /waitpid() error:\|kill() error:/
+    catch /waitpid() error:/
       " Ignore error.
     endtry
   endfor
