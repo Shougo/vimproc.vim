@@ -264,6 +264,9 @@ vimproc#ptyopen({args}, [{npipe}])		*vimproc#ptyopen()*
 
 vimproc#kill({pid}, {sig})			*vimproc#kill()*
 		Send {sig} signal to {pid} process.
+		If error is occurred, it will return 1 for error and set
+		|vimproc#get_last_errmsg()|.
+		If {sig} is 0, it check whether {pid} is exists.
 
 vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
 		Writes {string} to {filename} file.
@@ -376,6 +379,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2012-12-20
+- Improved vimproc#kill() behavior.
 
 2012-12-14
 - Improved for Visual Studio support(KoRoN).
