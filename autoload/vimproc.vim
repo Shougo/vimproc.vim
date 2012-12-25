@@ -81,6 +81,28 @@ call vimproc#util#set_default(
       \ 'g:stderrencoding', 'char')
 "}}}
 
+" Constants {{{
+let g:vimproc#SIGINT = 2
+let g:vimproc#SIGQUIT = 3
+let g:vimproc#SIGILL = 4
+let g:vimproc#SIGABRT = 6
+let g:vimproc#SIGFPE = 8
+let g:vimproc#SIGKILL = 9
+let g:vimproc#SIGSEGV = 11
+let g:vimproc#SIGPIPE = 13
+let g:vimproc#SIGALRM = 14
+let g:vimproc#SIGTERM = 15
+let g:vimproc#SIGUSR1 = 10
+let g:vimproc#SIGUSR2 = 12
+let g:vimproc#SIGCHLD = 17
+let g:vimproc#SIGCONT = 18
+let g:vimproc#SIGSTOP = 19
+let g:vimproc#SIGTSTP = 20
+let g:vimproc#SIGTTIN = 21
+let g:vimproc#SIGTTOU = 22
+let g:vimproc#SIGWINCH = 28
+" }}}
+
 let g:vimproc#dll_path =
       \ vimproc#util#iconv(
       \ vimproc#util#substitute_path_separator(g:vimproc#dll_path),
