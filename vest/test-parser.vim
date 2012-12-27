@@ -51,8 +51,12 @@ Context Lexer.run()
   End
 
   It tests backquote
-    Should vimproc#parser#split_args('echo `echo "hoge" "piyo" "hogera"`') ==
+    ShouldEqual vimproc#parser#split_args('echo `echo "hoge" "piyo" "hogera"`'),
           \ [ 'echo', 'hoge', 'piyo', 'hogera' ]
+    ShouldEqual vimproc#parser#split_args(
+          \ 'echo "`curl -fs https://gist.github.com/raw/4349265/sudden-vim.py`"'),
+          \ [ 'echo', system('curl -fs https://gist.github.com/raw/4349265/sudden-vim.py')]
+
   End
 End
 
