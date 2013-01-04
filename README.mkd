@@ -49,7 +49,7 @@ Below is Make command.
 	$ make -f make_sunos.mak
 
 After compile, you copy `autoload/*` and `plugin/*` files to your
-'runtimepath' directory.
+'runtimepath' directory (see `:help runtimepath`).
 
 I compiled `vimproc_win**.dll` in 32/64 bit Windows, and distributed it below
 URL.
