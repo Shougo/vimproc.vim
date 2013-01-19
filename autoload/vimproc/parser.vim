@@ -42,7 +42,6 @@ function! vimproc#parser#parse_pipe(statement) "{{{
     else
       let fd = { 'stdin' : '', 'stdout' : '', 'stderr' : '' }
     endif
-    echomsg string(cmdline)
 
     for key in ['stdout', 'stderr']
       if fd[key] == '' || fd[key] =~ '^>'
