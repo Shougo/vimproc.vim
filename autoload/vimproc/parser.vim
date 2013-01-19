@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 27 Dec 2012.
+" Last Modified: 19 Jan 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -58,7 +58,7 @@ function! vimproc#parser#parse_pipe(statement) "{{{
     endfor
 
     call add(commands, {
-          \ 'args' : vimproc#parser#split_args(cmdline),
+          \ 'args' : vimproc#parser#split_args_through(cmdline),
           \ 'fd' : fd
           \})
   endfor
