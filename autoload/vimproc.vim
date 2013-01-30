@@ -52,15 +52,28 @@ endif
 "}}}
 
 " Global options definition. "{{{
+" Set the default of g:vimproc_dll_path by judging OS "{{{
+if vimproc#util#is_windows()
+  if has('win64')
+    let s:vimproc_dll_basename = 'vimproc_win64.dll'
+  else
+    let s:vimproc_dll_basename = 'vimproc_win32.dll'
+  endif
+elseif has('win32unix')
+  let s:vimproc_dll_basename = 'vimproc_cygwin.dll'
+elseif vimproc#util#is_mac()
+  let s:vimproc_dll_basename = 'vimproc_mac.so'
+else
+  let s:vimproc_dll_basename = 'vimproc_unix.so'
+endif
+"}}}
+
 call vimproc#util#set_default(
-      \ 'g:vimproc#dll_path', expand('<sfile>:p:h') . '/' .
-      \     (vimproc#util#is_windows() ?
-      \           (has('win64') ? 'vimproc_win64.dll' :
-      \                           'vimproc_win32.dll') :
-      \      has('win32unix') ? 'vimproc_cygwin.dll' :
-      \      vimproc#util#is_mac() ? 'vimproc_mac.so' :
-      \                              'vimproc_unix.so'),
+      \ 'g:vimproc#dll_path',
+      \ expand('<sfile>:p:h') . '/' . s:vimproc_dll_basename,
       \ 'g:vimproc_dll_path')
+unlet s:vimproc_dll_basename
+
 call vimproc#util#set_default(
       \ 'g:vimproc#password_pattern',
       \ '\%(Enter \|[Oo]ld \|[Nn]ew \|login '  .
