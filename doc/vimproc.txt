@@ -167,7 +167,9 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 >
 		call vimproc#system('ls &')
 <
-		If you set {timeout}, vimproc kill process after {timeout}.
+		If you set {timeout}, vimproc will kill process after
+		{timeout} and throw "vimproc: vimproc#system(): Timeout."
+		exception.
 		The unit is mill seconds.
 		Note: |+reltime| and Vim 7.2 is required.
 		If you set {input}, input the string to commands.
@@ -379,6 +381,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2013-01-31
+- Changed timeout behavior.
 
 2013-01-19
 - Fixed parser.

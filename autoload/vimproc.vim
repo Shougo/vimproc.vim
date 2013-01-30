@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 20 Dec 2012.
+" Last Modified: 31 Jan 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -223,7 +223,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
 
   if a:timeout > 0 && has('reltime') && v:version >= 702
     let start = reltime()
-    let timeout = 0
+    let timeout = a:timeout
   else
     let timeout = 0
   endif
@@ -248,7 +248,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
           " Ignore error.
         endtry
 
-        return ''
+        throw 'vimproc: vimproc#system(): Timeout.'
       endif
     endif"}}}
 
