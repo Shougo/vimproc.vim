@@ -33,6 +33,9 @@ let s:is_cygwin = has('win32unix')
 let s:is_mac = !s:is_windows
       \ && (has('mac') || has('macunix') || has('gui_macvim') ||
       \   (!isdirectory('/proc') && executable('sw_vers')))
+" check if 64bit unix by uname command. Is this compatible with UNIXs other than Linux?
+let s:is_unix64 = ( !s:is_mac )
+      \ && ( 0 == stridx( system('uname -m'), 'x86_64' ) )
 
 " iconv() wrapper for safety.
 function! vimproc#util#iconv(expr, from, to) "{{{
@@ -69,6 +72,9 @@ function! vimproc#util#is_windows() "{{{
 endfunction"}}}
 function! vimproc#util#is_mac() "{{{
   return s:is_mac
+endfunction"}}}
+function! vimproc#util#is_unix64() "{{{
+  return s:is_unix64
 endfunction"}}}
 function! vimproc#util#substitute_path_separator(path) "{{{
   return s:is_windows ? substitute(a:path, '\\', '/', 'g') : a:path
