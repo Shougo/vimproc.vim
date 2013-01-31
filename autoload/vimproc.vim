@@ -57,7 +57,7 @@ if vimproc#util#is_windows()
   else
     let s:vimproc_dll_basename = 'vimproc_win32.dll'
   endif
-elseif has('win32unix')
+elseif vimproc#util#is_cygwin()
   let s:vimproc_dll_basename = 'vimproc_cygwin.dll'
 elseif vimproc#util#is_mac()
   let s:vimproc_dll_basename = 'vimproc_mac.so'
