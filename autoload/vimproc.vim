@@ -30,8 +30,6 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-let s:is_msys = $MSYSTEM != ''
-
 function! s:print_error(string)
   echohl Error | echomsg a:string | echohl None
 endfunction
