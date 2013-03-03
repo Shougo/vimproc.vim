@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 31 Jan 2013.
+" Last Modified: 03 Mar 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1495,9 +1495,9 @@ endif
 try
   let dll_version = vimproc#dll_version()
   if dll_version < vimproc#version()
-    call s:print_error('Your vimproc binary version is "%d",'.
+    call s:print_error(printf('Your vimproc binary version is "%d",'.
           \ ' but vimproc version is "%d".',
-          \ dll_version, vimproc#version())
+          \ dll_version, vimproc#version()))
   endif
 catch
   call s:print_error(v:throwpoint)
