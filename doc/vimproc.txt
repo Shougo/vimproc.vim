@@ -382,6 +382,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2013-03-10
+- Changed expand wildcard behavior.
+
 2013-02-16
 - Fixed parse variables.
 
