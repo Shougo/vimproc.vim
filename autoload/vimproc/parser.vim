@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 10 Mar 2013.
+" Last Modified: 16 Mar 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -436,7 +436,7 @@ function! vimproc#parser#expand_wildcard(wildcard) "{{{
   " Expand wildcard.
   let expanded = split(escape(substitute(
         \ glob(wildcard), '\\', '/', 'g'), ' '), '\n')
-  if empty(exclude_wilde)
+  if empty(expanded)
     " Use original string.
     return [ a:wildcard ]
   else
