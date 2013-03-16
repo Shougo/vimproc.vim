@@ -435,7 +435,7 @@ function! vimproc#parser#expand_wildcard(wildcard) "{{{
 
   " Expand wildcard.
   let expanded = split(escape(substitute(
-        \ glob(wildcard), '\\', '/', 'g'), ' '), '\n')
+        \ glob(wildcard, 1), '\\', '/', 'g'), ' '), '\n')
   if empty(expanded)
     " Use original string.
     return [ a:wildcard ]
