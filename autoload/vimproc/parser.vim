@@ -779,7 +779,7 @@ function! s:parse_double_quote(script, i) "{{{
       elseif has_key(escape_sequences, script[i])
         let arg .= escape_sequences[script[i]]
       else
-        let arg .= '\' . script[i]
+        let arg .= script[i]
       endif
       let i += 1
     else
@@ -802,9 +802,19 @@ function! s:parse_back_quote(script, i) "{{{
     let i = a:i + 2
 
     while i < max
-      if a:script[i] == '`'
-        " Quote end.
-        return [eval(arg), i+1]
+      if a:script[i] == '\'
+        " Escape.
+        let i += 1
+
+        if i >= max
+          throw 'Exception: Join to next line (\).'
+        endif
+
+        let arg .= '\' . a:script[i]
+        let i += 1
+      elseif a:script[i] == '`'
+          " Quote end.
+          return [eval(arg), i+1]
       else
         let arg .= a:script[i]
         let i += 1

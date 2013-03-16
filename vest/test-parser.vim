@@ -11,6 +11,8 @@ Context Lexer.run()
   It tests escape
     Should vimproc#parser#split_args('echo "\""')
           \ == ['echo', '"']
+    Should vimproc#parser#split_args('echo "\`test"\`')
+          \ == ['echo', '`test`']
   End
 
   It tests quote exeption
