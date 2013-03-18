@@ -7,11 +7,18 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef __ANDROID__
 #include <stropts.h>
+#endif
 #include <unistd.h>
 
 #include <signal.h>
 #include <termios.h>
+
+#ifdef __ANDROID__
+#define TTYNAME_MAX PATH_MAX
+#endif
+
 
 static int
 _sunos_get_pty(int *master, char **path)
@@ -38,12 +45,14 @@ _sunos_get_tty(int *slave, char *path,
     if (ctty && ioctl(*slave, TIOCSCTTY, NULL) == -1)
         return -1;
 #endif
+#ifndef __ANDROID__
     if (ioctl(*slave, I_PUSH, "ptem") == -1)
         return -1;
     if (ioctl(*slave, I_PUSH, "ldterm") == -1)
         return -1;
     if (ioctl(*slave, I_PUSH, "ttcompat") == -1)
         return -1;
+#endif
 
     if (termp != NULL)
         tcsetattr(*slave, TCSAFLUSH, termp);
