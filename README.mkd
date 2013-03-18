@@ -18,9 +18,9 @@ Supported platforms:
 * Cygwin
 * Solaris
 * BSD (but cannot check)
+* Android (experimental)
 
 Not supported platforms:
-* Android (may work but no support)
 * Other UNIX platforms
 
 Below is Make command.
@@ -47,6 +47,9 @@ Below is Make command.
 
 * Solaris/Sun  OS:
 	$ make -f make_sunos.mak
+
+* Android:
+	$ make -f make_android.mak
 
 After compile, you copy `autoload/*` and `plugin/*` files to your
 'runtimepath' directory (see `:help runtimepath`).
