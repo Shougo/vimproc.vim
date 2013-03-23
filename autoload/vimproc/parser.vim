@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 20 Mar 2013.
+" Last Modified: 23 Mar 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -740,6 +740,7 @@ function! s:parse_double_quote(script, i) "{{{
         \ 'n' : "\<LF>",  'e' : "\<Esc>",
         \ '\' : '\',  '?' : '?',
         \ '"' : '"',  "'" : "'",
+        \ '`' : '`',
         \}
   let arg = ''
   let i = a:i + 1

@@ -385,6 +385,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2013-03-23
+- Fixed for double quote.
+
 2013-03-20
 - Fixed escape sequence behavior.
 
