@@ -8,6 +8,11 @@ set cpo&vim
 " }}}
 
 Context Fopen.run()
+  if !executable('ls')
+    echo 'ls command is not installed.'
+    finish
+  endif
+
   It equals to system() result
     Should vimproc#system('ls') == system('ls')
     if executable('ruby')

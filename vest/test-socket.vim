@@ -14,9 +14,9 @@ Context Fopen.run()
   endif
 
   It checks host exists
-    Should vimproc#host_exists('www.yahoo.com') == 1
-    Should vimproc#host_exists('https://www.yahoo.com') == 1
-    Should vimproc#host_exists('https://www.yahoo.com/hoge/piyo') == 1
+    ShouldEqual vimproc#host_exists('www.yahoo.com'), 1
+    ShouldEqual vimproc#host_exists('https://www.yahoo.com'), 1
+    ShouldEqual vimproc#host_exists('https://www.yahoo.com/hoge/piyo'), 1
   End
 
   let sock = vimproc#socket_open('www.yahoo.com', 80)

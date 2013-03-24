@@ -8,6 +8,11 @@ set cpo&vim
 " }}}
 
 Context Popen.popen2()
+  if !executable('ls')
+    echo 'ls command is not installed.'
+    finish
+  endif
+
   let cmd = 'ls'
   let sub = vimproc#popen2([cmd])
   let res = ''
