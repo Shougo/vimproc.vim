@@ -894,7 +894,17 @@ vp_host_exists(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &host));
 
+    if (sockets_number++ == 0)
+    {
+        WSADATA wsadata;
+        WSAStartup(2, &wsadata);
+    }
     hostent = gethostbyname(host);
+    if (--sockets_number == 0)
+    {
+        WSACleanup();
+    }
+
     if (hostent) {
         vp_stack_push_num(&_result, "%d", 1);
     } else {
