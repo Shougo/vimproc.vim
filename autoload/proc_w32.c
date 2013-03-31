@@ -713,22 +713,31 @@ static int sockets_number = 0;
 static int
 detain_winsock()
 {
-    if (sockets_number++ == 0)
+    WSADATA wsadata;
+    int res = 0;
+
+    if (sockets_number == 0)    /* Need startup process. */
     {
-        WSADATA wsadata;
-        return WSAStartup(MAKEWORD(2, 0), &wsadata);
+        res = WSAStartup(MAKEWORD(2, 0), &wsadata);
+        if(res) return res;   /* Fail */
     }
-    return 0;
+    ++sockets_number;
+    return res;
 }
 
 static int
 release_winsock()
 {
-    if (--sockets_number == 0)
+    int res = 0;
+
+    if (sockets_number != 0)
     {
-        return WSACleanup();
+        res = WSACleanup();
+        if(res) return res;   /* Fail */
+
+        --sockets_number;
     }
-    return 0;
+    return res;
 }
 
 
@@ -750,7 +759,11 @@ vp_socket_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &host));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &port));
 
-    detain_winsock();
+    if(detain_winsock())
+    {
+        return vp_stack_return_error(&_result, "WSAStartup() error: %s",
+            lasterror());
+    }
 
     if (sscanf(port, "%d%n", &port_nr, &n) == 1 && port[n] == '\0') {
         nport = htons((u_short)port_nr);
@@ -909,7 +922,11 @@ vp_host_exists(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &host));
 
-    detain_winsock();
+    if(detain_winsock())
+    {
+        return vp_stack_return_error(&_result, "WSAStartup() error: %s",
+            lasterror());
+    }
     hostent = gethostbyname(host);
     release_winsock();
 
