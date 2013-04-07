@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 07 Apr 2013.
+" Last Modified: 08 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -358,11 +358,6 @@ function! vimproc#system2(...) "{{{
 endfunction"}}}
 function! vimproc#system_passwd(cmdline, ...) "{{{
   if type(a:cmdline) == type('')
-    if a:cmdline =~ '&\s*$'
-      let cmdline = substitute(a:cmdline, '&\s*$', '', '')
-      return vimproc#system_bg(cmdline)
-    endif
-
     let args = vimproc#parser#parse_pipe(a:cmdline)
   else
     let args = [{ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
@@ -372,7 +367,14 @@ function! vimproc#system_passwd(cmdline, ...) "{{{
   let timeout = a:0 >= 2 ? a:2 : 0
   let input = a:0 >= 1 ? a:1 : ''
 
-  return s:system(args, 1, input, timeout, 1)
+  let lang_save = $LANG
+  try
+    let $LANG = 'C'
+
+    return s:system(args, 1, input, timeout, 1)
+  finally
+    let $LANG = lang_save
+  endtry
 endfunction"}}}
 function! vimproc#system_bg(cmdline) "{{{
   " Open pipe.
