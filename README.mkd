@@ -25,40 +25,49 @@ Not supported platforms:
 
 Below is Make command.
 * Windows using Mingw(32bit Vim):
-	$ make -f make_mingw32.mak
+
+        $ make -f make_mingw32.mak
 
 * Windows using Mingw(64bit Vim):
-	$ make -f make_mingw64.mak
+
+        $ make -f make_mingw64.mak
 
 * Windows using Visual Studio(32bit/64bit Vim):
-	$ nmake -f Make_msvc.mak nodebug=1
+
+        $ nmake -f Make_msvc.mak nodebug=1
 
 * Mac OS X using LLVM:
-	$ make -f make_mac.mak
+
+        $ make -f make_mac.mak
 
 * Old Mac OS X(llvm-gcc is not installed):
-	$ make -f make_mac_old.mak
+
+        $ make -f make_mac_old.mak
 
 * Linux/BSD:
-	$ make -f make_unix.mak
+
+        $ make -f make_unix.mak
 
 * Cygwin:
-	$ make -f make_cygwin.mak
+
+        $ make -f make_cygwin.mak
 
 * Solaris/Sun  OS:
-	$ make -f make_sunos.mak
+
+        $ make -f make_sunos.mak
 
 * Android:
-	$ make -f make_android.mak
+
+        $ make -f make_android.mak
 
 After compile, you copy `autoload/*` and `plugin/*` files to your
 'runtimepath' directory (see `:help runtimepath`).
 
 I compiled `vimproc_win**.dll` in 32/64 bit Windows, and distributed it below
-URL.
+URL.  
 Note: I DON'T recommend to use it. You should build dll files manually.
-https://github.com/Shougo/vimproc/downloads
-Note: Github dowonloads feature is deprecated. It may be deleted.
+https://github.com/Shougo/vimproc/downloads  
+Note: Github downloads feature is deprecated. It may be deleted.
 
 You can use Kaoriya Vim in Windows. It includes vimproc dll file.
 (http://www.kaoriya.net/news/2012/20121213)
@@ -67,12 +76,15 @@ If you use |neobundle.vim|, you can update and build vimproc automatically.
 http://github.com/Shougo/neobundle.vim
 
 Example for neobundle:
-	NeoBundle 'Shougo/vimproc', {
-	      \ 'build' : {
-	      \     'windows' : 'make -f make_mingw32.mak',
-	      \     'cygwin' : 'make -f make_cygwin.mak',
-	      \     'mac' : 'make -f make_mac.mak',
-	      \     'unix' : 'make -f make_unix.mak',
-	      \    },
-	      \ }
+
+```vim
+NeoBundle 'Shougo/vimproc', {
+      \ 'build' : {
+      \     'windows' : 'make -f make_mingw32.mak',
+      \     'cygwin' : 'make -f make_cygwin.mak',
+      \     'mac' : 'make -f make_mac.mak',
+      \     'unix' : 'make -f make_unix.mak',
+      \    },
+      \ }
+```
 

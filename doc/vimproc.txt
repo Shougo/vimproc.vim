@@ -103,7 +103,7 @@ I compiled vimproc_win**.dll in 32/64 bit Windows, and distributed it below
 URL.
 Note: I DON'T recommend to use it. You should build dll files manually.
 https://github.com/Shougo/vimproc/downloads
-Note: Github dowonloads feature is deprecated. It may be deleted.
+Note: Github downloads feature is deprecated. It may be deleted.
 
 You can use Kaoriya Vim in Windows. It includes vimproc dll file.
 (http://www.kaoriya.net/news/2012/20121213)
