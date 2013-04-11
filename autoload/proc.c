@@ -39,8 +39,10 @@
 # include <utmp.h>
 #elif defined __APPLE__ || defined __NetBSD__
 # include <util.h>
-#elif defined __sun || defined __ANDROID__
-# include "ptytty.c"
+#elif defined __sun__ || defined __ANDROID__
+# include <termios.h>
+int openpty(int *, int *, char *, struct termios *, struct winsize *);
+int forkpty(int *, char *, struct termios *, struct winsize *);
 #else
 # include <termios.h>
 # include <libutil.h>
