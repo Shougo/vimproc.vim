@@ -78,11 +78,8 @@ Below is Make command.
 * Windows using Visual Studio(32bit/64bit Vim): >
 	$ nmake -f Make_msvc.mak nodebug=1
 
-* Mac OS X using LLVM: >
+* Mac OS X: >
 	$ make -f make_mac.mak
-
-* Old Mac OS X(llvm-gcc is not installed): >
-	$ make -f make_mac_old.mak
 
 * Linux/BSD: >
 	$ make -f make_unix.mak
@@ -90,7 +87,7 @@ Below is Make command.
 * Cygwin: >
 	$ make -f make_cygwin.mak
 
-* Solaris/Sun  OS: >
+* Solaris/SunOS: >
 	$ make -f make_sunos.mak
 
 * Android: >
