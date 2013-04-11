@@ -19,9 +19,11 @@
 #define TTYNAME_MAX PATH_MAX
 #endif
 
+int openpty(int *, int *, char *, struct termios *, struct winsize *);
+int forkpty(int *, char *, struct termios *, struct winsize *);
 
 static int
-_sunos_get_pty(int *master, char **path)
+_internal_get_pty(int *master, char **path)
 {
     if ((*master = open("/dev/ptmx", O_RDWR|O_NOCTTY)) == -1)
         return -1;
@@ -36,7 +38,7 @@ _sunos_get_pty(int *master, char **path)
 }
 
 static int
-_sunos_get_tty(int *slave, char *path,
+_internal_get_tty(int *slave, char *path,
                struct termios *termp, struct winsize *winp, int ctty)
 {
     if ((*slave = open(path, O_RDWR|O_NOCTTY)) == -1)
@@ -72,9 +74,9 @@ openpty(int *amaster, int *aslave, char *name,
     if (amaster == NULL || aslave == NULL)
         return -1;
 
-    if (_sunos_get_pty(&master, &path) != 0)
+    if (_internal_get_pty(&master, &path) != 0)
         goto out;
-    if (_sunos_get_tty(&slave, path, termp, winp, 0) != 0)
+    if (_internal_get_tty(&slave, path, termp, winp, 0) != 0)
         goto out;
     if (name != NULL)
         strlcpy(name, path, TTYNAME_MAX);
@@ -102,7 +104,7 @@ forkpty(int *amaster, char *name,
     if (amaster == NULL)
         return -1;
 
-    if (_sunos_get_pty(&master, &path) != 0)
+    if (_internal_get_pty(&master, &path) != 0)
         goto out;
     if (name != NULL)
         strlcpy(name, path, TTYNAME_MAX);
@@ -116,7 +118,7 @@ forkpty(int *amaster, char *name,
 
         setsid();
 
-        if (_sunos_get_tty(&slave, path, termp, winp, 1) != 0)
+        if (_internal_get_tty(&slave, path, termp, winp, 1) != 0)
             _exit(EXIT_FAILURE);
 
         dup2(slave, 0);

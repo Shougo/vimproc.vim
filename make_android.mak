@@ -9,8 +9,8 @@ CFLAGS+=-W -Wall -Wno-unused -std=c99 -O2 -fPIC -pedantic
 LDFLAGS+=-shared
 
 TARGET=autoload/vimproc_unix.so
-SRC=autoload/proc.c
-INC=autoload/vimstack.c autoload/ptytty.c
+SRC=autoload/proc.c autoload/ptytty.c
+INC=autoload/vimstack.c
 
 all: $(TARGET)
 
