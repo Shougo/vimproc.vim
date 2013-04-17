@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 08 Apr 2013.
+" Last Modified: 17 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -787,7 +787,11 @@ function! vimproc#readdir(dirname) "{{{
 
   let files = s:libcall('vp_readdir', [dirname])
 
-  call map(files, 'vimproc#util#iconv(v:val, vimproc#util#termencoding(), &encoding)')
+  call map(files, 'vimproc#util#iconv(
+        \ v:val, vimproc#util#termencoding(), &encoding)')
+  if vimproc#util#is_windows()
+    call map(files, 'vimproc#util#substitute_path_separator(v:val)')
+  endif
 
   return files
 endfunction"}}}
@@ -798,7 +802,7 @@ function! vimproc#delete_trash(filename) "{{{
     return
   endif
 
-  let filename = unite#util#substitute_path_separator(
+  let filename = vimproc#util#substitute_path_separator(
         \ fnamemodify(a:filename, ':p'))
 
   " Delete last /.
