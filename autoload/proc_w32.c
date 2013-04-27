@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2009       
+ * Copyright (c) 2009
  * Kazuo Ishii        - <k-ishii at wb4.so-net.ne.jp> original version(ckw)
  * Yukihiro Nakadaira - <yukihiro.nakadaira at gmail.com> original version(vimproc)
  * Shougo Matsushita  - <Shougo.Matsu at gmail.com> modified version
@@ -481,18 +481,14 @@ vp_pipe_open(char *args)
 
     ZeroMemory(&si, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
-    /*si.dwFlags = STARTF_USESTDHANDLES;*/
     si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
-    si.wShowWindow = SW_HIDE;
+    si.wShowWindow = SW_SHOW;
     si.hStdInput = hInputRead;
     si.hStdOutput = hOutputWrite;
     si.hStdError = hErrorWrite;
 
     if (!CreateProcess(NULL, cmdline, NULL, NULL, TRUE,
-                        CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
-                        /*0, NULL, NULL, &si, &pi))*/
-                        /*DETACHED_PROCESS, NULL, NULL, &si, &pi))*/
-                        /*CREATE_NO_WINDOW, NULL, NULL, &si, &pi))*/
+                        CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
         return vp_stack_return_error(&_result, "CreateProcess() error: %s %s",
                 lasterror());
 
