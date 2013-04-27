@@ -44,7 +44,6 @@ typedef struct vp_stack_t {
 
 /* use for initialize */
 #define VP_STACK_NULL {0, NULL, NULL}
-static vp_stack_t vp_stack_null = {0, NULL, NULL};
 
 static void vp_stack_free(vp_stack_t *stack);
 static const char *vp_stack_from_args(vp_stack_t *stack, char *args);
