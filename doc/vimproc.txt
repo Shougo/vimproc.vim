@@ -65,6 +65,8 @@ Supported platforms:
 * BSD (but cannot check)
 * Android (experimental)
 
+Note: You must use GNU make to build vimproc.
+
 Not supported platforms:
 * Other UNIX platforms
 
@@ -88,7 +90,7 @@ Below is Make command.
 	$ make -f make_cygwin.mak
 
 * Solaris/SunOS: >
-	$ make -f make_sunos.mak
+	$ gmake -f make_sunos.mak
 
 * Android: >
 	$ make -f make_android.mak

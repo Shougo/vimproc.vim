@@ -23,6 +23,8 @@ Supported platforms:
 Not supported platforms:
 * Other UNIX platforms
 
+Note: You must use GNU make to build vimproc.
+
 Below is Make command.
 * Windows using Mingw(32bit Vim):
 
@@ -50,7 +52,7 @@ Below is Make command.
 
 * Solaris/SunOS:
 
-        $ make -f make_sunos.mak
+        $ gmake -f make_sunos.mak
 
 * Android:
 
