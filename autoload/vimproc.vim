@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 01 May 2013.
+" Last Modified: 12 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -971,7 +971,7 @@ function! s:garbage_collect() "{{{
         endif
         call remove(s:bg_processes, pid)
       endif
-    catch /waitpid() error:/
+    catch /waitpid() error:\|vp_waitpid:/
       " Ignore error.
     endtry
   endfor
@@ -1425,7 +1425,7 @@ function! s:vp_checkpid() dict
     if cond !=# 'run'
       let [self.cond, self.status] = [cond, status]
     endif
-  catch /waitpid() error:/
+  catch /waitpid() error:\|vp_waitpid:/
     let [cond, status] = ['error', '0']
   endtry
 
