@@ -509,7 +509,7 @@ vp_pipe_open(char *args)
             vp_stack_push_num(&_result, "%d", fd[2][0]);
         return vp_stack_return(&_result);
     }
-    /* DO NOT REACH HEAR */
+    /* DO NOT REACH HERE */
     return NULL;
 
 

@@ -384,6 +384,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2013-05-17
+- Fixed resource leak.
+
 2013-04-28
 - Add starting GUI process support in Windows.
 
