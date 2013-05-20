@@ -60,6 +60,15 @@ Context Lexer.run()
           \ [ 'echo', system('curl -fs https://gist.github.com/raw/4349265/sudden-vim.py')]
 
   End
+
+  It tests slash convertion
+    " For Vital.DateTime
+    ShouldEqual vimproc#parser#split_args(printf('reg query "%s" /v Bias',
+          \ 'HKLM\System\CurrentControlSet\Control\TimeZoneInformation')),
+          \ ['reg', 'query',
+          \  'HKLM\System\CurrentControlSet\Control\TimeZoneInformation',
+          \  '/v', 'Bias']
+  End
 End
 
 Fin
