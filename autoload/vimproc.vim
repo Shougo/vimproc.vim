@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 17 May 2013.
+" Last Modified: 21 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -789,7 +789,11 @@ function! vimproc#readdir(dirname) "{{{
   let dirname = vimproc#util#iconv(dirname, &encoding,
         \ vimproc#util#termencoding())
 
-  let files = s:libcall('vp_readdir', [dirname])
+  try
+    let files = s:libcall('vp_readdir', [dirname])
+  catch /vp_readdir/
+    return []
+  endtry
 
   call map(files, 'vimproc#util#iconv(
         \ v:val, vimproc#util#termencoding(), &encoding)')
