@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 21 May 2013.
+" Last Modified: 22 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -665,7 +665,7 @@ function! vimproc#kill(pid, sig) "{{{
   try
     call s:libcall('vp_kill', [a:pid, a:sig])
   catch /kill() error:/
-    let s:last_errmsg = v:errmsg
+    let s:last_errmsg = v:exception
     return 1
   endtry
 
