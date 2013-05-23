@@ -384,6 +384,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2013-05-23
+- Fixed fatal resource leak in Windows(required recompile).
+
 2013-05-17
 - Fixed resource leak.
 
