@@ -1113,36 +1113,12 @@ function! s:split(str, sep)
   return result
 endfunction
 
-function! s:split_lua(str, sep)
-  let result = []
-  lua << EOF
-do
-  local pos = 1
-  local result = vim.eval('result')
-  local str = vim.eval('a:str')
-  local sep = vim.eval('a:sep')
-  local tmp = string.find(str, sep, pos, true)
-
-  while tmp ~= nil do
-    result:add(string.sub(str, pos, tmp-1))
-    pos = tmp + 1
-    tmp = string.find(str, sep, pos, true)
-  end
-
-  result:add(string.sub(str, pos))
-end
-EOF
-
-  return result
-endfunction
-
 function! s:libcall(func, args) "{{{
   " End Of Value
   let EOV = "\xFF"
   let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), EOV) . EOV)
   let stack_buf = libcall(g:vimproc#dll_path, a:func, args)
-  let result = has('lua') ?
-        \ s:split_lua(stack_buf, EOV) : s:split(stack_buf, EOV)
+  let result = s:split(stack_buf, EOV)
   if !empty(result) && result[-1] != ''
     if stack_buf[len(stack_buf) - 1] ==# EOV
       " Note: If &encoding equals "cp932" and output ends multibyte first byte,
