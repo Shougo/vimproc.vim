@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 07 Jun 2013.
+" Last Modified: 08 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -998,6 +998,10 @@ function! s:hd2str(hd)
 endfunction
 
 function! s:hd2str_lua(hd)
+  if empty(a:hd[0])
+    return []
+  endif
+
   let ret = []
   lua << EOF
 do
