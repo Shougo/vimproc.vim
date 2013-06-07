@@ -384,6 +384,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2013-06-07
+- Optimized using if_lua.
+
 2013-05-23
 - Fixed fatal resource leak in Windows(required recompile).
 
