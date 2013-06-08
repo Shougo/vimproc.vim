@@ -999,7 +999,7 @@ endfunction
 
 function! s:hd2str_lua(hd)
   if empty(a:hd[0])
-    return []
+    return ''
   endif
 
   let ret = []
