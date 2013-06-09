@@ -878,7 +878,7 @@ function! s:read(...) dict "{{{
   endif
 
   " Note: if output string is too long, if_lua is too slow.
-  return (has('lua') && len(hd) < 1024) ?
+  return (vimproc#util#has_lua() && len(hd) < 1024) ?
         \ s:hd2str_lua([hd]) : s:hd2str([hd])
   " return s:hd2str([hd])
 endfunction"}}}

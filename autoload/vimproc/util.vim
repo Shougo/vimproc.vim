@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: util.vim
-" Last Modified: 31 Jan 2013.
+" Last Modified: 09 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -72,6 +72,11 @@ function! vimproc#util#is_mac() "{{{
 endfunction"}}}
 function! vimproc#util#is_cygwin() "{{{
   return s:is_cygwin
+endfunction"}}}
+function! vimproc#util#has_lua() "{{{
+  " Note: Disabled if_lua feature if less than 7.3.885.
+  " Because if_lua has double free problem.
+  return has('lua') && (v:version > 703 || v:version == 703 && has('patch885'))
 endfunction"}}}
 function! vimproc#util#substitute_path_separator(path) "{{{
   return s:is_windows ? substitute(a:path, '\\', '/', 'g') : a:path
