@@ -384,6 +384,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2013-06-09
+- Fixed performance problem in if_lua.
+
 2013-06-07
 - Optimized using if_lua.
 

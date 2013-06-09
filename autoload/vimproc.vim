@@ -873,7 +873,10 @@ function! s:read(...) dict "{{{
   let self.eof = eof
   let self.__eof = eof
 
-  return has('lua') ? s:hd2str_lua([hd]) : s:hd2str([hd])
+  " Note: if output string is too long, if_lua is too slow.
+  return (has('lua') && len(hd) < 1024) ?
+        \ s:hd2str_lua([hd]) : s:hd2str([hd])
+  " return s:hd2str([hd])
 endfunction"}}}
 function! s:read_lines(...) dict "{{{
   let res = self.buffer
