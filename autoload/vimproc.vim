@@ -873,6 +873,10 @@ function! s:read(...) dict "{{{
   let self.eof = eof
   let self.__eof = eof
 
+  if hd == ''
+    return ''
+  endif
+
   " Note: if output string is too long, if_lua is too slow.
   return (has('lua') && len(hd) < 1024) ?
         \ s:hd2str_lua([hd]) : s:hd2str([hd])
