@@ -39,11 +39,9 @@ Below is Make command.
 
 * Windows using old version of Visual Studio for 32bit Vim
 (Ex: Visual Studio 2005):
+        $ SET INCLUDE=%INCLUDE%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Include
+        $ SET LIB=%LIB%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib
         $ nmake -f make_msvc32.mak
-
-* Windows using old version of Visual Studio for 64bit Vim
-(Ex: Visual Studio 2005):
-        $ nmake -f make_msvc64.mak
 
 * Mac OS X:
 

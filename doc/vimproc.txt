@@ -72,30 +72,28 @@ Not supported platforms:
 
 Below is Make command.
 * Windows using Mingw(32bit Vim): >
-	$ make -f make_mingw32.mak
+ $ make -f make_mingw32.mak
 
 * Windows using Mingw(64bit Vim): >
-	$ make -f make_mingw64.mak
+ $ make -f make_mingw64.mak
 
 * Windows using newer version of Visual Studio(32bit/64bit Vim): >
-	$ nmake -f Make_msvc.mak nodebug=1
+ $ nmake -f Make_msvc.mak nodebug=1
 
 * Windows using old version of Visual Studio for 32bit Vim
 (Ex: Visual Studio 2005): >
-	$ nmake -f make_msvc32.mak
-
-* Windows using old version of Visual Studio for 64bit Vim
-(Ex: Visual Studio 2005): >
-	$ nmake -f make_msvc64.mak
+ $ SET INCLUDE=%INCLUDE%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Include
+ $ SET LIB=%LIB%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib
+ $ nmake -f make_msvc32.mak
 
 * Mac OS X: >
-	$ make -f make_mac.mak
+ $ make -f make_mac.mak
 
 * Linux/BSD: >
-	$ make -f make_unix.mak
+ $ make -f make_unix.mak
 
 * Cygwin: >
-	$ make -f make_cygwin.mak
+ $ make -f make_cygwin.mak
 
 * Solaris/SunOS: >
 	$ gmake -f make_sunos.mak
