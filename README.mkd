@@ -34,9 +34,16 @@ Below is Make command.
 
         $ make -f make_mingw64.mak
 
-* Windows using Visual Studio(32bit/64bit Vim):
-
+* Windows using newer version of Visual Studio(32bit/64bit Vim):
         $ nmake -f Make_msvc.mak nodebug=1
+
+* Windows using old version of Visual Studio for 32bit Vim
+(Ex: Visual Studio 2005):
+        $ nmake -f make_msvc32.mak
+
+* Windows using old version of Visual Studio for 64bit Vim
+(Ex: Visual Studio 2005):
+        $ nmake -f make_msvc64.mak
 
 * Mac OS X:
 

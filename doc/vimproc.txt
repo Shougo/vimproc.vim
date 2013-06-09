@@ -77,8 +77,16 @@ Below is Make command.
 * Windows using Mingw(64bit Vim): >
 	$ make -f make_mingw64.mak
 
-* Windows using Visual Studio(32bit/64bit Vim): >
+* Windows using newer version of Visual Studio(32bit/64bit Vim): >
 	$ nmake -f Make_msvc.mak nodebug=1
+
+* Windows using old version of Visual Studio for 32bit Vim
+(Ex: Visual Studio 2005): >
+	$ nmake -f make_msvc32.mak
+
+* Windows using old version of Visual Studio for 64bit Vim
+(Ex: Visual Studio 2005): >
+	$ nmake -f make_msvc64.mak
 
 * Mac OS X: >
 	$ make -f make_mac.mak
@@ -386,6 +394,7 @@ CHANGELOG					*vimproc-changelog*
 
 2013-06-09
 - Fixed performance problem in if_lua.
+- Fixed for Visual Studio.
 
 2013-06-07
 - Optimized using if_lua.
