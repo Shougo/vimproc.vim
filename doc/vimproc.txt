@@ -390,6 +390,9 @@ EXAMPLES					*vimproc-examples*
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
 
+2013-06-11
+- Added simple benchmark script.
+
 2013-06-09
 - Fixed performance problem in if_lua.
 - Fixed for Visual Studio.
