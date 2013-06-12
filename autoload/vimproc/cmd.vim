@@ -45,6 +45,7 @@ augroup END
 function! s:cmd.open() "{{{
   let cmd = "cmd.exe"
   let self.vimproc = vimproc#popen3(cmd)
+  let self.cwd = getcwd()
 
   " Wait until getting first prompt.
   let output = ''
@@ -58,9 +59,16 @@ function! s:cmd.close() "{{{
 endfunction"}}}
 
 function! s:cmd.system(cmd) "{{{
-  " Cd and execute command.
-  call self.vimproc.stdin.write(
-        \ '(cd "' . getcwd() . '" & ' . a:cmd . ")\n")
+  " Execute cmd.
+  let input = '('
+  if self.cwd !=# getcwd()
+    " Execute cd.
+    let input .= 'cd "' . getcwd() . '" & '
+    let self.cwd = getcwd()
+  endif
+  let input .= a:cmd . ")\n"
+
+  call self.vimproc.stdin.write(input)
 
   " Wait until getting prompt.
   let result = ''
