@@ -60,15 +60,15 @@ endfunction"}}}
 
 function! s:cmd.system(cmd) "{{{
   " Execute cmd.
-  let input = '('
   if self.cwd !=# getcwd()
     " Execute cd.
-    let input .= 'cd "' . getcwd() . '" & '
+    let input = '(cd "' . getcwd() . '" & ' . a:cmd . ')'
     let self.cwd = getcwd()
+  else
+    let input = a:cmd
   endif
-  let input .= a:cmd . ")\n"
 
-  call self.vimproc.stdin.write(input)
+  call self.vimproc.stdin.write(input . "\n")
 
   " Wait until getting prompt.
   let result = []
