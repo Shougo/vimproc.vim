@@ -15,11 +15,14 @@ Context Fopen.run()
 
   It equals to system() result
     Should vimproc#system('ls') == system('ls')
-    if executable('ruby')
-      Should vimproc#system('ruby -e ''print "a\0b"''') == 'a^@b'
-    endif
 
     Should vimproc#system(['ls']) == system('ls')
+
+    if vimproc#util#is_windows()
+      Should vimproc#cmd#system(['ls']) == system('ls')
+      Should vimproc#cmd#system('ls') == system('ls')
+      Should vimproc#cmd#system('echo', '"Foo"') == system('echo ""Foo""')
+    endif
 
     Should vimproc#system_passwd('echo -n "test"')
           \ == system('echo -n "test"')
