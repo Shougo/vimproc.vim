@@ -162,11 +162,11 @@ vimproc#get_command_name({command} [, {path}, {count}])	*vimproc#get_command_nam
 		{count} candidate. If you set {count} is -1, returns as list.
 
 vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
-		This function replaces |system()|. If you call |system()| in
-		Windows environment,
-		DOS window will appeared. But, |vimproc#system()| is not.
-		Note: This function is not execute shell. So shell internal
-		command is invalid.  Ex: pwd, cd, ...
+		It replaces |system()|. If you call |system()| in Windows
+		environment, DOS window will appeared. But, |vimproc#system()|
+		is not.
+		Note: It is not execute shell. So shell internal command is
+		invalid.  Ex: pwd, cd, ...
 		
 		The {expr} are same to |vimproc#plineopen3()|. The type is
 		string or arguments list. If arguments is string, it parsed
@@ -183,22 +183,26 @@ vimproc#system({expr} [, {input}, {timeout}])	*vimproc#system()*
 		If you set {input}, input the string to commands.
 
 vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
-		Same as |vimproc#system()|. But this function convert
-		encoding.
+		Same as |vimproc#system()|. But it converts encoding
+		automatically.
 
 vimproc#system_passwd({expr} [, {input}, {timeout}])
 						*vimproc#system_passwd()*
-		Same as |vimproc#system()|. But this function supports
-		password input.
+		Same as |vimproc#system()|. But it supports password input.
 
 vimproc#system_bg({expr})			*vimproc#system_bg()*
 		Same as |vimproc#parser#system()|. But execute command in
 		background.
-		Note: This function disabled input.
+		Note: It disables user input.
 
 vimproc#system_gui({expr})			*vimproc#system_gui()*
-		Same as |vimproc#system_bg()|. But this function execute GUI
-		program in background.
+		Same as |vimproc#system_bg()|. But it executes GUI command in
+		background.
+
+vimproc#cmd#system({expr})			*vimproc#cmd#system()*
+		Similar to |vimproc#system()|. But it executes "cmd.exe" by
+		background.
+		Note: It is available in Windows only.
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
 		Get last |vimproc#system()| status value.
@@ -389,6 +393,9 @@ EXAMPLES					*vimproc-examples*
 <
 ==============================================================================
 CHANGELOG					*vimproc-changelog*
+
+2013-06-12
+- Added vimproc#cmd#system() experimentally.
 
 2013-06-11
 - Added simple benchmark script.

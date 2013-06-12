@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 09 Jun 2013.
+" Last Modified: 12 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1097,7 +1097,6 @@ endfunction"}}}
 " LOW LEVEL API
 
 augroup vimproc
-  autocmd!
   autocmd VimLeave * call s:finalize()
   autocmd CursorHold,BufWritePost * call s:garbage_collect()
 augroup END
