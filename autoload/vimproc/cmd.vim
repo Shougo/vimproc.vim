@@ -43,7 +43,7 @@ augroup END
 
 
 function! s:cmd.open() "{{{
-  let cmd = "cmd.exe"
+  let cmd = 'cmd.exe'
   let self.vimproc = vimproc#popen3(cmd)
   let self.cwd = getcwd()
 
