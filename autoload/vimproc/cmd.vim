@@ -76,7 +76,7 @@ function! s:cmd.system(cmd) "{{{
   while output !~ '.\+>$'
     let out = split(output . self.vimproc.stdout.read(), "\r\n\|\n")
     let output = get(out, -1, '')
-    let result += output[ : -2]
+    let result += out[ : -2]
   endwhile
 
   return join(result[1 :], "\n")
