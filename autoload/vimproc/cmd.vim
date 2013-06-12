@@ -50,7 +50,7 @@ function! s:cmd.open() "{{{
   " Wait until getting first prompt.
   let output = ''
   while output !~ '.\+>$'
-    let output = self.vimproc.stdout.read()
+    let output .= self.vimproc.stdout.read()
   endwhile
 endfunction"}}}
 
@@ -71,16 +71,15 @@ function! s:cmd.system(cmd) "{{{
   call self.vimproc.stdin.write(input)
 
   " Wait until getting prompt.
-  let result = ''
+  let result = []
   let output = ''
   while output !~ '.\+>$'
-    let output = self.vimproc.stdout.read()
-    let result .= output
+    let out = split(output . self.vimproc.stdout.read(), "\r\n\|\n")
+    let output = get(out, -1, '')
+    let result += output[ : -2]
   endwhile
 
-  let result = substitute(result, '\r\n', '\n', 'g')
-
-  return join(split(result, "\n")[1 : -2], "\n")
+  return join(result[1 :], "\n")
 endfunction"}}}
 
 call s:cmd.open()
