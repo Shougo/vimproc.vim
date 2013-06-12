@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: cmd.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 12 Jun 2013.
+" Last Modified: 13 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -50,7 +50,7 @@ function! s:cmd.open() "{{{
   " Wait until getting first prompt.
   let output = ''
   while output !~ '.\+>$'
-    let output = self.vimproc.stdout.read_line()
+    let output = self.vimproc.stdout.read()
   endwhile
 endfunction"}}}
 
@@ -74,7 +74,7 @@ function! s:cmd.system(cmd) "{{{
   let result = ''
   let output = ''
   while output !~ '.\+>$'
-    let output = self.vimproc.stdout.read_line()
+    let output = self.vimproc.stdout.read()
     let result .= output
   endwhile
 
@@ -88,7 +88,7 @@ call s:cmd.open()
 function! vimproc#cmd#system(expr)
   let cmd = type(a:expr) == type('') ? a:expr :
         \ join(map(a:expr, '"\"".v:val."\""'))
-  return s:cmd.system(a:string)
+  return s:cmd.system(cmd)
 endfunction
 
 " Restore 'cpoptions' {{{
