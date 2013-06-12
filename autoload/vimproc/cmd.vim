@@ -62,7 +62,7 @@ function! s:cmd.system(cmd) "{{{
   " Execute cmd.
   if self.cwd !=# getcwd()
     " Execute cd.
-    let input = '(cd "' . getcwd() . '" & ' . a:cmd . ')'
+    let input = '(cd /D "' . getcwd() . '" & ' . a:cmd . ')'
     let self.cwd = getcwd()
   else
     let input = a:cmd
