@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 12 Jun 2013.
+" Last Modified: 15 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -967,13 +967,13 @@ function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write) "{{{
         \}
 endfunction"}}}
 
-function! s:garbage_collect() "{{{
+function! s:garbage_collect(is_force) "{{{
   for pid in values(s:bg_processes)
     " Check processes.
     try
       let [cond, status] = s:libcall('vp_waitpid', [pid])
       " echomsg string([pid, cond, status])
-      if cond !=# 'run'
+      if cond !=# 'run' || a:is_force
         if cond !=# 'exit'
           " Kill process.
           " 15 == SIGTERM
@@ -1098,7 +1098,7 @@ endfunction"}}}
 
 augroup vimproc
   autocmd VimLeave * call s:finalize()
-  autocmd CursorHold,BufWritePost * call s:garbage_collect()
+  autocmd CursorHold,BufWritePost * call s:garbage_collect(0)
 augroup END
 
 " Initialize.
@@ -1157,7 +1157,7 @@ function! s:funcref(funcname)
 endfunction
 
 function! s:finalize()
-  call s:garbage_collect()
+  call s:garbage_collect(1)
 
   if exists('s:dll_handle')
     call s:vp_dlclose(s:dll_handle)
