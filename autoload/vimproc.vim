@@ -818,6 +818,10 @@ function! vimproc#delete_trash(filename) "{{{
     let filename = filename[: -2]
   endif
 
+  if !filewritable(filename) && !isdirectory(filename)
+    return 1
+  endif
+
   " Substitute path separator to "/".
   let filename = substitute(
         \ fnamemodify(filename, ':p'), '/', '\\', 'g')
