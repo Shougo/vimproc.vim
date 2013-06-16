@@ -67,10 +67,15 @@ Supported platforms:
 
 Note: You must use GNU make to build vimproc.
 
+Note: In Windows, using MinGW is recommended.
+
+Note: In Windows, to build it by Visual Studio, you must install Windows SDK.
+
 Not supported platforms:
 * Other UNIX platforms
 
-Below is Make command.
+Below is Make command:
+
 * Windows using Mingw(32bit Vim): >
  $ make -f make_mingw32.mak
 
