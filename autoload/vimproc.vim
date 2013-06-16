@@ -821,7 +821,7 @@ function! vimproc#delete_trash(filename) "{{{
         \ fnamemodify(filename, ':p'), '/', '\\', 'g')
 
   " Delete last /.
-  if filename =~ '[^:]/$'
+  if filename =~ '[^:][/\\]$'
     " Delete last /.
     let filename = filename[: -2]
   endif
