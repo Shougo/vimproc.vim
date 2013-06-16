@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 15 Jun 2013.
+" Last Modified: 16 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -812,12 +812,6 @@ function! vimproc#delete_trash(filename) "{{{
 
   let filename = a:filename
 
-  " Delete last /.
-  if filename =~ '[^:]/$'
-    " Delete last /.
-    let filename = filename[: -2]
-  endif
-
   if !filewritable(filename) && !isdirectory(filename)
     return 1
   endif
@@ -825,6 +819,12 @@ function! vimproc#delete_trash(filename) "{{{
   " Substitute path separator to "/".
   let filename = substitute(
         \ fnamemodify(filename, ':p'), '/', '\\', 'g')
+
+  " Delete last /.
+  if filename =~ '[^:]/$'
+    " Delete last /.
+    let filename = filename[: -2]
+  endif
 
   " Encoding conversion.
   let filename = vimproc#util#iconv(filename,
