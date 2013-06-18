@@ -4,20 +4,13 @@
 #include <sys/ioctl.h>
 
 #include <fcntl.h>
-#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef __ANDROID__
+#if defined __sun__
 #include <stropts.h>
 #endif
 #include <unistd.h>
-
-#include <signal.h>
 #include <termios.h>
-
-#ifdef __ANDROID__
-#define TTYNAME_MAX PATH_MAX
-#endif
 
 int openpty(int *, int *, char *, struct termios *, struct winsize *);
 int forkpty(int *, char *, struct termios *, struct winsize *);
@@ -47,13 +40,15 @@ _internal_get_tty(int *slave, char *path,
     if (ctty && ioctl(*slave, TIOCSCTTY, NULL) == -1)
         return -1;
 #endif
-#ifndef __ANDROID__
+#ifdef I_PUSH
     if (ioctl(*slave, I_PUSH, "ptem") == -1)
         return -1;
     if (ioctl(*slave, I_PUSH, "ldterm") == -1)
         return -1;
+#if defined __sun__
     if (ioctl(*slave, I_PUSH, "ttcompat") == -1)
         return -1;
+#endif
 #endif
 
     if (termp != NULL)
@@ -79,7 +74,7 @@ openpty(int *amaster, int *aslave, char *name,
     if (_internal_get_tty(&slave, path, termp, winp, 0) != 0)
         goto out;
     if (name != NULL)
-        strlcpy(name, path, TTYNAME_MAX);
+        strcpy(name, path);
 
     *amaster = master;
     *aslave = slave;
@@ -107,7 +102,7 @@ forkpty(int *amaster, char *name,
     if (_internal_get_pty(&master, &path) != 0)
         goto out;
     if (name != NULL)
-        strlcpy(name, path, TTYNAME_MAX);
+        strcpy(name, path);
 
     if ((pid = fork()) == -1)
         goto out;
