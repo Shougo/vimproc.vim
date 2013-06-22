@@ -745,15 +745,18 @@ vp_kill(char *args)
     vp_stack_t stack;
     pid_t pid;
     int sig;
+    int ret;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &pid));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &sig));
 
-    if (kill(pid, sig) == -1)
+    ret = kill(pid, sig);
+    if (ret < 0)
         return vp_stack_return_error(&_result, "kill() error: %s",
                 strerror(errno));
-    return NULL;
+    vp_stack_push_num(&_result, "%d", ret);
+    return vp_stack_return(&_result);
 }
 
 const char *

@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 16 Jun 2013.
+" Last Modified: 22 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -663,13 +663,13 @@ endfunction"}}}
 
 function! vimproc#kill(pid, sig) "{{{
   try
-    call s:libcall('vp_kill', [a:pid, a:sig])
+    let [ret] = s:libcall('vp_kill', [a:pid, a:sig])
   catch /kill() error:/
     let s:last_errmsg = v:exception
     return 1
   endtry
 
-  return 0
+  return ret
 endfunction"}}}
 
 function! vimproc#decode_signal(signal) "{{{
@@ -1442,29 +1442,31 @@ function! s:vp_set_winsize(width, height) dict
 endfunction
 
 function! s:vp_kill(sig) dict
-  call s:close_all(self)
-
-  let self.is_valid = 0
-
-  if has_key(self, 'pid_list')
-    for pid in self.pid_list
-      call vimproc#kill(pid, a:sig)
-    endfor
-  else
-    call vimproc#kill(self.pid, a:sig)
+  if a:sig != 0
+    call s:close_all(self)
+    let self.is_valid = 0
   endif
+
+  let ret = 0
+  for pid in get(self, 'pid_list', [self.pid])
+    let ret = vimproc#kill(pid, a:sig)
+  endfor
+
+  return ret
 endfunction
 
 function! s:vp_pgroup_kill(sig) dict
-  call s:close_all(self)
-  let self.is_valid = 0
+  if a:sig != 0
+    call s:close_all(self)
+    let self.is_valid = 0
+  endif
 
   if self.pid == 0
     " Ignore.
     return
   endif
 
-  call self.current_proc.kill(a:sig)
+  return self.current_proc.kill(a:sig)
 endfunction
 
 function! s:waitpid(pid)
