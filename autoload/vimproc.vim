@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 22 Jun 2013.
+" Last Modified: 25 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -662,6 +662,12 @@ function! vimproc#host_exists(host) "{{{
 endfunction"}}}
 
 function! vimproc#kill(pid, sig) "{{{
+  if a:sig == 0 && vimproc#util#is_windows()
+    " Use waitpid().
+    let [cond, status] = s:waitpid(a:pid)
+    return cond ==# 'run'
+  endif
+
   try
     let [ret] = s:libcall('vp_kill', [a:pid, a:sig])
   catch /kill() error:/
