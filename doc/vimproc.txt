@@ -33,6 +33,7 @@ Interface		|vimproc-interface|
   Variables		  |vimproc-variables|
 Tips			|vimproc-tips|
 Examples		|vimproc-examples|
+FAQ			|vimproc-faq|
 
 ==============================================================================
 INTRODUCTION					*vimproc-introduction*
@@ -395,5 +396,12 @@ EXAMPLES					*vimproc-examples*
 	new
 	call append(0, split(res, '\r\n\|\r\|\n'))
 <
+==============================================================================
+FAQ						*vimproc-faq*
+
+Q: I want to check process is zombie.
+
+A: You can use vimproc#kill({pid}, 0) or {process}.kill(0).
+
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:
