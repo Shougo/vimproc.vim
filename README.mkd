@@ -1,15 +1,6 @@
 # vimproc
 
-In first, you get vimproc from git repository.
-
-http://github.com/Shougo/vimproc
-
-Next, make external dll "vimproc\_xxx.so(or vimproc\_win32.dll,
-vimproc\_cygwin.dll)". Because vimproc depends on "vimproc\_xxx.so(or
-vimproc\_win32.dll, vimproc\_cygwin.dll)"'s function, vimproc echo error message
-when "vimproc\_xxx.so(vimproc\_xxx.dll)" don't exist.
-
-Note: The vimproc\_cygwin.dll compiled in Cygwin can't work for Windows Vim.
+vimproc requires a native extension to be built, and will not work properly if that libaray (a `.so` or `.dll`) is missing.
 
 Supported platforms:
 * Windows 32/64bit (Compiled by MinGW or Visual Studio)
@@ -23,66 +14,17 @@ Supported platforms:
 Not supported platforms:
 * Other UNIX platforms
 
-Note: You must use GNU make to build vimproc.
+## Install
 
-Note: In Windows, using MinGW is recommended.
+### Manual Install
 
-Note: In Windows, to build it by Visual Studio, you must install Windows SDK.
+* Clone this repo
+* Build vimproc's native extensions (see Building for details)
+* Copy `autoload/*` and `plugin/*` files to your 'runtimepath' directory (see `:help runtimepath`).
 
-Below is Make command.
-* Windows using Mingw(32bit Vim):
+### NeoBundle
 
-        $ make -f make_mingw32.mak
-
-* Windows using Mingw(64bit Vim):
-
-        $ make -f make_mingw64.mak
-
-* Windows using newer version of Visual Studio(32bit/64bit Vim):
-        $ nmake -f Make_msvc.mak nodebug=1
-
-* Windows using old version of Visual Studio for 32bit Vim
-(Ex: Visual Studio 2005):
-        $ SET INCLUDE=%INCLUDE%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Include
-        $ SET LIB=%LIB%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib
-        $ nmake -f make_msvc32.mak
-
-* Mac OS X:
-
-        $ make -f make_mac.mak
-
-* Linux/BSD:
-
-        $ make -f make_unix.mak
-
-* Cygwin:
-
-        $ make -f make_cygwin.mak
-
-* Solaris/SunOS:
-
-        $ gmake -f make_sunos.mak
-
-* Android:
-
-        $ make -f make_android.mak
-
-After compile, you copy `autoload/*` and `plugin/*` files to your
-'runtimepath' directory (see `:help runtimepath`).
-
-I compiled `vimproc_win**.dll` in 32/64 bit Windows, and distributed it below
-URL.  
-Note: I DON'T recommend to use it. You should build dll files manually.
-https://github.com/Shougo/vimproc/downloads  
-Note: Github downloads feature is deprecated. It may be deleted.
-
-You can use Kaoriya Vim in Windows. It includes vimproc dll file.
-(http://www.kaoriya.net/news/2012/20121213)
-
-If you use |neobundle.vim|, you can update and build vimproc automatically.
-http://github.com/Shougo/neobundle.vim
-
-Example for neobundle:
+If you use [neobundle.vim](http://github.com/Shougo/neobundle.vim), you can update and build vimproc automatically. This is the recomended package manager.
 
 ```vim
 NeoBundle 'Shougo/vimproc', {
@@ -95,3 +37,60 @@ NeoBundle 'Shougo/vimproc', {
       \ }
 ```
 
+### Pathogen
+
+vimproc uses a pathogen compatiable structure, so it can be managed with [pathogen](https://github.com/tpope/vim-pathogen), however you must remember to compile after cloning the repo.
+
+```sh
+git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle
+cd ~/.vim/bundle/vimproc.vim
+make
+```
+
+## Building
+
+Note: You must use GNU make to build vimproc.
+
+### Linux and Mac OS X
+
+    $ make
+
+### Windows
+
+Note: In Windows, using MinGW is recommended.
+
+Windows using Mingw (32bit Vim):
+
+    $ make -f make_mingw32.mak
+
+Windows using Mingw (64bit Vim):
+
+    $ make -f make_mingw64.mak
+
+Windows using newer version of Visual Studio(32bit/64bit Vim):
+    $ nmake -f make_msvc.mak nodebug=1
+
+Windows using old version of Visual Studio for 32bit Vim (Ex: Visual Studio 2005):
+    $ SET INCLUDE=%INCLUDE%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Include
+    $ SET LIB=%LIB%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib
+    $ nmake -f make_msvc32.mak
+
+Note: To build with Visual Studio, you must install Windows SDK.
+
+* Cygwin:
+
+    $ make -f make_cygwin.mak
+
+Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
+
+### Windows Binaries
+
+Precompiled `vimproc_win**.dll` for 32/64 bit Windows, can be obtained from the below URL. However, I DON'T recommend to use it. You should build dll files manually.
+
+https://github.com/Shougo/vimproc/downloads
+
+Note: Github downloads feature is deprecated. It may be deleted.
+
+### Kaoriya
+
+[Kaoriya Vim](http://www.kaoriya.net/) comes bundled with a precompiled version for vimproc
