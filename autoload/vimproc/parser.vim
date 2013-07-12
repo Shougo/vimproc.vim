@@ -740,7 +740,7 @@ function! s:parse_double_quote(script, i) "{{{
         \ 'n' : "\<LF>",  'e' : "\<Esc>",
         \ '\' : '\',  '?' : '?',
         \ '"' : '"',  "'" : "'",
-        \ '`' : '`',
+        \ '`' : '`',  '$' : '$',
         \}
   let arg = ''
   let i = a:i + 1
