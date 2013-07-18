@@ -157,8 +157,8 @@ vimproc#open({filename})			*vimproc#open()*
 vimproc#get_command_name({command} [, {path} [, {count}]])	*vimproc#get_command_name()*
 		Searches {command} from {path} and returns command name.  If you
 		omit {path}, uses $PATH instead.  If you set {count}, returns
-		{count} candidate.  If you set {count} is a negative
-		Number, returns as a list.  If {count} is omitted, then 1 is used.
+		{count} candidate.  If you set {count} is a negative Number,
+		returns as a list.  If {count} is omitted, then 1 is used.
 
 vimproc#system({expr} [, {input} [, {timeout}]])	*vimproc#system()*
 		It replaces |system()|.  If you call |system()| in Windows

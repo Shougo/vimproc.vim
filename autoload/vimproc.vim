@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 06 Jul 2013.
+" Last Modified: 18 Jul 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -205,7 +205,7 @@ function! vimproc#get_command_name(command, ...) "{{{
     return files
   endif
 
-  let file = get(files, 0, '')
+  let file = get(files, cnt-1, '')
 
   if file == ''
     throw printf(
