@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 Mar 2013.
+" Last Modified: 19 Jul 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -589,7 +589,7 @@ function! s:parse_equal(script) "{{{
       if prog == ''
         let [script, i] = s:skip_else(script, a:script, i)
       else
-        let filename = vimproc#get_command_path(prog)
+        let filename = vimproc#get_command_name(prog)
         if filename == ''
           throw printf('Error: File "%s" is not found.', prog)
         else
