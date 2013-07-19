@@ -906,14 +906,9 @@ function! s:read_lines(...) dict "{{{
 
   let lines = split(res, '\r\?\n', 1)
 
+  let self.buffer = ''
   if self.eof
-    let self.buffer = ''
     return lines
-  elseif res[-1] == '\n'
-    let self.buffer = empty(lines)? '' : lines[-1]
-    let lines = lines[ : -2]
-  else
-    let self.buffer = ''
   endif
 
   let self.eof = (self.buffer != '') ? 0 : self.__eof
