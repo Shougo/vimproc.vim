@@ -596,7 +596,12 @@ function! s:parse_equal(script) "{{{
           let script .= filename
         endif
 
-        let i += strlen(' =' . prog)
+        " Consume `a:script` until an end of `prog`.
+        " 
+        " e.g.
+        "   'echo  =ls hoge'  ->  'echo  =ls hoge'
+        "         ^                         ^
+        let i += strlen(a:script[i] . a:script[i+1] . prog)
       endif
     else
       let [script, i] = s:skip_else(script, a:script, i)
