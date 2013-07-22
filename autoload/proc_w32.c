@@ -964,8 +964,10 @@ vp_readdir(char *args)
     }
 
     do {
-        snprintf(buf, sizeof(buf), "%s/%s", dirname, fd.cFileName);
-        vp_stack_push_str(&_result, buf);
+        if (strcmp(fd.cFileName, ".") && strcmp(fd.cFileName, "..")) {
+            snprintf(buf, sizeof(buf), "%s/%s", dirname, fd.cFileName);
+            vp_stack_push_str(&_result, buf);
+        }
     } while (FindNextFile(h, &fd));
 
     FindClose(h);

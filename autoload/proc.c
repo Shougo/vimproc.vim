@@ -902,8 +902,10 @@ vp_readdir(char *args)
     }
 
     for (dp = readdir(dir); dp != NULL; dp = readdir(dir)) {
-        snprintf(buf, sizeof(buf), "%s/%s", dirname, dp->d_name);
-        vp_stack_push_str(&_result, buf);
+        if (strcmp(dp->d_name, ".") && strcmp(dp->d_name, "..")) {
+            snprintf(buf, sizeof(buf), "%s/%s", dirname, dp->d_name);
+            vp_stack_push_str(&_result, buf);
+        }
     }
     closedir(dir);
 
