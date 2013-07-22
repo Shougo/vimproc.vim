@@ -805,6 +805,7 @@ function! vimproc#readdir(dirname) "{{{
   if vimproc#util#is_windows()
     call map(files, 'vimproc#util#substitute_path_separator(v:val)')
   endif
+  call map(files, "substitute(v:val, '/./', '/', 'g')")
 
   return files
 endfunction"}}}
