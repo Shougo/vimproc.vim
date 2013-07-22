@@ -582,7 +582,7 @@ function! s:parse_equal(script) "{{{
 
   let i = 0
   let max = len(a:script)
-  while i < max - 1
+  while i < max
     if a:script[i] == ' ' && a:script[i+1] == '='
       " Expand filename.
       let prog = matchstr(a:script, '^=\zs[^[:blank:]]*', i+1)
@@ -596,7 +596,12 @@ function! s:parse_equal(script) "{{{
           let script .= filename
         endif
 
-        let i += matchend(a:script, '^=[^[:blank:]]*', i+1)
+        " Consume `a:script` until an end of `prog`.
+        " 
+        " e.g.
+        "   'echo  =ls hoge'  ->  'echo  =ls hoge'
+        "         ^                         ^
+        let i += strlen(a:script[i] . a:script[i+1] . prog)
       endif
     else
       let [script, i] = s:skip_else(script, a:script, i)
