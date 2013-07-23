@@ -42,6 +42,27 @@ Context Fopen.run()
   It is same to readfile()
     Should readfile(filename, 'b') == res2
   End
+
+  let file = vimproc#fopen(filename, 'O_RDONLY', 0)
+  let res2 = []
+  while !file.eof
+    let res2 += [file.read_line()]
+  endwhile
+
+  It yet not closed
+    Should file.is_valid
+  End
+
+  call file.close()
+
+  It closed
+    Should !file.is_valid
+  End
+
+  It is same to readfile()
+    Should readfile(filename) == res2
+  End
+
 End
 
 Fin

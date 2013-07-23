@@ -800,7 +800,7 @@ function! vimproc#readdir(dirname) "{{{
     return []
   endtry
 
-  call map(files, 'vimproc#util#iconv(
+  call map(filter(files, 'v:val !~ "/\\.\\.\\?$"'), 'vimproc#util#iconv(
         \ v:val, vimproc#util#termencoding(), &encoding)')
   if vimproc#util#is_windows()
     call map(files, 'vimproc#util#substitute_path_separator(v:val)')
@@ -907,18 +907,12 @@ function! s:read_lines(...) dict "{{{
   let lines = split(res, '\r\?\n', 1)
 
   let self.buffer = ''
-  if self.eof
-    return lines
-  endif
-
-  let self.eof = (self.buffer != '') ? 0 : self.__eof
   return lines
 endfunction"}}}
 function! s:read_line(...) dict "{{{
   let lines = call(self.read_lines, a:000, self)
   let self.buffer = join(lines[1:], "\n") . self.buffer
-  let self.eof = (self.buffer != '') ? 0 : self.__eof
-
+  let self.eof = (self.buffer != '') ? (self.__eof && self.buffer == '') : self.__eof
   return get(lines, 0, '')
 endfunction"}}}
 
