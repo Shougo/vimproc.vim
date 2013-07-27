@@ -901,6 +901,10 @@ vp_readdir(char *args)
                 strerror(errno));
     }
 
+    if (strcmp(dirname, "/") == 0) {
+        dirname[0] = '\0';
+    }
+
     for (dp = readdir(dir); dp != NULL; dp = readdir(dir)) {
         if (strcmp(dp->d_name, ".") && strcmp(dp->d_name, "..")) {
             snprintf(buf, sizeof(buf), "%s/%s", dirname, dp->d_name);

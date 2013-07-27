@@ -786,6 +786,7 @@ function! vimproc#readdir(dirname) "{{{
     let dirname = getcwd()
   endif
   let dirname = substitute(dirname, '.\zs/$', '', '')
+  let dirname = substitute(dirname, '//', '/', 'g')
 
   if !isdirectory(dirname)
     return []
@@ -805,7 +806,7 @@ function! vimproc#readdir(dirname) "{{{
   if vimproc#util#is_windows()
     call map(files, 'vimproc#util#substitute_path_separator(v:val)')
   endif
-  call map(files, "substitute(v:val, '/./\\|//', '/', 'g')")
+  call map(files, "substitute(v:val, '/./', '/', 'g')")
 
   return files
 endfunction"}}}
