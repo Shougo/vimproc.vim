@@ -907,8 +907,8 @@ function! s:read_lines(...) dict "{{{
 
   let lines = split(res, '\r\?\n', 1)
 
-  let self.buffer = ''
-  return lines
+  let self.buffer = get(lines, -1, 0)
+  return lines[ : -2]
 endfunction"}}}
 function! s:read_line(...) dict "{{{
   let lines = call(self.read_lines, a:000, self)
