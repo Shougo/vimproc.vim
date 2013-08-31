@@ -378,7 +378,7 @@ function! vimproc#system_passwd(cmdline, ...) "{{{
 endfunction"}}}
 function! vimproc#system_bg(cmdline) "{{{
   " Open pipe.
-  let subproc = vimproc#pgroup_open(a:cmdline)
+  let subproc = vimproc#popen3(a:cmdline)
   if empty(subproc)
     " Not supported path error.
     return ''
