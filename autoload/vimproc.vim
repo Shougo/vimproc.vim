@@ -377,7 +377,24 @@ function! vimproc#system_passwd(cmdline, ...) "{{{
   endtry
 endfunction"}}}
 function! vimproc#system_bg(cmdline) "{{{
-  let subproc = vimproc#plineopen3(a:cmdline)
+  " Open pipe.
+  if type(a:cmdline) == type('')
+    if a:cmdline =~ '&\s*$'
+      let cmdline = substitute(a:cmdline, '&\s*$', '', '')
+      return vimproc#system_bg(cmdline)
+    endif
+
+    let args = vimproc#parser#parse_statements(a:cmdline)
+    for arg in args
+      let arg.statement = vimproc#parser#parse_pipe(arg.statement)
+    endfor
+  else
+    let args = [{'statement' :
+          \ [{ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
+          \   'args' : a:cmdline }], 'condition' : 'always' }]
+  endif
+
+  let subproc = vimproc#pgroup_open(args)
   if empty(subproc)
     " Not supported path error.
     return ''
