@@ -645,7 +645,8 @@ vp_kill(char *args)
                 lasterror());
     }
 
-    return NULL;
+    vp_stack_push_num(&_result, "%d", 0);
+    return vp_stack_return(&_result);
 }
 
 /* Improved kill function. */
