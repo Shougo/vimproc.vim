@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 12 Sep 2013.
+" Last Modified: 13 Sep 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1476,7 +1476,7 @@ function! s:vp_kill(...) dict
 endfunction
 
 function! s:vp_pgroup_kill(...) dict
-  let sig = get(a:000, 0, vimproc#SIGTERM)
+  let sig = get(a:000, 0, g:vimproc#SIGTERM)
   if sig != 0
     call s:close_all(self)
     let self.is_valid = 0
