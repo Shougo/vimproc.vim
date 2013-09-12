@@ -1462,7 +1462,7 @@ endfunction
 
 function! s:vp_kill(...) dict
   let sig = get(a:000, 0, g:vimproc#SIGTERM)
-  if a:sig != 0
+  if sig != 0
     call s:close_all(self)
     let self.is_valid = 0
   endif
