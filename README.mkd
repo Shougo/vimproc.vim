@@ -43,7 +43,7 @@ vimproc uses a pathogen compatiable structure, so it can be managed with [pathog
 
 ```sh
 git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle
-cd ~/.vim/bundle/vimproc.vim
+cd ~/.vim/bundle/
 make
 ```
 
