@@ -42,7 +42,7 @@ NeoBundle 'Shougo/vimproc', {
 vimproc uses a pathogen compatiable structure, so it can be managed with [pathogen](https://github.com/tpope/vim-pathogen), however you must remember to compile after cloning the repo.
 
 ```sh
-git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle
+git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle/vimproc.vim
 cd ~/.vim/bundle/vimproc.vim
 make
 ```
