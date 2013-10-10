@@ -786,7 +786,7 @@ function! vimproc#write(filename, string, ...) "{{{
     " Write file.
 
     let mode = 'O_WRONLY | O_CREAT'
-    if mode =~ 'a'
+    if mode =~# 'a'
       " Append mode.
       let mode .= '| O_APPEND'
     endif
