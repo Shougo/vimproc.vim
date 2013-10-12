@@ -785,13 +785,13 @@ function! vimproc#write(filename, string, ...) "{{{
   else
     " Write file.
 
-    let mode = 'O_WRONLY | O_CREAT'
+    let cmode = 'O_WRONLY | O_CREAT'
     if mode =~# 'a'
       " Append mode.
-      let mode .= '| O_APPEND'
+      let cmode .= '| O_APPEND'
     endif
 
-    let hfile = vimproc#fopen(filename, mode)
+    let hfile = vimproc#fopen(filename, cmode)
     call hfile.write(a:string)
     call hfile.close()
   endif
