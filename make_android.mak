@@ -5,7 +5,7 @@
 #   CFLAGS=-march=armv5te -msoft-float
 #   CC=$(NDK_TOP)/toolchains/arm-linux-androideabi-4.4.3/prebuilt/darwin-x86/bin/arm-linux-androideabi-gcc -mandroid --sysroot=$(SYSROOT)
 
-CFLAGS+=-W -Wall -Wno-unused -std=c99 -O2 -fPIC -pedantic
+CFLAGS+=-W -Wall -Wno-unused -Wno-unused-parameter -std=c99 -O2 -fPIC -pedantic
 LDFLAGS+=-shared
 
 TARGET=autoload/vimproc_unix.so

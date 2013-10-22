@@ -5,7 +5,7 @@ ifeq ($(CC),suncc)
 CFLAGS=-errwarn -xc99 -xO3 -native -KPIC -D__EXTENSIONS__
 LDFLAGS=-G
 else # gcc
-CFLAGS=-W -Wall -Wno-unused -std=c99 -O2 -fPIC -pedantic -D__EXTENSIONS__
+CFLAGS=-W -Wall -Wno-unused -Wno-unused-parameter -std=c99 -O2 -fPIC -pedantic -D__EXTENSIONS__
 LDFLAGS=-shared
 endif
 

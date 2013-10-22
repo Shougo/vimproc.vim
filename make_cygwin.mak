@@ -1,4 +1,4 @@
-CFLAGS=-O2 -W -Wall -Wno-unused -use=gnu99 -shared
+CFLAGS=-O2 -W -Wall -Wno-unused -Wno-unused-parameter -use=gnu99 -shared
 TARGET=autoload/vimproc_cygwin.dll
 SRC=autoload/proc.c
 LDFLAGS+=-lutil
