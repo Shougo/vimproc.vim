@@ -1,7 +1,11 @@
 # for Mac.
 
-# clang or llvm-gcc
+ifeq ($(shell which clang),)
 LLVMCC=llvm-gcc
+else
+LLVMCC=clang
+endif
+
 
 ifneq ($(shell which $(LLVMCC)),)
 CC=$(LLVMCC)
