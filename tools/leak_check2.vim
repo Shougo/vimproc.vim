@@ -8,5 +8,6 @@ call process.waitpid()
 " call process.kill()
 
 if executable('ps')
-  echomsg string(split(system('ps aux | grep defunct'), '\n'))
+  echomsg string(split(system('ps -eo pid,pgid,sid,args | grep defunct'), '\n'))
+  echomsg 'Current pid = ' . getpid()
 endif

@@ -442,7 +442,8 @@ vp_pipe_open(char *args)
         int i;
 
         /* Set process group. */
-        // setpgid(0, 0);
+        setsid();
+        setpgid(0, 0);
 
         if (!hstdin) {
             close(fd[0][1]);
@@ -615,7 +616,8 @@ vp_pty_open(char *args)
         int i;
 
         /* Set process group. */
-        // setpgid(0, 0);
+        setsid();
+        setpgid(0, 0);
 
         /* Close pipe */
         if (hstdout == 1) {
@@ -764,10 +766,10 @@ vp_kill(char *args)
 
     /* Kill by process group. */
     pgid = getpgid(pid);
-    // if (pgid > 0 && kill(-pgid, sig) < 0) {
-    //     return vp_stack_return_error(&_result, "kill() error: %s",
-    //             strerror(errno));
-    // }
+    if (pgid > 0 && kill(-pgid, sig) < 0) {
+        return vp_stack_return_error(&_result, "kill() error: %s",
+                strerror(errno));
+    }
 
     vp_stack_push_num(&_result, "%d", ret);
     return vp_stack_return(&_result);
@@ -791,10 +793,10 @@ vp_waitpid(char *args)
     if (n == 0 || WIFCONTINUED(status)) {
         /* Kill by process group. */
         pgid = getpgid(pid);
-        // if (pgid > 0 && kill(-pgid, 15) < 0) {
-        //     return vp_stack_return_error(&_result, "kill() error: %s",
-        //             strerror(errno));
-        // }
+        if (pgid > 0 && kill(-pgid, 15) < 0) {
+            return vp_stack_return_error(&_result, "kill() error: %s",
+                    strerror(errno));
+        }
 
         vp_stack_push_str(&_result, "run");
         vp_stack_push_num(&_result, "%d", 0);
