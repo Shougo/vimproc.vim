@@ -442,7 +442,6 @@ vp_pipe_open(char *args)
         int i;
 
         /* Set process group. */
-        setsid();
         setpgid(0, 0);
 
         if (!hstdin) {
@@ -616,7 +615,6 @@ vp_pty_open(char *args)
         int i;
 
         /* Set process group. */
-        setsid();
         setpgid(0, 0);
 
         /* Close pipe */
