@@ -762,11 +762,10 @@ vp_kill(char *args)
         return vp_stack_return_error(&_result, "kill() error: %s",
                 strerror(errno));
 
-    /* Kill by process group. */
+    /* Kill by the process group. */
     pgid = getpgid(pid);
-    if (pgid > 0 && kill(-pgid, sig) < 0) {
-        return vp_stack_return_error(&_result, "kill() error: %s",
-                strerror(errno));
+    if (pgid > 0) {
+        kill(-pgid, sig);
     }
 
     vp_stack_push_num(&_result, "%d", ret);
@@ -789,11 +788,10 @@ vp_waitpid(char *args)
         return vp_stack_return_error(&_result, "waitpid() error: %s",
                 strerror(errno));
     if (n == 0 || WIFCONTINUED(status)) {
-        /* Kill by process group. */
+        /* Kill by the process group. */
         pgid = getpgid(pid);
-        if (pgid > 0 && kill(-pgid, 15) < 0) {
-            return vp_stack_return_error(&_result, "kill() error: %s",
-                    strerror(errno));
+        if (pgid > 0) {
+            kill(-pgid, 15);
         }
 
         vp_stack_push_str(&_result, "run");
