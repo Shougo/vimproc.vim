@@ -614,9 +614,6 @@ vp_pty_open(char *args)
         char **argv;
         int i;
 
-        /* Set process group. */
-        setpgid(0, 0);
-
         /* Close pipe */
         if (hstdout == 1) {
             close(fd[1][0]);
