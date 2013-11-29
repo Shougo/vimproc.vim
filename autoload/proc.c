@@ -441,6 +441,9 @@ vp_pipe_open(char *args)
         char **argv;
         int i;
 
+        /* Set process group. */
+        setpgid(getpid(), getpid());
+
         if (!hstdin) {
             close(fd[0][1]);
         }
@@ -611,6 +614,9 @@ vp_pty_open(char *args)
         char **argv;
         int i;
 
+        /* Set process group. */
+        setpgid(getpid(), getpid());
+
         /* Close pipe */
         if (hstdout == 1) {
             close(fd[1][0]);
@@ -743,7 +749,7 @@ const char *
 vp_kill(char *args)
 {
     vp_stack_t stack;
-    pid_t pid;
+    pid_t pid, pgid;
     int sig;
     int ret;
 
@@ -755,6 +761,14 @@ vp_kill(char *args)
     if (ret < 0)
         return vp_stack_return_error(&_result, "kill() error: %s",
                 strerror(errno));
+
+    /* Kill by process group. */
+    pgid = getpgid(pid);
+    if (pgid > 0 && kill(-pgid, sig) < 0) {
+        return vp_stack_return_error(&_result, "kill() error: %s",
+                strerror(errno));
+    }
+
     vp_stack_push_num(&_result, "%d", ret);
     return vp_stack_return(&_result);
 }
@@ -763,7 +777,7 @@ const char *
 vp_waitpid(char *args)
 {
     vp_stack_t stack;
-    pid_t pid;
+    pid_t pid, pgid;
     pid_t n;
     int status;
 
@@ -790,6 +804,14 @@ vp_waitpid(char *args)
         return vp_stack_return_error(&_result,
                 "waitpid() unknown status: status=%d", status);
     }
+
+    /* Kill by process group. */
+    pgid = getpgid(pid);
+    if (pgid > 0 && kill(-pgid, 15) < 0) {
+        return vp_stack_return_error(&_result, "kill() error: %s",
+                strerror(errno));
+    }
+
     return vp_stack_return(&_result);
 }
 

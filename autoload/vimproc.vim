@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 24 Oct 2013.
+" Last Modified: 29 Nov 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -1014,6 +1014,11 @@ function! s:garbage_collect(is_force) "{{{
   endfor
 endfunction"}}}
 
+" For debug API.
+function! vimproc#_get_bg_processes() "{{{
+  return s:bg_processes
+endfunction"}}}
+
 "-----------------------------------------------------------
 " UTILS
 
@@ -1266,7 +1271,7 @@ function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv) "{{{
 
   if a:npipe != len(fdlist)
     call s:print_error(printf('a:npipe = %d, a:argv = %s', a:npipe, string(a:argv)))
-    call s:print_error(printf('fdlist = %s', string(fdlist)))
+    call s:print_error(printf('pid = %d, fdlist = %s', pid, string(fdlist)))
     echoerr 'Bug behavior is detected!: ' . pid
   endif
 
@@ -1498,7 +1503,7 @@ endfunction
 function! s:waitpid(pid)
   try
     let [cond, status] = s:libcall('vp_waitpid', [a:pid])
-    " echomsg string([cond, status])
+    " echomsg string([a:pid, cond, status])
     if cond ==# 'run'
       " Add process list.
       let s:bg_processes[a:pid] = a:pid
