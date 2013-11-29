@@ -9,8 +9,6 @@ pid = os.fork()
 c = 'p' if pid == 0 else 'c'
 
 if pid == 0:
-    # Set group
-    os.setpgid(os.getpid(), os.getpid())
     sys.exit(0)
 
 while True:
