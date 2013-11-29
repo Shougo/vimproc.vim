@@ -1376,6 +1376,8 @@ function! s:read_pgroup(...) dict "{{{
 
       let self.pid = proc.pid
       let self.pid_list = proc.pid_list
+      let self.proc.pid = proc.pid
+      let self.proc.pid_list = proc.pid_list
       let self.proc.condition = self.proc.statements[0].condition
       let self.proc.statements = self.proc.statements[1:]
 
