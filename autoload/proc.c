@@ -125,6 +125,19 @@ const char *vp_decode(char *args);      /* [decoded_str] (encode_str) */
 
 static vp_stack_t _result = VP_STACK_NULL;
 
+static void
+close_fds(int fds[3][2])
+{
+    int i;
+
+    for (i = 0; i < 6; ++i) {
+        int fd = fds[i / 2][i % 2];
+
+        if (fd > 0)
+            close(fd);
+    }
+}
+
 const char *
 vp_dlopen(char *args)
 {
@@ -386,12 +399,14 @@ vp_file_write(char *args)
 const char *
 vp_pipe_open(char *args)
 {
+#define VP_GOTO_ERROR(_fmt) do { errfmt = (_fmt); goto error; } while(0)
     vp_stack_t stack;
     int npipe, hstdin, hstderr, hstdout;
     int argc;
-    int fd[3][2];
+    int fd[3][2] = {{0}};
     pid_t pid;
     int dummy;
+    char *errfmt;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &npipe));
@@ -407,8 +422,7 @@ vp_pipe_open(char *args)
         fd[0][1] = 0;
     } else {
         if (pipe(fd[0]) < 0) {
-            return vp_stack_return_error(&_result, "pipe() error: %s",
-                    strerror(errno));
+            VP_GOTO_ERROR("pipe() error: %s");
         }
     }
     if (hstdout) {
@@ -416,8 +430,7 @@ vp_pipe_open(char *args)
         fd[1][0] = 0;
     } else {
         if (pipe(fd[1]) < 0) {
-            return vp_stack_return_error(&_result, "pipe() error: %s",
-                    strerror(errno));
+            VP_GOTO_ERROR("pipe() error: %s");
         }
     }
     if (npipe == 3) {
@@ -426,16 +439,16 @@ vp_pipe_open(char *args)
             fd[2][0] = 0;
         } else {
             if (pipe(fd[2]) < 0) {
-                return vp_stack_return_error(&_result, "pipe() error: %s",
-                        strerror(errno));
+                VP_GOTO_ERROR("pipe() error: %s");
             }
         }
+    } else if (hstderr > 1) {
+        close(hstderr);
     }
 
     pid = fork();
     if (pid < 0) {
-        return vp_stack_return_error(&_result, "fork() error: %s",
-                strerror(errno));
+        VP_GOTO_ERROR("fork() error: %s");
     } else if (pid == 0) {
         /* child */
         char **argv;
@@ -444,22 +457,22 @@ vp_pipe_open(char *args)
         /* Set process group. */
         setpgid(0, 0);
 
-        if (!hstdin) {
+        if (fd[0][1] > 0) {
             close(fd[0][1]);
         }
-        if (!hstdout) {
+        if (fd[1][0] > 0) {
             close(fd[1][0]);
         }
-        if (npipe == 3 && !hstderr) {
+        if (fd[2][0] > 0) {
             close(fd[2][0]);
         }
-        if (fd[0][0] != STDIN_FILENO) {
+        if (fd[0][0] > 0) {
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 goto child_error;
             }
             close(fd[0][0]);
         }
-        if (fd[1][1] != STDOUT_FILENO) {
+        if (fd[1][1] > 0) {
             if (dup2(fd[1][1], STDOUT_FILENO) != STDOUT_FILENO) {
                 goto child_error;
             }
@@ -469,7 +482,7 @@ vp_pipe_open(char *args)
             if (dup2(STDOUT_FILENO, STDERR_FILENO) != STDERR_FILENO) {
                 goto child_error;
             }
-        } else if (fd[2][1] != STDERR_FILENO) {
+        } else if (fd[2][1] > 0) {
             if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
                 goto child_error;
             }
@@ -488,38 +501,41 @@ vp_pipe_open(char *args)
         }
         argv[argc] = NULL;
 
-        if (execv(argv[0], argv) < 0) {
-            free(argv);
-            goto child_error;
-        }
-        free(argv);
+        execv(argv[0], argv);
+        /* error */
+        goto child_error;
     } else {
         /* parent */
-        if (!hstdin) {
+        if (fd[0][0] > 0) {
             close(fd[0][0]);
         }
-        if (!hstdout) {
+        if (fd[1][1] > 0) {
             close(fd[1][1]);
         }
-        if (npipe == 3 && !hstderr) {
+        if (fd[2][1] > 0) {
             close(fd[2][1]);
         }
 
         vp_stack_push_num(&_result, "%d", pid);
         vp_stack_push_num(&_result, "%d", fd[0][1]);
         vp_stack_push_num(&_result, "%d", fd[1][0]);
-        if (npipe == 3)
+        if (npipe == 3) {
             vp_stack_push_num(&_result, "%d", fd[2][0]);
+        }
         return vp_stack_return(&_result);
     }
     /* DO NOT REACH HERE */
     return NULL;
 
-
     /* error */
+error:
+    close_fds(fd);
+    return vp_stack_return_error(&_result, errfmt, strerror(errno));
+
 child_error:
     dummy = write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
     _exit(EXIT_FAILURE);
+#undef VP_GOTO_ERROR
 }
 
 const char *
@@ -543,15 +559,17 @@ vp_pipe_write(char *args)
 const char *
 vp_pty_open(char *args)
 {
+#define VP_GOTO_ERROR(_fmt) do { errfmt = (_fmt); goto error; } while(0)
     vp_stack_t stack;
     int argc;
-    int fd[3][2];
+    int fd[3][2] = {{0}};
     pid_t pid;
     struct winsize ws = {0, 0, 0, 0};
     int dummy;
     int hstdin, hstderr, hstdout;
     int fdm;
     int npipe;
+    char *errfmt;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &npipe));
@@ -571,73 +589,64 @@ vp_pty_open(char *args)
     }
     if (hstdout == 1) {
         if (pipe(fd[1]) < 0) {
-            return vp_stack_return_error(&_result, "pipe() error: %s",
-                    strerror(errno));
+            VP_GOTO_ERROR("pipe() error: %s");
         }
     } else if (hstdout) {
         fd[1][1] = hstdout;
         fd[1][0] = 0;
     }
     if (npipe == 3) {
-        if (hstderr == 1) {
-            if (pipe(fd[2]) < 0) {
-                return vp_stack_return_error(&_result, "pipe() error: %s",
-                        strerror(errno));
-            }
-        } else if (hstderr == 1) {
+        if (hstderr > 1) {
             fd[2][1] = hstderr;
             fd[2][0] = 0;
-        } else {
+        } else if (hstderr == 1){
+            if (pipe(fd[2]) < 0) {
+                VP_GOTO_ERROR("pipe() error: %s");
+            }
+        } else if (hstderr == 0) {
             if (openpty(&fd[2][0], &fd[2][1], NULL, NULL, &ws) < 0) {
-                return vp_stack_return_error(&_result, "openpty() error: %s",
-                        strerror(errno));
+                VP_GOTO_ERROR("openpty() error: %s");
             }
         }
+    } else if (hstderr > 1) {
+        close(hstderr);
     }
 
     pid = forkpty(&fdm, NULL, NULL, &ws);
-    if (hstdin == 0) {
-        fd[0][1] = fdm;
-    }
-    if (hstdout == 0) {
-        fd[1][0] = fdm;
-    }
-    if (hstdin == 0 && hstdout == 0) {
-        fd[1][0] = dup(fdm);
-    }
-
     if (pid < 0) {
-        return vp_stack_return_error(&_result, "fork() error: %s",
-                strerror(errno));
+        VP_GOTO_ERROR("fork() error: %s");
     } else if (pid == 0) {
         /* child */
         char **argv;
         int i;
 
         /* Close pipe */
-        if (hstdout == 1) {
+        if (fd[1][0] > 0) {
             close(fd[1][0]);
         }
-        if (npipe == 3 && hstderr == 1) {
+        if (fd[2][0] > 0) {
             close(fd[2][0]);
         }
 
-        if (hstdin && fd[0][0] != STDIN_FILENO) {
+        if (fd[0][0] > 0) {
             if (dup2(fd[0][0], STDIN_FILENO) != STDIN_FILENO) {
                 goto child_error;
             }
             close(fd[0][0]);
         }
 
-        if (hstdout && fd[1][1] != STDOUT_FILENO) {
-            /* Set termios. */
+        if (fd[1][1] > 0) {
             if (dup2(fd[1][1], STDOUT_FILENO) != STDOUT_FILENO) {
                 goto child_error;
             }
             close(fd[1][1]);
         }
 
-        if (npipe == 3 && fd[2][1] != STDERR_FILENO) {
+        if (npipe == 2) {
+            if (dup2(STDOUT_FILENO, STDERR_FILENO) != STDERR_FILENO) {
+                goto child_error;
+            }
+        } else if (fd[2][1] > 0) {
             if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
                 goto child_error;
             }
@@ -656,20 +665,23 @@ vp_pty_open(char *args)
         }
         argv[argc] = NULL;
 
-        if (execv(argv[0], argv) < 0) {
-            /* error */
-            free(argv);
-
-            goto child_error;
-        }
-        free(argv);
+        execv(argv[0], argv);
+        /* error */
+        goto child_error;
     } else {
         /* parent */
-        if (hstdout == 1) {
+        if (fd[1][1] > 0) {
             close(fd[1][1]);
         }
-        if (npipe == 3 && (hstderr == 0 || hstderr == 1)) {
+        if (fd[2][1] > 0) {
             close(fd[2][1]);
+        }
+
+        if (hstdin == 0) {
+            fd[0][1] = fdm;
+        }
+        if (hstdout == 0) {
+            fd[1][0] = hstdin == 0 ? dup(fdm) : fdm;
         }
 
         vp_stack_push_num(&_result, "%d", pid);
@@ -684,9 +696,14 @@ vp_pty_open(char *args)
     return NULL;
 
     /* error */
+error:
+    close_fds(fd);
+    return vp_stack_return_error(&_result, errfmt, strerror(errno));
+
 child_error:
     dummy = write(STDOUT_FILENO, strerror(errno), strlen(strerror(errno)));
     _exit(EXIT_FAILURE);
+#undef VP_GOTO_ERROR
 }
 
 const char *
