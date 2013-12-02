@@ -417,7 +417,7 @@ vp_pipe_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &hstderr));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
 
-    if (hstdin) {
+    if (hstdin > 0) {
         fd[0][0] = hstdin;
         fd[0][1] = 0;
     } else {
@@ -425,7 +425,7 @@ vp_pipe_open(char *args)
             VP_GOTO_ERROR("pipe() error: %s");
         }
     }
-    if (hstdout) {
+    if (hstdout > 0) {
         fd[1][1] = hstdout;
         fd[1][0] = 0;
     } else {
@@ -433,17 +433,13 @@ vp_pipe_open(char *args)
             VP_GOTO_ERROR("pipe() error: %s");
         }
     }
-    if (npipe == 3) {
-        if (hstderr) {
-            fd[2][1] = hstderr;
-            fd[2][0] = 0;
-        } else {
-            if (pipe(fd[2]) < 0) {
-                VP_GOTO_ERROR("pipe() error: %s");
-            }
+    if (hstderr > 0) {
+        fd[2][1] = hstderr;
+        fd[2][0] = 0;
+    } else if (npipe == 3 && hstderr == 0) {
+        if (pipe(fd[2]) < 0) {
+            VP_GOTO_ERROR("pipe() error: %s");
         }
-    } else if (hstderr > 1) {
-        close(hstderr);
     }
 
     pid = fork();
@@ -478,15 +474,15 @@ vp_pipe_open(char *args)
             }
             close(fd[1][1]);
         }
-        if (npipe == 2) {
-            if (dup2(STDOUT_FILENO, STDERR_FILENO) != STDERR_FILENO) {
-                goto child_error;
-            }
-        } else if (fd[2][1] > 0) {
+        if (fd[2][1] > 0) {
             if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
                 goto child_error;
             }
             close(fd[2][1]);
+        } else if (npipe == 2) {
+            if (dup2(STDOUT_FILENO, STDERR_FILENO) != STDERR_FILENO) {
+                goto child_error;
+            }
         }
 
         {
@@ -595,23 +591,23 @@ vp_pty_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &argc));
 
     /* Set pipe */
-    if (hstdin) {
+    if (hstdin > 0) {
         fd[0][0] = hstdin;
         fd[0][1] = 0;
     }
-    if (hstdout == 1) {
+    if (hstdout > 1) {
+        fd[1][1] = hstdout;
+        fd[1][0] = 0;
+    } else if (hstdout == 1) {
         if (pipe(fd[1]) < 0) {
             VP_GOTO_ERROR("pipe() error: %s");
         }
-    } else if (hstdout) {
-        fd[1][1] = hstdout;
-        fd[1][0] = 0;
     }
-    if (npipe == 3) {
-        if (hstderr > 1) {
-            fd[2][1] = hstderr;
-            fd[2][0] = 0;
-        } else if (hstderr == 1){
+    if (hstderr > 1) {
+        fd[2][1] = hstderr;
+        fd[2][0] = 0;
+    } else if (npipe == 3) {
+        if (hstderr == 1){
             if (pipe(fd[2]) < 0) {
                 VP_GOTO_ERROR("pipe() error: %s");
             }
@@ -620,8 +616,6 @@ vp_pty_open(char *args)
                 VP_GOTO_ERROR("openpty() error: %s");
             }
         }
-    } else if (hstderr > 1) {
-        close(hstderr);
     }
 
     pid = forkpty(&fdm, NULL, NULL, &ws);
@@ -654,11 +648,7 @@ vp_pty_open(char *args)
             close(fd[1][1]);
         }
 
-        if (npipe == 2) {
-            if (dup2(STDOUT_FILENO, STDERR_FILENO) != STDERR_FILENO) {
-                goto child_error;
-            }
-        } else if (fd[2][1] > 0) {
+        if (fd[2][1] > 0) {
             if (dup2(fd[2][1], STDERR_FILENO) != STDERR_FILENO) {
                 goto child_error;
             }
