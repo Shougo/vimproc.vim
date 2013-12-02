@@ -489,6 +489,18 @@ vp_pipe_open(char *args)
             close(fd[2][1]);
         }
 
+        {
+            /* Ignore tty. */
+            char name[L_ctermid];
+            if (ctermid(name)[0] != '\0') {
+                int tfd;
+                if ((tfd = open(name, O_RDONLY)) != -1) {
+                    ioctl(tfd, TIOCNOTTY, NULL);
+                    close(tfd);
+                }
+            }
+        }
+
         argv = malloc(sizeof(char *) * (argc+1));
         if (argv == NULL) {
             goto child_error;
