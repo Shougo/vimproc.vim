@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 29 Nov 2013.
+" Last Modified: 05 Dec 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -803,7 +803,10 @@ function! vimproc#readdir(dirname) "{{{
     let dirname = getcwd()
   endif
   let dirname = substitute(dirname, '.\zs/$', '', '')
-  let dirname = substitute(dirname, '//', '/', 'g')
+
+  if !vimproc#util#is_windows()
+    let dirname = substitute(dirname, '//', '/', 'g')
+  endif
 
   if !isdirectory(dirname)
     return []
