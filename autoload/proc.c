@@ -486,6 +486,9 @@ vp_pipe_open(char *args)
         }
 
         {
+#ifndef TIOCNOTTY
+            setsid();
+#else
             /* Ignore tty. */
             char name[L_ctermid];
             if (ctermid(name)[0] != '\0') {
@@ -495,6 +498,7 @@ vp_pipe_open(char *args)
                     close(tfd);
                 }
             }
+#endif
         }
 
         argv = malloc(sizeof(char *) * (argc+1));
