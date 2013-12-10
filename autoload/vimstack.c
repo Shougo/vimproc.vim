@@ -45,6 +45,43 @@ typedef struct vp_stack_t {
 /* use for initialize */
 #define VP_STACK_NULL {0, NULL, NULL}
 
+static const char CHR2XD[0x100] = {
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x00 - 0x0F */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x10 - 0x1F */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x20 - 0x2F */
+     0,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, -1, /* 0x30 - 0x3F */
+    -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x40 - 0x4F */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x50 - 0x5F */
+    -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x60 - 0x6F */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x70 - 0x7F */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x80 - 0x8F */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0x90 - 0x9F */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0xA0 - 0xAF */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0xB0 - 0xBF */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0xC0 - 0xCF */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0xD0 - 0xDF */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0xE0 - 0xEF */
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 0xF0 - 0xFF */
+};
+
+static const char *XD2CHR =
+    "00" "01" "02" "03" "04" "05" "06" "07" "08" "09" "0A" "0B" "0C" "0D" "0E" "0F"
+    "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "1A" "1B" "1C" "1D" "1E" "1F"
+    "20" "21" "22" "23" "24" "25" "26" "27" "28" "29" "2A" "2B" "2C" "2D" "2E" "2F"
+    "30" "31" "32" "33" "34" "35" "36" "37" "38" "39" "3A" "3B" "3C" "3D" "3E" "3F"
+    "40" "41" "42" "43" "44" "45" "46" "47" "48" "49" "4A" "4B" "4C" "4D" "4E" "4F"
+    "50" "51" "52" "53" "54" "55" "56" "57" "58" "59" "5A" "5B" "5C" "5D" "5E" "5F"
+    "60" "61" "62" "63" "64" "65" "66" "67" "68" "69" "6A" "6B" "6C" "6D" "6E" "6F"
+    "70" "71" "72" "73" "74" "75" "76" "77" "78" "79" "7A" "7B" "7C" "7D" "7E" "7F"
+    "80" "81" "82" "83" "84" "85" "86" "87" "88" "89" "8A" "8B" "8C" "8D" "8E" "8F"
+    "90" "91" "92" "93" "94" "95" "96" "97" "98" "99" "9A" "9B" "9C" "9D" "9E" "9F"
+    "A0" "A1" "A2" "A3" "A4" "A5" "A6" "A7" "A8" "A9" "AA" "AB" "AC" "AD" "AE" "AF"
+    "B0" "B1" "B2" "B3" "B4" "B5" "B6" "B7" "B8" "B9" "BA" "BB" "BC" "BD" "BE" "BF"
+    "C0" "C1" "C2" "C3" "C4" "C5" "C6" "C7" "C8" "C9" "CA" "CB" "CC" "CD" "CE" "CF"
+    "D0" "D1" "D2" "D3" "D4" "D5" "D6" "D7" "D8" "D9" "DA" "DB" "DC" "DD" "DE" "DF"
+    "E0" "E1" "E2" "E3" "E4" "E5" "E6" "E7" "E8" "E9" "EA" "EB" "EC" "ED" "EE" "EF"
+    "F0" "F1" "F2" "F3" "F4" "F5" "F6" "F7" "F8" "F9" "FA" "FB" "FC" "FD" "FE" "FF";
+
 static void vp_stack_free(vp_stack_t *stack);
 static const char *vp_stack_from_args(vp_stack_t *stack, char *args);
 static const char *vp_stack_return(vp_stack_t *stack);
@@ -187,19 +224,19 @@ static const char *
 vp_stack_pop_bin(vp_stack_t *stack, char **buf, size_t *size)
 {
     char *p;
-    unsigned num;
+    char ub, lb;
+    size_t gain = 0;
 
     VP_RETURN_IF_FAIL(vp_stack_pop_str(stack, buf));
-    *size = 0;
     p = *buf;
     while (*p) {
-        /* "%0.2x" is warned by gcc. */
-        if (sscanf(p, "%2x", &num) != 1)
+        ub = CHR2XD[(unsigned char)*(p++)];
+        lb = CHR2XD[(unsigned char)*(p++)];
+        if (ub < 0 || lb < 0)
             return "vp_stack_pop_bin: sscanf error";
-        (*buf)[*size] = (char)(num & 0xff);
-        *size += 1;
-        p += 2;
+        (*buf)[gain++] = (char)((ub << 4) | (lb << 0));
     }
+    *size = gain;
     return NULL;
 }
 
@@ -234,12 +271,15 @@ vp_stack_push_bin(vp_stack_t *stack, const char *buf, size_t size)
 {
     size_t needsize;
     size_t i;
+    char *bs;
 
     needsize = (stack->top - stack->buf) + (size * 2) + sizeof(VP_EOV_STR);
     VP_RETURN_IF_FAIL(vp_stack_reserve(stack, needsize));
-    for (i = 0; i < size; ++i)
-        /* is this slow? */
-        stack->top += sprintf(stack->top, "%02X", buf[i] & 0xFF);
+    for (i = 0; i < size; ++i) {
+        bs = (char *)&XD2CHR[(unsigned char)(buf[i]) * 2];
+        *(stack->top++) = bs[0];
+        *(stack->top++) = bs[1];
+    }
     *(stack->top++) = VP_EOV;
     return NULL;
 }
