@@ -98,7 +98,7 @@ function! s:define_signals()
   let xs = s:libcall('vp_get_signals', [])
   for x in xs
     let [name, val] = split(x, ':')
-    let g:vimproc#{name} = val
+    let g:vimproc#{name} = str2nr(val)
     call add(s:signames, name)
   endfor
 endfunction
