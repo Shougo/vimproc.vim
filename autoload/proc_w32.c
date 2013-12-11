@@ -63,7 +63,7 @@ const int debug = 0;
 /* API */
 EXPORT const char *vp_dlopen(char *args);      /* [handle] (path) */
 EXPORT const char *vp_dlclose(char *args);     /* [] (handle) */
-EXPORT const char *vp_dlversion(char *args);     /* [] (version) */
+EXPORT const char *vp_dlversion(char *args);     /* [version] () */
 
 EXPORT const char *vp_file_open(char *args);   /* [fd] (path, flags, mode) */
 EXPORT const char *vp_file_close(char *args);  /* [] (fd) */
@@ -102,6 +102,8 @@ EXPORT const char *vp_readdir(char *args);  /* [files] (dirname) */
 
 
 EXPORT const char * vp_delete_trash(char *args);  /* [filename] */
+
+EXPORT const char *vp_get_signals(char *args); /* [signals] () */
 
 static BOOL ExitRemoteProcess(HANDLE hProcess, UINT_PTR uExitCode);
 
@@ -1090,6 +1092,37 @@ vp_decode(char *args)
     buf[bi] = '\0';
     vp_stack_push_str(&_result, buf);
     free(buf);
+    return vp_stack_return(&_result);
+}
+
+const char *
+vp_get_signals(char *args)
+{
+    const char *signames[] = {
+        "SIGABRT",
+        "SIGFPE",
+        "SIGILL",
+        "SIGINT",
+        "SIGSEGV",
+        "SIGTERM",
+        "SIGALRM",
+        "SIGCHLD",
+        "SIGCONT",
+        "SIGHUP",
+        "SIGKILL",
+        "SIGPIPE",
+        "SIGQUIT",
+        "SIGSTOP",
+        "SIGTSTP",
+        "SIGTTIN",
+        "SIGTTOU",
+        "SIGUSR1",
+        "SIGUSR2"
+    };
+    size_t i;
+
+    for (i = 0; i < sizeof(signames) / sizeof(*signames); ++i)
+        vp_stack_push_num(&_result, "%s:%d", signames[i], i + 1);
     return vp_stack_return(&_result);
 }
 
