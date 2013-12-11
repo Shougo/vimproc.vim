@@ -93,25 +93,15 @@ call vimproc#util#set_default(
 "}}}
 
 " Constants {{{
-let g:vimproc#SIGINT = 2
-let g:vimproc#SIGQUIT = 3
-let g:vimproc#SIGILL = 4
-let g:vimproc#SIGABRT = 6
-let g:vimproc#SIGFPE = 8
-let g:vimproc#SIGKILL = 9
-let g:vimproc#SIGSEGV = 11
-let g:vimproc#SIGPIPE = 13
-let g:vimproc#SIGALRM = 14
-let g:vimproc#SIGTERM = 15
-let g:vimproc#SIGUSR1 = 10
-let g:vimproc#SIGUSR2 = 12
-let g:vimproc#SIGCHLD = 17
-let g:vimproc#SIGCONT = 18
-let g:vimproc#SIGSTOP = 19
-let g:vimproc#SIGTSTP = 20
-let g:vimproc#SIGTTIN = 21
-let g:vimproc#SIGTTOU = 22
-let g:vimproc#SIGWINCH = 28
+function! s:define_signals()
+  let s:signames = []
+  let xs = s:libcall('vp_get_signals', [])
+  for x in xs
+    let [name, val] = split(x, ':')
+    let g:vimproc#{name} = val
+    call add(s:signames, name)
+  endfor
+endfunction
 " }}}
 
 let g:vimproc#dll_path =
@@ -694,47 +684,12 @@ function! vimproc#kill(pid, sig) "{{{
 endfunction"}}}
 
 function! vimproc#decode_signal(signal) "{{{
-  if a:signal == g:vimproc#SIGINT
-    return 'SIGINT'
-  elseif a:signal == g:vimproc#SIGQUIT
-    return 'SIGQUIT'
-  elseif a:signal == g:vimproc#SIGILL
-    return 'SIGILL'
-  elseif a:signal == g:vimproc#SIGABRT
-    return 'SIGABRT'
-  elseif a:signal == g:vimproc#SIGFPE
-    return 'SIGFPE'
-  elseif a:signal == g:vimproc#SIGKILL
-    return 'SIGKILL'
-  elseif a:signal == g:vimproc#SIGSEGV
-    return 'SIGSEGV'
-  elseif a:signal == g:vimproc#SIGPIPE
-    return 'SIGPIPE'
-  elseif a:signal == g:vimproc#SIGALRM
-    return 'SIGALRM'
-  elseif a:signal == g:vimproc#SIGTERM
-    return 'SIGTERM'
-  elseif a:signal == g:vimproc#SIGUSR1
-    return 'SIGUSR1'
-  elseif a:signal == g:vimproc#SIGUSR2
-    return 'SIGUSR2'
-  elseif a:signal == g:vimproc#SIGCHLD
-    return 'SIGCHLD'
-  elseif a:signal == g:vimproc#SIGCONT
-    return 'SIGCONT'
-  elseif a:signal == g:vimproc#SIGSTOP
-    return 'SIGSTOP'
-  elseif a:signal == g:vimproc#SIGTSTP
-    return 'SIGTSTP'
-  elseif a:signal == g:vimproc#SIGTTIN
-    return 'SIGTTIN'
-  elseif a:signal == g:vimproc#SIGTTOU
-    return 'SIGTTOU'
-  elseif a:signal == g:vimproc#SIGWINCH
-    return 'SIGTTOU'
-  else
-    return 'UNKNOWN'
-  endif
+  for signame in s:signames
+    if a:signal == g:vimproc#{signame}
+      return signame
+    endif
+  endfor
+  return 'UNKNOWN'
 endfunction"}}}
 
 function! vimproc#write(filename, string, ...) "{{{
@@ -1471,7 +1426,7 @@ function! s:vp_set_winsize(width, height) dict
 
   " Send SIGWINCH = 28 signal.
   for pid in self.pid_list
-    call vimproc#kill(pid, 28)
+    call vimproc#kill(pid, g:vimproc#SIGWINCH)
   endfor
 endfunction
 
@@ -1609,6 +1564,7 @@ if !exists('s:dll_handle')
   let s:dll_handle = s:vp_dlopen(g:vimproc#dll_path)
   let s:last_status = 0
   let s:last_errmsg = ''
+  call s:define_signals()
 endif
 
 " vimproc dll version check. "{{{

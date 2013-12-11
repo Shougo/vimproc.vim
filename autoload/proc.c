@@ -86,7 +86,7 @@ const int debug = 0;
 /* API */
 const char *vp_dlopen(char *args);      /* [handle] (path) */
 const char *vp_dlclose(char *args);     /* [] (handle) */
-const char *vp_dlversion(char *args);   /* [] (version) */
+const char *vp_dlversion(char *args);   /* [version] () */
 
 const char *vp_file_open(char *args);   /* [fd] (path, flags, mode) */
 const char *vp_file_close(char *args);  /* [] (fd) */
@@ -119,6 +119,8 @@ const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 const char *vp_host_exists(char *args); /* [int] (host) */
 
 const char *vp_decode(char *args);      /* [decoded_str] (encode_str) */
+
+const char *vp_get_signals(char *args); /* [signals] () */
 /* --- */
 
 #define VP_READ_BUFSIZE 2048
@@ -1019,6 +1021,170 @@ vp_decode(char *args)
     vp_stack_push_str(&_result, buf);
     free(buf);
     return vp_stack_return(&_result);
+}
+
+const char *
+vp_get_signals(char *args)
+{
+#define VP_STACK_PUSH_SIGNAME(_signame) \
+    vp_stack_push_num(&_result, #_signame ":%d", (_signame))
+#define VP_STACK_PUSH_ALTSIGNAME(_signame, _altsig) \
+    vp_stack_push_num(&_result, #_signame ":%d", (_altsig))
+
+#ifdef SIGABRT
+    VP_STACK_PUSH_SIGNAME(SIGABRT);
+#else
+#error "SIGABRT is undefined, contrary to ISO C standard."
+#endif
+#ifdef SIGFPE
+    VP_STACK_PUSH_SIGNAME(SIGFPE);
+#else
+#error "SIGFPE is undefined, contrary to ISO C standard."
+#endif
+#ifdef SIGILL
+    VP_STACK_PUSH_SIGNAME(SIGILL);
+#else
+#error "SIGILL is undefined, contrary to ISO C standard."
+#endif
+#ifdef SIGINT
+    VP_STACK_PUSH_SIGNAME(SIGINT);
+#else
+#error "SIGINT is undefined, contrary to ISO C standard."
+#endif
+#ifdef SIGSEGV
+    VP_STACK_PUSH_SIGNAME(SIGSEGV);
+#else
+#error "SIGSEGV is undefined, contrary to ISO C standard."
+#endif
+#ifdef SIGTERM
+    VP_STACK_PUSH_SIGNAME(SIGTERM);
+#else
+#error "SIGTERM is undefined, contrary to ISO C standard."
+#endif
+#ifdef SIGALRM
+    VP_STACK_PUSH_SIGNAME(SIGALRM);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGALRM, SIGTERM);
+#endif
+#ifdef SIGBUS
+    VP_STACK_PUSH_SIGNAME(SIGBUS);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGBUS, SIGABRT);
+#endif
+#ifdef SIGCHLD
+    VP_STACK_PUSH_SIGNAME(SIGCHLD);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGCHLD, 0);
+#endif
+#ifdef SIGCONT
+    VP_STACK_PUSH_SIGNAME(SIGCONT);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGCONT, 0);
+#endif
+#ifdef SIGHUP
+    VP_STACK_PUSH_SIGNAME(SIGHUP);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGHUP, SIGTERM);
+#endif
+#ifdef SIGKILL
+    VP_STACK_PUSH_SIGNAME(SIGKILL);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGKILL, SIGTERM);
+#endif
+#ifdef SIGPIPE
+    VP_STACK_PUSH_SIGNAME(SIGPIPE);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGPIPE, SIGTERM);
+#endif
+#ifdef SIGQUIT
+    VP_STACK_PUSH_SIGNAME(SIGQUIT);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGQUIT, SIGTERM);
+#endif
+#ifdef SIGSTOP
+    VP_STACK_PUSH_SIGNAME(SIGSTOP);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGSTOP, 0);
+#endif
+#ifdef SIGTSTP
+    VP_STACK_PUSH_SIGNAME(SIGTSTP);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGTSTP, 0);
+#endif
+#ifdef SIGTTIN
+    VP_STACK_PUSH_SIGNAME(SIGTTIN);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGTTIN, 0);
+#endif
+#ifdef SIGTTOU
+    VP_STACK_PUSH_SIGNAME(SIGTTOU);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGTTOU, 0);
+#endif
+#ifdef SIGUSR1
+    VP_STACK_PUSH_SIGNAME(SIGUSR1);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGUSR1, SIGTERM);
+#endif
+#ifdef SIGUSR2
+    VP_STACK_PUSH_SIGNAME(SIGUSR2);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGUSR2, SIGTERM);
+#endif
+#ifdef SIGPOLL
+    VP_STACK_PUSH_SIGNAME(SIGPOLL);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGPOLL, SIGTERM);
+#endif
+#ifdef SIGPROF
+    VP_STACK_PUSH_SIGNAME(SIGPROF);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGPROF, SIGTERM);
+#endif
+#ifdef SIGSYS
+    VP_STACK_PUSH_SIGNAME(SIGSYS);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGSYS, SIGABRT);
+#endif
+#ifdef SIGTRAP
+    VP_STACK_PUSH_SIGNAME(SIGTRAP);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGTRAP, SIGABRT);
+#endif
+#ifdef SIGURG
+    VP_STACK_PUSH_SIGNAME(SIGURG);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGURG, 0);
+#endif
+#ifdef SIGVTALRM
+    VP_STACK_PUSH_SIGNAME(SIGVTALRM);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGVTALRM, SIGTERM);
+#endif
+#ifdef SIGXCPU
+    VP_STACK_PUSH_SIGNAME(SIGXCPU);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGXCPU, SIGABRT);
+#endif
+#ifdef SIGXFSZ
+    VP_STACK_PUSH_SIGNAME(SIGXFSZ);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGXFSZ, SIGABRT);
+#endif
+#ifdef SIGEMT
+    VP_STACK_PUSH_SIGNAME(SIGEMT);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGEMT, SIGTERM);
+#endif
+#ifdef SIGWINCH
+    VP_STACK_PUSH_SIGNAME(SIGWINCH);
+#else
+    VP_STACK_PUSH_ALTSIGNAME(SIGWINCH, 0);
+#endif
+    return vp_stack_return(&_result);
+
+#undef VP_STACK_PUSH_SIGNAME
+#undef VP_STACK_PUSH_ALTSIGNAME
 }
 
 /* 
