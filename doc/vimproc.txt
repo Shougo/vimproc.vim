@@ -318,6 +318,11 @@ g:vimproc#dll_path	(default
 						*g:vimproc_dll_path*
 		Note: |g:vimproc_dll_path| is obsolete name.
 
+						*g:vimproc#dll_path*
+g:vimproc#disable	(default not defined)
+		If it is defined, you cannot call vimproc functions.
+		You can use it to disable vimproc before loading it.
+
 						*g:vimproc#popen2_commands*
 g:vimproc#popen2_commands	(default : refer to autoload/vimproc.vim)
 		This variable is that vimproc use popen2 commands instead of
