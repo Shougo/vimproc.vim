@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 21 Jul 2013.
+" Last Modified: 26 Dec 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -524,8 +524,9 @@ function! s:parse_block(script) "{{{
       " Truncate script.
       let script = script[: -len(head)-1]
       let block = matchstr(a:script, '{\zs.*[^\\]\ze}', i)
-      let foot = join(vimproc#parser#split_args(s:parse_cmdline(
-            \ a:script[matchend(a:script, '{.*[^\\]}', i) :])))
+      let foot = a:script[matchend(a:script, '{.*[^\\]}', i) :]
+      let foot = (foot =~ '^\s\+' ? ' ' : '') .
+            \ join(vimproc#parser#split_args(s:parse_cmdline(foot)))
       if block == ''
         throw 'Exception: Block is not found.'
       elseif block =~ '^\d\+\.\.\d\+$'

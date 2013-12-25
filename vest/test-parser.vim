@@ -69,6 +69,12 @@ Context Lexer.run()
           \  'HKLM\System\CurrentControlSet\Control\TimeZoneInformation',
           \  '/v', 'Bias']
   End
+
+  It tests {} convertion
+    ShouldEqual vimproc#parser#parse_pipe(
+          \ 'grep -inH --exclude-dir={foo} -R vim .')[0].args,
+          \ ['grep', '-inH', '--exclude-dir=foo', '-R', 'vim', '.']
+  End
 End
 
 Fin
