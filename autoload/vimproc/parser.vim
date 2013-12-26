@@ -524,9 +524,11 @@ function! s:parse_block(script) "{{{
       " Truncate script.
       let script = script[: -len(head)-1]
       let block = matchstr(a:script, '{\zs.*[^\\]\ze}', i)
-      let foot = a:script[matchend(a:script, '{.*[^\\]}', i) :]
-      let foot = (foot =~ '^\s\+' ? ' ' : '') .
-            \ join(vimproc#parser#split_args(s:parse_cmdline(foot)))
+      let rest = a:script[matchend(a:script, '{.*[^\\]}', i) :]
+      let rest = (rest =~ '^\s\+' ? ' ' : '') .
+            \ join(vimproc#parser#split_args(s:parse_cmdline(rest)))
+      let foot = matchstr(rest, '^\S\+')
+      let rest = rest[len(foot):]
       if block == ''
         throw 'Exception: Block is not found.'
       elseif block =~ '^\d\+\.\.\d\+$'
@@ -546,6 +548,8 @@ function! s:parse_block(script) "{{{
           let script .= head . escape(b, ' ') . foot . ' '
         endfor
       endif
+
+      let script .= rest
       return script
     else
       let [script, i] = s:skip_else(script, a:script, i)
