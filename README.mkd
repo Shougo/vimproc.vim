@@ -1,6 +1,7 @@
 # vimproc
 
-vimproc requires a native extension to be built, and will not work properly if that libaray (a `.so` or `.dll`) is missing.
+vimproc requires a native extension to be buillt, and will not work properly if
+that libaray (a `.so` or `.dll`) is missing.
 
 Supported platforms:
 * Windows 32/64bit (Compiled by MinGW or Visual Studio)
@@ -20,11 +21,13 @@ Not supported platforms:
 
 * Clone this repo
 * Build vimproc's native extensions (see Building for details)
-* Copy `autoload/*` and `plugin/*` files to your 'runtimepath' directory (see `:help runtimepath`).
+* Copy `autoload/*` and `plugin/*` files to your 'runtimepath' directory (see
+  `:help runtimepath`).
 
 ### NeoBundle
 
-If you use [neobundle.vim](http://github.com/Shougo/neobundle.vim), you can update and build vimproc automatically. This is the recomended package manager.
+If you use [neobundle.vim](http://github.com/Shougo/neobundle.vim), you can
+update and build vimproc automatically. This is the recomended package manager.
 
 ```vim
 NeoBundle 'Shougo/vimproc', {
@@ -39,7 +42,9 @@ NeoBundle 'Shougo/vimproc', {
 
 ### Pathogen
 
-vimproc uses a pathogen compatiable structure, so it can be managed with [pathogen](https://github.com/tpope/vim-pathogen), however you must remember to compile after cloning the repo.
+vimproc uses a pathogen compatiable structure, so it can be managed with
+[pathogen](https://github.com/tpope/vim-pathogen), however you must remember to
+compile after cloning the repo.
 
 ```sh
 git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle/vimproc.vim
@@ -85,7 +90,9 @@ Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
 
 ### Windows Binaries
 
-Precompiled `vimproc_win**.dll` for 32/64 bit Windows, can be obtained from the below URL. However, I DON'T recommend to use it. You should build dll files manually.
+Precompiled `vimproc_win**.dll` for 32/64 bit Windows, can be obtained from the
+below URL. However, I DON'T recommend to use it. You should build dll files
+manually.
 
 https://github.com/Shougo/vimproc/downloads
 
@@ -93,4 +100,5 @@ Note: Github downloads feature is deprecated. It may be deleted.
 
 ### Kaoriya
 
-[Kaoriya Vim](http://www.kaoriya.net/) comes bundled with a precompiled version for vimproc
+[Kaoriya Vim](http://www.kaoriya.net/) comes bundled with a precompiled version
+for vimproc
