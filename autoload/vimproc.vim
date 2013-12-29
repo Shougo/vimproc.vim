@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 26 Dec 2013.
+" Last Modified: 30 Dec 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -38,12 +38,6 @@ set cpo&vim
 function! s:print_error(string)
   echohl Error | echomsg a:string | echohl None
 endfunction
-
-" MacVim trouble shooter {{{
-if vimproc#util#is_mac() && !&encoding
-  set encoding=utf-8
-endif
-"}}}
 
 " Check 'encoding' "{{{
 if &encoding =~# '^euc-jp'
