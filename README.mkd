@@ -1,6 +1,6 @@
 # vimproc
 
-vimproc requires a native extension to be buillt, and will not work properly if
+vimproc requires a native extension to be built, and will not work properly if
 that libaray (a `.so` or `.dll`) is missing.
 
 Supported platforms:
