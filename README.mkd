@@ -1,7 +1,7 @@
 # vimproc
 
 vimproc requires a native extension to be built, and will not work properly if
-that libaray (a `.so` or `.dll`) is missing.
+that library (a `.so` or `.dll`) is missing.
 
 Supported platforms:
 * Windows 32/64bit (Compiled by MinGW or Visual Studio)
