@@ -60,6 +60,10 @@ Note: You must use GNU make to build vimproc.
 
     $ make
 
+### FreeBSD
+
+    $ gmake
+
 ### Windows
 
 Note: In Windows, using MinGW is recommended.
