@@ -118,6 +118,28 @@ Context Popen.popen3()
   unlet sub
 End
 
+Context Redirection
+  let output = vimproc#system('echo "foo" > test.txt | echo "bar"')
+  ShouldEqual output, "bar\n"
+  ShouldEqual readfile('test.txt'), ['foo']
+  if filereadable('test.txt')
+    call delete('test.txt')
+  endif
+
+  let sub = vimproc#ptyopen('echo "foo" > test.txt | echo "bar"')
+  let res = ''
+  while !sub.stdout.eof
+    let res .= sub.stdout.read()
+  endwhile
+  " Newline conversion.
+  let res = substitute(res, '\r\n', '\n', 'g')
+  ShouldEqual output, "bar\n"
+  ShouldEqual readfile('test.txt'), ['foo']
+  if filereadable('test.txt')
+    call delete('test.txt')
+  endif
+End
+
 Fin
 
 " Restore 'cpoptions' {{{
