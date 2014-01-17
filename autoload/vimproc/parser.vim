@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: parser.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 26 Dec 2013.
+" Last Modified: 17 Jan 2014.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -602,7 +602,6 @@ function! s:parse_equal(script) "{{{
         endif
 
         " Consume `a:script` until an end of `prog`.
-        " 
         " e.g.
         "   'echo  =ls hoge'  ->  'echo  =ls hoge'
         "         ^                         ^
@@ -674,7 +673,7 @@ function! s:parse_redirection(script) "{{{
       " Input redirection.
       let fd.stdin = matchstr(a:script, '<\s*\zs\f*', i)
       let i = matchend(a:script, '<\s*\zs\f*', i)
-    elseif a:script[i] =~ '^[12]' && a:script[i :] =~ '^[12]>' 
+    elseif a:script[i] =~ '^[12]' && a:script[i :] =~ '^[12]>'
       " Output redirection.
       let i += 2
       if a:script[i-2] == 1
@@ -688,6 +687,11 @@ function! s:parse_redirection(script) "{{{
       endif
 
       let i = matchend(a:script, '^\s*\zs\(\f\+\|&\d\+\)', i)
+    elseif a:script[i] == '&' && a:script[i :] =~ '^&>'
+      " Output stderr.
+      let i += 2
+      let fd.stderr = matchstr(a:script, '^\s*\zs\f*', i)
+      let i = matchend(a:script, '^\s*\zs\f*', i)
     elseif a:script[i] == '>'
       " Output redirection.
       if a:script[i :] =~ '^>&'
