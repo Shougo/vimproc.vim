@@ -957,12 +957,19 @@ vp_readdir(char *args)
     snprintf(buf, sizeof(buf), "%s\\*", dirname);
 
     /* Get handle. */
-    h = FindFirstFileEx(buf, FindExInfoStandard, &fd,
-        FindExSearchNameMatch, NULL, 0
+    h = FindFirstFileEx(buf,
+#if WINVER >= 0x601
+            FindExInfoBasic,
+#else
+            FindExInfoStandard,
+#endif
+            &fd,
+            FindExSearchNameMatch, NULL, 0
     );
 
     if (h == INVALID_HANDLE_VALUE) {
-        return vp_stack_return_error(&_result, "FindFirstFileEx() error: %s",
+        return vp_stack_return_error(&_result,
+                "FindFirstFileEx() error: %s",
                 GetLastError());
     }
 
