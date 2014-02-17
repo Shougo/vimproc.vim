@@ -15,7 +15,7 @@ endif
 
 TARGET=autoload/vimproc_mac.so
 SRC=autoload/proc.c
-ARCHS=x86_64
+ARCHS=
 CFLAGS=-O2 -W -Wall -Wno-unused -Wno-unused-parameter -bundle -fPIC $(foreach ARCH,$(ARCHS),-arch $(ARCH))
 LDFLAGS=
 
