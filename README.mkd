@@ -56,9 +56,19 @@ make
 
 Note: You must use GNU make to build vimproc.
 
-### Linux and Mac OS X
+### Linux
 
     $ make
+
+### Mac OS X
+
+    $ make
+
+Note: If you want to build for multiple architectures, you can use ARCHS and CC variables.
+
+Build for i386 and x86-64:
+
+    $ make ARCHS='i386 x86_64'
 
 ### FreeBSD
 
@@ -77,16 +87,18 @@ Windows using Mingw (64bit Vim):
     $ make -f make_mingw64.mak
 
 Windows using newer version of Visual Studio(32bit/64bit Vim):
+
     $ nmake -f make_msvc.mak nodebug=1
 
 Windows using old version of Visual Studio for 32bit Vim (Ex: Visual Studio 2005):
+
     $ SET INCLUDE=%INCLUDE%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Include
     $ SET LIB=%LIB%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib
     $ nmake -f make_msvc32.mak
 
 Note: To build with Visual Studio, you must install Windows SDK.
 
-* Cygwin:
+Cygwin:
 
     $ make -f make_cygwin.mak
 
