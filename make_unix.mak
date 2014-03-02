@@ -8,7 +8,7 @@ LDFLAGS+=-lutil
 all: $(TARGET)
 
 $(TARGET): $(SRC) autoload/vimstack.c
-	gcc $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
 
 clean:
 	rm -f $(TARGET)
