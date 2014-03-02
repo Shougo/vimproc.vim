@@ -2,7 +2,7 @@
 " FILE: vimproc.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com> (Modified)
 "          Yukihiro Nakadaira <yukihiro.nakadaira at gmail.com> (Original)
-" Last Modified: 03 Feb 2014.
+" Last Modified: 03 Mar 2014.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -51,11 +51,8 @@ endif
 " Global options definition. "{{{
 " Set the default of g:vimproc_dll_path by judging OS "{{{
 if vimproc#util#is_windows()
-  if has('win64')
-    let s:vimproc_dll_basename = 'vimproc_win64.dll'
-  else
-    let s:vimproc_dll_basename = 'vimproc_win32.dll'
-  endif
+  let s:vimproc_dll_basename = has('win64') ?
+        \ 'vimproc_win64.dll' : 'vimproc_win32.dll'
 elseif vimproc#util#is_cygwin()
   let s:vimproc_dll_basename = 'vimproc_cygwin.dll'
 elseif vimproc#util#is_mac()
