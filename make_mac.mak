@@ -1,16 +1,13 @@
 # for Mac.
 
-ifeq ($(shell which clang),)
-LLVMCC=llvm-gcc
+ifneq ($(shell which clang),)
+CC=clang
 else
-LLVMCC=clang
-endif
-
-
-ifneq ($(shell which $(LLVMCC)),)
-CC=$(LLVMCC)
+ifneq ($(shell which llvm-gcc),)
+CC=llvm-gcc
 else
 CC=gcc
+endif
 endif
 
 TARGET=autoload/vimproc_mac.so
