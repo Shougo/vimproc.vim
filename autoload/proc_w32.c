@@ -60,6 +60,8 @@ const int debug = 0;
 # define snprintf _snprintf
 #endif
 
+#define MAX_NTFS_FILENAME (32768*3)
+
 /* API */
 EXPORT const char *vp_dlopen(char *args);      /* [handle] (path) */
 EXPORT const char *vp_dlclose(char *args);     /* [] (handle) */
@@ -946,7 +948,7 @@ vp_readdir(char *args)
 {
     vp_stack_t stack;
     char *dirname;
-    char buf[1024];
+    char *buf;
 
     WIN32_FIND_DATA fd;
     HANDLE h;
@@ -954,7 +956,13 @@ vp_readdir(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &dirname));
 
-    snprintf(buf, sizeof(buf), "%s\\*", dirname);
+    buf = malloc(MAX_NTFS_FILENAME);
+    if (buf == NULL) {
+        return vp_stack_return_error(&_result, "malloc() error: %s",
+                "Memory cannot allocate");
+    }
+
+    snprintf(buf, MAX_NTFS_FILENAME, "%s\\*", dirname);
 
     /* Get handle. */
     h = FindFirstFileEx(buf,
@@ -968,6 +976,7 @@ vp_readdir(char *args)
     );
 
     if (h == INVALID_HANDLE_VALUE) {
+        free(buf);
         return vp_stack_return_error(&_result,
                 "FindFirstFileEx() error: %s",
                 GetLastError());
@@ -975,12 +984,13 @@ vp_readdir(char *args)
 
     do {
         if (strcmp(fd.cFileName, ".") && strcmp(fd.cFileName, "..")) {
-            snprintf(buf, sizeof(buf), "%s/%s", dirname, fd.cFileName);
+            snprintf(buf, MAX_NTFS_FILENAME, "%s/%s", dirname, fd.cFileName);
             vp_stack_push_str(&_result, buf);
         }
     } while (FindNextFile(h, &fd));
 
     FindClose(h);
+    free(buf);
     return vp_stack_return(&_result);
 }
 
