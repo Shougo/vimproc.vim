@@ -970,7 +970,7 @@ vp_readdir(char *args)
     if (h == INVALID_HANDLE_VALUE) {
         return vp_stack_return_error(&_result,
                 "FindFirstFileEx() error: %s",
-                GetLastError());
+                lasterror());
     }
 
     do {
