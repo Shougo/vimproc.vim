@@ -1,7 +1,6 @@
 /*-----------------------------------------------------------------------------
- * Copyright (c) 2014
- * Yukihiro Nakadaira - <yukihiro.nakadaira at gmail.com> original version(vimproc)
- * Shougo Matsushita  - <Shougo.Matsu at gmail.com> modified version
+ * Copyright (c) 2006 Yukihiro Nakadaira - <yukihiro.nakadaira at gmail.com> original version(vimproc)
+ * Copyright (c) 2009 Shougo Matsushita  - <Shougo.Matsu at gmail.com> modified version
  *
  * License: MIT license
  * Permission is hereby granted, free of charge, to any person obtaining
