@@ -8,7 +8,7 @@ LDFLAGS+=-lwsock32
 all: $(TARGET)
 
 $(TARGET): $(SRC) autoload/vimstack.c
-	gcc $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
+	mingw32-gcc $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
 
 clean:
 	rm -f $(TARGET)
