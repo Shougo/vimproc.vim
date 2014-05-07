@@ -106,15 +106,5 @@ Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
 
 ### Windows Binaries
 
-Precompiled `vimproc_win**.dll` for 32/64 bit Windows, can be obtained from the
-below URL. However, I DON'T recommend to use it. You should build dll files
-manually.
-
-https://github.com/Shougo/vimproc/downloads
-
-Note: Github downloads feature is deprecated. It may be deleted.
-
-### Kaoriya
-
 [Kaoriya Vim](http://www.kaoriya.net/) comes bundled with a precompiled version
-for vimproc
+for vimproc in Windows environment
