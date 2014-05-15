@@ -105,7 +105,7 @@ EXPORT const char *vp_open(char *args);      /* [] (path) */
 EXPORT const char *vp_readdir(char *args);  /* [files] (dirname) */
 
 
-EXPORT const char * vp_delete_trash(char *args);  /* [filename] */
+EXPORT const char * vp_delete_trash(char *args);  /* [int] (filename) */
 
 EXPORT const char *vp_get_signals(char *args); /* [signals] () */
 
