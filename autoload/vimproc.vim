@@ -41,7 +41,7 @@ endfunction
 
 " Check 'encoding' "{{{
 if &encoding =~# '^euc-jp'
-  call s:print_error('Sorry, vimproc is not supported this encoding environment.')
+  call s:print_error('Sorry, vimproc does not support this encoding environment.')
   call s:print_error('You should set ''encoding'' option to "utf-8" '
         \ .'and set ''termencoding'' option to "euc-jp".')
   finish
