@@ -115,13 +115,59 @@ static BOOL ExitRemoteProcess(HANDLE hProcess, UINT_PTR uExitCode);
 
 #define VP_READ_BUFSIZE 2048
 
+static LPWSTR
+utf8_to_utf16(const char *str)
+{
+    LPWSTR buf;
+    int len;
+
+    len = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+    if (len == 0)
+        return NULL;
+    buf = malloc(sizeof(WCHAR) * (len + 1));
+    if (buf == NULL) {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        return NULL;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, buf, len);
+    buf[len] = 0;
+    return buf;
+}
+
+static char *
+utf16_to_utf8(LPCWSTR wstr)
+{
+    char *buf;
+    int len;
+
+    len = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
+    if (len == 0)
+        return NULL;
+    buf = malloc(sizeof(char) * (len + 1));
+    if (buf == NULL) {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        return NULL;
+    }
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, buf, len, NULL, NULL);
+    buf[len] = 0;
+    return buf;
+}
+
 static const char *
 lasterror()
 {
     static char lpMsgBuf[512];
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+    WCHAR buf[512];
+    char *p;
+
+    FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, GetLastError(), 0,
-            lpMsgBuf, 512, NULL);
+            buf, 512, NULL);
+    p = utf16_to_utf8(buf);
+    if (p == NULL)
+        return NULL;
+    lstrcpyn(lpMsgBuf, p, 512);
+    free(p);
     return lpMsgBuf;
 }
 
@@ -138,12 +184,17 @@ vp_dlopen(char *args)
 {
     vp_stack_t stack;
     char *path;
+    LPWSTR pathw;
     HINSTANCE handle;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
 
-    handle = LoadLibrary(path);
+    pathw = utf8_to_utf16(path);
+    if (pathw == NULL)
+        return lasterror();
+    handle = LoadLibraryW(pathw);
+    free(pathw);
     if (handle == NULL)
         return lasterror();
     vp_stack_push_num(&_result, "%p", handle);
@@ -177,6 +228,7 @@ vp_file_open(char *args)
 {
     vp_stack_t stack;
     char *path;
+    LPWSTR pathw;
     char *flags;
     int mode;  /* used when flags have O_CREAT */
     int f = 0;
@@ -248,7 +300,11 @@ vp_file_open(char *args)
     if (strstr(flags, "O_SHORT_LIVED")) f |= _O_SHORT_LIVED;
 #endif
 
-    fd = open(path, f, mode);
+    pathw = utf8_to_utf16(path);
+    if (pathw == NULL)
+        return lasterror();
+    fd = _wopen(pathw, f, mode);
+    free(pathw);
     if (fd == -1) {
         return vp_stack_return_error(&_result, "open() error: %s",
                 strerror(errno));
@@ -375,12 +431,14 @@ vp_pipe_open(char *args)
     vp_stack_t stack;
     int npipe, hstdin, hstderr, hstdout;
     char *cmdline;
+    LPWSTR cmdlinew;
     HANDLE hInputWrite = INVALID_HANDLE_VALUE, hInputRead;
     HANDLE hOutputWrite, hOutputRead = INVALID_HANDLE_VALUE;
     HANDLE hErrorWrite, hErrorRead = INVALID_HANDLE_VALUE;
     SECURITY_ATTRIBUTES sa;
     PROCESS_INFORMATION pi;
-    STARTUPINFO si;
+    STARTUPINFOW si;
+    BOOL ret;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &npipe));
@@ -482,16 +540,22 @@ vp_pipe_open(char *args)
         }
     }
 
-    ZeroMemory(&si, sizeof(STARTUPINFO));
-    si.cb = sizeof(STARTUPINFO);
+    ZeroMemory(&si, sizeof(STARTUPINFOW));
+    si.cb = sizeof(STARTUPINFOW);
     si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
     si.wShowWindow = SW_SHOW;
     si.hStdInput = hInputRead;
     si.hStdOutput = hOutputWrite;
     si.hStdError = hErrorWrite;
 
-    if (!CreateProcess(NULL, cmdline, NULL, NULL, TRUE,
-                        CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+    cmdlinew = utf8_to_utf16(cmdline);
+    if (cmdlinew == NULL)
+        return lasterror();
+
+    ret = CreateProcessW(NULL, cmdlinew, NULL, NULL, TRUE,
+                        CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
+    free(cmdlinew);
+    if (!ret)
         return vp_stack_return_error(&_result, "CreateProcess() error: %s %s",
                 lasterror());
 
@@ -947,18 +1011,22 @@ vp_readdir(char *args)
 {
     vp_stack_t stack;
     char *dirname;
-    char buf[1024];
+    LPWSTR dirnamew;
+    WCHAR buf[1024];
 
-    WIN32_FIND_DATA fd;
+    WIN32_FIND_DATAW fd;
     HANDLE h;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &dirname));
 
-    snprintf(buf, sizeof(buf), "%s\\*", dirname);
+    dirnamew = utf8_to_utf16(dirname);
+    if (dirnamew == NULL)
+        return lasterror();
+    _snwprintf(buf, sizeof(buf) / sizeof(WCHAR), L"%s\\*", dirnamew);
 
     /* Get handle. */
-    h = FindFirstFileEx(buf,
+    h = FindFirstFileExW(buf,
 #if WINVER >= 0x601
             FindExInfoBasic,
 #else
@@ -969,17 +1037,24 @@ vp_readdir(char *args)
     );
 
     if (h == INVALID_HANDLE_VALUE) {
+        free(dirnamew);
         return vp_stack_return_error(&_result,
                 "FindFirstFileEx() error: %s",
                 lasterror());
     }
 
     do {
-        if (strcmp(fd.cFileName, ".") && strcmp(fd.cFileName, "..")) {
-            snprintf(buf, sizeof(buf), "%s/%s", dirname, fd.cFileName);
-            vp_stack_push_str(&_result, buf);
+        if (wcscmp(fd.cFileName, L".") && wcscmp(fd.cFileName, L"..")) {
+            char *p;
+            _snwprintf(buf, sizeof(buf) / sizeof(WCHAR), L"%s/%s", dirnamew, fd.cFileName);
+            p = utf16_to_utf8(buf);
+            if (p) {
+                vp_stack_push_str(&_result, p);
+                free(p);
+            }
         }
-    } while (FindNextFile(h, &fd));
+    } while (FindNextFileW(h, &fd));
+    free(dirnamew);
 
     FindClose(h);
     return vp_stack_return(&_result);
@@ -990,33 +1065,40 @@ vp_delete_trash(char *args)
 {
     vp_stack_t stack;
     char *filename;
-    char *buf;
+    LPWSTR filenamew;
+    LPWSTR buf;
     size_t len;
-    SHFILEOPSTRUCT fs;
+    SHFILEOPSTRUCTW fs;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &filename));
 
-    len = strlen(filename);
+    filenamew = utf8_to_utf16(filename);
+    if (filenamew == NULL)
+        return lasterror();
 
-    buf = malloc(len + 2);
+    len = wcslen(filenamew);
+
+    buf = malloc(sizeof(WCHAR) * (len + 2));
     if (buf == NULL) {
+        free(filenamew);
         return vp_stack_return_error(&_result, "malloc() error: %s",
                 "Memory cannot allocate");
     }
 
     /* Copy filename + '\0\0' */
-    strcpy(buf, filename);
+    wcscpy(buf, filenamew);
     buf[len + 1] = 0;
+    free(filenamew);
 
-    ZeroMemory(&fs, sizeof(SHFILEOPSTRUCT));
+    ZeroMemory(&fs, sizeof(SHFILEOPSTRUCTW));
     fs.hwnd = NULL;
     fs.wFunc = FO_DELETE;
     fs.pFrom = buf;
     fs.pTo = NULL;
     fs.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
 
-    vp_stack_push_num(&_result, "%d", SHFileOperation(&fs));
+    vp_stack_push_num(&_result, "%d", SHFileOperationW(&fs));
 
     free(buf);
 
@@ -1028,11 +1110,19 @@ vp_open(char *args)
 {
     vp_stack_t stack;
     char *path;
+    LPWSTR pathw;
+    size_t ret;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
 
-    if ((size_t)ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL) < 32) {
+    pathw = utf8_to_utf16(path);
+    if (pathw == NULL)
+        return lasterror();
+
+    ret = (size_t)ShellExecuteW(NULL, L"open", pathw, NULL, NULL, SW_SHOWNORMAL);
+    free(pathw);
+    if (ret < 32) {
         return vp_stack_return_error(&_result, "ShellExecute() error: %s",
                 lasterror());
     }
