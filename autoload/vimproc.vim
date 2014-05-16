@@ -1031,7 +1031,7 @@ function! s:convert_args(args) "{{{
   if vimproc#util#is_windows() && !executable(a:args[0])
     " Search from internal commands.
     let internal_commands = [
-          \ 'copy', 'dir', 'echo', 'erase', 'ftype',
+          \ 'copy', 'date', 'del', 'dir', 'echo', 'erase', 'ftype',
           \ 'md', 'mkdir', 'move', 'path', 'rd', 'ren', 'rename',
           \ 'rmdir', 'start', 'time', 'type', 'ver', 'vol']
     let index = index(internal_commands, a:args[0])
