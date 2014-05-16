@@ -64,6 +64,8 @@ const int debug = 0;
 # define snprintf _snprintf
 #endif
 
+#define lengthof(arr)   (sizeof(arr) / sizeof((arr)[0]))
+
 /* API */
 EXPORT const char *vp_dlopen(char *args);      /* [handle] (path) */
 EXPORT const char *vp_dlclose(char *args);     /* [] (handle) */
@@ -162,11 +164,11 @@ lasterror()
 
     FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, GetLastError(), 0,
-            buf, 512, NULL);
+            buf, lengthof(buf), NULL);
     p = utf16_to_utf8(buf);
     if (p == NULL)
         return NULL;
-    lstrcpyn(lpMsgBuf, p, 512);
+    lstrcpyn(lpMsgBuf, p, lengthof(lpMsgBuf));
     free(p);
     return lpMsgBuf;
 }
@@ -1023,7 +1025,7 @@ vp_readdir(char *args)
     dirnamew = utf8_to_utf16(dirname);
     if (dirnamew == NULL)
         return lasterror();
-    _snwprintf(buf, sizeof(buf) / sizeof(WCHAR), L"%s\\*", dirnamew);
+    _snwprintf(buf, lengthof(buf), L"%s\\*", dirnamew);
 
     /* Get handle. */
     h = FindFirstFileExW(buf,
@@ -1046,7 +1048,7 @@ vp_readdir(char *args)
     do {
         if (wcscmp(fd.cFileName, L".") && wcscmp(fd.cFileName, L"..")) {
             char *p;
-            _snwprintf(buf, sizeof(buf) / sizeof(WCHAR), L"%s/%s", dirnamew, fd.cFileName);
+            _snwprintf(buf, lengthof(buf), L"%s/%s", dirnamew, fd.cFileName);
             p = utf16_to_utf8(buf);
             if (p) {
                 vp_stack_push_str(&_result, p);
@@ -1219,7 +1221,7 @@ vp_get_signals(char *args)
     };
     size_t i;
 
-    for (i = 0; i < sizeof(signames) / sizeof(*signames); ++i)
+    for (i = 0; i < lengthof(signames); ++i)
         vp_stack_push_num(&_result, "%s:%d", signames[i], i + 1);
     return vp_stack_return(&_result);
 }
