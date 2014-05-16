@@ -1028,6 +1028,9 @@ function! s:convert_args(args) "{{{
     return []
   endif
 
+  let args = map(copy(a:args), 'vimproc#util#iconv(
+	\ v:val, &encoding, vimproc#util#systemencoding())')
+
   if vimproc#util#is_windows() && !executable(a:args[0])
     " Search from internal commands.
     let internal_commands = [
@@ -1037,13 +1040,14 @@ function! s:convert_args(args) "{{{
     let index = index(internal_commands, a:args[0])
     if index >= 0
       " Use cmd.exe
-      return ['cmd', '/c', internal_commands[index]] + a:args[1:]
+      return ['cmd', '/c', args[0]] + args[1:]
     endif
   endif
 
   let command_name = vimproc#get_command_name(a:args[0])
 
-  return vimproc#analyze_shebang(command_name) + a:args[1:]
+  return map(vimproc#analyze_shebang(command_name), 'vimproc#util#iconv(
+	\ v:val, &encoding, vimproc#util#systemencoding())') + args[1:]
 endfunction"}}}
 
 function! vimproc#analyze_shebang(filename) "{{{
