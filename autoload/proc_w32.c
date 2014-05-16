@@ -50,8 +50,6 @@
 #include <fcntl.h>
 #include <io.h>
 
-#include "vimstack.c"
-
 const int debug = 0;
 
 #ifdef _MSC_VER
@@ -62,7 +60,12 @@ const int debug = 0;
 
 #ifdef _MSC_VER
 # define snprintf _snprintf
+# if _MSC_VER < 1400
+#  define vsnprintf _vsnprintf
+# endif
 #endif
+
+#include "vimstack.c"
 
 #define lengthof(arr)   (sizeof(arr) / sizeof((arr)[0]))
 
