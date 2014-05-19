@@ -1029,6 +1029,7 @@ vp_readdir(char *args)
     if (dirnamew == NULL)
         return lasterror();
     _snwprintf(buf, lengthof(buf), L"%s\\*", dirnamew);
+    buf[lengthof(buf) - 1] = 0;
 
     /* Get handle. */
     h = FindFirstFileExW(buf,
@@ -1052,6 +1053,7 @@ vp_readdir(char *args)
         if (wcscmp(fd.cFileName, L".") && wcscmp(fd.cFileName, L"..")) {
             char *p;
             _snwprintf(buf, lengthof(buf), L"%s/%s", dirnamew, fd.cFileName);
+            buf[lengthof(buf) - 1] = 0;
             p = utf16_to_utf8(buf);
             if (p) {
                 vp_stack_push_str(&_result, p);
