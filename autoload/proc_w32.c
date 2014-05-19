@@ -561,7 +561,7 @@ vp_pipe_open(char *args)
                         CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
     free(cmdlinew);
     if (!ret)
-        return vp_stack_return_error(&_result, "CreateProcess() error: %s %s",
+        return vp_stack_return_error(&_result, "CreateProcess() error: %s",
                 lasterror());
 
     if (!CloseHandle(pi.hThread))
