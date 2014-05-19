@@ -598,8 +598,8 @@ vp_pipe_close(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
 
-    if (_close(fd))
-        return vp_stack_return_error(&_result, "_close() error: %s",
+    if (close(fd))
+        return vp_stack_return_error(&_result, "close() error: %s",
                 lasterror());
     return NULL;
 }
