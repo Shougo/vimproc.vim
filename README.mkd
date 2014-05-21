@@ -77,10 +77,15 @@ Build for i386 and x86-64:
 ### Windows
 
 Note: In Windows, using MinGW is recommended.
+Note: If you have not "gcc" binary, you must change $CC value.
 
 Windows using Mingw (32bit Vim):
 
     $ make -f make_mingw32.mak
+
+Windows using Mingw (If you want to use MinGW compiler in Cygwin):
+
+    $ make -f make_mingw32.mak CC=mingw32-gcc
 
 Windows using Mingw (64bit Vim):
 
@@ -90,13 +95,10 @@ Windows using newer version of Visual Studio(32bit/64bit Vim):
 
     $ nmake -f make_msvc.mak nodebug=1
 
-Windows using old version of Visual Studio for 32bit Vim (Ex: Visual Studio 2005):
+Note: To build with Visual Studio, you must install Windows SDK and run from
+VS command prompt.
+https://github.com/Shougo/vimproc.vim/issues/58
 
-    $ SET INCLUDE=%INCLUDE%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Include
-    $ SET LIB=%LIB%;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib
-    $ nmake -f make_msvc32.mak
-
-Note: To build with Visual Studio, you must install Windows SDK.
 
 Cygwin:
 
