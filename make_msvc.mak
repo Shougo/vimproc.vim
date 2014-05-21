@@ -48,4 +48,6 @@ autoload\$(VIMPROC).dll: $(OBJS)
 	$(cc) $(cdebug) $(cflags) $(cvarsdll) $(CFLAGS) -Fdautoload\ \
 		-Foautoload\ $<
 
+autoload/proc_w32.obj: autoload/proc_w32.c autoload/vimstack.c
+
 .PHONY: build clean
