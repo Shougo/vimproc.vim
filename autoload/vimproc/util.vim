@@ -45,6 +45,9 @@ function! vimproc#util#iconv(expr, from, to) "{{{
   let result = iconv(a:expr, a:from, a:to)
   return result != '' ? result : a:expr
 endfunction"}}}
+function! vimproc#util#systemencoding() "{{{
+  return s:is_windows ? 'utf-8' : 'char'
+endfunction"}}}
 function! vimproc#util#termencoding() "{{{
   return 'char'
 endfunction"}}}

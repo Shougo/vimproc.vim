@@ -41,7 +41,7 @@ endfunction
 
 " Check 'encoding' "{{{
 if &encoding =~# '^euc-jp'
-  call s:print_error('Sorry, vimproc is not supported this encoding environment.')
+  call s:print_error('Sorry, vimproc does not support this encoding environment.')
   call s:print_error('You should set ''encoding'' option to "utf-8" '
         \ .'and set ''termencoding'' option to "euc-jp".')
   finish
@@ -140,7 +140,7 @@ endfunction"}}}
 
 function! vimproc#open(filename) "{{{
   let filename = vimproc#util#iconv(fnamemodify(a:filename, ':p'),
-        \ &encoding, vimproc#util#termencoding())
+        \ &encoding, vimproc#util#systemencoding())
 
   if filename =~ '^\%(https\?\|ftp\)://'
           \ && !vimproc#host_exists(filename)
@@ -764,7 +764,7 @@ function! vimproc#readdir(dirname) "{{{
   endif
 
   let dirname = vimproc#util#iconv(dirname, &encoding,
-        \ vimproc#util#termencoding())
+        \ vimproc#util#systemencoding())
 
   try
     let files = s:libcall('vp_readdir', [dirname])
@@ -773,7 +773,7 @@ function! vimproc#readdir(dirname) "{{{
   endtry
 
   call map(filter(files, 'v:val !~ "/\\.\\.\\?$"'), 'vimproc#util#iconv(
-        \ v:val, vimproc#util#termencoding(), &encoding)')
+        \ v:val, vimproc#util#systemencoding(), &encoding)')
   if vimproc#util#is_windows()
     call map(files, 'vimproc#util#substitute_path_separator(v:val)')
   endif
@@ -806,7 +806,7 @@ function! vimproc#delete_trash(filename) "{{{
 
   " Encoding conversion.
   let filename = vimproc#util#iconv(filename,
-        \ &encoding, vimproc#util#termencoding())
+        \ &encoding, vimproc#util#systemencoding())
 
   let [ret] = s:libcall('vp_delete_trash', [filename])
 
@@ -1028,6 +1028,9 @@ function! s:convert_args(args) "{{{
     return []
   endif
 
+  let args = map(copy(a:args), 'vimproc#util#iconv(
+	\ v:val, &encoding, vimproc#util#systemencoding())')
+
   if vimproc#util#is_windows() && !executable(a:args[0])
     " Search from internal commands.
     let internal_commands = [
@@ -1037,13 +1040,14 @@ function! s:convert_args(args) "{{{
     let index = index(internal_commands, a:args[0], 0, 1)
     if index >= 0
       " Use cmd.exe
-      return ['cmd', '/c', internal_commands[index]] + a:args[1:]
+      return ['cmd', '/c', args[0]] + args[1:]
     endif
   endif
 
   let command_name = vimproc#get_command_name(a:args[0])
 
-  return vimproc#analyze_shebang(command_name) + a:args[1:]
+  return map(vimproc#analyze_shebang(command_name), 'vimproc#util#iconv(
+	\ v:val, &encoding, vimproc#util#systemencoding())') + args[1:]
 endfunction"}}}
 
 function! vimproc#analyze_shebang(filename) "{{{
@@ -1146,7 +1150,7 @@ function! s:libcall(func, args) "{{{
     endif
     let s:lasterr = result
     let msg = vimproc#util#iconv(string(result),
-          \ vimproc#util#termencoding(), &encoding)
+          \ vimproc#util#systemencoding(), &encoding)
 
     throw printf('vimproc: %s: %s', a:func, msg)
   endif
