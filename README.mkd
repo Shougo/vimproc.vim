@@ -83,7 +83,7 @@ Windows using Mingw (32bit Vim):
 
     $ make -f make_mingw32.mak
 
-Windows using Mingw (32bit Vim if you have not gcc named binary):
+Windows using Mingw (If you want to use MinGW compiler in Cygwin):
 
     $ make -f make_mingw32.mak CC=mingw32-gcc
 
