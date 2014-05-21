@@ -79,6 +79,12 @@ Context Lexer.run()
           \ ['grep', '-inH', '--exclude-dir=foo', '--exclude-dir=bar',
           \  '--exclude-dir=baz', '-R', 'vim', '.']
   End
+
+  It tests parse redirection
+    ShouldEqual vimproc#parser#parse_pipe('echo "foo" > hoge\piyo'),
+          \ [{ 'args' : ['echo', 'foo'], 'fd' :
+          \   { 'stdin' : '', 'stdout' : 'hogepiyo', 'stderr' : '' }}]
+  End
 End
 
 Fin
