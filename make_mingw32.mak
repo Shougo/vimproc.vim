@@ -2,7 +2,7 @@
 
 TARGET=autoload/vimproc_win32.dll
 SRC=autoload/proc_w32.c
-CC=mingw32-gcc
+CC=gcc
 CFLAGS=-O2 -Wall -shared -m32
 LDFLAGS+=-lwsock32
 
