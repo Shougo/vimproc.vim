@@ -108,6 +108,46 @@ let g:vimproc#dll_path =
 " Backward compatibility.
 let g:vimproc_password_pattern = g:vimproc#password_pattern
 
+let s:plugin_dir = expand('<sfile>:h:h')
+function! s:AskCompile()
+  if exists('g:vimproc_dont_ask_compiling') | return | endif
+
+  if !filereadable(g:vimproc#dll_path) && 1 == confirm('vimproc''s DLL not found, do you want to select a makefile to compile it?', "&Yes\n&No")
+    let m_options = []
+    " these guards are taken form neosnippets. Vimproc is also used by VAM,
+    " Pathogen etc, so we cannot rely on it. Should we move this into a library
+    " or feed Vim upstream ?
+    " call add(m_options, {'m': 'make_android.mak'', 'if': '' }
+    let win_guard =  "has('win16') || has('win32') || has('win64')"
+    call add(m_options, {'m': 'make_cygwin.mak', 'if': "has('win_unix')" } )
+    call add(m_options, {'m': 'make_mac.mak', 'if': "!(".win_guard.") && (has('mac') || has('macunix') || has('gui_macvim') || (!isdirectory('/proc') && executable('sw_vers')))" } )
+    call add(m_options, {'m': 'make_mingw32.mak', 'if': win_guard } )
+    call add(m_options, {'m': 'make_mingw64.mak', 'if': win_guard } )
+    call add(m_options, {'m': 'make_msvc32.mak', 'if':  win_guard } )
+    call add(m_options, {'m': 'make_msvc64.mak', 'if':  win_guard } )
+    call add(m_options, {'m': 'make_sunos.mak', 'if': 'executable("suncc") || executable("gcc")' } )
+    call add(m_options, {'m': 'make_unix.mak', 'if': 'has("unix")' } )
+    call filter(m_options, 'eval(v:val.if)')
+
+    if len(m_options) == 0
+      echoe "no makefiles found, are you missing a compiler such as gcc?"
+    endif
+
+    let makefiles = map(copy(m_options), 'v:val.m')
+    for i in range(0, len(makefiles)-1)
+      let makefiles[i] = (i+1).': '.makefiles[i]
+    endfor
+
+    if len(makefiles) > 1
+      let nr = inputlist(['Select makefile to run: '] + makefiles)
+      let makefiles = [makefiles[nr-1]]
+    endif
+    exec '! make -C '.shellescape(s:plugin_dir).' -f '.makefiles[0][3:]
+  endif
+endfunction
+
+call s:AskCompile()
+
 if !filereadable(g:vimproc#dll_path) "{{{
   function! vimproc#get_last_status()
     return v:shell_error
