@@ -202,8 +202,8 @@ vimproc#system2({expr} [, {input}, {timeout}])	*vimproc#system2()*
 		Same as |vimproc#system()|.  But it converts encoding
 		automatically.
 
-vimproc#system_passwd({expr} [, {input}, {timeout}])
 						*vimproc#system_passwd()*
+vimproc#system_passwd({expr} [, {input} [, {timeout}]])
 		Same as |vimproc#system()|.  But it supports password input.
 
 vimproc#system_bg({expr})			*vimproc#system_bg()*
