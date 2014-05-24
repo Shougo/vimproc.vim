@@ -99,15 +99,15 @@ Note: In Windows, using MinGW is recommended.
 Note: If you have not "gcc" or "x86_64-w64-mingw32-gcc" binary, you must
 change $CC value.
 
-Windows using Mingw (32bit Vim):
+Windows using MinGW (32bit Vim):
 
 	$ make -f make_mingw32.mak
 
-Windows using Mingw (If you want to use MinGW compiler in Cygwin):
+Windows using MinGW (If you want to use MinGW compiler in Cygwin):
 
     $ make -f make_mingw32.mak CC=mingw32-gcc
 
-Windows using Mingw (64bit Vim):
+Windows using MinGW (64bit Vim):
 
 	$ make -f make_mingw64.mak
 
