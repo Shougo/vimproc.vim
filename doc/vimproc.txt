@@ -394,7 +394,7 @@ EXAMPLES					*vimproc-examples*
 	let sub = vimproc#popen2('ls')
 	let res = ''
 	while !sub.stdout.eof
-	let res .= sub.stdout.read()
+	  let res .= sub.stdout.read()
 	endwhile
 	let [cond, status] = sub.waitpid()
 	new
@@ -405,7 +405,7 @@ EXAMPLES					*vimproc-examples*
 	call sock.write("GET / HTTP/1.0\r\n\r\n")
 	let res = ''
 	while !sock.eof
-	let res .= sock.read()
+	  let res .= sock.read()
 	endwhile
 	call sock.close()
 	new
