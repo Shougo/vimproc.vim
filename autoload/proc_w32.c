@@ -470,6 +470,7 @@ vp_pipe_open(char *args)
     if (hstdin) {
         /* Get handle. */
         VP_DUP_HANDLE((HANDLE)_get_osfhandle(hstdin), &hInputRead, TRUE);
+        _close(hstdin);
     } else {
         HANDLE hInputWriteTmp;
 
@@ -485,6 +486,7 @@ vp_pipe_open(char *args)
     if (hstdout) {
         /* Get handle. */
         VP_DUP_HANDLE((HANDLE)_get_osfhandle(hstdout), &hOutputWrite, TRUE);
+        _close(hstdout);
     } else {
         HANDLE hOutputReadTmp;
 
@@ -503,6 +505,7 @@ vp_pipe_open(char *args)
         if (hstderr) {
             /* Get handle. */
             VP_DUP_HANDLE((HANDLE)_get_osfhandle(hstderr), &hErrorWrite, TRUE);
+            _close(hstderr);
         } else {
             HANDLE hErrorReadTmp;
 
@@ -563,6 +566,12 @@ error:
             if (handles[i] != INVALID_HANDLE_VALUE)
                 CloseHandle(handles[i]);
         }
+        if (hstdin)
+            _close(hstdin);
+        if (hstdout)
+            _close(hstdout);
+        if (hstderr)
+            _close(hstderr);
     }
     return vp_stack_return_error(&_result, errfmt, errmsg);
 #undef VP_DUP_HANDLE
