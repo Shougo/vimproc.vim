@@ -111,7 +111,7 @@ Windows using MinGW (64bit Vim):
 
 	$ make -f make_mingw64.mak
 
-Windows using newer version of Visual Studio(32bit/64bit Vim):
+Windows using Visual Studio (32bit/64bit Vim):
 	$ nmake -f make_msvc.mak nodebug=1
 
 Note: To build with Visual Studio, you must install Windows SDK and run from
