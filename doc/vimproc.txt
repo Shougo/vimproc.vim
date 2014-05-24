@@ -40,7 +40,7 @@ INTRODUCTION					*vimproc-introduction*
 
 *vimproc* is great asynchronous execution library for Vim.  It is fork of
 proc.vim by Yukihiro Nakadaira.  I added some features and fixed some bugs and
-I'm maintaining it now.  Instead of external shell(example: 'shell'),
+I'm maintaining it now.  Instead of external shell (example: 'shell'),
 |vimproc| uses external dll file.
 
 
@@ -51,8 +51,8 @@ In first, you get vimproc from git repository.
 
 http://github.com/Shougo/vimproc
 
-Next, make external dll "vimproc_xxx.so(or vimproc_win32.dll,
-vimproc_cygwin.dll)".  Because vimproc depends on "vimproc_xxx.so(or
+Next, make external dll "vimproc_xxx.so (or vimproc_win32.dll,
+vimproc_cygwin.dll)".  Because vimproc depends on "vimproc_xxx.so (or
 vimproc_win32.dll, vimproc_cygwin.dll)"'s function, vimproc echo error message
 when "vimproc_xxx.so(vimproc_xxx.dll)" don't exist.
 
