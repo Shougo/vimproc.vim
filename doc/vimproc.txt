@@ -253,7 +253,7 @@ vimproc#popen3({args})				*vimproc#popen3()*
 		Same as |vimproc#popen2()|, but this function splits
 		stderr output.
 
-vimproc#plineopen2({commands})			*vimproc#plineopen2()*
+vimproc#plineopen2({commands} [, {is-pty}])	*vimproc#plineopen2()*
 		Executes {commands} command and returns a process object.
 		If {commands} is a String, {commands} is parsed automatically.
 		Note: You can use pipes.
@@ -264,7 +264,9 @@ vimproc#plineopen2({commands})			*vimproc#plineopen2()*
 		fd		The output filename.  If it is empty, the
 				output is sent to the next process.
 
-vimproc#plineopen3({commands})			*vimproc#plineopen3()*
+		If {is-pty} is 1, vimproc will use pty.
+
+vimproc#plineopen3({commands} [, {is-pty}])	*vimproc#plineopen3()*
 		Same as |vimproc#plineopen2()|, but this function splits
 		stderr output.
 
