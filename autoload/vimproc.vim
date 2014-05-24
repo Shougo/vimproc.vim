@@ -185,7 +185,7 @@ function! vimproc#get_command_name(command, ...) "{{{
   let cnt = a:0 < 2 ? 1 : a:2
 
   let files = split(substitute(vimproc#util#substitute_path_separator(
-        \ vimproc#filepath#which(a:command, path)), '//', '/', 'g'), '\n')
+        \ vimproc#filepath#which(a:command, path, cnt)), '//', '/', 'g'), '\n')
 
   if cnt < 0
     return files
