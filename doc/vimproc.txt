@@ -105,7 +105,7 @@ Windows using MinGW (32bit Vim):
 
 Windows using MinGW (If you want to use MinGW compiler in Cygwin):
 
-    $ make -f make_mingw32.mak CC=mingw32-gcc
+	$ make -f make_mingw32.mak CC=mingw32-gcc
 
 Windows using MinGW (64bit Vim):
 
