@@ -168,23 +168,26 @@ vimproc#dll_version()				*vimproc#dll_version()*
 vimproc#open({filename})			*vimproc#open()*
 		Opens {filename} with a system associated command.
 
-vimproc#get_command_name({command} [, {path} [, {count}]])	*vimproc#get_command_name()*
-		Searches {command} from {path} and returns command name.  If you
-		omit {path}, uses $PATH instead.  If you set {count}, returns
-		{count} candidate.  If you set {count} is a negative Number,
-		returns as a list.  If {count} is omitted, then 1 is used.
+						*vimproc#get_command_name()*
+vimproc#get_command_name({command} [, {path} [, {count}]])
+		Searches {command} from {path} and returns command name.  If
+		you omit {path}, uses $PATH instead.  If you set {count},
+		returns {count}th candidate.  If you set {count} to a negative
+		number, it returns a list which contains all candidates.  If
+		{count} is omitted, then 1 is used.
 
 vimproc#system({expr} [, {input} [, {timeout}]])	*vimproc#system()*
 		It replaces |system()|.  If you call |system()| in Windows
 		environment, DOS window will appear.  But, |vimproc#system()|
 		is not.
-		Note: It does not execute a shell.  So a shell internal command is
-		invalid.  Ex: pwd, cd, ...
+		Note: It does not execute a shell.  So a shell internal
+		command is invalid.  Ex: pwd, cd, ...
 		
 		The {expr} are same to |vimproc#plineopen3()|.  The type is
 		string or arguments list.  If {expr} is string, it parsed
 		automatically.
-		If the end of {expr} is "&", executes a command in the background.
+		If the end of {expr} is "&", executes a command in the
+		background.
 >
 		call vimproc#system('ls &')
 <
@@ -211,8 +214,8 @@ vimproc#system_bg({expr})			*vimproc#system_bg()*
 		"||").
 
 vimproc#system_gui({expr})			*vimproc#system_gui()*
-		Same as |vimproc#system_bg()|.  But it executes a GUI command in
-		the background.
+		Same as |vimproc#system_bg()|.  But it executes a GUI command
+		in the background.
 
 vimproc#cmd#system({expr})			*vimproc#cmd#system()*
 		Similar to |vimproc#system()|.  But it executes "cmd.exe" by
@@ -257,9 +260,9 @@ vimproc#plineopen2({commands})			*vimproc#plineopen2()*
 		
 		The {commands} is a list of dictionaries.
 		The keys are follows:
-		args			The arguments list.
-		fd			The output filename.  If it is empty, the
-					output is sent to the next process.
+		args		The arguments list.
+		fd		The output filename.  If it is empty, the
+				output is sent to the next process.
 
 vimproc#plineopen3({commands})			*vimproc#plineopen3()*
 		Same as |vimproc#plineopen2()|, but this function splits
@@ -272,14 +275,14 @@ vimproc#pgroup_open({commands}, [{is-pty}])	*vimproc#pgroup_open()*
 		
 		The {statements} is a dictionary list split by commands.
 		The keys are follows:
-		statement		The execute pipeline information same
-					to |vimproc#plineopen2()| args.
-		condition		The condition which executes next command.
-					"always" : execute always.
-					"true"   : execute if previous command
-					is succeed.
-					"false"  : execute if previous command
-					is failed.
+		statement	The execute pipeline information same as
+				|vimproc#plineopen2()|'s {commands} argument.
+		condition	The condition which executes next command.
+				"always" : execute always. (";")
+				"true"   : execute if previous command is
+					   succeeded. ("&&")
+				"false"  : execute if previous command is
+					   failed. ("||")
 		If {is-pty} is 1, vimproc will use pty.
 
 vimproc#ptyopen({args}, [{npipe}])		*vimproc#ptyopen()*
@@ -307,8 +310,8 @@ vimproc#write({filename}, {string}, [{mode}])		*vimproc#write()*
 		But {filename} head is ">", "a" is used.
 
 vimproc#readdir({dirname})				*vimproc#readdir()*
-		Returns files in {dirname}.  If {dirname} is not found, returns
-		an empty list.
+		Returns files in {dirname}.  If {dirname} is not found,
+		returns an empty list.
 		Note: Filename encoding is converted to 'termencoding'.
 
 vimproc#delete_trash({filename})			*vimproc#delete_trash()*
@@ -340,9 +343,9 @@ g:vimproc#disable	(default : not defined)
 						*g:vimproc#popen2_commands*
 g:vimproc#popen2_commands	(default : refer to autoload/vimproc.vim)
 		This variable is that vimproc use popen2 commands instead of
-		popen3 as dictionary.  The key is command name and the value is
-		1 or 0.  If the command does not work in popen3, you can set this
-		variable.
+		popen3 as dictionary.  The key is command name and the value
+		is 1 or 0.  If the command does not work in popen3, you can
+		set this variable.
 						*g:vimproc_popen2_commands*
 		Note: |g:vimproc_popen2_commands| is obsolete name.
 
