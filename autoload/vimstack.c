@@ -24,16 +24,11 @@
 #define VP_INITIAL_BUFSIZE 512
 #define VP_ERRMSG_SIZE 512
 
-#if defined(_WIN64)
-# define VP_RETURN_IF_FAIL(expr) \
-    { const char *vp_err = (expr); if (vp_err != NULL) return vp_err; }
-#else
-# define VP_RETURN_IF_FAIL(expr)     \
+#define VP_RETURN_IF_FAIL(expr)     \
     do {                            \
         const char *vp_err = expr;  \
         if (vp_err) return vp_err;  \
     } while (0)
-#endif
 
 /* buf:var|EOV|var|EOV|top:free buffer|buf+size */
 typedef struct vp_stack_t {
