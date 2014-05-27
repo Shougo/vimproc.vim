@@ -1,5 +1,7 @@
 autoload/vimproc_*.so
 autoload/vimproc_*.dll
+autoload/vimproc_*.dll.old
+autoload/vimproc_*.dll.manifest
 autoload/vimproc_*.exp
 autoload/vimproc_*.lib
 autoload/*.pdb
@@ -7,3 +9,4 @@ doc/tags
 *.obj
 *.o
 *.swp
+*~
