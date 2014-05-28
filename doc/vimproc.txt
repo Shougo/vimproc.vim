@@ -49,7 +49,7 @@ INSTALL						*vimproc-install*
 
 In first, you get vimproc from git repository.
 
-http://github.com/Shougo/vimproc
+http://github.com/Shougo/vimproc.vim
 
 Next, make external dll "vimproc_xxx.so (or vimproc_win32.dll,
 vimproc_cygwin.dll)".  Because vimproc depends on "vimproc_xxx.so (or

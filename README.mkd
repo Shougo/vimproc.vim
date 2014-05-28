@@ -110,5 +110,5 @@ Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
 
 ### Windows Binaries
 
-[Kaoriya Vim](http://www.kaoriya.net/) comes bundled with a precompiled version
+[Kaoriya Vim](http://www.kaoriya.net/software/vim/) comes bundled with a precompiled version
 for vimproc in Windows environment
