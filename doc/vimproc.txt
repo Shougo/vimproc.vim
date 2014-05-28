@@ -221,9 +221,12 @@ vimproc#system_gui({expr})			*vimproc#system_gui()*
 		in the background.
 
 vimproc#cmd#system({expr})			*vimproc#cmd#system()*
-		Similar to |vimproc#system()|.  But it executes "cmd.exe" by
-		background.
-		Note: It is available in Windows only.
+		Same as |vimproc#system()| on non-Windows platforms.
+		On Windows, it is similar to |vimproc#system()| but faster.
+		It executes a "cmd.exe" process in the background when it is
+		called first time. After the next call, it reuses the
+		"cmd.exe" process. The process will be automatically closed
+		when Vim exits.
 
 vimproc#get_last_status()			*vimproc#get_last_status()*
 		Gets the last |vimproc#system()| status value.

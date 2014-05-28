@@ -18,11 +18,9 @@ Context Fopen.run()
 
     Should vimproc#system(['ls']) == system('ls')
 
-    if vimproc#util#is_windows()
-      Should vimproc#cmd#system(['ls']) == system('ls')
-      Should vimproc#cmd#system('ls') == system('ls')
-      Should vimproc#cmd#system('echo', '"Foo"') == system('echo ""Foo""')
-    endif
+    Should vimproc#cmd#system(['ls']) == system('ls')
+    Should vimproc#cmd#system('ls') == system('ls')
+    Should vimproc#cmd#system('echo', '"Foo"') == system('echo ""Foo""')
 
     Should vimproc#system_passwd('echo -n "test"')
           \ == system('echo -n "test"')
