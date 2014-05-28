@@ -49,12 +49,12 @@ INSTALL						*vimproc-install*
 
 In first, you get vimproc from git repository.
 
-http://github.com/Shougo/vimproc
+http://github.com/Shougo/vimproc.vim
 
 Next, make external dll "vimproc_xxx.so (or vimproc_win32.dll,
 vimproc_cygwin.dll)".  Because vimproc depends on "vimproc_xxx.so (or
-vimproc_win32.dll, vimproc_cygwin.dll)"'s function, vimproc echo error message
-when "vimproc_xxx.so(vimproc_xxx.dll)" don't exist.
+vimproc_win32.dll, vimproc_cygwin.dll)"'s function, vimproc echoes error
+message when "vimproc_xxx.so (vimproc_xxx.dll)" doesn't exist.
 
 Note: The vimproc_cygwin.dll compiled in Cygwin won't work with Windows Vim.
 
@@ -130,14 +130,16 @@ http://github.com/Shougo/neobundle.vim
 
 Example for neobundle:
 >
-	NeoBundle 'Shougo/vimproc', {
+	let vimproc_updcmd = has('win64') ?
+	      \ 'tools\\update-dll-mingw 64' : 'tools\\update-dll-mingw 32'
+	execute "NeoBundle 'Shougo/vimproc.vim'," . string({
 	      \ 'build' : {
-	      \     'windows' : 'make -f make_mingw32.mak',
+	      \     'windows' : vimproc_updcmd,
 	      \     'cygwin' : 'make -f make_cygwin.mak',
 	      \     'mac' : 'make -f make_mac.mak',
 	      \     'unix' : 'make -f make_unix.mak',
 	      \    },
-	      \ }
+	      \ })
 <
 
 ==============================================================================
