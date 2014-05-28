@@ -53,8 +53,8 @@ http://github.com/Shougo/vimproc.vim
 
 Next, make external dll "vimproc_xxx.so (or vimproc_win32.dll,
 vimproc_cygwin.dll)".  Because vimproc depends on "vimproc_xxx.so (or
-vimproc_win32.dll, vimproc_cygwin.dll)"'s function, vimproc echo error message
-when "vimproc_xxx.so(vimproc_xxx.dll)" don't exist.
+vimproc_win32.dll, vimproc_cygwin.dll)"'s function, vimproc echoes error
+message when "vimproc_xxx.so (vimproc_xxx.dll)" doesn't exist.
 
 Note: The vimproc_cygwin.dll compiled in Cygwin won't work with Windows Vim.
 
