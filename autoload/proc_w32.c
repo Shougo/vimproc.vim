@@ -552,12 +552,12 @@ vp_pipe_open(char *args)
 
 error:
     errmsg = lasterror();
-    if (hInputWrite  == INVALID_HANDLE_VALUE) CloseHandle(hInputWrite);
-    if (hInputRead   == INVALID_HANDLE_VALUE) CloseHandle(hInputRead);
-    if (hOutputWrite == INVALID_HANDLE_VALUE) CloseHandle(hOutputWrite);
-    if (hOutputRead  == INVALID_HANDLE_VALUE) CloseHandle(hOutputRead);
-    if (hErrorWrite  == INVALID_HANDLE_VALUE) CloseHandle(hErrorWrite);
-    if (hErrorRead   == INVALID_HANDLE_VALUE) CloseHandle(hErrorRead);
+    if (hInputWrite  != INVALID_HANDLE_VALUE) CloseHandle(hInputWrite);
+    if (hInputRead   != INVALID_HANDLE_VALUE) CloseHandle(hInputRead);
+    if (hOutputWrite != INVALID_HANDLE_VALUE) CloseHandle(hOutputWrite);
+    if (hOutputRead  != INVALID_HANDLE_VALUE) CloseHandle(hOutputRead);
+    if (hErrorWrite  != INVALID_HANDLE_VALUE) CloseHandle(hErrorWrite);
+    if (hErrorRead   != INVALID_HANDLE_VALUE) CloseHandle(hErrorRead);
     return vp_stack_return_error(&_result, errfmt, errmsg);
 #undef VP_DUP_HANDLE
 #undef VP_GOTO_ERROR
