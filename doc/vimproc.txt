@@ -161,8 +161,8 @@ FUNCTIONS 					*vimproc-functions*
 
 vimproc#version()				*vimproc#version()*
 		Returns vimproc version number as string.  Version 5.0 is
-		"500".  Version 5.1 (5.01) is "501" which is the same format
-		as |v:version|.
+		"500".  Version 5.1 (5.01) is "501".  It has a similar format
+		to |v:version|, but the type is different.
 
 vimproc#dll_version()				*vimproc#dll_version()*
 		Same to |vimproc#version()|, but it returns vimproc dll
