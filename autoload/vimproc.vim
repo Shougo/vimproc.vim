@@ -992,12 +992,12 @@ do
   local ret = vim.eval('ret')
   local hd = vim.eval('a:hd[0]')
   local len = string.len(hd)
-  local s = ''
+  local s = {}
   for i = 1, len, 2 do
-    s = s .. string.char(tonumber(string.sub(hd, i, i+1), 16))
+    table.insert(s, string.char(tonumber(string.sub(hd, i, i+1), 16)))
   end
 
-  ret:add(s)
+  ret:add(table.concat(s))
 end
 EOF
   return ret[0]
