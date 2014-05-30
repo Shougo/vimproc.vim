@@ -1098,23 +1098,23 @@ if vimproc#util#has_lua()
     let result = []
     lua << EOF
     do
-    local result = vim.eval('result')
-    local str = vim.eval('a:str')
-    local sep = vim.eval('a:sep')
-    local last
+      local result = vim.eval('result')
+      local str = vim.eval('a:str')
+      local sep = vim.eval('a:sep')
+      local last
 
-    if string.find(str, sep, 1, true) == nil then
-      result:add(str)
-    else
-      for part, pos in string.gmatch(str,
-          '(.-)' .. sep .. '()') do
-        result:add(part)
-        last = pos
+      if string.find(str, sep, 1, true) == nil then
+        result:add(str)
+      else
+        for part, pos in string.gmatch(str,
+            '(.-)' .. sep .. '()') do
+          result:add(part)
+          last = pos
+        end
+
+        result:add(string.sub(str, last))
       end
-
-      result:add(string.sub(str, last))
     end
-  end
 EOF
 
     return result
