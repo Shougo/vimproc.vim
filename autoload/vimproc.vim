@@ -859,8 +859,7 @@ function! s:read(...) dict "{{{
     return ''
   endif
 
-  " Note: if output string is too long, if_lua is too slow.
-  return (vimproc#util#has_lua() && len(hd) < 1024) ?
+  return vimproc#util#has_lua() ?
         \ s:hd2str_lua([hd]) : s:hd2str([hd])
   " return s:hd2str([hd])
 endfunction"}}}
@@ -991,14 +990,11 @@ function! s:hd2str_lua(hd)
   lua << EOF
 do
   local ret = vim.eval('ret')
-  local hd = vim.eval('a:hd')
-  if hd[0] == nil then
-    hd[0] = ''
-  end
-  local len = string.len(hd[0])
+  local hd = vim.eval('a:hd[0]')
+  local len = string.len(hd)
   local s = ''
   for i = 1, len, 2 do
-    s = s .. string.char(tonumber(string.sub(hd[0], i, i+1), 16))
+    s = s .. string.char(tonumber(string.sub(hd, i, i+1), 16))
   end
 
   ret:add(s)
