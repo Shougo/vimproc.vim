@@ -110,7 +110,7 @@ let g:vimproc#dll_path =
 " Backward compatibility.
 let g:vimproc_password_pattern = g:vimproc#password_pattern
 
-if !filereadable(g:vimproc#dll_path) "{{{
+if !filereadable(g:vimproc#dll_path) || !has('libcall') "{{{
   function! vimproc#get_last_status()
     return v:shell_error
   endfunction
@@ -123,8 +123,13 @@ if !filereadable(g:vimproc#dll_path) "{{{
     return call('system', a:000)
   endfunction
 
-  echoerr printf('vimproc''s DLL: "%s" is not found.
-        \ Please read :help vimproc and make it.', g:vimproc#dll_path)
+  if !filereadable(g:vimproc#dll_path)
+    echoerr printf('vimproc''s DLL: "%s" is not found.
+          \ Please read :help vimproc and make it.', g:vimproc#dll_path)
+  else
+    echoerr 'vimproc: libcall feature is disabled in this Vim.  To use
+          \ vimproc, you must enable libcall feature.'
+  endif
 
   finish
 endif"}}}
