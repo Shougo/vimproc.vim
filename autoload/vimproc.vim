@@ -124,11 +124,11 @@ if !filereadable(g:vimproc#dll_path) || !has('libcall') "{{{
   endfunction
 
   if !filereadable(g:vimproc#dll_path)
-    echoerr printf('vimproc''s DLL: "%s" is not found.
-          \ Please read :help vimproc and make it.', g:vimproc#dll_path)
+    call s:print_error(printf('vimproc''s DLL: "%s" is not found.
+          \  Please read :help vimproc and make it.', g:vimproc#dll_path))
   else
-    echoerr 'vimproc: libcall feature is disabled in this Vim.  To use
-          \ vimproc, you must enable libcall feature.'
+    call s:print_error('vimproc: libcall feature is disabled in this Vim.
+          \  To use vimproc, you must enable libcall feature.')
   endif
 
   finish
