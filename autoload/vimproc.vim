@@ -866,8 +866,7 @@ function! s:read(...) dict "{{{
     return ''
   endif
 
-  " Note: if output string is too long, if_lua is too slow.
-  return (vimproc#util#has_lua() && len(hd) < 1024) ?
+  return vimproc#util#has_lua() ?
         \ s:hd2str_lua([hd]) : s:hd2str([hd])
   " return s:hd2str([hd])
 endfunction"}}}
@@ -998,17 +997,14 @@ function! s:hd2str_lua(hd)
   lua << EOF
 do
   local ret = vim.eval('ret')
-  local hd = vim.eval('a:hd')
-  if hd[0] == nil then
-    hd[0] = ''
-  end
-  local len = string.len(hd[0])
-  local s = ''
+  local hd = vim.eval('a:hd[0]')
+  local len = string.len(hd)
+  local s = {}
   for i = 1, len, 2 do
-    s = s .. string.char(tonumber(string.sub(hd[0], i, i+1), 16))
+    table.insert(s, string.char(tonumber(string.sub(hd, i, i+1), 16)))
   end
 
-  ret:add(s)
+  ret:add(table.concat(s))
 end
 EOF
   return ret[0]
@@ -1105,23 +1101,23 @@ if vimproc#util#has_lua()
     let result = []
     lua << EOF
     do
-    local result = vim.eval('result')
-    local str = vim.eval('a:str')
-    local sep = vim.eval('a:sep')
-    local last
+      local result = vim.eval('result')
+      local str = vim.eval('a:str')
+      local sep = vim.eval('a:sep')
+      local last
 
-    if string.find(str, sep, 1, true) == nil then
-      result:add(str)
-    else
-      for part, pos in string.gmatch(str,
-          '(.-)' .. sep .. '()') do
-        result:add(part)
-        last = pos
+      if string.find(str, sep, 1, true) == nil then
+        result:add(str)
+      else
+        for part, pos in string.gmatch(str,
+            '(.-)' .. sep .. '()') do
+          result:add(part)
+          last = pos
+        end
+
+        result:add(string.sub(str, last))
       end
-
-      result:add(string.sub(str, last))
     end
-  end
 EOF
 
     return result
