@@ -964,62 +964,34 @@ const char *
 vp_decode(char *args)
 {
     vp_stack_t stack;
-    unsigned num;
-    unsigned i, bi;
-    size_t length, max_buf;
+    size_t len;
     char *str;
-    char *buf;
-    char *p;
+    char *p, *q;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &str));
 
-    length = strlen(str);
-    max_buf = length/2 + 2;
-    buf = (char *)malloc(max_buf);
-    if (buf == NULL) {
-        return vp_stack_return_error(&_result, "malloc() error: %s",
-                "Memory cannot allocate");
+    len = strlen(str);
+    if (len % 2 != 0) {
+        return "vp_decode: invalid data length";
     }
 
-    p = str;
-    bi = 0;
-    num = 0;
-    for (i = 0; i < length; i++, p++) {
-        if (isdigit((int)*p))
-            num |= (*p & 15);
-        else
-            num |= (*p & 15) + 9;
+    VP_RETURN_IF_FAIL(vp_stack_reserve(&_result,
+            (_result.top - _result.buf) + (len / 2) + sizeof(VP_EOV_STR)));
 
-        if (i % 2 == 0) {
-            num <<= 4;
-            continue;
+    for (p = str, q = _result.top; p < str + len; ) {
+        char hb, lb;
+
+        hb = CHR2XD[(int)*(p++)];
+        lb = CHR2XD[(int)*(p++)];
+        if (hb >= 0 && lb >= 0) {
+            *(q++) = (char)((hb << 4) | lb);
         }
-
-        /* Write character. */
-        if (num == 0) {
-            /* Convert NULL character. */
-            max_buf += 1;
-            buf = (char *)realloc(buf, max_buf);
-            if (buf == NULL) {
-                return vp_stack_return_error(
-                        &_result, "realloc() error: %s",
-                        "Memory cannot allocate");
-            }
-
-            buf[bi] = '^';
-            bi++;
-            buf[bi] = '@';
-            bi++;
-        } else {
-            buf[bi] = num;
-            bi++;
-        }
-        num = 0;
     }
-    buf[bi] = '\0';
-    vp_stack_push_str(&_result, buf);
-    free(buf);
+    *(q++) = VP_EOV;
+    *q = '\0';
+    _result.top = q;
+
     return vp_stack_return(&_result);
 }
 
