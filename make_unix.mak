@@ -1,6 +1,6 @@
 CFLAGS=-W -O2 -Wall -Wno-unused -Wno-unused-parameter -std=gnu99 -pedantic -shared
 
-ifneq (,$(findstring 64,$(shell arch)))
+ifneq (,$(findstring x86_64,$(shell uname -m)))
 	TARGET=autoload/vimproc_unix64.so
 else
 	TARGET=autoload/vimproc_unix32.so
