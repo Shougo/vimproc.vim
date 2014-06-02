@@ -1,11 +1,23 @@
 # WINDOWS BUILD SETTINGS.
 # For MSVC 11 you need to specify where the Win32.mak file is, e.g.:
-#	SDK_INCLUDE_DIR="C:\Program Files\Microsoft SDKs\Windows\v7.1\Include"
+#	SDK_INCLUDE_DIR=C:\Program Files\Microsoft SDKs\Windows\v7.1\Include
+# for build win64 version:
+# nmake -f make_msvc.mak CPU=AMD64
 
 WINVER = 0x0500
 APPVER = 5.0
 TARGET = WINNT
 _WIN32_IE = 0x0500
+# CPU = AMD64
+
+# Win32.mak requires that CPU be set appropriately.
+# To cross-compile for Win64, set CPU=AMD64 or CPU=IA64.
+!ifndef CPU
+CPU = $(PROCESSOR_ARCHITECTURE)
+! if ("$(CPU)" == "x86") || ("$(CPU)" == "X86")
+CPU = i386
+! endif
+!endif
 
 # Get all sorts of useful, standard macros from the Platform SDK.
 !ifdef SDK_INCLUDE_DIR
@@ -24,7 +36,7 @@ CFLAGS = $(CFLAGS) -D_NDEBUG
 
 # VIMPROC SPECIFICS
 
-!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
+!if "$(CPU)" == "AMD64"
 VIMPROC=vimproc_win64
 !else
 VIMPROC=vimproc_win32
