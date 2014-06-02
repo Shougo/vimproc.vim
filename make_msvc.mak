@@ -1,10 +1,18 @@
 # WINDOWS BUILD SETTINGS.
+# For MSVC 11 you need to specify where the Win32.mak file is, e.g.:
+#	SDK_INCLUDE_DIR="C:\Program Files\Microsoft SDKs\Windows\v7.1\Include"
 
 WINVER = 0x0500
 APPVER = 5.0
 TARGET = WINNT
 _WIN32_IE = 0x0500
-!INCLUDE <Win32.Mak>
+
+# Get all sorts of useful, standard macros from the Platform SDK.
+!ifdef SDK_INCLUDE_DIR
+!include $(SDK_INCLUDE_DIR)\Win32.mak
+!else
+!include <Win32.mak>
+!endif
 
 # CONTROL BUILD MODE
 
