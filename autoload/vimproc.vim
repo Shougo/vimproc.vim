@@ -402,12 +402,7 @@ function! vimproc#system_bg(cmdline) "{{{
   return ''
 endfunction"}}}
 function! vimproc#system_gui(cmdline) "{{{
-  if vimproc#util#is_windows()
-    silent execute ':!start ' . join(map(vimproc#parser#split_args(a:cmdline), '"\"".v:val."\""'))
-    return ''
-  else
-    return vimproc#system_bg(a:cmdline)
-  endif
+  return vimproc#system_bg(a:cmdline)
 endfunction"}}}
 
 function! vimproc#get_last_status() "{{{

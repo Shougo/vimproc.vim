@@ -217,8 +217,8 @@ vimproc#system_bg({expr})			*vimproc#system_bg()*
 		      ";", "&&" and "||".
 
 vimproc#system_gui({expr})			*vimproc#system_gui()*
-		Same as |vimproc#system_bg()|.  But it executes a GUI command
-		in the background.
+		Same as |vimproc#system_bg()|.
+		Note: It is obsolete API.
 
 vimproc#cmd#system({expr})			*vimproc#cmd#system()*
 		Same as |vimproc#system()| on non-Windows platforms.
