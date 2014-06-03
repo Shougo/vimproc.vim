@@ -58,9 +58,11 @@ elseif vimproc#util#is_cygwin()
 elseif vimproc#util#is_mac()
   let s:vimproc_dll_basename = 'vimproc_mac.so'
 elseif glob('/lib*/ld-linux*64.so.2') != ''
-  let s:vimproc_dll_basename = 'vimproc_unix64.so'
+  let s:vimproc_dll_basename = 'vimproc_linux64.so'
+elseif glob('/lib*/ld-linux*.so.2') != ''
+  let s:vimproc_dll_basename = 'vimproc_linux32.so'
 else
-  let s:vimproc_dll_basename = 'vimproc_unix32.so'
+  let s:vimproc_dll_basename = 'vimproc_unix.so'
 endif
 "}}}
 
