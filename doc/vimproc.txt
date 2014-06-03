@@ -31,6 +31,7 @@ Interface		|vimproc-interface|
   Commands		  |vimproc-commands|
   Functions		  |vimproc-functions|
   Variables		  |vimproc-variables|
+  Objects		  |vimproc-objects|
 Tips			|vimproc-tips|
 Examples		|vimproc-examples|
 FAQ			|vimproc-faq|
@@ -238,12 +239,13 @@ vimproc#shellescape({string})			*vimproc#shellescape()*
 		Escapes {string} for vimproc function arguments.
 
 vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
-		Opens {path} file and returns a file object.
+		Opens {path} file and returns a |vimproc-file-object|.
 		The {flags} is same flags to open() in the C language as
 		string (ex. "O_RDONLY | O_BINARY").
 
 vimproc#socket_open({host}, {port})		*vimproc#socket_open()*
-		Opens the {host}:{port} socket and returns a socket object.
+		Opens the {host}:{port} socket and returns a
+		|vimproc-socket-object|.
 		The {host} is a String.  The {port} is a Number.
 
 vimproc#host_exists({host})			*vimproc#host_exists()*
@@ -251,7 +253,7 @@ vimproc#host_exists({host})			*vimproc#host_exists()*
 		Note: Protocol name and path are ignored.
 
 vimproc#popen2({args})				*vimproc#popen2()*
-		Executes {args} command and returns a process object.
+		Executes {args} command and returns a |vimproc-process-object|.
 		If {args} is a string, {args} is parsed automatically.
 		
 		Otherwise the {args} is a list of a command and its arguments.
@@ -261,7 +263,8 @@ vimproc#popen3({args})				*vimproc#popen3()*
 		stderr output.
 
 vimproc#plineopen2({commands} [, {is-pty}])	*vimproc#plineopen2()*
-		Executes {commands} command and returns a process object.
+		Executes {commands} command and returns a
+		|vimproc-process-object|.
 		If {commands} is a string, {commands} is parsed automatically.
 		Note: You can use pipes.
 		
@@ -278,7 +281,8 @@ vimproc#plineopen3({commands} [, {is-pty}])	*vimproc#plineopen3()*
 		stderr output.
 
 vimproc#pgroup_open({statements} [, {is-pty}])	*vimproc#pgroup_open()*
-		Executes {statements} command and returns a process object.
+		Executes {statements} command and returns a
+		|vimproc-process-object|.
 		If {statements} is a string, {statements} is parsed
 		automatically.
 		Note: You can use pipes, ";", "&&" and "||".
@@ -297,7 +301,7 @@ vimproc#pgroup_open({statements} [, {is-pty}])	*vimproc#pgroup_open()*
 		If {is-pty} is 1, vimproc will use pty.
 
 vimproc#ptyopen({args} [, {npipe}])		*vimproc#ptyopen()*
-		Executes {args} command and returns a process object.
+		Executes {args} command and returns a |vimproc-process-object|.
 		If {args} is a string, {args} is parsed automatically.
 		The {npipe} is 2 or 3.  If it is 2, combines stdout and
 		stderr.
@@ -380,6 +384,18 @@ g:stdoutencoding		(default : "char")
 						*g:stderrencoding*
 g:stderrencoding		(default : "char")
 		The default vimproc stderr encoding.
+
+------------------------------------------------------------------------------
+OBJECTS 					*vimproc-objects*
+
+						*vimproc-file-object*
+		Todo
+
+						*vimproc-socket-object*
+		Todo
+
+						*vimproc-process-object*
+		Todo
 
 ==============================================================================
 TIPS						*vimproc-tips*
