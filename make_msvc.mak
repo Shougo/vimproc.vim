@@ -4,7 +4,11 @@ WINVER = 0x0500
 APPVER = 5.0
 TARGET = WINNT
 _WIN32_IE = 0x0500
-!INCLUDE <Win32.Mak>
+!ifdef SDK_INCLUDE_DIR
+!include $(SDK_INCLUDE_DIR)\Win32.mak
+!else
+!include <Win32.mak>
+!endif
 
 # CONTROL BUILD MODE
 
