@@ -42,32 +42,38 @@ VIMPROC=vimproc_win64
 VIMPROC=vimproc_win32
 !endif
 
-SRCS = autoload/proc_w32.c
-OBJS = $(SRCS:.c=.obj)
+SRCDIR = autoload
+OUTDIR = $(SRCDIR)\obj$(CPU)
+
+OBJS = $(OUTDIR)/proc_w32.obj
 
 DEFINES = -D_CRT_SECURE_NO_WARNINGS=1 -D_BIND_TO_CURRENT_VCLIBS_VERSION=1
 CFLAGS = $(CFLAGS) $(DEFINES) /wd4100 /wd4127 /O2
 
 # RULES
 
-build: autoload\$(VIMPROC).dll
+build: $(SRCDIR)\$(VIMPROC).dll
 
 clean:
-	-DEL /F /Q autoload\vimproc_win32.*
-	-DEL /F /Q autoload\vimproc_win64.*
-	-DEL /F /Q autoload\*.obj
-	-DEL /F /Q autoload\*.pdb
+	-IF EXIST $(OUTDIR)/nul RMDIR /s /q $(OUTDIR)
+	-DEL /F /Q $(SRCDIR)\vimproc_win32.*
+	-DEL /F /Q $(SRCDIR)\vimproc_win64.*
+	-DEL /F /Q $(SRCDIR)\*.obj
+	-DEL /F /Q $(SRCDIR)\*.pdb
 
-autoload\$(VIMPROC).dll: $(OBJS)
+$(SRCDIR)\$(VIMPROC).dll: $(OBJS)
 	$(link) /NOLOGO $(ldebug) $(dlllflags) $(conlibsdll) $(LFLAGS) \
 		/OUT:$@ $(OBJS) shell32.lib
 	IF EXIST $@.manifest \
 		mt -nologo -manifest $@.manifest -outputresource:$@;2
 
-{autoload}.c{autoload}.obj::
-	$(cc) $(cdebug) $(cflags) $(cvarsdll) $(CFLAGS) -Fdautoload\ \
-		-Foautoload\ $<
+{$(SRCDIR)}.c{$(OUTDIR)}.obj::
+	$(cc) $(cdebug) $(cflags) $(cvarsdll) $(CFLAGS) -Fd$(SRCDIR)\ \
+		-Fo$(OUTDIR)\ $<
 
-autoload/proc_w32.obj: autoload/proc_w32.c autoload/vimstack.c
+$(OUTDIR):
+	IF NOT EXIST $(OUTDIR)/nul  MKDIR $(OUTDIR)
+
+$(OUTDIR)/proc_w32.obj: $(OUTDIR) $(SRCDIR)/proc_w32.c $(SRCDIR)/vimstack.c
 
 .PHONY: build clean
