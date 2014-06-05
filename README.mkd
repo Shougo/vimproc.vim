@@ -101,6 +101,16 @@ Note: To build with Visual Studio, you must install Windows SDK and run from
 VS command prompt.
 https://github.com/Shougo/vimproc.vim/issues/58
 
+If you use MSVC 11 or later, you need to specify where the Win32.mak file is,
+e.g.:
+
+    $ nmake -f make_msvc.mak nodebug=1 "SDK_INCLUDE_DIR=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include"
+
+The architecture will be automatically detected, but you can also specify the
+architecture explicitly. E.g.:
+
+    32bit: nmake -f make_msvc.mak nodebug=1 CPU=i386
+    64bit: nmake -f make_msvc.mak nodebug=1 CPU=AMD64
 
 Cygwin:
 

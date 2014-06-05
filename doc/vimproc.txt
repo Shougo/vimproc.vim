@@ -82,18 +82,19 @@ Build Steps:
 Note: You must use GNU make to build vimproc.
 
 Linux
-
+>
 	$ make
-
+<
 Mac OS X
-
+>
 	$ make
-
+<
 Note: If you want to build for multiple architectures, you can use ARCHS and CC variables.
 
 Build for i386 and x86-64:
+>
 	$ make ARCHS='i386 x86_64'
-
+<
 Windows
 
 Note: In Windows, using MinGW is recommended.
@@ -101,28 +102,40 @@ Note: If you have not "gcc" or "x86_64-w64-mingw32-gcc" binary, you must
 change $CC value.
 
 Windows using MinGW (32bit Vim):
-
+>
 	$ make -f make_mingw32.mak
-
+<
 Windows using MinGW (If you want to use MinGW compiler in Cygwin):
-
+>
 	$ make -f make_mingw32.mak CC=mingw32-gcc
-
+<
 Windows using MinGW (64bit Vim):
-
+>
 	$ make -f make_mingw64.mak
-
+<
 Windows using Visual Studio (32bit/64bit Vim):
+>
 	$ nmake -f make_msvc.mak nodebug=1
-
+<
 Note: To build with Visual Studio, you must install Windows SDK and run from
 VS command prompt.
 https://github.com/Shougo/vimproc.vim/issues/58
 
+If you use MSVC 11 or later, you need to specify where the Win32.mak file is,
+e.g.:
+>
+	$ nmake -f make_msvc.mak nodebug=1 "SDK_INCLUDE_DIR=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include"
+<
+The architecture will be automatically detected, but you can also specify the
+architecture explicitly. E.g.:
+>
+	32bit: nmake -f make_msvc.mak nodebug=1 CPU=i386
+	64bit: nmake -f make_msvc.mak nodebug=1 CPU=AMD64
+<
 * Cygwin:
-
+>
 	$ make -f make_cygwin.mak
-
+<
 Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
 
 
