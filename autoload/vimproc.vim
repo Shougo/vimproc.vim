@@ -855,16 +855,24 @@ function! s:read(...) dict "{{{
 
   let number = get(a:000, 0, -1)
   let timeout = get(a:000, 1, s:read_timeout)
-  let [hd, eof] = self.f_read(number, timeout)
+
+  let max = 100
+  let hd = ''
+  for cnt in range(1, max)
+    let [hd_r, eof] = self.f_read(number, timeout/max)
+    let hd .= hd_r
+
+    if eof
+      break
+    endif
+  endfor
+
   let self.eof = eof
   let self.__eof = eof
 
-  if hd == ''
-    return ''
-  endif
-
-  return vimproc#util#has_lua() ?
-        \ s:hd2str_lua([hd]) : s:hd2str([hd])
+  return hd == '' ? '' :
+        \ vimproc#util#has_lua() ?
+        \   s:hd2str_lua([hd]) : s:hd2str([hd])
   " return s:hd2str([hd])
 endfunction"}}}
 function! s:read_lines(...) dict "{{{
