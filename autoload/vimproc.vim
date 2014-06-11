@@ -857,10 +857,10 @@ function! s:read(...) dict "{{{
   let timeout = get(a:000, 1, s:read_timeout)
 
   let max = 100
-  let hd = ''
+  let hds = []
   for cnt in range(1, max)
     let [hd_r, eof] = self.f_read(number, timeout/max)
-    let hd .= hd_r
+    call add(hds, hd_r)
 
     if eof
       break
@@ -870,6 +870,7 @@ function! s:read(...) dict "{{{
   let self.eof = eof
   let self.__eof = eof
 
+  let hd = join(hds, '')
   return hd == '' ? '' :
         \ vimproc#util#has_lua() ?
         \   s:hd2str_lua([hd]) : s:hd2str([hd])
