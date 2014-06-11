@@ -174,7 +174,7 @@ COMMANDS 					*vimproc-commands*
 FUNCTIONS 					*vimproc-functions*
 
 vimproc#version()				*vimproc#version()*
-		Returns vimproc version number as string.  Version 5.0 is
+		Returns vimproc version number as a String.  Version 5.0 is
 		"500".  Version 5.1 (5.01) is "501".  It has a similar format
 		to |v:version|, but the type is different.
 
@@ -201,7 +201,7 @@ vimproc#system({expr} [, {input} [, {timeout}]])	*vimproc#system()*
 		command is invalid.  Ex: pwd, cd, ...
 		
 		The {expr} is same to |vimproc#plineopen3()|.  The type is
-		string or arguments list.  If {expr} is string, it is parsed
+		String or arguments list.  If {expr} is a String, it is parsed
 		automatically.
 		If the end of {expr} is "&", executes a command in the
 		background.
@@ -267,7 +267,7 @@ vimproc#host_exists({host})			*vimproc#host_exists()*
 
 vimproc#popen2({args})				*vimproc#popen2()*
 		Executes {args} command and returns a |vimproc-process-object|.
-		If {args} is a string, {args} is parsed automatically.
+		If {args} is a String, {args} is parsed automatically.
 		
 		Otherwise the {args} is a list of a command and its arguments.
 
@@ -278,7 +278,7 @@ vimproc#popen3({args})				*vimproc#popen3()*
 vimproc#plineopen2({commands} [, {is-pty}])	*vimproc#plineopen2()*
 		Executes {commands} command and returns a
 		|vimproc-process-object|.
-		If {commands} is a string, {commands} is parsed automatically.
+		If {commands} is a String, {commands} is parsed automatically.
 		Note: You can use pipes.
 		
 		Otherwise the {commands} is a list of dictionaries.
@@ -296,7 +296,7 @@ vimproc#plineopen3({commands} [, {is-pty}])	*vimproc#plineopen3()*
 vimproc#pgroup_open({statements} [, {is-pty}])	*vimproc#pgroup_open()*
 		Executes {statements} command and returns a
 		|vimproc-process-object|.
-		If {statements} is a string, {statements} is parsed
+		If {statements} is a String, {statements} is parsed
 		automatically.
 		Note: You can use pipes, ";", "&&" and "||".
 		
@@ -315,7 +315,7 @@ vimproc#pgroup_open({statements} [, {is-pty}])	*vimproc#pgroup_open()*
 
 vimproc#ptyopen({args} [, {npipe}])		*vimproc#ptyopen()*
 		Executes {args} command and returns a |vimproc-process-object|.
-		If {args} is a string, {args} is parsed automatically.
+		If {args} is a String, {args} is parsed automatically.
 		The {npipe} is 2 or 3.  If it is 2, combines stdout and
 		stderr.
 		Note: You can use pipes.
