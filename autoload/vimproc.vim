@@ -860,9 +860,7 @@ function! s:read(...) dict "{{{
   let hds = []
   for cnt in range(1, max)
     let [hd_r, eof] = self.f_read(number, timeout/max)
-    if hd_r != ''
-      call add(hds, hd_r)
-    endif
+    let hds += [hd_r]
 
     if eof
       break
@@ -881,14 +879,17 @@ endfunction"}}}
 function! s:read_lines(...) dict "{{{
   let res = self.buffer
 
+  let outs = []
   while !self.eof && stridx(res, "\n") < 0
     let out = call(self.read, a:000, self)
     if out  == ''
       break
     endif
 
-    let res .= out
+    let outs += [out]
   endwhile
+
+  let res .= join(outs, '')
 
   let self.buffer = ''
   let lines = split(res, '\r*\n', 1)
