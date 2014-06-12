@@ -858,12 +858,13 @@ function! s:read(...) dict "{{{
 
   let max = 100
   let hds = []
+  let rest_num = number
   for cnt in range(1, max)
     let [hd_r, eof] = self.f_read(number, timeout/max)
-    let number -= strlen(hd_r)
+    let rest_num -= strlen(hd_r) / 2
     let hds += [hd_r]
 
-    if eof || (number <= 0)
+    if eof || (number >= 0 && rest_num <= 0)
       break
     endif
   endfor
