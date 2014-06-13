@@ -238,8 +238,9 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
     call subproc.stdin.close()
   endif
 
-  let output = ''
   let s:last_errmsg = ''
+  let outbuf = []
+  let errbuf = []
   while !subproc.stdout.eof || !subproc.stderr.eof
     if timeout > 0 "{{{
       " Check timeout.
@@ -258,7 +259,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
     endif"}}}
 
     if !subproc.stdout.eof "{{{
-      let out = subproc.stdout.read(1000, 0)
+      let out = subproc.stdout.read(10000, 10)
 
       if a:is_passwd && out =~# g:vimproc_password_pattern
         redraw
@@ -271,12 +272,12 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
 
         call subproc.stdin.write(in)
       else
-        let output .= out
+        let outbuf += [out]
       endif
     endif"}}}
 
     if !subproc.stderr.eof "{{{
-      let out = subproc.stderr.read(1000, 0)
+      let out = subproc.stderr.read(10000, 10)
 
       if a:is_passwd && out =~# g:vimproc_password_pattern
         redraw
@@ -289,11 +290,14 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
 
         call subproc.stdin.write(in)
       else
-        let s:last_errmsg .= out
-        let output .= out
+        let outbuf += [out]
+        let errbuf += [out]
       endif
     endif"}}}
   endwhile
+
+  let output = join(outbuf, '')
+  let s:last_errmsg = join(errbuf, '')
 
   let [cond, status] = subproc.waitpid()
 
