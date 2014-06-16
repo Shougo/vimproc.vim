@@ -890,8 +890,8 @@ endfunction"}}}
 function! s:read_lines(...) dict "{{{
   let res = self.buffer
 
-  let outs = []
-  while !self.eof && stridx(res, "\n") < 0
+  let outs = ['']
+  while !self.eof && stridx(outs[-1], "\n") < 0
     let out = call(self.read, a:000, self)
     if out  == ''
       break
