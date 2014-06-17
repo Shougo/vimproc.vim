@@ -859,6 +859,7 @@ function! s:read(...) dict "{{{
 
   let number = get(a:000, 0, -1)
   let timeout = get(a:000, 1, s:read_timeout)
+  let is_oneline = get(a:000, 2, 0)
 
   let max = 100
   let hds = []
@@ -873,7 +874,8 @@ function! s:read(...) dict "{{{
     let timeout -= timeout1
     let hds += [hd_r]
 
-    if eof || (number >= 0 && rest_num <= 0) || (timeout <= 0)
+    if eof || (is_oneline && stridx(hd_r, '0A') >= 0)
+          \ || (number >= 0 && rest_num <= 0) || (timeout <= 0)
       break
     endif
   endfor
@@ -912,7 +914,7 @@ function! s:read_lines(...) dict "{{{
   return lines
 endfunction"}}}
 function! s:read_line(...) dict "{{{
-  let lines = call(self.read_lines, a:000, self)
+  let lines = call(self.read_lines, a:000 + [1], self)
   let self.buffer = join(lines[1:], "\n") . self.buffer
   let self.eof = (self.buffer != '') ?
         \ (self.__eof && self.buffer == '') : self.__eof
