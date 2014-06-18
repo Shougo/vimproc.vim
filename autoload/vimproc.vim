@@ -874,7 +874,7 @@ function! s:read(...) dict "{{{
     let timeout -= timeout1
     let hds += [hd_r]
 
-    if eof || (is_oneline && stridx(hd_r, '0A') >= 0)
+    if eof || (is_oneline && stridx(hd_r, '0A') % 2 == 0)
           \ || (number >= 0 && rest_num <= 0) || (timeout <= 0)
       break
     endif
