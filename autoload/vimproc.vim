@@ -425,7 +425,8 @@ endfunction"}}}
 
 function! vimproc#fopen(path, flags, ...) "{{{
   let mode = get(a:000, 0, 0644)
-  let fd = s:vp_file_open(a:path, a:flags, mode)
+  let fd = s:vp_file_open((s:is_null_device(a:path)
+        \ ? s:null_device : a:path), a:flags, mode)
   let proc = s:fdopen(fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
   return proc
 endfunction"}}}
@@ -593,6 +594,12 @@ function! s:plineopen(npipe, commands, is_pty) "{{{
   return proc
 endfunction"}}}
 
+let s:null_device = vimproc#util#is_windows() ? 'NUL' : '/dev/null'
+
+function! s:is_null_device(filename)
+  return a:filename ==# '/dev/null'
+endfunction
+
 function! s:is_pseudo_device(filename) "{{{
   if vimproc#util#is_windows() && (
     \    a:filename ==# '/dev/stdin'
@@ -602,7 +609,6 @@ function! s:is_pseudo_device(filename) "{{{
   endif
 
   return a:filename == ''
-        \ || a:filename ==# '/dev/null'
         \ || a:filename ==# '/dev/clip'
         \ || a:filename ==# '/dev/quickfix'
 endfunction"}}}
@@ -709,7 +715,7 @@ function! vimproc#write(filename, string, ...) "{{{
   let filename = a:filename =~ '^>' ?
         \ a:filename[1:] : a:filename
 
-  if filename ==# '/dev/null'
+  if s:is_null_device(filename)
     " Nothing.
   elseif filename ==# '/dev/clip'
     " Write to clipboard.
