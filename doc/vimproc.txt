@@ -89,11 +89,23 @@ Mac OS X
 >
 	$ make
 <
-Note: If you want to build for multiple architectures, you can use ARCHS and CC variables.
+Note: If you want to build for multiple architectures, you can use $ARCHS and $CC variables.
 
 Build for i386 and x86-64:
 >
 	$ make ARCHS='i386 x86_64'
+<
+FreeBSD
+>
+	$ gmake
+<
+Solaris
+>
+	$ gmake
+<
+Note: If you want to use Sun Compiler, you can use $SUNCC variable.
+>
+	$ gmake SUNCC=cc
 <
 Windows
 

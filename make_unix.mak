@@ -1,4 +1,4 @@
-CFLAGS=-W -O2 -Wall -Wno-unused -Wno-unused-parameter -std=gnu99 -pedantic -shared
+# for *nix platform.
 
 ifneq (,$(wildcard /lib*/ld-linux*.so.2))
 	SUFFIX=linux$(if $(wildcard /lib*/ld-linux*64.so.2),64,32)
@@ -8,8 +8,8 @@ endif
 TARGET=autoload/vimproc_$(SUFFIX).so
 
 SRC=autoload/proc.c
-CFLAGS+=-fPIC
-LDFLAGS+=-lutil
+CFLAGS=-W -O2 -Wall -Wno-unused -Wno-unused-parameter -std=gnu99 -pedantic -shared -fPIC
+LDFLAGS=-lutil
 
 all: $(TARGET)
 
