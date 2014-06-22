@@ -244,8 +244,9 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
   while !subproc.stdout.eof || !subproc.stderr.eof
     if timeout > 0 "{{{
       " Check timeout.
-      let end = split(reltimestr(reltime(start)))[0] * 1000
-      if end > timeout && !subproc.stdout.eof
+      let tick = reltimestr(reltime(start))
+      let elapse = str2nr(tick[:-8] . tick[-6:-4], 10)
+      if elapse > timeout && !subproc.stdout.eof
         " Kill process.
         try
           call subproc.kill(g:vimproc#SIGTERM)
