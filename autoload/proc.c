@@ -37,7 +37,7 @@
 #if (defined __linux__ || defined __CYGWIN__) && !defined __ANDROID__
 # include <pty.h>
 # include <utmp.h>
-#elif defined __APPLE__ || defined __NetBSD__
+#elif defined __APPLE__ || defined __NetBSD__ || defined __OpenBSD__
 # include <util.h>
 #elif defined __sun__ || defined __ANDROID__
 # include <termios.h>
