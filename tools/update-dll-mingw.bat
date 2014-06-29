@@ -4,22 +4,21 @@ rem If the old DLL is in use, rename it to avoid compilation error.
 rem
 rem usage: update-dll-mingw [arch] [makeopts]
 rem
-rem   [arch] is 32 or 64. If omitted, 32 is used.
+rem   [arch] is 32 or 64. If omitted, it is automatically detected from the
+rem   %PROCESSOR_ARCHITECTURE% environment.
 rem   [makeopts] is option(s) for mingw32-make.
 rem
 rem
 rem Sample .vimrc:
 rem
-rem let vimproc_updcmd = has('win64') ?
-rem   \ 'tools\\update-dll-mingw 64' : 'tools\\update-dll-mingw 32'
-rem execute "NeoBundle 'Shougo/vimproc.vim'," . string({
+rem NeoBundle 'Shougo/vimproc.vim', {
 rem 	\ 'build' : {
-rem 		\     'windows' : vimproc_updcmd,
-rem 		\     'cygwin' : 'make -f make_cygwin.mak',
-rem 		\     'mac' : 'make -f make_mac.mak',
-rem 		\     'unix' : 'make -f make_unix.mak',
-rem 		\    },
-rem 		\ })
+rem 	\     'windows' : 'tools\\update-dll-mingw',
+rem 	\     'cygwin' : 'make -f make_cygwin.mak',
+rem 	\     'mac' : 'make -f make_mac.mak',
+rem 	\     'unix' : 'make -f make_unix.mak',
+rem 	\    },
+rem 	\ }
 
 if "%1"=="32" (
   set vimproc_arch=%1
@@ -28,7 +27,11 @@ if "%1"=="32" (
   set vimproc_arch=%1
   shift
 ) else (
-  set vimproc_arch=32
+  if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+    set vimproc_arch=64
+  ) else (
+    set vimproc_arch=32
+  )
 )
 set vimproc_dllname=vimproc_win%vimproc_arch%.dll
 
