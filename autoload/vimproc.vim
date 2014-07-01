@@ -231,6 +231,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
     let start = reltime()
     let timeout = a:timeout
   else
+    let start = 0
     let timeout = 0
   endif
 
@@ -300,7 +301,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
   let output = join(outbuf, '')
   let s:last_errmsg = join(errbuf, '')
 
-  let [cond, status] = subproc.waitpid()
+  call subproc.waitpid()
 
   " Newline convert.
   if vimproc#util#is_mac()
@@ -674,7 +675,7 @@ endfunction"}}}
 function! vimproc#kill(pid, sig) "{{{
   if a:sig == 0 && vimproc#util#is_windows()
     " Use waitpid().
-    let [cond, status] = s:waitpid(a:pid)
+    let cond = s:waitpid(a:pid)[0]
     return cond ==# 'run'
   endif
 
@@ -862,6 +863,7 @@ function! s:read(...) dict "{{{
   let timeout = get(a:000, 1, s:read_timeout)
   let is_oneline = get(a:000, 2, 0)
 
+  let eof = 0
   let max = 100
   let hds = []
   let rest_num = number
@@ -978,7 +980,9 @@ function! s:garbage_collect(is_force) "{{{
   for pid in values(s:bg_processes)
     " Check processes.
     try
+      " @vimlint(EVL102, 0, l:status)
       let [cond, status] = s:libcall('vp_waitpid', [pid])
+      " @vimlint(EVL102, 1, l:status)
       " echomsg string([pid, cond, status])
       if cond !=# 'run' || a:is_force
         if cond !=# 'exit'
@@ -1418,13 +1422,13 @@ function! s:vp_pty_write(hd, timeout) dict
 endfunction
 
 function! s:vp_get_winsize() dict
-  if self.is_pty && vimproc#util#is_windows()
-    return [winwidth(0)-5, winheight(0)]
-  endif
+  let [width, height] = [winwidth(0)-5, winheight(0)]
 
-  for pid in self.pid_list
-    let [width, height] = s:libcall('vp_pty_get_winsize', [pid])
-  endfor
+  if !vimproc#util#is_windows()
+    for pid in self.pid_list
+      let [width, height] = s:libcall('vp_pty_get_winsize', [pid])
+    endfor
+  endif
 
   return [width, height]
 endfunction
@@ -1595,11 +1599,10 @@ endif
 
 " vimproc dll version check. "{{{
 try
-  let s:dll_version = vimproc#dll_version()
-  if s:dll_version < vimproc#version()
+  if vimproc#dll_version() < vimproc#version()
     call s:print_error(printf('Your vimproc binary version is "%d",'.
           \ ' but vimproc version is "%d".',
-          \ s:dll_version, vimproc#version()))
+          \ vimproc#dll_version(), vimproc#version()))
   endif
 catch
   call s:print_error(v:throwpoint)
@@ -1607,8 +1610,6 @@ catch
   call s:print_error('Your vimproc binary is too old!')
   call s:print_error('Please re-compile it.')
 endtry
-
-unlet s:dll_version
 "}}}
 
 " Restore 'cpoptions' {{{
