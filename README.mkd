@@ -89,15 +89,15 @@ Note: If you have not "gcc" binary, you must change $CC value.
 
 Windows using MinGW (32bit Vim):
 
-    $ make -f make_mingw32.mak
+    $ mingw32-make -f make_mingw32.mak
 
 Windows using MinGW (If you want to use MinGW compiler in Cygwin):
 
-    $ make -f make_mingw32.mak CC=mingw32-gcc
+    $ mingw32-make -f make_mingw32.mak CC=mingw32-gcc
 
 Windows using MinGW (64bit Vim):
 
-    $ make -f make_mingw64.mak
+    $ mingw32-make -f make_mingw64.mak
 
 Windows using Visual Studio (32bit/64bit Vim):
 
