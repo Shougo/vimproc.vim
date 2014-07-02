@@ -1595,11 +1595,11 @@ endif
 
 " vimproc dll version check. "{{{
 try
-  let dll_version = vimproc#dll_version()
-  if dll_version < vimproc#version()
+  let s:dll_version = vimproc#dll_version()
+  if s:dll_version < vimproc#version()
     call s:print_error(printf('Your vimproc binary version is "%d",'.
           \ ' but vimproc version is "%d".',
-          \ dll_version, vimproc#version()))
+          \ s:dll_version, vimproc#version()))
   endif
 catch
   call s:print_error(v:throwpoint)
@@ -1608,7 +1608,7 @@ catch
   call s:print_error('Please re-compile it.')
 endtry
 
-unlet dll_version
+unlet s:dll_version
 "}}}
 
 " Restore 'cpoptions' {{{
