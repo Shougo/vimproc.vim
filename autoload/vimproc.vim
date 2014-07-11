@@ -980,10 +980,8 @@ function! s:garbage_collect(is_force) "{{{
   for pid in values(s:bg_processes)
     " Check processes.
     try
-      " @vimlint(EVL102, 0, l:status)
-      let [cond, status] = s:libcall('vp_waitpid', [pid])
-      " @vimlint(EVL102, 1, l:status)
-      " echomsg string([pid, cond, status])
+      let [cond, _] = s:libcall('vp_waitpid', [pid])
+      " echomsg string([pid, cond, _])
       if cond !=# 'run' || a:is_force
         if cond !=# 'exit'
           " Kill process.
