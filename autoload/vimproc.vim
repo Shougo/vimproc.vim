@@ -106,7 +106,7 @@ endfunction
 
 let g:vimproc#dll_path =
       \ vimproc#util#iconv(
-      \ vimproc#util#substitute_path_separator(g:vimproc#dll_path),
+      \ vimproc#util#expand(g:vimproc#dll_path),
       \ &encoding, vimproc#util#termencoding())
 
 " Backward compatibility.
