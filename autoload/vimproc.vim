@@ -1507,9 +1507,10 @@ function! s:waitpid(pid)
       call s:libcall('vp_close_handle', [a:pid])
     endif
 
-    let s:last_status = status
+    let s:last_status = str2nr(status)
   catch
     let [cond, status] = ['error', '0']
+    let s:last_status = -1
   endtry
 
   return [cond, str2nr(status)]
