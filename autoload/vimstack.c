@@ -176,17 +176,17 @@ vp_stack_pop_num(vp_stack_t *stack, const char *fmt, void *ptr)
 {
     char fmtbuf[VP_NUMFMT_BUFSIZE];
     int n;
-    char *top, *bot;
+    char *top;
 
     if (stack->buf == stack->top)
         return "vp_stack_pop_num: stack over flow";
 
     top = stack->top - 1;
-    bot = stack->buf;
-    while (top != bot && top[-1] != VP_EOV)
+    while (top != stack->buf && top[-1] != VP_EOV)
         --top;
 
-    snprintf(fmtbuf, VP_NUMFMT_BUFSIZE, "%s%%n", fmt);
+    strcpy(fmtbuf, fmt);
+    strcat(fmtbuf, "%n");
 
     if (sscanf(top, fmtbuf, ptr, &n) != 1 || top[n] != VP_EOV)
         return "vp_stack_pop_num: sscanf error";
@@ -199,14 +199,13 @@ vp_stack_pop_num(vp_stack_t *stack, const char *fmt, void *ptr)
 static const char *
 vp_stack_pop_str(vp_stack_t *stack, char **str)
 {
-    char *top, *bot;
+    char *top;
 
     if (stack->buf == stack->top)
         return "vp_stack_pop_str: stack over flow";
 
     top = stack->top - 1;
-    bot = stack->buf;
-    while (top != bot && top[-1] != VP_EOV)
+    while (top != stack->buf && top[-1] != VP_EOV)
         --top;
 
     *str = top;
