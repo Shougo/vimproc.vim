@@ -76,20 +76,20 @@ EXPORT const char *vp_dlversion(char *args);     /* [version] () */
 
 EXPORT const char *vp_file_open(char *args);   /* [fd] (path, flags, mode) */
 EXPORT const char *vp_file_close(char *args);  /* [] (fd) */
-EXPORT const char *vp_file_read(char *args);   /* [hd, eof] (fd, nr, timeout) */
-EXPORT const char *vp_file_write(char *args);  /* [nleft] (fd, hd, timeout) */
+EXPORT const char *vp_file_read(char *args);   /* [hd, eof] (fd, cnt, timeout) */
+EXPORT const char *vp_file_write(char *args);  /* [nleft] (fd, timeout, hd) */
 
 EXPORT const char *vp_pipe_open(char *args);   /* [pid, [fd] * npipe]
                                                   (npipe, argc, [argv]) */
 EXPORT const char *vp_pipe_close(char *args);  /* [] (fd) */
-EXPORT const char *vp_pipe_read(char *args);   /* [hd, eof] (fd, nr, timeout) */
-EXPORT const char *vp_pipe_write(char *args);  /* [nleft] (fd, hd, timeout) */
+EXPORT const char *vp_pipe_read(char *args);   /* [hd, eof] (fd, cnt, timeout) */
+EXPORT const char *vp_pipe_write(char *args);  /* [nleft] (fd, timeout, hd) */
 
 EXPORT const char *vp_pty_open(char *args);    /* [pid, fd, ttyname]
                                                   (width, height, argc, [argv]) */
 EXPORT const char *vp_pty_close(char *args);   /* [] (fd) */
-EXPORT const char *vp_pty_read(char *args);    /* [hd, eof] (fd, nr, timeout) */
-EXPORT const char *vp_pty_write(char *args);   /* [nleft] (fd, hd, timeout) */
+EXPORT const char *vp_pty_read(char *args);    /* [hd, eof] (fd, cnt, timeout) */
+EXPORT const char *vp_pty_write(char *args);   /* [nleft] (fd, timeout, hd) */
 EXPORT const char *vp_pty_get_winsize(char *args); /* [width, height] (fd) */
 EXPORT const char *vp_pty_set_winsize(char *args); /* [] (fd, width, height) */
 
@@ -99,7 +99,7 @@ EXPORT const char *vp_close_handle(char *args); /* [] (fd) */
 
 EXPORT const char *vp_socket_open(char *args); /* [socket] (host, port) */
 EXPORT const char *vp_socket_close(char *args);/* [] (socket) */
-EXPORT const char *vp_socket_read(char *args); /* [hd, eof] (socket, nr, timeout) */
+EXPORT const char *vp_socket_read(char *args); /* [hd, eof] (socket, cnt, timeout) */
 EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 
 EXPORT const char *vp_host_exists(char *args); /* [int] (host) */
@@ -118,7 +118,8 @@ static BOOL ExitRemoteProcess(HANDLE hProcess, UINT_PTR uExitCode);
 
 /* --- */
 
-#define VP_READ_BUFSIZE 2048
+#define VP_BUFSIZE      (65536)
+#define VP_READ_BUFSIZE (VP_BUFSIZE - 4)
 
 static LPWSTR
 utf8_to_utf16(const char *str)
@@ -194,6 +195,7 @@ vp_dlopen(char *args)
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
+    VP_RETURN_IF_FAIL(vp_stack_reserve(&_result, VP_BUFSIZE));
 
     pathw = utf8_to_utf16(path);
     if (pathw == NULL)
@@ -342,19 +344,28 @@ vp_file_read(char *args)
 {
     vp_stack_t stack;
     int fd;
-    int nr;
+    int cnt;
     int timeout;
     DWORD ret;
     int n;
-    char buf[VP_READ_BUFSIZE];
+    char *buf;
+    char *eof;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &nr));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &cnt));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
 
-    vp_stack_push_str(&_result, ""); /* initialize */
-    while (nr != 0) {
+    if (cnt < 0 || VP_READ_BUFSIZE < cnt) {
+        cnt = VP_READ_BUFSIZE;
+    }
+
+    /* initialize buffer */
+    buf = _result.top = _result.buf;
+    *(buf++) = VP_EOV;
+    *(eof = buf++) = '0';
+
+    while (cnt > 0) {
         ret = WaitForSingleObject((HANDLE)_get_osfhandle(fd), timeout);
         if (ret == WAIT_FAILED) {
             return vp_stack_return_error(&_result, "WaitForSingleObject() error: %s",
@@ -363,27 +374,22 @@ vp_file_read(char *args)
             /* timeout */
             break;
         }
-        if (nr > 0)
-            n = read(fd, buf, (VP_READ_BUFSIZE < nr) ? VP_READ_BUFSIZE : nr);
-        else
-            n = read(fd, buf, VP_READ_BUFSIZE);
+        n = read(fd, buf, cnt);
         if (n == -1) {
             return vp_stack_return_error(&_result, "read() error: %s",
                     strerror(errno));
         } else if (n == 0) {
             /* eof */
-            vp_stack_push_num(&_result, "%d", 1);
-            return vp_stack_return(&_result);
+            *eof = '1';
+            break;
         }
         /* decrease stack top for concatenate. */
-        _result.top--;
-        vp_stack_push_bin(&_result, buf, n);
-        if (nr > 0)
-            nr -= n;
+        cnt -= n;
+        buf += n;
         /* try read more bytes without waiting */
         timeout = 0;
     }
-    vp_stack_push_num(&_result, "%d", 0);
+    _result.top = buf;
     return vp_stack_return(&_result);
 }
 
@@ -401,8 +407,11 @@ vp_file_write(char *args)
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
-    VP_RETURN_IF_FAIL(vp_stack_pop_bin(&stack, &buf, &size));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
+
+    buf = stack.buf;
+    size = (stack.top - 1) - stack.buf;
+    buf[size] = 0;
 
     nleft = 0;
     while (nleft < size) {
@@ -583,21 +592,21 @@ vp_pipe_read(char *args)
 {
     vp_stack_t stack;
     int fd;
-    int nr;
+    int cnt;
     int timeout;
     DWORD n;
     char buf[VP_READ_BUFSIZE];
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &nr));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &cnt));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
 
     vp_stack_push_str(&_result, ""); /* initialize */
-    while (nr != 0) {
+    while (cnt != 0) {
         n = 0;
         if (!PeekNamedPipe((HANDLE)_get_osfhandle(fd), buf,
-                (nr < 0) ? VP_READ_BUFSIZE : (VP_READ_BUFSIZE < nr) ? VP_READ_BUFSIZE : nr,
+                (cnt < 0) ? VP_READ_BUFSIZE : (VP_READ_BUFSIZE < cnt) ? VP_READ_BUFSIZE : cnt,
                 &n, NULL, NULL))
         {
             /* can be ERROR_HANDLE_EOF? */
@@ -623,8 +632,8 @@ vp_pipe_read(char *args)
         /* decrease stack top for concatenate. */
         _result.top--;
         vp_stack_push_bin(&_result, buf, n);
-        if (nr > 0)
-            nr -= n;
+        if (cnt > 0)
+            cnt -= n;
         /* try read more bytes without waiting */
         timeout = 0;
     }
@@ -855,7 +864,7 @@ vp_socket_read(char *args)
 {
     vp_stack_t stack;
     int sock;
-    int nr;
+    int cnt;
     int timeout;
     struct timeval tv;
     int n;
@@ -864,7 +873,7 @@ vp_socket_read(char *args)
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &sock));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &nr));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &cnt));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
@@ -872,7 +881,7 @@ vp_socket_read(char *args)
     FD_ZERO(&fdset);
     FD_SET((unsigned)sock, &fdset);
     vp_stack_push_str(&_result, ""); /* initialize */
-    while (nr != 0) {
+    while (cnt != 0) {
         n = select(0, &fdset, NULL, NULL, (timeout == -1) ? NULL : &tv);
         if (n == SOCKET_ERROR) {
             return vp_stack_return_error(&_result, "select() error: %d",
@@ -881,9 +890,9 @@ vp_socket_read(char *args)
             /* timeout */
             break;
         }
-        if (nr > 0)
+        if (cnt > 0)
             n = recv(sock, buf,
-                    (VP_READ_BUFSIZE < nr) ? VP_READ_BUFSIZE : nr, 0);
+                    (VP_READ_BUFSIZE < cnt) ? VP_READ_BUFSIZE : cnt, 0);
         else
             n = recv(sock, buf, VP_READ_BUFSIZE, 0);
         if (n == -1) {
@@ -897,8 +906,8 @@ vp_socket_read(char *args)
         /* decrease stack top for concatenate. */
         _result.top--;
         vp_stack_push_bin(&_result, buf, n);
-        if (nr > 0)
-            nr -= n;
+        if (cnt > 0)
+            cnt -= n;
         /* try read more bytes without waiting */
         timeout = 0;
     }
