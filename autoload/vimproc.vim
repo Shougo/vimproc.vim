@@ -861,38 +861,30 @@ function! s:read(...) dict "{{{
     return ''
   endif
 
-  let number = get(a:000, 0, -1)
+  let maxsize = get(a:000, 0, -1)
   let timeout = get(a:000, 1, s:read_timeout)
-  let is_oneline = get(a:000, 2, 0)
-
+  let buf = []
   let eof = 0
-  let max = 100
-  let hds = []
-  let rest_num = number
-  for cnt in range(1, max)
-    let timeout1 = timeout / (max + 1 - cnt)
-    if timeout > 0 && timeout1 == 0
-      let timeout1 = 1
-    endif
-    let [hd_r, eof] = self.f_read(number, timeout1)
-    let rest_num -= strlen(hd_r) / 2
-    let timeout -= timeout1
-    let hds += [hd_r]
 
-    if eof || (is_oneline && stridx(hd_r, '0A') % 2 == 0)
-          \ || (number >= 0 && rest_num <= 0) || (timeout <= 0)
-      break
+  while maxsize != 0 && !eof
+    let [out, eof] = self.f_read(maxsize, 
+          \ (timeout < s:read_timeout ? timeout : s:read_timeout))
+    if out ==# ''
+      if timeout <= s:read_timeout
+        break
+      endif
+      let timeout -= s:read_timeout
+    else
+      let buf += [out]
+      let maxsize -= len(out)
+      let timeout = 0
     endif
-  endfor
+  endwhile
 
   let self.eof = eof
   let self.__eof = eof
 
-  let hd = join(hds, '')
-  return hd == '' ? '' :
-        \ vimproc#util#has_lua() ?
-        \   s:hd2str_lua([hd]) : s:hd2str([hd])
-  " return s:hd2str([hd])
+  return join(buf, '')
 endfunction"}}}
 function! s:read_lines(...) dict "{{{
   let res = self.buffer
@@ -928,8 +920,7 @@ endfunction"}}}
 
 function! s:write(str, ...) dict "{{{
   let timeout = get(a:000, 0, s:write_timeout)
-  let hd = s:str2hd(a:str)
-  return self.f_write(hd, timeout)
+  return self.f_write(a:str, timeout)
 endfunction"}}}
 
 function! s:fdopen(fd, f_close, f_read, f_write) "{{{
@@ -1187,6 +1178,46 @@ function! s:libcall(func, args) "{{{
   return result[:-2]
 endfunction"}}}
 
+function! s:libcall_raw_read(func, args) "{{{
+  " End Of Value
+  let EOV = "\xFF"
+  let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), EOV) . EOV)
+  let result = libcall(g:vimproc#dll_path, a:func, args)
+  " SUCCESS:: EOV | EOF[0|1] | Bin
+  " ERROR  :: ErrStr
+  if result[0] !=# EOV
+    let s:lasterr = [result]
+    let msg = vimproc#util#iconv(string(result),
+          \ vimproc#util#systemencoding(), &encoding)
+
+    throw printf('vimproc: %s: %s', a:func, msg)
+  endif
+  return [result[2:], result[1]]
+endfunction"}}}
+
+function! s:libcall_raw_write(func, args) "{{{
+  " End Of Value
+  let EOV = "\xFF"
+  " Convert::
+  " [Fd, Bin, Timeout] => Bin | EOV | Timeout | EOV | Fd | EOV
+  let args = join((a:args[1:] + a:args[:0]), EOV) . EOV
+  let stack_buf = libcall(g:vimproc#dll_path, a:func, args)
+  let result = s:split(stack_buf, EOV)
+  if get(result, -1, 'error') != ''
+    if stack_buf[len(stack_buf) - 1] ==# EOV
+      " Note: If &encoding equals "cp932" and output ends multibyte first byte,
+      "       will fail split.
+      return result
+    endif
+    let s:lasterr = result
+    let msg = vimproc#util#iconv(string(result),
+          \ vimproc#util#systemencoding(), &encoding)
+
+    throw printf('vimproc: %s: %s', a:func, msg)
+  endif
+  return result[:-2]
+endfunction"}}}
+
 function! s:SID_PREFIX()
   if !exists('s:sid_prefix')
     let s:sid_prefix = matchstr(expand('<sfile>'),
@@ -1230,12 +1261,12 @@ function! s:vp_file_close() dict
 endfunction
 
 function! s:vp_file_read(number, timeout) dict
-  let [hd, eof] = s:libcall('vp_file_read', [self.fd, a:number, a:timeout])
+  let [hd, eof] = s:libcall_raw_read('vp_file_read', [self.fd, a:number, a:timeout])
   return [hd, eof]
 endfunction
 
 function! s:vp_file_write(hd, timeout) dict
-  let [nleft] = s:libcall('vp_file_write', [self.fd, a:hd, a:timeout])
+  let [nleft] = s:libcall_raw_write('vp_file_write', [self.fd, a:hd, a:timeout])
   return nleft
 endfunction
 
@@ -1293,7 +1324,7 @@ function! s:vp_pipe_read(number, timeout) dict
     return ['', 1]
   endif
 
-  let [hd, eof] = s:libcall('vp_pipe_read', [self.fd, a:number, a:timeout])
+  let [hd, eof] = s:libcall_raw_read('vp_pipe_read', [self.fd, a:number, a:timeout])
   return [hd, eof]
 endfunction
 
@@ -1302,7 +1333,7 @@ function! s:vp_pipe_write(hd, timeout) dict
     return 0
   endif
 
-  let [nleft] = s:libcall('vp_pipe_write', [self.fd, a:hd, a:timeout])
+  let [nleft] = s:libcall_raw_write('vp_pipe_write', [self.fd, a:hd, a:timeout])
   return nleft
 endfunction
 
@@ -1412,12 +1443,12 @@ function! s:vp_pty_close() dict
 endfunction
 
 function! s:vp_pty_read(number, timeout) dict
-  let [hd, eof] = s:libcall('vp_pty_read', [self.fd, a:number, a:timeout])
+  let [hd, eof] = s:libcall_raw_read('vp_pty_read', [self.fd, a:number, a:timeout])
   return [hd, eof]
 endfunction
 
 function! s:vp_pty_write(hd, timeout) dict
-  let [nleft] = s:libcall('vp_pty_write', [self.fd, a:hd, a:timeout])
+  let [nleft] = s:libcall_raw_write('vp_pty_write', [self.fd, a:hd, a:timeout])
   return nleft
 endfunction
 
@@ -1574,13 +1605,13 @@ function! s:vp_socket_close() dict
 endfunction
 
 function! s:vp_socket_read(number, timeout) dict
-  let [hd, eof] = s:libcall('vp_socket_read',
+  let [hd, eof] = s:libcall_raw_read('vp_socket_read',
         \ [self.fd, a:number, a:timeout])
   return [hd, eof]
 endfunction
 
 function! s:vp_socket_write(hd, timeout) dict
-  let [nleft] = s:libcall('vp_socket_write',
+  let [nleft] = s:libcall_raw_write('vp_socket_write',
         \ [self.fd, a:hd, a:timeout])
   return nleft
 endfunction
