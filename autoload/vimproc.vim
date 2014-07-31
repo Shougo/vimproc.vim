@@ -1123,7 +1123,7 @@ augroup END
 
 " Initialize.
 let s:lasterr = []
-let s:read_timeout = 100
+let s:read_timeout = 1
 let s:write_timeout = 100
 let s:bg_processes = {}
 
