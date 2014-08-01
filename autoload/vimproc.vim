@@ -94,12 +94,13 @@ call vimproc#util#set_default(
 
 " Constants {{{
 function! s:define_signals()
-  let s:signames = []
+  let s:signames = {}
   let xs = s:libcall('vp_get_signals', [])
   for x in xs
     let [name, val] = split(x, ':')
-    let g:vimproc#{name} = str2nr(val)
-    call add(s:signames, name)
+    let nr = str2nr(val)
+    let g:vimproc#{name} = nr
+    let s:signames[nr] = name
   endfor
 endfunction
 " }}}
@@ -696,12 +697,7 @@ function! vimproc#kill(pid, sig) "{{{
 endfunction"}}}
 
 function! vimproc#decode_signal(signal) "{{{
-  for signame in s:signames
-    if a:signal == g:vimproc#{signame}
-      return signame
-    endif
-  endfor
-  return 'UNKNOWN'
+  return get(s:signames, a:signal, 'UNKNOWN')
 endfunction"}}}
 
 function! vimproc#write(filename, string, ...) "{{{
