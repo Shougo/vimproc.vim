@@ -350,6 +350,7 @@ vp_file_read(char *args)
     int n;
     char *buf;
     char *eof;
+    HANDLE hFile;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
@@ -365,8 +366,9 @@ vp_file_read(char *args)
     *(buf++) = VP_EOV;
     *(eof = buf++) = '0';
 
+    hFile = (HANDLE)_get_osfhandle(fd);
     while (cnt > 0) {
-        ret = WaitForSingleObject((HANDLE)_get_osfhandle(fd), timeout);
+        ret = WaitForSingleObject(hFile, timeout);
         if (ret == WAIT_FAILED) {
             return vp_stack_return_error(&_result, "WaitForSingleObject() error: %s",
                     lasterror());
@@ -404,6 +406,7 @@ vp_file_write(char *args)
     size_t nleft;
     DWORD ret;
     int n;
+    HANDLE hFile;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
@@ -414,8 +417,9 @@ vp_file_write(char *args)
     buf[size] = 0;
 
     nleft = 0;
+    hFile = (HANDLE)_get_osfhandle(fd);
     while (nleft < size) {
-        ret = WaitForSingleObject((HANDLE)_get_osfhandle(fd), timeout);
+        ret = WaitForSingleObject(hFile, timeout);
         if (ret == WAIT_FAILED) {
             return vp_stack_return_error(&_result, "WaitForSingleObject() error: %s",
                     lasterror());
@@ -595,8 +599,10 @@ vp_pipe_read(char *args)
     int cnt;
     int timeout;
     DWORD n;
+    DWORD err;
     char *buf;
     char *eof;
+    HANDLE hPipe;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
@@ -612,26 +618,29 @@ vp_pipe_read(char *args)
     *(buf++) = VP_EOV;
     *(eof = buf++) = '0';
 
+    hPipe = (HANDLE)_get_osfhandle(fd);
     while (cnt > 0) {
-        n = 0;
-        if (!PeekNamedPipe((HANDLE)_get_osfhandle(fd), buf, cnt, &n,
-                NULL, NULL))
-        {
+        if (!PeekNamedPipe(hPipe, NULL, 0, NULL, &n, NULL)) {
             /* can be ERROR_HANDLE_EOF? */
-            if (GetLastError() == 0 || GetLastError() == ERROR_BROKEN_PIPE) {
+            err = GetLastError();
+            if (err == 0 || err == ERROR_BROKEN_PIPE) {
                 /* error or eof */
-                if (n == 0) {
+                if (err == ERROR_BROKEN_PIPE) {
                     *eof = '1';
                 }
                 break;
             }
             return vp_stack_return_error(&_result, "PeekNamedPipe() error: %08X %s",
-                    GetLastError(), lasterror());
+                    err, lasterror());
+        } else if (n == 0) {
+            if (timeout-- <= 0) {
+                break;
+            }
+            Sleep(1);
+            continue;
         }
-        if (n == 0) {
-            break;
-        }
-        if (read(fd, buf, n) == -1) {
+        n = read(fd, buf, cnt);
+        if (n == -1) {
             return vp_stack_return_error(&_result, "read() error: %s",
                     strerror(errno));
         }
@@ -736,9 +745,10 @@ vp_waitpid(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%p", &handle));
 
-    if (!GetExitCodeProcess(handle, &exitcode))
+    if (!GetExitCodeProcess(handle, &exitcode)) {
         return vp_stack_return_error(&_result,
                 "GetExitCodeProcess() error: %s", lasterror());
+    }
 
     vp_stack_push_str(&_result, (exitcode == STILL_ACTIVE) ? "run" : "exit");
     vp_stack_push_num(&_result, "%u", exitcode);
@@ -754,9 +764,10 @@ vp_close_handle(char *args)
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%p", &handle));
 
-    if (!CloseHandle(handle))
+    if (!CloseHandle(handle)) {
         return vp_stack_return_error(&_result,
                 "CloseHandle() error: %s", lasterror());
+    }
     return NULL;
 }
 
@@ -772,8 +783,7 @@ detain_winsock()
     WSADATA wsadata;
     int res = 0;
 
-    if (sockets_number == 0)    /* Need startup process. */
-    {
+    if (sockets_number == 0) {  /* Need startup process. */
         res = WSAStartup(MAKEWORD(2, 0), &wsadata);
         if(res) return res;   /* Fail */
     }
@@ -786,8 +796,7 @@ release_winsock()
 {
     int res = 0;
 
-    if (sockets_number != 0)
-    {
+    if (sockets_number != 0) {
         res = WSACleanup();
         if(res) return res;   /* Fail */
 
@@ -815,8 +824,7 @@ vp_socket_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &host));
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &port));
 
-    if(detain_winsock())
-    {
+    if (detain_winsock()) {
         return vp_stack_return_error(&_result, "WSAStartup() error: %s",
             lasterror());
     }
@@ -838,9 +846,10 @@ vp_socket_open(char *args)
     sockaddr.sin_addr = *((struct in_addr*)*hostent->h_addr_list);
 
     if (connect(sock, (struct sockaddr*)&sockaddr, sizeof(struct sockaddr_in))
-            == -1)
+            == -1) {
         return vp_stack_return_error(&_result, "connect() error: %s",
                 strerror(errno));
+    }
 
     vp_stack_push_num(&_result, "%d", sock);
     return vp_stack_return(&_result);
@@ -892,9 +901,10 @@ vp_socket_read(char *args)
     *(buf++) = VP_EOV;
     *(eof = buf++) = '0';
 
-    FD_ZERO(&fdset);
-    FD_SET((unsigned)sock, &fdset);
     while (cnt > 0) {
+        FD_ZERO(&fdset);
+        FD_SET((unsigned)sock, &fdset);
+
         n = select(0, &fdset, NULL, NULL, (timeout == -1) ? NULL : &tv);
         if (n == SOCKET_ERROR) {
             return vp_stack_return_error(&_result, "select() error: %d",
@@ -917,6 +927,8 @@ vp_socket_read(char *args)
         buf += n;
         /* try read more bytes without waiting */
         timeout = 0;
+        tv.tv_sec = 0;
+        tv.tv_usec = 0;
     }
     _result.top = buf;
     return vp_stack_return(&_result);
@@ -945,10 +957,11 @@ vp_socket_write(char *args)
     size = (stack.top - 1) - stack.buf;
     buf[size] = 0;
 
-    FD_ZERO(&fdset);
-    FD_SET((unsigned)sock, &fdset);
     nleft = 0;
     while (nleft < size) {
+        FD_ZERO(&fdset);
+        FD_SET((unsigned)sock, &fdset);
+
         n = select(0, NULL, &fdset, NULL, (timeout == -1) ? NULL : &tv);
         if (n == SOCKET_ERROR) {
             return vp_stack_return_error(&_result, "select() error: %d",
@@ -964,6 +977,8 @@ vp_socket_write(char *args)
         nleft += n;
         /* try write more bytes without waiting */
         timeout = 0;
+        tv.tv_sec = 0;
+        tv.tv_usec = 0;
     }
     vp_stack_push_num(&_result, "%u", nleft);
     return vp_stack_return(&_result);

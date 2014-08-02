@@ -870,10 +870,10 @@ function! s:read(...) dict "{{{
     let [out, eof] = self.f_read(maxsize, 
           \ (timeout < s:read_timeout ? timeout : s:read_timeout))
     if out ==# ''
-      if timeout <= s:read_timeout
+      let timeout -= s:read_timeout
+      if timeout <= 0
         break
       endif
-      let timeout -= s:read_timeout
     else
       let buf += [out]
       let maxsize -= len(out)
