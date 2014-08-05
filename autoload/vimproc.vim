@@ -887,35 +887,45 @@ function! s:read(...) dict "{{{
   return join(buf, '')
 endfunction"}}}
 function! s:read_lines(...) dict "{{{
-  let res = self.buffer
+  if self.__eof
+    return []
+  endif
 
-  let outs = ['']
-  while !self.eof && stridx(outs[-1], "\n") < 0
-    let out = call(self.read, a:000, self)
-    if out  == ''
-      break
+  let lines = self.buffer[:-2]
+  let res = get(self.buffer, -1, '')
+
+  let out = call(self.read, a:000, self)
+  if out !=# ''
+    let outs = split(out, '\r*\n', 1)
+    let res .= outs[0]
+    if len(outs) > 1
+      let lines += [substitute(res, '\r*$', '', '')] + outs[1:-2]
+      let res = outs[-1]
     endif
+  endif
 
-    let outs += [out]
-  endwhile
-
-  let res .= join(outs, '')
-
-  let self.buffer = ''
-  let lines = split(res, '\r*\n', 1)
-  if !self.__eof
-    let self.buffer = get(lines, -1, '')
-    let lines = lines[ : -2]
+  if self.__eof || out ==# ''
+    if res !=# ''
+      let lines += [res]
+    endif
+    let self.buffer = []
+  else
+    let self.buffer = [res]
   endif
 
   return lines
 endfunction"}}}
 function! s:read_line(...) dict "{{{
-  let lines = call(self.read_lines, a:000 + [1], self)
-  let self.buffer = join(lines[1:], "\n") . self.buffer
-  let self.eof = (self.buffer != '') ?
-        \ (self.__eof && self.buffer == '') : self.__eof
-  return get(lines, 0, '')
+  let line = ''
+  if !self.__eof && len(self.buffer) <= 1
+    let lines = call(self.read_lines, a:000, self)
+    let self.buffer = lines[1:] + self.buffer
+    let line = get(lines, 0, '')
+  elseif !empty(self.buffer)
+    let [line; self.buffer] = self.buffer
+  endif
+  let self.eof = self.__eof && empty(self.buffer)
+  return line
 endfunction"}}}
 
 function! s:write(str, ...) dict "{{{
@@ -926,7 +936,7 @@ endfunction"}}}
 function! s:fdopen(fd, f_close, f_read, f_write) "{{{
   return {
         \ 'fd' : a:fd,
-        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : [],
         \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write),
         \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
         \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
@@ -935,7 +945,7 @@ endfunction"}}}
 function! s:closed_fdopen(f_close, f_read, f_write) "{{{
   return {
         \ 'fd' : -1,
-        \ 'eof' : 1, '__eof' : 1, 'is_valid' : 0, 'buffer' : '',
+        \ 'eof' : 1, '__eof' : 1, 'is_valid' : 0, 'buffer' : [],
         \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write),
         \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
         \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
@@ -943,7 +953,7 @@ function! s:closed_fdopen(f_close, f_read, f_write) "{{{
 endfunction"}}}
 function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write) "{{{
   return {
-        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : [],
         \ 'fd_stdin' : a:fd_stdin, 'fd_stdout' : a:fd_stdout,
         \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
         \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
@@ -952,7 +962,7 @@ function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write) "{{{
 endfunction"}}}
 function! s:fdopen_pipes(fd, f_close, f_read, f_write) "{{{
   return {
-        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : [],
         \ 'fd' : a:fd,
         \ 'f_close' : s:funcref(a:f_close),
         \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write),
@@ -961,7 +971,7 @@ function! s:fdopen_pipes(fd, f_close, f_read, f_write) "{{{
 endfunction"}}}
 function! s:fdopen_pgroup(proc, fd, f_close, f_read, f_write) "{{{
   return {
-        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : '',
+        \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : [],
         \ 'proc' : a:proc, 'fd' : a:fd,
         \ 'f_close' : s:funcref(a:f_close),
         \ 'close' : s:funcref('close'), 'read' : s:funcref(a:f_read), 'write' : s:funcref(a:f_write),
