@@ -230,10 +230,12 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
 
   if a:timeout > 0 && has('reltime') && v:version >= 702
     let start = reltime()
-    let timeout = a:timeout
+    let deadline = a:timeout
+    let timeout = a:timeout / 2
   else
     let start = 0
-    let timeout = 0
+    let deadline = 0
+    let timeout = s:read_timeout
   endif
 
   if !a:is_passwd
@@ -244,11 +246,11 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
   let outbuf = []
   let errbuf = []
   while !subproc.stdout.eof || !subproc.stderr.eof
-    if timeout > 0 "{{{
+    if deadline "{{{
       " Check timeout.
       let tick = reltimestr(reltime(start))
       let elapse = str2nr(tick[:-8] . tick[-6:-4], 10)
-      if elapse > timeout && !subproc.stdout.eof
+      if deadline <= elapse && !subproc.stdout.eof
         " Kill process.
         try
           call subproc.kill(g:vimproc#SIGTERM)
@@ -259,10 +261,11 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
 
         throw 'vimproc: vimproc#system(): Timeout.'
       endif
+      let timeout = (deadline - elapse) / 2
     endif"}}}
 
     if !subproc.stdout.eof "{{{
-      let out = subproc.stdout.read(10000, 10)
+      let out = subproc.stdout.read(-1, timeout)
 
       if a:is_passwd && out =~# g:vimproc_password_pattern
         redraw
@@ -280,7 +283,7 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
     endif"}}}
 
     if !subproc.stderr.eof "{{{
-      let out = subproc.stderr.read(10000, 10)
+      let out = subproc.stderr.read(-1, timeout)
 
       if a:is_passwd && out =~# g:vimproc_password_pattern
         redraw
