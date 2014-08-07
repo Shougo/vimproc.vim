@@ -86,14 +86,8 @@ static const char *vp_stack_return_error(vp_stack_t *stack, const char *fmt, ...
 static const char *vp_stack_reserve(vp_stack_t *stack, size_t needsize);
 static const char *vp_stack_pop_num(vp_stack_t *stack, const char *fmt, void *ptr);
 static const char *vp_stack_pop_str(vp_stack_t *stack, char **str);
-#if 0
-static const char *vp_stack_pop_bin(vp_stack_t *stack, char **buf, size_t *size);
-#endif
 static const char *vp_stack_push_num(vp_stack_t *stack, const char *fmt, ...);
 static const char *vp_stack_push_str(vp_stack_t *stack, const char *str);
-#if 0
-static const char *vp_stack_push_bin(vp_stack_t *stack, const char *buf, size_t size);
-#endif
 
 static void
 vp_stack_free(vp_stack_t *stack)
@@ -221,29 +215,6 @@ vp_stack_pop_str(vp_stack_t *stack, char **str)
     return NULL;
 }
 
-#if 0
-/* bin is hexdump */
-static const char *
-vp_stack_pop_bin(vp_stack_t *stack, char **buf, size_t *size)
-{
-    char *p;
-    char ub, lb;
-    size_t gain = 0;
-
-    VP_RETURN_IF_FAIL(vp_stack_pop_str(stack, buf));
-    p = *buf;
-    while (*p) {
-        ub = CHR2XD[(unsigned char)*(p++)];
-        lb = CHR2XD[(unsigned char)*(p++)];
-        if (ub < 0 || lb < 0)
-            return "vp_stack_pop_bin: sscanf error";
-        (*buf)[gain++] = (char)((ub << 4) | (lb << 0));
-    }
-    *size = gain;
-    return NULL;
-}
-#endif
-
 static const char *
 vp_stack_push_num(vp_stack_t *stack, const char *fmt, ...)
 {
@@ -269,23 +240,3 @@ vp_stack_push_str(vp_stack_t *stack, const char *str)
     stack->top += sprintf(stack->top, "%s%c", str, VP_EOV);
     return NULL;
 }
-
-#if 0
-static const char *
-vp_stack_push_bin(vp_stack_t *stack, const char *buf, size_t size)
-{
-    size_t needsize;
-    size_t i;
-    char *bs;
-
-    needsize = (stack->top - stack->buf) + (size * 2) + sizeof(VP_EOV_STR);
-    VP_RETURN_IF_FAIL(vp_stack_reserve(stack, needsize));
-    for (i = 0; i < size; ++i) {
-        bs = (char *)&XD2CHR[(unsigned char)(buf[i]) * 2];
-        *(stack->top++) = bs[0];
-        *(stack->top++) = bs[1];
-    }
-    *(stack->top++) = VP_EOV;
-    return NULL;
-}
-#endif
