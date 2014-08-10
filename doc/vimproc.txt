@@ -411,13 +411,48 @@ g:stderrencoding		(default : "char")
 OBJECTS 					*vimproc-objects*
 
 						*vimproc-file-object*
-		Todo
+File object
+		The file object provides some operations for file io.
+		It has functions and attributes follows:
+		eof		If reaches end of file, it is 1.
+				Otherwise, 0.
+		is_valid	Todo
+		read([{number}[, {timeout}[, {oneline}]]])
+				Read this file content up to the {number}
+				characters.
+		read_line([{number}[, {timeout}[, {oneline}]]])
+				Read next line from this file up to the
+				{number} characters.
+		read_lines([{number}[, {timeout}[, {oneline}]]])
+				Read all lines from this file up to the
+				{number} characters.
+		write({str}[, {timeout}])
+				Write given {str} to this file.
+		close()		Close this file.
 
 						*vimproc-socket-object*
-		Todo
+Socket object
+		The socket object provides some operations for socket io.
+		It functions and attributes same to |vimproc-file-object|.
 
 						*vimproc-process-object*
-		Todo
+Process object
+		The process object provides some operations for piped io.
+		It has functions and attributes follows:
+		pid		The pid of a child process was started.
+		pid_list	Todo
+		stderr		The |vimproc-file-object|.
+		stdout		The |vimproc-file-object|.
+		stdin		The |vimproc-file-object|.
+		is_pty		Todo
+		is_valid	Todo
+		checkpid()	Todo
+		kill({signal})	It is similar to kill command. It can send
+				{signal} to a child process.
+		waitpid()	Wait for a child process to stop or terminate.
+		get_winsize()	Todo
+		set_winsize({width}, {height})
+				Todo
 
 ==============================================================================
 TIPS						*vimproc-tips*
