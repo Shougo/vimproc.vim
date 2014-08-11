@@ -212,9 +212,10 @@ function! vimproc#get_command_name(command, ...) "{{{
 endfunction"}}}
 
 function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
+  let s:last_status = 0
+  let s:last_errmsg = ''
+
   if empty(a:cmdline)
-    let s:last_status = 0
-    let s:last_errmsg = ''
     return ''
   endif
 
@@ -223,86 +224,90 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
         \ a:is_pty ? vimproc#ptyopen(a:cmdline):
         \ vimproc#pgroup_open(a:cmdline)
 
-  if a:input != ''
-    " Write input.
-    call subproc.stdin.write(a:input)
-  endif
-
-  if a:timeout > 0 && has('reltime') && v:version >= 702
-    let start = reltime()
-    let timeout = a:timeout
-  else
-    let start = 0
-    let timeout = 0
-  endif
-
-  if !a:is_passwd
-    call subproc.stdin.close()
-  endif
-
-  let s:last_errmsg = ''
   let outbuf = []
   let errbuf = []
-  while !subproc.stdout.eof || !subproc.stderr.eof
-    if timeout > 0 "{{{
-      " Check timeout.
-      let tick = reltimestr(reltime(start))
-      let elapse = str2nr(tick[:-8] . tick[-6:-4], 10)
-      if elapse > timeout && !subproc.stdout.eof
-        " Kill process.
-        try
-          call subproc.kill(g:vimproc#SIGTERM)
-          call subproc.waitpid()
-        catch
-          " Ignore error.
-        endtry
 
-        throw 'vimproc: vimproc#system(): Timeout.'
-      endif
-    endif"}}}
+  try
+    if a:input != ''
+      " Write input.
+      call subproc.stdin.write(a:input)
+    endif
 
-    if !subproc.stdout.eof "{{{
-      let out = subproc.stdout.read(10000, 10)
+    if a:timeout > 0 && has('reltime') && v:version >= 702
+      let start = reltime()
+      let deadline = a:timeout
+      let timeout = a:timeout / 2
+    else
+      let start = 0
+      let deadline = 0
+      let timeout = s:read_timeout
+    endif
 
-      if a:is_passwd && out =~# g:vimproc_password_pattern
-        redraw
-        echo out
+    if !a:is_passwd
+      call subproc.stdin.close()
+    endif
 
-        " Password input.
-        set imsearch=0
-        let in = vimproc#util#iconv(inputsecret('Input Secret : ')."\<NL>",
-              \ &encoding, vimproc#util#termencoding())
+    while !subproc.stdout.eof || !subproc.stderr.eof
+      if deadline "{{{
+        " Check timeout.
+        let tick = reltimestr(reltime(start))
+        let elapse = str2nr(tick[:-8] . tick[-6:-4], 10)
+        if deadline <= elapse && !subproc.stdout.eof
+          " Kill process.
+          throw 'vimproc: vimproc#system(): Timeout.'
+        endif
+        let timeout = (deadline - elapse) / 2
+      endif"}}}
 
-        call subproc.stdin.write(in)
-      else
-        let outbuf += [out]
-      endif
-    endif"}}}
+      if !subproc.stdout.eof "{{{
+        let out = subproc.stdout.read(-1, timeout)
 
-    if !subproc.stderr.eof "{{{
-      let out = subproc.stderr.read(10000, 10)
+        if a:is_passwd && out =~# g:vimproc_password_pattern
+          redraw
+          echo out
 
-      if a:is_passwd && out =~# g:vimproc_password_pattern
-        redraw
-        echo out
+          " Password input.
+          set imsearch=0
+          let in = vimproc#util#iconv(inputsecret('Input Secret : ')."\<NL>",
+                \ &encoding, vimproc#util#termencoding())
 
-        " Password input.
-        set imsearch=0
-        let in = vimproc#util#iconv(inputsecret('Input Secret : ') . "\<NL>",
-              \ &encoding, vimproc#util#termencoding())
+          call subproc.stdin.write(in)
+        else
+          let outbuf += [out]
+        endif
+      endif"}}}
 
-        call subproc.stdin.write(in)
-      else
-        let outbuf += [out]
-        let errbuf += [out]
-      endif
-    endif"}}}
-  endwhile
+      if !subproc.stderr.eof "{{{
+        let out = subproc.stderr.read(-1, timeout)
 
-  let output = join(outbuf, '')
-  let s:last_errmsg = join(errbuf, '')
+        if a:is_passwd && out =~# g:vimproc_password_pattern
+          redraw
+          echo out
 
-  call subproc.waitpid()
+          " Password input.
+          set imsearch=0
+          let in = vimproc#util#iconv(inputsecret('Input Secret : ') . "\<NL>",
+                \ &encoding, vimproc#util#termencoding())
+
+          call subproc.stdin.write(in)
+        else
+          let outbuf += [out]
+          let errbuf += [out]
+        endif
+      endif"}}}
+    endwhile
+  catch
+    call subproc.kill(g:vimproc#SIGTERM)
+
+    if v:exception !~ '^Vim:Interrupt'
+      throw v:exception
+    endif
+  finally
+    let output = join(outbuf, '')
+    let s:last_errmsg = join(errbuf, '')
+
+    call subproc.waitpid()
+  endtry
 
   " Newline convert.
   if vimproc#util#is_mac()
