@@ -203,8 +203,8 @@ vp_file_open(char *args)
 #ifdef O_WRONLY
     if (strstr(flags, "O_WRONLY"))      f |= O_WRONLY;
 #endif
-#ifdef O_RDRW
-    if (strstr(flags, "O_RDRW"))        f |= O_RDWR;
+#ifdef O_RDWR
+    if (strstr(flags, "O_RDWR"))        f |= O_RDWR;
 #endif
 #ifdef O_NONBLOCK
     if (strstr(flags, "O_NONBLOCK"))    f |= O_NONBLOCK;
