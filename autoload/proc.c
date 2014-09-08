@@ -775,6 +775,14 @@ vp_pty_set_winsize(char *args)
     return NULL;
 }
 
+static pid_t
+get_pid()
+{
+    static pid_t pid = -1;
+
+    return (pid != -1) ? pid : (pid = getpid());
+}
+
 const char *
 vp_kill(char *args)
 {
@@ -795,7 +803,7 @@ vp_kill(char *args)
     if (sig != 0) {
         /* Kill by the process group. */
         pgid = getpgid(pid);
-        if (pgid > 0) {
+        if (pgid > 1 && pgid != get_pid()) {
             kill(-pgid, sig);
         }
     }
