@@ -4,7 +4,7 @@ TARGET=autoload/vimproc_win32.dll
 SRC=autoload/proc_w32.c
 CC=gcc
 CFLAGS=-O2 -Wall -shared -m32
-LDFLAGS+=-lwsock32
+LDFLAGS+=-lwsock32 -luser32 -lole32
 
 all: $(TARGET)
 

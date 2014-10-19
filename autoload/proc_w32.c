@@ -43,6 +43,7 @@
 #include <windows.h>
 #include <winbase.h>
 #include <shellapi.h>
+#include <shobjidl.h>
 #if 0
 # include <winsock2.h>
 #endif
@@ -175,6 +176,94 @@ lasterror()
     lstrcpyn(lpMsgBuf, p, lengthof(lpMsgBuf));
     free(p);
     return lpMsgBuf;
+}
+
+static BOOL is_shortcut(LPWSTR fileName) {
+    SHFILEINFOW fi = { 0 };
+    if (SHGetFileInfoW(fileName, 0, &fi, sizeof(SHFILEINFOW), SHGFI_ATTRIBUTES)) {
+        return (fi.dwAttributes & SFGAO_LINK) == SFGAO_LINK;
+    }
+    return FALSE;
+}
+
+static BOOL resolve_shortcut(LPWSTR fileName, LPWSTR buf, size_t len) {
+    IShellLinkW* psl = NULL;
+    IPersistFile* ppf = NULL;
+    HRESULT ret = 0;
+
+    ret = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+        &IID_IShellLinkW, (LPVOID *)&psl);
+    if (FAILED(ret))
+        goto error;
+
+    ret = psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile, (LPVOID*)&ppf);
+    if (FAILED(ret))
+        goto error;
+
+    ret = ppf->lpVtbl->Load(ppf, fileName, STGM_READ);
+    if (FAILED(ret))
+        goto error;
+
+    ret = psl->lpVtbl->Resolve(psl, GetDesktopWindow(), SLR_NO_UI);
+    if (FAILED(ret))
+        goto error;
+
+    ret = psl->lpVtbl->GetPath(psl, buf, len, NULL, 0);
+    if (FAILED(ret))
+        goto error;
+
+error:
+    if (ppf != NULL) ppf->lpVtbl->Release(ppf);
+    if (psl != NULL) psl->lpVtbl->Release(psl);
+    return SUCCEEDED(ret);
+}
+
+static LPWSTR resolve_cmdline(LPWSTR cmdline) {
+    int argc = 0;
+    LPWSTR *argv = NULL;
+    LPWSTR buf = NULL;
+    size_t len = 0;
+    size_t offset = 0;
+    BOOL err = TRUE;
+
+    argv = CommandLineToArgvW(cmdline, &argc);
+    if (argv == NULL)
+        goto error;
+
+    if (!is_shortcut(argv[0]))
+        goto error;
+
+    // MAX_PATH is the maximum path size returned by IShellLink::GetPath
+    // +1 for the space joining the target and args
+    // + the length of the args
+    len = MAX_PATH + 1 + wcslen(cmdline) - wcslen(argv[0]);
+    buf = malloc(len * sizeof(WCHAR));
+    if (!resolve_shortcut(argv[0], buf, MAX_PATH))
+        goto error;
+
+    err = FALSE;
+
+    offset = wcslen(buf);
+    // Skip the original file name, but copy the args
+    for (int i = 1; i < argc; ++i) {
+        size_t remaining = len - offset;
+        int iLen = _snwprintf(buf + offset, remaining, L" %s", argv[i]);
+        if (iLen > 0 && (size_t)iLen < remaining) {
+            offset += iLen;
+        } else {
+            // Truncation or error
+            err = TRUE;
+            break;
+        }
+    }
+
+error:
+    if (err && buf != NULL) {
+        free(buf);
+        buf = NULL;
+    }
+    if (argv != NULL) LocalFree(argv);
+    return buf;
 }
 
 #define open _open
@@ -543,6 +632,20 @@ vp_pipe_open(char *args)
 
     ret = CreateProcessW(NULL, cmdlinew, NULL, NULL, TRUE,
                         CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
+    if (!ret) {
+        // CreateProcess won't execute shortcuts, thus try to resolve it
+        // Store and restore the error in case we are not able to resolve the shortcut
+        DWORD lastError = GetLastError();
+        LPWSTR resolvedCmdlinew = resolve_cmdline(cmdlinew);
+        if (resolvedCmdlinew != NULL) {
+            ret = CreateProcessW(NULL, resolvedCmdlinew, NULL, NULL, TRUE,
+                CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
+            free(resolvedCmdlinew);
+        } else {
+            SetLastError(lastError);
+        }
+    }
+
     free(cmdlinew);
     if (!ret)
         VP_GOTO_ERROR("CreateProcess() error: %s");

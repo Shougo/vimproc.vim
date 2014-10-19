@@ -63,7 +63,7 @@ clean:
 
 $(SRCDIR)\$(VIMPROC).dll: $(OBJS)
 	$(link) /NOLOGO $(ldebug) $(dlllflags) $(conlibsdll) $(LFLAGS) \
-		/OUT:$@ $(OBJS) shell32.lib
+		/OUT:$@ $(OBJS) shell32.lib user32.lib ole32.lib
 	IF EXIST $@.manifest \
 		mt -nologo -manifest $@.manifest -outputresource:$@;2
 
