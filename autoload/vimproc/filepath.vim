@@ -57,7 +57,11 @@ endfunction
 function! s:which(command, ...)
   let maxcount = (a:0 >= 2 && type(a:2) == type(0)) ? a:2 : 1
   if maxcount == 1 && exists('*exepath')
-    return exepath(a:command)
+    let full = exepath(a:command)
+    if s:is_windows && (full =~? '\.lnk$') && (getftype(full) ==# 'file')
+      return resolve(full)
+    endif
+    return full
   endif
   let pathlist = a:command =~# s:path_sep_pattern ? [''] :
   \              !a:0                  ? split($PATH, s:path_separator) :
@@ -76,7 +80,7 @@ function! s:which(command, ...)
     let head = dir ==# '' ? '' : dir . dirsep
     for ext in pathext
       let full = fnamemodify(head . a:command . ext, ':p')
-      if getftype(full) ==# 'link' && s:is_windows
+      if s:is_windows && (full =~? '\.lnk$') && (getftype(full) ==# 'file')
         let full = resolve(full)
       endif
 
