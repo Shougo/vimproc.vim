@@ -35,8 +35,13 @@ let s:is_mac = !s:is_windows
       \   (!isdirectory('/proc') && executable('sw_vers')))
 
 " iconv() wrapper for safety.
+function! vimproc#util#has_iconv() "{{{
+  " On Windows, some encodings can be converted by iconv() even if
+  " libiconv.dll is not available.
+  return (has('iconv') || (s:is_windows && exists('*iconv')))
+endfunction"}}}
 function! vimproc#util#iconv(expr, from, to) "{{{
-  if !has('iconv')
+  if !vimproc#util#has_iconv()
         \ || a:expr == '' || a:from == ''
         \ || a:to == '' || a:from ==# a:to
     return a:expr
