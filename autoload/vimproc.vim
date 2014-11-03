@@ -536,7 +536,8 @@ function! s:plineopen(npipe, commands, is_pty) "{{{
 
     if is_pty && (cnt == 0 || cnt == len(a:commands)-1)
       " Use pty_open().
-      let pipe = s:vp_pty_open(pty_npipe, winwidth(0)-5, winheight(0),
+      let pipe = s:vp_pty_open(pty_npipe,
+            \ s:get_winwidth(), winheight(0),
             \ hstdin, hstdout, hstderr, args)
     else
       let pipe = s:vp_pipe_open(pty_npipe,
@@ -1468,7 +1469,7 @@ function! s:vp_pty_write(hd, timeout) dict
 endfunction
 
 function! s:vp_get_winsize() dict
-  let [width, height] = [winwidth(0)-5, winheight(0)]
+  let [width, height] = [s:get_winwidth(), winheight(0)]
 
   if !vimproc#util#is_windows()
     for pid in self.pid_list
@@ -1634,6 +1635,10 @@ endfunction
 function! s:vp_host_exists(host)
   let [rval] = s:libcall('vp_host_exists', [a:host])
   return rval
+endfunction
+
+function! s:get_winwidth()
+  return winwidth(0) - &l:numberwidth - &l:foldcolumn
 endfunction
 
 " Initialize.
