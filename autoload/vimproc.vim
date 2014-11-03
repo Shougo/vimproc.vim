@@ -75,7 +75,7 @@ unlet s:vimproc_dll_basename
 call vimproc#util#set_default(
       \ 'g:vimproc#password_pattern',
       \ '\%(Enter \|[Oo]ld \|[Nn]ew \|login '  .
-      \'\|Kerberos \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
+      \'\|Kerberos \|EncFS \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
       \'\|^\|\n\|''s \)\%([Pp]assword\|[Pp]assphrase\)\>',
       \ 'g:vimproc_password_pattern')
 call vimproc#util#set_default(
