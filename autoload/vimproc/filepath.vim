@@ -37,7 +37,7 @@ function! s:path_extensions()
         " get default PATHEXT
         let pathext = matchstr(system('set pathext'), '^pathext=\zs.*\ze\n', 'i')
       endif
-      let s:path_extensions = map(split(pathext, s:path_separator), 'tolower(v:val)')
+      let s:path_extensions = split(tolower(pathext), s:path_separator)
     elseif s:is_cygwin
       " cygwin is not use $PATHEXT
       let s:path_extensions = ['', '.exe']
