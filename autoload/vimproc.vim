@@ -594,6 +594,8 @@ function! s:plineopen(npipe, commands, is_pty) "{{{
   let proc.is_pty = is_pty
   if a:is_pty
     let proc.ttyname = ''
+    let proc.width = winwidth(0) - &l:numberwidth - &l:foldcolumn
+    let proc.height = winheight(0)
     let proc.get_winsize = s:funcref('vp_get_winsize')
     let proc.set_winsize = s:funcref('vp_set_winsize')
   endif
@@ -1482,9 +1484,12 @@ endfunction
 
 function! s:vp_set_winsize(width, height) dict
   if vimproc#util#is_windows() || !self.is_valid
-    " Not implemented.
+        \|| (abs(a:width - self.width) < 3 && abs(a:height - self.height) < 3)
     return
   endif
+
+  let self.width = a:width
+  let self.height = a:height
 
   if self.is_pty
     if self.stdin.eof == 0 && self.stdin.fd[-1].is_pty
