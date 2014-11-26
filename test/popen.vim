@@ -1,16 +1,10 @@
-" Tests for vesting.
+let s:suite = themis#suite('parser')
+let s:assert = themis#helper('assert')
 
-scriptencoding utf-8
-
-" Saving 'cpoptions' {{{
-let s:save_cpo = &cpo
-set cpo&vim
-" }}}
-
-Context Popen.popen2()
+function! s:suite.popen2()
   if !executable('ls')
     echo 'ls command is not installed.'
-    finish
+    return
   endif
 
   let cmd = 'ls'
@@ -22,27 +16,17 @@ Context Popen.popen2()
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
 
-  It yet not closed
-    Should sub.is_valid
-  End
+  call s:assert.equals(sub.is_valid, 1)
 
   let [cond, status] = sub.waitpid()
 
-  It equals "exit"
-    Should cond ==# 'exit'
-  End
+  call s:assert.equals(cond, 'exit')
 
-  It equals zero
-    Should status == 0
-  End
+  call s:assert.equals(status, 0)
 
-  It closed
-    Should !sub.is_valid
-  End
+  call s:assert.equals(sub.is_valid, 0)
 
-  It is same system()
-    Should res == system(cmd)
-  End
+  call s:assert.equals(res, system(cmd))
 
   unlet cmd
   unlet sub
@@ -56,33 +40,23 @@ Context Popen.popen2()
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
 
-  It yet not closed
-    Should sub.is_valid
-  End
+  call s:assert.equals(sub.is_valid, 1)
 
   let [cond, status] = sub.waitpid()
 
-  It equals "exit"
-    Should cond ==# 'exit'
-  End
+  call s:assert.equals(cond, 'exit')
 
-  It equals zero
-    Should status == 0
-  End
+  call s:assert.equals(status, 0)
 
-  It closed
-    Should !sub.is_valid
-  End
+  call s:assert.equals(sub.is_valid, 0)
 
-  It is same to system()
-    Should res == system(join(cmd))
-  End
+  call s:assert.equals(res, system(join(cmd)))
 
   unlet cmd
   unlet sub
-End
+endfunction
 
-Context Popen.popen3()
+function! s:suite.popen3()
   let cmd = 'ls'
   let sub = vimproc#popen3([cmd])
   let res = ''
@@ -92,36 +66,26 @@ Context Popen.popen3()
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
 
-  It yet not closed
-    Should sub.is_valid
-  End
+  call s:assert.equals(sub.is_valid, 1)
 
   let [cond, status] = sub.waitpid()
 
-  It equals "exit"
-    Should cond ==# 'exit'
-  End
+  call s:assert.equals(cond, 'exit')
 
-  It equals zero
-    Should status == 0
-  End
+  call s:assert.equals(status, 0)
 
-  It closed
-    Should !sub.is_valid
-  End
+  call s:assert.equals(sub.is_valid, 0)
 
-  It is same to system()
-    Should res == system(cmd)
-  End
+  call s:assert.equals(res, system(cmd))
 
   unlet cmd
   unlet sub
-End
+endfunction
 
-Context Redirection
+function! s:suite.redirection()
   let output = vimproc#system('echo "foo" > test.txt | echo "bar"')
-  ShouldEqual output, "bar\n"
-  ShouldEqual readfile('test.txt'), ['foo']
+  call s:assert.equals(output, "bar\n")
+  call s:assert.equals(readfile('test.txt'), ['foo'])
   if filereadable('test.txt')
     call delete('test.txt')
   endif
@@ -133,17 +97,11 @@ Context Redirection
   endwhile
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
-  ShouldEqual output, "bar\n"
-  ShouldEqual readfile('test.txt'), ['foo']
+  call s:assert.equals(output, "bar\n")
+  call s:assert.equals(readfile('test.txt'), ['foo'])
   if filereadable('test.txt')
     call delete('test.txt')
   endif
-End
-
-Fin
-
-" Restore 'cpoptions' {{{
-let &cpo = s:save_cpo
-" }}}
+endfunction
 
 " vim:foldmethod=marker:fen:
