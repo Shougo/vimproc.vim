@@ -25,9 +25,9 @@ function! s:suite.system()
         \ vimproc#system_bg('ls'))
   call s:assert.equals(vimproc#system_bg('ls'), '')
   call s:assert.equals(vimproc#system_bg(['ls']), '')
-  call s:assert.equals(
-        \ 'Enter passphrase for key ''.ssh/id_rsa''' =~
-        \ g:vimproc_password_pattern, 1)
+  call s:assert.match(
+        \ 'Enter passphrase for key ''.ssh/id_rsa''',
+        \ g:vimproc_password_pattern)
 endfunction
 
 " vim:foldmethod=marker:fen:

@@ -2,12 +2,12 @@ let s:suite = themis#suite('parser')
 let s:assert = themis#helper('assert')
 
 function! s:suite.socket()
-  call s:assert.equals(vimproc#host_exists(
-        \ 'www.yahoo.com'), 1)
-  call s:assert.equals(vimproc#host_exists(
-        \ 'https://www.yahoo.com'), 1)
-  call s:assert.equals(vimproc#host_exists(
-        \ 'https://www.yahoo.com/hoge/piyo'), 1)
+  call s:assert.true(vimproc#host_exists(
+        \ 'www.yahoo.com'))
+  call s:assert.true(vimproc#host_exists(
+        \ 'https://www.yahoo.com'))
+  call s:assert.true(vimproc#host_exists(
+        \ 'https://www.yahoo.com/hoge/piyo'))
 
   let sock = vimproc#socket_open('www.yahoo.com', 80)
   call sock.write("GET / HTTP/1.0\r\n\r\n", 100)
@@ -18,11 +18,11 @@ function! s:suite.socket()
     let res .= out
   endwhile
 
-  call s:assert.equals(sock.is_valid, 1)
+  call s:assert.true(sock.is_valid)
 
   call sock.close()
 
-  call s:assert.equals(sock.is_valid, 0)
+  call s:assert.false(sock.is_valid)
 
   echo res
 endfunction

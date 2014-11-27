@@ -16,7 +16,7 @@ function! s:suite.popen2()
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
 
-  call s:assert.equals(sub.is_valid, 1)
+  call s:assert.true(sub.is_valid)
 
   let [cond, status] = sub.waitpid()
 
@@ -24,7 +24,7 @@ function! s:suite.popen2()
 
   call s:assert.equals(status, 0)
 
-  call s:assert.equals(sub.is_valid, 0)
+  call s:assert.false(sub.is_valid)
 
   call s:assert.equals(res, system(cmd))
 
@@ -40,7 +40,7 @@ function! s:suite.popen2()
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
 
-  call s:assert.equals(sub.is_valid, 1)
+  call s:assert.true(sub.is_valid)
 
   let [cond, status] = sub.waitpid()
 
@@ -48,7 +48,7 @@ function! s:suite.popen2()
 
   call s:assert.equals(status, 0)
 
-  call s:assert.equals(sub.is_valid, 0)
+  call s:assert.false(sub.is_valid)
 
   call s:assert.equals(res, system(join(cmd)))
 
@@ -66,7 +66,7 @@ function! s:suite.popen3()
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
 
-  call s:assert.equals(sub.is_valid, 1)
+  call s:assert.true(sub.is_valid)
 
   let [cond, status] = sub.waitpid()
 
@@ -74,7 +74,7 @@ function! s:suite.popen3()
 
   call s:assert.equals(status, 0)
 
-  call s:assert.equals(sub.is_valid, 0)
+  call s:assert.false(sub.is_valid)
 
   call s:assert.equals(res, system(cmd))
 

@@ -17,11 +17,11 @@ function! s:suite.fopen()
   let file = vimproc#fopen(g:filename, 'O_RDONLY', 0)
   let res = file.read()
 
-  call s:assert.equals(file.is_valid, 1)
+  call s:assert.true(file.is_valid)
 
   call file.close()
 
-  call s:assert.equals(file.is_valid, 0)
+  call s:assert.false(file.is_valid)
 
   call s:assert.equals(
         \ readfile(g:filename),
@@ -30,11 +30,11 @@ function! s:suite.fopen()
   let file = vimproc#fopen(g:filename, 'O_RDONLY', 0)
   let res2 = file.read_lines()
 
-  call s:assert.equals(file.is_valid, 1)
+  call s:assert.true(file.is_valid)
 
   call file.close()
 
-  call s:assert.equals(file.is_valid, 0)
+  call s:assert.false(file.is_valid)
 
   call s:assert.equals(
         \ readfile(g:filename, 'b'), res2)
@@ -45,11 +45,11 @@ function! s:suite.fopen()
     let res2 += [file.read_line()]
   endwhile
 
-  call s:assert.equals(file.is_valid, 1)
+  call s:assert.true(file.is_valid)
 
   call file.close()
 
-  call s:assert.equals(file.is_valid, 0)
+  call s:assert.false(file.is_valid)
 
   call s:assert.equals(readfile(g:filename), res2)
 endfunction
