@@ -168,7 +168,7 @@ function! vimproc#parser#parse_statements(script) "{{{
 
       let statement .= '\' . script[i]
       let i += 1
-    elseif script[i] == '#'
+    elseif script[i] == '#' && statement == ''
       " Comment.
       break
     else
@@ -231,7 +231,7 @@ function! vimproc#parser#split_args(script) "{{{
 
       let arg .= script[i]
       let i += 1
-    elseif script[i] == '#'
+    elseif script[i] == '#' && arg == ''
       " Comment.
       break
     elseif script[i] != ' '

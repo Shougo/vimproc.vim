@@ -12,6 +12,15 @@ function! s:suite.escape()
   call s:assert.equals(vimproc#shellescape('ho''ge'), "'ho''ge'")
 endfunction
 
+function! s:suite.comment()
+  call s:assert.equals(
+        \ vimproc#parser#split_args('echo file#1.txt'),
+        \ ['echo', 'file#1.txt'])
+  call s:assert.equals(
+        \ vimproc#parser#split_args('echo file #1.txt'),
+        \ ['echo', 'file'])
+endfunction
+
 function! s:suite.quote()
   let is_catched = 0
   try
