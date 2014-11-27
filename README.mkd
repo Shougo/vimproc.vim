@@ -1,5 +1,7 @@
 # vimproc
 
+[![Build Status](https://travis-ci.org/Shougo/vimproc.vim.svg?branch=master)](https://travis-ci.org/Shougo/vimproc.vim)
+
 vimproc requires a native extension to be built, and will not work properly if
 that library (a `.so` or `.dll`) is missing.
 
