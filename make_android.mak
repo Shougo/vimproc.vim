@@ -10,7 +10,7 @@ LDFLAGS+=-shared
 
 TARGET=autoload/vimproc_unix.so
 SRC=autoload/proc.c autoload/ptytty.c
-INC=autoload/vimstack.c
+INC=autoload/vimstack.c autoload/ptytty.h
 
 all: $(TARGET)
 

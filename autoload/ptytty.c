@@ -12,8 +12,7 @@
 #include <unistd.h>
 #include <termios.h>
 
-int openpty(int *, int *, char *, struct termios *, struct winsize *);
-int forkpty(int *, char *, struct termios *, struct winsize *);
+#include "ptytty.h"
 
 static int
 _internal_get_pty(int *master, char **path)
