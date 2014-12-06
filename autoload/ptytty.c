@@ -1,5 +1,10 @@
 /* vim:set sw=4 sts=4 et: */
 
+/* for ptsname_r */
+#if defined __ANDROID__
+# define _GNU_SOURCE
+#endif
+
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
@@ -7,13 +12,29 @@
 #include <stdlib.h>
 #include <string.h>
 #if defined __sun__
-#include <stropts.h>
+# include <stropts.h>
 #endif
 #include <unistd.h>
 #include <termios.h>
 
 int openpty(int *, int *, char *, struct termios *, struct winsize *);
 int forkpty(int *, char *, struct termios *, struct winsize *);
+
+static int
+ptsname_compat(int fd, char **buf)
+{
+#if defined __ANDROID__
+    static char b[16];
+
+    if (ptsname_r(fd, b, sizeof(b)) == -1)
+        return -1;
+    *buf = b;
+#else
+    if ((*buf = ptsname(fd)) == NULL)
+        return -1;
+#endif
+    return 0;
+}
 
 static int
 _internal_get_pty(int *master, char **path)
@@ -24,7 +45,7 @@ _internal_get_pty(int *master, char **path)
         return -1;
     if (unlockpt(*master) != 0)
         return -1;
-    if ((*path = ptsname(*master)) == NULL)
+    if (ptsname_compat(*master, path) == -1)
         return -1;
 
     return 0;
@@ -63,7 +84,7 @@ int
 openpty(int *amaster, int *aslave, char *name,
         struct termios *termp, struct winsize *winp)
 {
-    char *path;
+    char *path = NULL;
     int master = -1, slave = -1;
 
     if (amaster == NULL || aslave == NULL)
