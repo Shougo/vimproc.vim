@@ -13,7 +13,7 @@ CPPFLAGS=-D_XPG6 -D__EXTENSIONS__
 
 TARGET=autoload/vimproc_unix.so
 SRC=autoload/proc.c autoload/ptytty.c
-INC=autoload/vimstack.c
+INC=autoload/vimstack.c autoload/ptytty.h
 
 all: $(TARGET)
 

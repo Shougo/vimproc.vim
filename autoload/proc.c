@@ -40,9 +40,7 @@
 #elif defined __APPLE__ || defined __NetBSD__ || defined __OpenBSD__
 # include <util.h>
 #elif defined __sun__ || defined __ANDROID__
-# include <termios.h>
-int openpty(int *, int *, char *, struct termios *, struct winsize *);
-int forkpty(int *, char *, struct termios *, struct winsize *);
+# include "ptytty.h"
 #else
 # include <termios.h>
 # include <libutil.h>

@@ -12,8 +12,7 @@
 #include <unistd.h>
 #include <termios.h>
 
-int openpty(int *, int *, char *, struct termios *, struct winsize *);
-int forkpty(int *, char *, struct termios *, struct winsize *);
+#include "ptytty.h"
 
 static int
 _internal_get_pty(int *master, char **path)
@@ -31,11 +30,13 @@ _internal_get_pty(int *master, char **path)
 }
 
 static int
-_internal_get_tty(int *slave, char *path,
-               struct termios *termp, struct winsize *winp, int ctty)
+_internal_get_tty(int *slave, const char *path,
+        struct termios *termp, struct winsize *winp, int ctty)
 {
-    if ((*slave = open(path, O_RDWR|O_NOCTTY)) == -1)
-        return -1;
+    if (path != NULL) {
+        if ((*slave = open(path, O_RDWR|O_NOCTTY)) == -1)
+            return -1;
+    }
 #ifdef TIOCSCTTY
     if (ctty && ioctl(*slave, TIOCSCTTY, NULL) == -1)
         return -1;
@@ -57,6 +58,24 @@ _internal_get_tty(int *slave, char *path,
         ioctl(*slave, TIOCSWINSZ, winp);
 
     return 0;
+}
+
+static int
+_internal_login_tty(int fd, const char *path,
+        struct termios *termp, struct winsize *winp)
+{
+    setsid();
+
+    if (_internal_get_tty(&fd, path, termp, winp, 1) != 0)
+        return -1;
+
+    dup2(fd, 0);
+    dup2(fd, 1);
+    dup2(fd, 2);
+    if (fd > 2)
+        close(fd);
+    return 0;
+
 }
 
 int
@@ -107,20 +126,11 @@ forkpty(int *amaster, char *name,
     if ((pid = fork()) == -1)
         goto out;
     if (pid == 0) {
-        int slave = -1;
-
         close(master);
 
-        setsid();
-
-        if (_internal_get_tty(&slave, path, termp, winp, 1) != 0)
+        if (_internal_login_tty(-1, path, termp, winp) != 0)
             _exit(EXIT_FAILURE);
 
-        dup2(slave, 0);
-        dup2(slave, 1);
-        dup2(slave, 2);
-        if (slave > 2)
-            close(slave);
         return 0;
     }
 
@@ -131,4 +141,10 @@ out:
     if (master != -1)
         close(master);
     return -1;
+}
+
+int
+login_tty(int fd)
+{
+    return _internal_login_tty(fd, NULL, NULL, NULL);
 }
