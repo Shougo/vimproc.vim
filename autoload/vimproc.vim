@@ -1068,7 +1068,7 @@ function! s:convert_args(args) "{{{
   endif
 
   let args = map(copy(a:args), 'vimproc#util#iconv(
-	\ v:val, &encoding, vimproc#util#systemencoding())')
+        \ v:val, &encoding, vimproc#util#systemencoding())')
 
   if vimproc#util#is_windows() && !executable(a:args[0])
     " Search from internal commands.
@@ -1086,7 +1086,7 @@ function! s:convert_args(args) "{{{
   let command_name = vimproc#get_command_name(a:args[0])
 
   return map(vimproc#analyze_shebang(command_name), 'vimproc#util#iconv(
-	\ v:val, &encoding, vimproc#util#systemencoding())') + args[1:]
+        \ v:val, &encoding, vimproc#util#systemencoding())') + args[1:]
 endfunction"}}}
 
 function! vimproc#analyze_shebang(filename) "{{{
