@@ -429,10 +429,11 @@ function! vimproc#shellescape(string) "{{{
   return string(a:string)
 endfunction"}}}
 
-function! vimproc#fopen(path, flags, ...) "{{{
-  let mode = get(a:000, 0, 0644)
+function! vimproc#fopen(path, ...) "{{{
+  let flags = get(a:000, 0, 'r')
+  let mode = get(a:000, 1, 0644)
   let fd = s:vp_file_open((s:is_null_device(a:path)
-        \ ? s:null_device : a:path), a:flags, mode)
+        \ ? s:null_device : a:path), flags, mode)
   let proc = s:fdopen(fd, 'vp_file_close', 'vp_file_read', 'vp_file_write')
   return proc
 endfunction"}}}
@@ -483,7 +484,7 @@ function! s:plineopen(npipe, commands, is_pty) "{{{
 
   " Open input.
   let hstdin = (empty(a:commands) || a:commands[0].fd.stdin == '')?
-        \ 0 : vimproc#fopen(a:commands[0].fd.stdin, 'O_RDONLY').fd
+        \ 0 : vimproc#fopen(a:commands[0].fd.stdin, 'r').fd
 
   let is_pty = !vimproc#util#is_windows() && a:is_pty
 
@@ -494,12 +495,11 @@ function! s:plineopen(npipe, commands, is_pty) "{{{
       " pty_open() use pipe.
       let hstdout = 1
     else
-      let mode = 'O_WRONLY | O_CREAT'
       if command.fd.stdout =~ '^>'
-        let mode .= ' | O_APPEND'
+        let mode = 'a'
         let command.fd.stdout = command.fd.stdout[1:]
       else
-        let mode .= ' | O_TRUNC'
+        let mode = 'w'
       endif
 
       let hstdout = s:is_pseudo_device(command.fd.stdout) ?
@@ -511,12 +511,11 @@ function! s:plineopen(npipe, commands, is_pty) "{{{
       " pty_open() use pipe.
       let hstderr = 1
     else
-      let mode = 'O_WRONLY | O_CREAT'
       if command.fd.stderr =~ '^>'
-        let mode .= ' | O_APPEND'
+        let mode = 'a'
         let command.fd.stderr = command.fd.stderr[1:]
       else
-        let mode .= ' | O_TRUNC'
+        let mode = 'w'
       endif
       let hstderr = s:is_pseudo_device(command.fd.stderr) ?
             \ 0 : vimproc#fopen(command.fd.stderr, mode).fd
@@ -755,14 +754,7 @@ function! vimproc#write(filename, string, ...) "{{{
     call setqflist(qflist)
   else
     " Write file.
-
-    let cmode = 'O_WRONLY | O_CREAT'
-    if mode =~# 'a'
-      " Append mode.
-      let cmode .= '| O_APPEND'
-    endif
-
-    let hfile = vimproc#fopen(filename, cmode)
+    let hfile = vimproc#fopen(filename, mode)
     call hfile.write(a:string)
     call hfile.close()
   endif
