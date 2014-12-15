@@ -1,4 +1,4 @@
-let s:suite = themis#suite('parser')
+let s:suite = themis#suite('system')
 let s:assert = themis#helper('assert')
 
 function! s:suite.system()

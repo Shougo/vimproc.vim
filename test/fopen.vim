@@ -1,4 +1,4 @@
-let s:suite = themis#suite('parser')
+let s:suite = themis#suite('fopen')
 let s:assert = themis#helper('assert')
 
 let g:filename = 'test.txt'
