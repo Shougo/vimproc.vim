@@ -261,10 +261,15 @@ vimproc#get_last_errmsg()			*vimproc#get_last_errmsg()*
 vimproc#shellescape({string})			*vimproc#shellescape()*
 		Escapes {string} for vimproc function arguments.
 
-vimproc#fopen({path}, {flags} [, {mode}])	*vimproc#fopen()*
+vimproc#fopen({path} [, {flags} [, {mode}]])	*vimproc#fopen()*
 		Opens {path} file and returns a |vimproc-file-object|.
-		The {flags} is same flags to open() in the C language as
-		string (ex. "O_RDONLY | O_BINARY").
+		The optional {flags} is only either one of fopen() mode
+		string (e.g. "r", "wb+") or open() flag values as string
+		(e.g. "O_RDONLY | O_BINARY").  If {flags} is omitted,
+		"r" (read-only) is used.
+		The optional {mode} number specifies the permissions in case
+		a new file is created.  If {mode} is omitted, 0644 (octal)
+		is used.
 
 vimproc#socket_open({host}, {port})		*vimproc#socket_open()*
 		Opens the {host}:{port} socket and returns a

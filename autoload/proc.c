@@ -131,19 +131,6 @@ const char *vp_get_signals(char *args); /* [signals] () */
 
 static vp_stack_t _result = VP_STACK_NULL;
 
-static void
-close_fds(int fds[3][2])
-{
-    int i;
-
-    for (i = 0; i < 6; ++i) {
-        int fd = fds[i / 2][i % 2];
-
-        if (fd > 0)
-            close(fd);
-    }
-}
-
 const char *
 vp_dlopen(char *args)
 {
@@ -185,6 +172,110 @@ vp_dlversion(char *args)
     return vp_stack_return(&_result);
 }
 
+static int
+str_to_oflag(const char *flags)
+{
+    int oflag = 0;
+
+    if (strchr("rwa", flags[0])) {
+        if (strchr(flags, '+')) {
+            oflag = O_RDWR;
+        } else {
+            oflag = flags[0] == 'r' ? O_RDONLY : O_WRONLY;
+        }
+        if (flags[0] == 'w' || flags[0] == 'a') {
+            oflag |= O_CREAT | (flags[0] == 'w' ? O_TRUNC : O_APPEND);
+        }
+#define VP_CHR_TO_OFLAG(_c, _f) do { \
+    if (strchr(flags, (_c))) { oflag |= (_f); } \
+} while (0)
+
+#ifdef O_EXCL
+        VP_CHR_TO_OFLAG('x', O_EXCL);
+#endif
+#ifdef O_CLOEXEC
+        VP_CHR_TO_OFLAG('e', O_CLOEXEC);
+#endif
+#ifdef O_BINARY
+        VP_CHR_TO_OFLAG('b', O_BINARY);
+#endif
+#ifdef O_TEXT
+        VP_CHR_TO_OFLAG('t', O_TEXT);
+#endif
+#ifdef O_SEQUENTIAL
+        VP_CHR_TO_OFLAG('S', O_SEQUENTIAL);
+#endif
+#ifdef O_RANDOM
+        VP_CHR_TO_OFLAG('R', O_RANDOM);
+#endif
+
+#undef VP_CHR_TO_OFLAG
+    } else {
+        if (strstr(flags, "O_RDONLY")) {
+            oflag = O_RDONLY;
+        } else if (strstr(flags, "O_WRONLY")) {
+            oflag = O_WRONLY;
+        } else if (strstr(flags, "O_RDWR")) {
+            oflag = O_RDWR;
+        } else {
+            return -1;
+        }
+#define VP_STR_TO_OFLAG(_f) do { \
+    if (strstr(flags, #_f)) { oflag |= (_f); } \
+} while (0)
+
+        VP_STR_TO_OFLAG(O_APPEND);
+        VP_STR_TO_OFLAG(O_CREAT);
+        VP_STR_TO_OFLAG(O_TRUNC);
+#ifdef O_EXCL
+        VP_STR_TO_OFLAG(O_EXCL);
+#endif
+#ifdef O_NONBLOCK
+        VP_STR_TO_OFLAG(O_NONBLOCK);
+#endif
+#ifdef O_SHLOCK
+        VP_STR_TO_OFLAG(O_SHLOCK);
+#endif
+#ifdef O_EXLOCK
+        VP_STR_TO_OFLAG(O_EXLOCK);
+#endif
+#ifdef O_DIRECT
+        VP_STR_TO_OFLAG(O_DIRECT);
+#endif
+#ifdef O_FSYNC
+        VP_STR_TO_OFLAG(O_FSYNC);
+#endif
+#ifdef O_NOFOLLOW
+        VP_STR_TO_OFLAG(O_NOFOLLOW);
+#endif
+#ifdef O_TEMPORARY
+        VP_STR_TO_OFLAG(O_TEMPORARY);
+#endif
+#ifdef O_RANDOM
+        VP_STR_TO_OFLAG(O_RANDOM);
+#endif
+#ifdef O_SEQUENTIAL
+        VP_STR_TO_OFLAG(O_SEQUENTIAL);
+#endif
+#ifdef O_BINARY
+        VP_STR_TO_OFLAG(O_BINARY);
+#endif
+#ifdef O_TEXT
+        VP_STR_TO_OFLAG(O_TEXT);
+#endif
+#ifdef O_INHERIT
+        VP_STR_TO_OFLAG(O_INHERIT);
+#endif
+#ifdef _O_SHORT_LIVED
+        VP_STR_TO_OFLAG(O_SHORT_LIVED);
+#endif
+
+#undef VP_STR_TO_OFLAG
+    }
+
+    return oflag;
+}
+
 const char *
 vp_file_open(char *args)
 {
@@ -192,7 +283,7 @@ vp_file_open(char *args)
     char *path;
     char *flags;
     int mode;  /* used when flags have O_CREAT */
-    int f = 0;
+    int oflag = 0;
     int fd;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
@@ -200,68 +291,11 @@ vp_file_open(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &flags));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &mode));
 
-#ifdef O_RDONLY
-    if (strstr(flags, "O_RDONLY"))      f |= O_RDONLY;
-#endif
-#ifdef O_WRONLY
-    if (strstr(flags, "O_WRONLY"))      f |= O_WRONLY;
-#endif
-#ifdef O_RDWR
-    if (strstr(flags, "O_RDWR"))        f |= O_RDWR;
-#endif
-#ifdef O_NONBLOCK
-    if (strstr(flags, "O_NONBLOCK"))    f |= O_NONBLOCK;
-#endif
-#ifdef O_APPEND
-    if (strstr(flags, "O_APPEND"))      f |= O_APPEND;
-#endif
-#ifdef O_CREAT
-    if (strstr(flags, "O_CREAT"))       f |= O_CREAT;
-#endif
-#ifdef O_EXCL
-    if (strstr(flags, "O_EXCL"))        f |= O_EXCL;
-#endif
-#ifdef O_TRUNC
-    if (strstr(flags, "O_TRUNC"))       f |= O_TRUNC;
-#endif
-#ifdef O_SHLOCK
-    if (strstr(flags, "O_SHLOCK"))      f |= O_SHLOCK;
-#endif
-#ifdef O_EXLOCK
-    if (strstr(flags, "O_EXLOCK"))      f |= O_EXLOCK;
-#endif
-#ifdef O_DIRECT
-    if (strstr(flags, "O_DIRECT"))      f |= O_DIRECT;
-#endif
-#ifdef O_FSYNC
-    if (strstr(flags, "O_FSYNC"))       f |= O_FSYNC;
-#endif
-#ifdef O_NOFOLLOW
-    if (strstr(flags, "O_NOFOLLOW"))    f |= O_NOFOLLOW;
-#endif
-#ifdef O_TEMPORARY
-    if (strstr(flags, "O_TEMPORARY"))   f |= O_TEMPORARY;
-#endif
-#ifdef O_RANDOM
-    if (strstr(flags, "O_RANDOM"))      f |= O_RANDOM;
-#endif
-#ifdef O_SEQUENTIAL
-    if (strstr(flags, "O_SEQUENTIAL"))  f |= O_SEQUENTIAL;
-#endif
-#ifdef O_BINARY
-    if (strstr(flags, "O_BINARY"))      f |= O_BINARY;
-#endif
-#ifdef O_TEXT
-    if (strstr(flags, "O_TEXT"))        f |= O_TEXT;
-#endif
-#ifdef O_INHERIT
-    if (strstr(flags, "O_INHERIT"))     f |= O_INHERIT;
-#endif
-#ifdef _O_SHORT_LIVED
-    if (strstr(flags, "O_SHORT_LIVED")) f |= _O_SHORT_LIVED;
-#endif
+    oflag = str_to_oflag(flags);
+    if (oflag == -1)
+        return vp_stack_return_error(&_result, "open flag error.");
 
-    fd = open(path, f, mode);
+    fd = open(path, oflag, mode);
     if (fd == -1)
         return vp_stack_return_error(&_result, "open() error: %s",
                 strerror(errno));
@@ -409,6 +443,20 @@ vp_file_write(char *args)
     return vp_stack_return(&_result);
 }
 
+static void
+close_allfd(int fds[3][2])
+{
+    int i;
+
+    for (i = 0; i < 6; ++i) {
+        int fd = fds[i / 2][i % 2];
+
+        if (fd > 0) {
+            (void)close(fd);
+        }
+    }
+}
+
 const char *
 vp_pipe_open(char *args)
 {
@@ -554,7 +602,7 @@ vp_pipe_open(char *args)
 
     /* error */
 error:
-    close_fds(fd);
+    close_allfd(fd);
     return vp_stack_return_error(&_result, errfmt, strerror(errno));
 
 child_error:
@@ -716,7 +764,7 @@ vp_pty_open(char *args)
 
     /* error */
 error:
-    close_fds(fd);
+    close_allfd(fd);
     return vp_stack_return_error(&_result, errfmt, strerror(errno));
 
 child_error:
