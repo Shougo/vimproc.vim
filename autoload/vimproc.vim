@@ -1535,6 +1535,7 @@ function! s:vp_kill(...) dict
 
   let ret = 0
   for pid in get(self, 'pid_list', [self.pid])
+    call s:waitpid(pid)
     let ret = vimproc#kill(pid, sig)
   endfor
 
