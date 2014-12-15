@@ -1498,14 +1498,15 @@ endfunction
 
 function! s:vp_set_winsize(width, height) dict
   if vimproc#util#is_windows() || !self.is_valid
-        \|| (abs(a:width - self.width) < 3 && abs(a:height - self.height) < 3)
+        \ || (abs(a:width - self.width) < 3 && abs(a:height - self.height) < 3)
+        \ || !self.is_pty
     return
   endif
 
   let self.width = a:width
   let self.height = a:height
 
-  if self.is_pty
+  try
     if self.stdin.eof == 0 && self.stdin.fd[-1].is_pty
       call s:libcall('vp_pty_set_winsize',
             \ [self.stdin.fd[-1].fd, a:width-5, a:height])
@@ -1518,7 +1519,9 @@ function! s:vp_set_winsize(width, height) dict
       call s:libcall('vp_pty_set_winsize',
             \ [self.stderr.fd[0].fd, a:width-5, a:height])
     endif
-  endif
+  catch
+    return
+  endtry
 
   " Send SIGWINCH = 28 signal.
   for pid in self.pid_list
