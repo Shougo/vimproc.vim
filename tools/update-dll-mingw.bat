@@ -36,6 +36,12 @@ if "%1"=="32" (
 )
 set vimproc_dllname=vimproc_win%vimproc_arch%.dll
 
+where mingw32-make >nul 2>&1
+if ERRORLEVEL 1 (
+  echo mingw32-make not found.
+  goto :EOF
+)
+
 mingw32-make -f make_mingw%vimproc_arch%.mak %1 %2 %3 %4 %5 %6 %7 %8 %9
 if ERRORLEVEL 1 (
   rem Build failed.
