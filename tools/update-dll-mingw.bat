@@ -12,13 +12,14 @@ rem
 rem Sample .vimrc:
 rem
 rem NeoBundle 'Shougo/vimproc.vim', {
-rem 	\ 'build' : {
-rem 	\     'windows' : 'tools\\update-dll-mingw',
-rem 	\     'cygwin' : 'make -f make_cygwin.mak',
-rem 	\     'mac' : 'make -f make_mac.mak',
-rem 	\     'unix' : 'make -f make_unix.mak',
-rem 	\    },
-rem 	\ }
+rem \ 'build' : {
+rem \     'windows' : 'tools\\update-dll-mingw',
+rem \     'cygwin' : 'make -f make_cygwin.mak',
+rem \     'mac' : 'make -f make_mac.mak',
+rem \     'linux' : 'make',
+rem \     'unix' : 'gmake',
+rem \    },
+rem \ }
 
 if "%1"=="32" (
   set vimproc_arch=%1
