@@ -2,13 +2,17 @@ let s:suite = themis#suite('popen')
 let s:assert = themis#helper('assert')
 
 function! s:suite.popen2()
-  if !executable('ls')
+  if !vimproc#util#is_windows() && !executable('ls')
     echo 'ls command is not installed.'
     return
   endif
 
-  let cmd = 'ls'
-  let sub = vimproc#popen2([cmd])
+  if vimproc#util#is_windows()
+    let cmd = ['DIR', '/B']
+  else
+    let cmd = ['ls']
+  endif
+  let sub = vimproc#popen2(cmd)
   let res = ''
   while !sub.stdout.eof
     let res .= sub.stdout.read()
@@ -26,12 +30,16 @@ function! s:suite.popen2()
 
   call s:assert.false(sub.is_valid)
 
-  call s:assert.equals(res, system(cmd))
+  call s:assert.equals(res, system(join(cmd)))
 
   unlet cmd
   unlet sub
 
-  let cmd = ['ls', '-la']
+  if vimproc#util#is_windows()
+    let cmd = ['DIR', '/B', '/A']
+  else
+    let cmd = ['ls', '-la']
+  endif
   let sub = vimproc#popen2(cmd)
   let res = ''
   while !sub.stdout.eof
@@ -57,8 +65,12 @@ function! s:suite.popen2()
 endfunction
 
 function! s:suite.popen3()
-  let cmd = 'ls'
-  let sub = vimproc#popen3([cmd])
+  if vimproc#util#is_windows()
+    let cmd = ['DIR', '/B']
+  else
+    let cmd = ['ls']
+  endif
+  let sub = vimproc#popen3(cmd)
   let res = ''
   while !sub.stdout.eof
     let res .= sub.stdout.read()
@@ -76,7 +88,7 @@ function! s:suite.popen3()
 
   call s:assert.false(sub.is_valid)
 
-  call s:assert.equals(res, system(cmd))
+  call s:assert.equals(res, system(join(cmd)))
 
   unlet cmd
   unlet sub
