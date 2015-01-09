@@ -22,6 +22,9 @@ else
     ifeq ($(UNAME_S),SunOS)
         PLATFORM = sunos
     endif
+    ifeq ($(UNAME_S),CYGWIN_NT-6.3)
+        PLATFORM = cygwin
+    endif
 
     # Verify that the PLATFORM was detected
     ifndef PLATFORM
