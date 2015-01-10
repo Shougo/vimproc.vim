@@ -4,6 +4,7 @@ ifeq ($(OS),Windows_NT)
 else
     # Grab the output of `uname -s` and switch to set the platform
     UNAME_S := $(shell uname -s)
+    UNAME_O := $(shell uname -o)
     ifeq ($(UNAME_S),Linux)
         PLATFORM = unix
     endif
@@ -22,7 +23,7 @@ else
     ifeq ($(UNAME_S),SunOS)
         PLATFORM = sunos
     endif
-    ifeq ($(UNAME_S),CYGWIN_NT-6.3)
+    ifeq ($(UNAME_O),Cygwin)
         PLATFORM = cygwin
     endif
 
