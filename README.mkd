@@ -59,6 +59,9 @@ make
 
 Note: You must use GNU make to build vimproc.
 
+You can install the dll using |VimProcInstall|. If you are having any trouble
+or want to build manually then read on.
+
 ### Linux
 
     $ make

@@ -57,6 +57,9 @@ vimproc_cygwin.dll)".  Because vimproc depends on "vimproc_xxx.so (or
 vimproc_win32.dll, vimproc_cygwin.dll)"'s function, vimproc echoes error
 message when "vimproc_xxx.so (vimproc_xxx.dll)" doesn't exist.
 
+You can install the dll using |VimProcInstall|. If you are having any trouble
+or want to build manually then read on.
+
 Note: The vimproc_cygwin.dll compiled in Cygwin won't work with Windows Vim.
 
 Supported platforms:
@@ -180,6 +183,11 @@ COMMANDS 					*vimproc-commands*
 :VimProcRead {path}					*:VimProcRead*
 			Executes {path} command and paste result in current
 			buffer.  This command replaces |:read|.
+
+:VimProcInstall {args}				        *:VimProcInstall*
+			Tries to build the necessary dll using `gmake`/`make`.
+			You can supply extra arguments to `make`, for example
+			to compile using clang `:VimProcInstall CC=clang`.
 
 ------------------------------------------------------------------------------
 FUNCTIONS 					*vimproc-functions*
