@@ -48,15 +48,15 @@ function! s:install(args) "{{{
   try
     if executable('gmake')
       let &makeprg = 'gmake'
-    else if executable('make')
+    elseif executable('make')
       let &makeprg = 'make'
-    else if executable('nmake')
+    elseif executable('nmake')
       let &makeprg = 'nmake -f make_msvc.mak nodebug=1'
     endif
 
     " Change to the correct directory and run make
-    execute 'lcd' fnameescape(fnamemodify(g:vimproc#dll_path, ':h'))
-    make a:args
+    execute 'lcd' fnameescape(fnamemodify(g:vimproc#dll_path, ':h:h'))
+    execute 'make' a:args
   finally
      " Restore working directory and makeprg
      execute 'lcd' fnameescape(savecwd)
