@@ -13,7 +13,7 @@ endif
 TARGET=autoload/vimproc_mac.so
 SRC=autoload/proc.c
 ARCHS=
-CFLAGS=-O2 -W -Wall -Wno-unused -Wno-unused-parameter -bundle -fPIC $(foreach ARCH,$(ARCHS),-arch $(ARCH))
+CFLAGS+=-O2 -W -Wall -Wno-unused -Wno-unused-parameter -bundle -fPIC $(foreach ARCH,$(ARCHS),-arch $(ARCH))
 LDFLAGS=
 
 all: $(TARGET)

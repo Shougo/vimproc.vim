@@ -8,8 +8,8 @@ endif
 TARGET=autoload/vimproc_$(SUFFIX).so
 
 SRC=autoload/proc.c
-CFLAGS=-W -O2 -Wall -Wno-unused -Wno-unused-parameter -std=gnu99 -pedantic -shared -fPIC
-LDFLAGS=-lutil
+CFLAGS+=-W -O2 -Wall -Wno-unused -Wno-unused-parameter -std=gnu99 -pedantic -shared -fPIC
+LDFLAGS+=-lutil
 
 all: $(TARGET)
 
