@@ -288,13 +288,13 @@ vimproc#host_exists({host})			*vimproc#host_exists()*
 		Checks to see if {host} exists.
 		Note: Protocol name and path are ignored.
 
-vimproc#popen2({args})				*vimproc#popen2()*
+vimproc#popen2({args} [, {is-pty}])			*vimproc#popen2()*
 		Executes {args} command and returns a |vimproc-process-object|.
 		If {args} is a String, {args} is parsed automatically.
-		
 		Otherwise the {args} is a list of a command and its arguments.
+		If {is-pty} is 1, vimproc will use pty.
 
-vimproc#popen3({args})				*vimproc#popen3()*
+vimproc#popen3({args} [, {is-pty}])			*vimproc#popen3()*
 		Same as |vimproc#popen2()|, but this function splits
 		stderr output.
 

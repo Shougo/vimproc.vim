@@ -438,25 +438,27 @@ function! vimproc#fopen(path, ...) "{{{
   return proc
 endfunction"}}}
 
-function! vimproc#popen2(args) "{{{
+function! vimproc#popen2(args, ...) "{{{
   let args = type(a:args) == type('') ?
         \ vimproc#parser#split_args(a:args) :
         \ a:args
+  let is_pty = get(a:000, 0, 0)
 
   return s:plineopen(2, [{
         \ 'args' : args,
         \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
-        \ }], 0)
+        \ }], is_pty)
 endfunction"}}}
-function! vimproc#popen3(args) "{{{
+function! vimproc#popen3(args, ...) "{{{
   let args = type(a:args) == type('') ?
         \ vimproc#parser#split_args(a:args) :
         \ a:args
+  let is_pty = get(a:000, 0, 0)
 
   return s:plineopen(3, [{
         \ 'args' : args,
         \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
-        \ }], 0)
+        \ }], is_pty)
 endfunction"}}}
 
 function! vimproc#plineopen2(commands, ...) "{{{
