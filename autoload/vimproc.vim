@@ -1568,6 +1568,9 @@ function! s:waitpid(pid)
     endif
 
     let s:last_status = str2nr(status)
+  catch /No child processes/
+    let [cond, status] = ['exit', '0']
+    let s:last_status = 0
   catch
     let [cond, status] = ['error', '0']
     let s:last_status = -1
