@@ -916,12 +916,10 @@ function! s:skip_double_quote(script, i) "{{{
 
   let ss = []
   while i < max
-    if a:script[i] == '\'
-          \ && i+1 < max && a:script[i+1] == '"'
+    if a:script[i] == '\' && i+1 < max
       " Escape quote.
       let ss += [a:script[i]]
       let i += 1
-
     elseif a:script[i] == '"'
       break
     endif
