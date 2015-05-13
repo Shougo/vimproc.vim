@@ -276,6 +276,25 @@ str_to_oflag(const char *flags)
     return oflag;
 }
 
+static int
+fd_set_nonblock(int fd)
+{
+#if defined(F_GETFL) && defined(F_SETFL) && defined(O_NONBLOCK)
+    int flag;
+
+    if ((flag = fcntl(fd, F_GETFL, 0)) == -1)
+        return -1;
+    if (!(flag & O_NONBLOCK))
+        return fcntl(fd, F_SETFL, flag | O_NONBLOCK);
+#endif
+    return 0;
+}
+#ifdef __linux__
+# define VP_SET_NONBLOCK_IF_NEEDED(_fd) (void)fd_set_nonblock(_fd)
+#else
+# define VP_SET_NONBLOCK_IF_NEEDED(_fd) do { /* nop */ } while (0)
+#endif
+
 const char *
 vp_file_open(char *args)
 {
@@ -321,6 +340,11 @@ vp_file_close(char *args)
 const char *
 vp_file_read(char *args)
 {
+#ifdef __linux__
+# define VP_POLLIN (POLLIN | POLLHUP)
+#else
+# define VP_POLLIN (POLLIN)
+#endif
     vp_stack_t stack;
     int fd;
     int cnt;
@@ -355,9 +379,14 @@ vp_file_read(char *args)
             /* timeout */
             break;
         }
-        if (pfd.revents & POLLIN) {
+        if (pfd.revents & VP_POLLIN) {
             n = read(fd, buf, cnt);
             if (n == -1) {
+                if (pfd.revents & POLLHUP) {
+                    /* eof */
+                    *eof = '1';
+                    break;
+                }
                 return vp_stack_return_error(&_result, "read() error: %s",
                         strerror(errno));
             } else if (n == 0) {
@@ -385,6 +414,7 @@ vp_file_read(char *args)
     }
     _result.top = buf;
     return vp_stack_return(&_result);
+#undef VP_POLLIN
 }
 
 const char *
@@ -680,6 +710,7 @@ vp_pty_open(char *args)
             if (openpty(&fd[2][0], &fd[2][1], NULL, NULL, &ws) < 0) {
                 VP_GOTO_ERROR("openpty() error: %s");
             }
+            VP_SET_NONBLOCK_IF_NEEDED(fd[2][0]);
         }
     }
 
@@ -749,6 +780,7 @@ vp_pty_open(char *args)
         }
         if (hstdout == 0) {
             fd[1][0] = hstdin == 0 ? dup(fdm) : fdm;
+            VP_SET_NONBLOCK_IF_NEEDED(fd[1][0]);
         }
 
         vp_stack_push_num(&_result, "%d", pid);
