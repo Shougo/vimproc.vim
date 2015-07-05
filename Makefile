@@ -19,6 +19,9 @@ else
     ifeq ($(UNAME_S),FreeBSD)
         PLATFORM = unix
     endif
+    ifeq ($(UNAME_S),DragonFly)
+        PLATFORM = unix
+    endif
     ifeq ($(UNAME_S),NetBSD)
         PLATFORM = unix
     endif
