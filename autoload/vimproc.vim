@@ -36,7 +36,7 @@ set cpo&vim
 " }}}
 
 function! s:print_error(string)
-  echohl Error | echomsg a:string | echohl None
+  echohl Error | echomsg '[vimproc] ' . a:string | echohl None
 endfunction
 
 " Check 'encoding' "{{{
@@ -130,7 +130,7 @@ if !filereadable(g:vimproc#dll_path) || !has('libcall') "{{{
     call s:print_error(printf('vimproc''s DLL: "%s" is not found.
           \  Please read :help vimproc and make it.', g:vimproc#dll_path))
   else
-    call s:print_error('vimproc: libcall feature is disabled in this Vim.
+    call s:print_error('libcall feature is disabled in this Vim.
           \  To use vimproc, you must enable libcall feature.')
   endif
 
@@ -1304,7 +1304,7 @@ function! s:vp_pipe_open(npipe, hstdin, hstdout, hstderr, argv) "{{{
     call s:print_error(v:throwpoint)
     call s:print_error(v:exception)
     call s:print_error(
-          \ 'vimproc: Error occurred in calling s:vp_pipe_open()')
+          \ 'Error occurred in calling s:vp_pipe_open()')
     call s:print_error(printf(
           \ 'a:argv = %s', string(a:argv)))
     call s:print_error(printf(
