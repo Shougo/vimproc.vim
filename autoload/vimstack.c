@@ -16,8 +16,8 @@
  */
 
 /* End Of Value */
-#define VP_EOV '\xFF'
-#define VP_EOV_STR "\xFF"
+#define VP_EOV '\xFE'
+#define VP_EOV_STR "\xFE"
 
 #define VP_NUM_BUFSIZE 64
 #define VP_NUMFMT_BUFSIZE 16
