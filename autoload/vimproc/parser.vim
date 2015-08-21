@@ -571,7 +571,6 @@ function! s:parse_block(script) "{{{
       let [script, i] = s:skip_else(script, a:script, i)
     endif
   endwhile
-  echomsg script
 
   return script
 endfunction"}}}
