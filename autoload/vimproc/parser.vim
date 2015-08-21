@@ -531,11 +531,16 @@ function! s:parse_block(script) "{{{
   while i < max
     if a:script[i] == '{'
       " Block.
+      let block = matchstr(a:script, '^{\zs.\{-1}\ze}', i)
+      let rest = a:script[matchend(a:script, '^{.\{-1}}', i) :]
+      if block == ''
+        let [script, i] = s:skip_else(script, a:script, i)
+        continue
+      endif
+
       let head = matchstr(a:script[: i-1], '[^[:blank:]]*$')
       " Truncate script.
       let script = script[: -len(head)-1]
-      let block = matchstr(a:script, '{\zs.*[^\\]\ze}', i)
-      let rest = a:script[matchend(a:script, '{.*[^\\]}', i) :]
       let rest = (rest =~ '^\s\+' ? ' ' : '') .
             \ join(vimproc#parser#split_args(s:parse_cmdline(rest)))
       let foot = matchstr(rest, '^\S\+')
@@ -566,6 +571,7 @@ function! s:parse_block(script) "{{{
       let [script, i] = s:skip_else(script, a:script, i)
     endif
   endwhile
+  echomsg script
 
   return script
 endfunction"}}}
