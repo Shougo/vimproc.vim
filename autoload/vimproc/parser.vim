@@ -96,7 +96,11 @@ function! s:parse_cmdline(cmdline) "{{{
 endfunction"}}}
 function! vimproc#parser#parse_statements(script) "{{{
   if type(a:script) == type('')  && a:script =~ '^\s*:'
-    return [ { 'statement' : a:script, 'condition' : 'always' } ]
+    return [ {
+          \ 'statement' : a:script,
+          \ 'condition' : 'always',
+          \ 'cwd' : getcwd(),
+          \ } ]
   endif
 
   let script = type(a:script) == type([]) ?
@@ -109,8 +113,10 @@ function! vimproc#parser#parse_statements(script) "{{{
     if script[i] == ';'
       if statement != ''
         call add(statements,
-              \ { 'statement' : statement,
-              \   'condition' : 'always',
+              \ {
+              \ 'statement' : statement,
+              \ 'condition' : 'always',
+              \ 'cwd' : getcwd(),
               \})
       endif
       let statement = ''
@@ -119,8 +125,10 @@ function! vimproc#parser#parse_statements(script) "{{{
       if i+1 < max && script[i+1] == '&'
         if statement != ''
           call add(statements,
-                \ { 'statement' : statement,
-                \   'condition' : 'true',
+                \ {
+                \ 'statement' : statement,
+                \ 'condition' : 'true',
+                \ 'cwd' : getcwd(),
                 \})
         endif
         let statement = ''
@@ -134,8 +142,10 @@ function! vimproc#parser#parse_statements(script) "{{{
       if i+1 < max && script[i+1] == '|'
         if statement != ''
           call add(statements,
-                \ { 'statement' : statement,
-                \   'condition' : 'false',
+                \ {
+                \ 'statement' : statement,
+                \ 'condition' : 'false',
+                \ 'cwd' : getcwd(),
                 \})
         endif
         let statement = ''
@@ -178,8 +188,10 @@ function! vimproc#parser#parse_statements(script) "{{{
 
   if statement !~ '^\s*$'
     call add(statements,
-          \ { 'statement' : statement,
-          \   'condition' : 'always',
+          \ {
+          \ 'statement' : statement,
+          \ 'condition' : 'always',
+          \ 'cwd' : getcwd(),
           \})
   endif
 

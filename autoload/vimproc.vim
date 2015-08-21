@@ -329,9 +329,14 @@ function! vimproc#system(cmdline, ...) "{{{
       let arg.statement = vimproc#parser#parse_pipe(arg.statement)
     endfor
   else
-    let args = [{'statement' :
-          \ [{ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
-          \   'args' : a:cmdline }], 'condition' : 'always' }]
+    let args = [{
+          \ 'statement' : [ {
+          \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
+          \ 'args' : a:cmdline
+          \  }],
+          \ 'condition' : 'always',
+          \ 'cwd' : getcwd(),
+          \ }]
   endif
 
   let timeout = get(a:000, 1, 0)
@@ -394,9 +399,14 @@ function! vimproc#system_bg(cmdline) "{{{
       let arg.statement = vimproc#parser#parse_pipe(arg.statement)
     endfor
   else
-    let args = [{'statement' :
-          \ [{ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
-          \   'args' : a:cmdline }], 'condition' : 'always' }]
+    let args = [{
+          \ 'statement' : [ {
+          \ 'fd' : { 'stdin' : '', 'stdout' : '', 'stderr' : '' },
+          \ 'args' : a:cmdline
+          \  }],
+          \ 'condition' : 'always',
+          \ 'cwd' : getcwd(),
+          \ }]
   endif
 
   let subproc = vimproc#pgroup_open(args)
@@ -642,8 +652,16 @@ endfunction"}}}
 
 function! s:pgroup_open(statements, is_pty, npipe) "{{{
   let proc = {}
-  let proc.current_proc =
-        \ vimproc#plineopen{a:npipe}(a:statements[0].statement, a:is_pty)
+
+  let cwd = getcwd()
+  try
+    call vimproc#util#cd(a:statements[0].cwd)
+
+    let proc.current_proc =
+          \ vimproc#plineopen{a:npipe}(a:statements[0].statement, a:is_pty)
+  finally
+    call vimproc#util#cd(cwd)
+  endtry
 
   let proc.pid = proc.current_proc.pid
   let proc.pid_list = proc.current_proc.pid_list
@@ -1401,7 +1419,8 @@ function! s:read_pgroup(...) dict "{{{
     let output = self.fd.read(number, timeout)
   endif
 
-  if self.proc.current_proc.stdout.eof && self.proc.current_proc.stderr.eof
+  if self.proc.current_proc.stdout.eof
+        \ && self.proc.current_proc.stderr.eof
     " Get status.
     let [cond, status] = self.proc.current_proc.waitpid()
 
@@ -1415,7 +1434,16 @@ function! s:read_pgroup(...) dict "{{{
       let self.proc.status = status
     else
       " Initialize next statement.
-      let proc = vimproc#plineopen3(self.proc.statements[0].statement)
+
+      let cwd = getcwd()
+      try
+        call vimproc#util#cd(self.proc.statements[0].cwd)
+
+        let proc = vimproc#plineopen3(
+              \ self.proc.statements[0].statement)
+      finally
+        call vimproc#util#cd(cwd)
+      endtry
       let self.proc.current_proc = proc
 
       let self.pid = proc.pid
@@ -1425,9 +1453,15 @@ function! s:read_pgroup(...) dict "{{{
       let self.proc.condition = self.proc.statements[0].condition
       let self.proc.statements = self.proc.statements[1:]
 
-      let self.proc.stdin = s:fdopen_pgroup(self.proc, proc.stdin, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-      let self.proc.stdout = s:fdopen_pgroup(self.proc, proc.stdout, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
-      let self.proc.stderr = s:fdopen_pgroup(self.proc, proc.stderr, 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+      let self.proc.stdin = s:fdopen_pgroup(
+            \ self.proc, proc.stdin,
+            \ 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+      let self.proc.stdout = s:fdopen_pgroup(
+            \ self.proc, proc.stdout,
+            \ 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
+      let self.proc.stderr = s:fdopen_pgroup(
+            \ self.proc, proc.stderr,
+            \ 'vp_pgroup_close', 'read_pgroup', 'write_pgroup')
     endif
   endif
 

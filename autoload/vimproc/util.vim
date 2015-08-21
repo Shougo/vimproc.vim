@@ -91,6 +91,9 @@ endfunction"}}}
 function! vimproc#util#substitute_path_separator(path) "{{{
   return s:is_windows ? substitute(a:path, '\\', '/', 'g') : a:path
 endfunction"}}}
+function! vimproc#util#cd(path)  "{{{
+  execute 'lcd' fnameescape(a:path)
+endfunction"}}}
 
 function! vimproc#util#uniq(list, ...) "{{{
   let list = a:0 ? map(copy(a:list), printf('[v:val, %s]', a:1)) : copy(a:list)
@@ -115,6 +118,7 @@ function! vimproc#util#set_default(var, val, ...)  "{{{
           \ {alternate_var} : a:val
   endif
 endfunction"}}}
+
 
 " Global options definition. "{{{
 call vimproc#util#set_default(
