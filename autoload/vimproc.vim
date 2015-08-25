@@ -886,7 +886,7 @@ function! s:read(...) dict "{{{
   let eof = 0
 
   while maxsize != 0 && !eof
-    let [out, eof] = self.f_read(maxsize, 
+    let [out, eof] = self.f_read(maxsize,
           \ (timeout < s:read_timeout ? timeout : s:read_timeout))
     if out ==# ''
       let timeout -= s:read_timeout
@@ -974,7 +974,7 @@ function! s:fdopen_pty(fd_stdin, fd_stdout, f_close, f_read, f_write) "{{{
   return {
         \ 'eof' : 0, '__eof' : 0, 'is_valid' : 1, 'buffer' : [],
         \ 'fd_stdin' : a:fd_stdin, 'fd_stdout' : a:fd_stdout,
-        \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write), 
+        \ 'f_close' : s:funcref(a:f_close), 'f_read' : s:funcref(a:f_read), 'f_write' : s:funcref(a:f_write),
         \ 'close' : s:funcref('close'), 'read' : s:funcref('read'), 'write' : s:funcref('write'),
         \ 'read_line' : s:funcref('read_line'), 'read_lines' : s:funcref('read_lines'),
         \}
@@ -1186,66 +1186,81 @@ else
   endfunction
 endif
 
+" Encode a 32-bit integer into a 5-byte string.
+function! s:encode_size(n)
+  " Set each bit7 to 1 in order to avoid NUL byte.
+  return printf("%c%c%c%c%c",
+    \ ((a:n / 0x10000000) % 0x80) + 0x80,
+    \ ((a:n / 0x200000) % 0x80) + 0x80,
+    \ ((a:n / 0x4000) % 0x80) + 0x80,
+    \ ((a:n / 0x80) % 0x80) + 0x80,
+    \ ( a:n % 0x80) + 0x80)
+endfunction
+
+" Decode a 32-bit integer from a 5-byte string.
+function! s:decode_size(str, off)
+  return
+    \ (char2nr(a:str[a:off + 0]) - 0x80) * 0x10000000 +
+    \ (char2nr(a:str[a:off + 1]) - 0x80) * 0x200000 +
+    \ (char2nr(a:str[a:off + 2]) - 0x80) * 0x4000 +
+    \ (char2nr(a:str[a:off + 3]) - 0x80) * 0x80 +
+    \ (char2nr(a:str[a:off + 4]) - 0x80)
+endfunction
+
+" Encode a list into a string.
+function! s:encode_list(arr)
+  " End Of Value
+  let EOV = "\xFF"
+  " encoded size0, data0, EOV, encoded size1, data1, EOV, ...
+  return empty(a:arr) ? '' :
+    \ (EOV . join(map(copy(a:arr), 's:encode_size(strlen(v:val)) . v:val'), EOV) . EOV)
+endfunction
+
+" Decode a list from a string.
+function! s:decode_list(str)
+  let err = 0
+  " End Of Value
+  let EOV = "\xFF"
+  if a:str[0] != EOV
+    let err = 1
+    return [[a:str], err]
+  endif
+  let arr = []
+  let slen = strlen(a:str)
+  let off = 1
+  while slen - off >= 5
+    let size = s:decode_size(a:str, off)
+    let arr += [a:str[off + 5 : off + 5 + size - 1]]
+    let off += 5 + size + 1
+  endwhile
+  return [arr, err]
+endfunction
+
 function! s:libcall(func, args) "{{{
-  " End Of Value
-  let EOV = "\xFF"
-  let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), EOV) . EOV)
-  let stack_buf = libcall(g:vimproc#dll_path, a:func, args)
-  let result = s:split(stack_buf, EOV)
-  if get(result, -1, 'error') != ''
-    if stack_buf[len(stack_buf) - 1] ==# EOV
-      " Note: If &encoding equals "cp932" and output ends multibyte first byte,
-      "       will fail split.
-      return result
-    endif
+  let stack_buf = libcall(g:vimproc#dll_path, a:func, s:encode_list(a:args))
+  if empty(stack_buf)
+    return
+  endif
+  let [result, err] = s:decode_list(stack_buf)
+  if err
     let s:lasterr = result
     let msg = vimproc#util#iconv(string(result),
           \ vimproc#util#systemencoding(), &encoding)
 
     throw printf('vimproc: %s: %s', a:func, msg)
   endif
-  return result[:-2]
+  return result
 endfunction"}}}
 
+" args[0]: fd, args[1]: count, args[2]: timeout
 function! s:libcall_raw_read(func, args) "{{{
-  " End Of Value
-  let EOV = "\xFF"
-  let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), EOV) . EOV)
-  let result = libcall(g:vimproc#dll_path, a:func, args)
-  " SUCCESS:: EOV | EOF[0|1] | Bin
-  " ERROR  :: ErrStr
-  if result[0] !=# EOV
-    let s:lasterr = [result]
-    let msg = vimproc#util#iconv(string(result),
-          \ vimproc#util#systemencoding(), &encoding)
+  return s:libcall(a:func, a:args)
+endfunction "}}}
 
-    throw printf('vimproc: %s: %s', a:func, msg)
-  endif
-  return [result[2:], result[1]]
-endfunction"}}}
-
+" args[0]: fd, args[1]: data, args[2]: timeout
 function! s:libcall_raw_write(func, args) "{{{
-  " End Of Value
-  let EOV = "\xFF"
-  " Convert::
-  " [Fd, Bin, Timeout] => Bin | EOV | Timeout | EOV | Fd | EOV
-  let args = join((a:args[1:] + a:args[:0]), EOV) . EOV
-  let stack_buf = libcall(g:vimproc#dll_path, a:func, args)
-  let result = s:split(stack_buf, EOV)
-  if get(result, -1, 'error') != ''
-    if stack_buf[len(stack_buf) - 1] ==# EOV
-      " Note: If &encoding equals "cp932" and output ends multibyte first byte,
-      "       will fail split.
-      return result
-    endif
-    let s:lasterr = result
-    let msg = vimproc#util#iconv(string(result),
-          \ vimproc#util#systemencoding(), &encoding)
-
-    throw printf('vimproc: %s: %s', a:func, msg)
-  endif
-  return result[:-2]
-endfunction"}}}
+  return s:libcall(a:func, [a:args[0], a:args[2], a:args[1]])
+endfunction "}}}
 
 function! s:SID_PREFIX()
   if !exists('s:sid_prefix')

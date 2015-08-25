@@ -9,10 +9,19 @@
 #include <errno.h>
 
 /*
- * Argument and Result are Stack. Each value is EOV terminated String.
- * Number can be stored as String.
- * The result which is not terminated by EOV is error message, except NULL
- * is no value.
+ * Argument and Result are Stack. Each value consists of DataSize, Data,
+ * and EOV. DataSize is a 32-bit integer encoded into a 5-byte string.
+ * Number should be stored as String.
+ * The result which is not started with EOV is error message, except NULL
+ * which is no value.
+ *
+ * Successful Result:
+ *   EOV | DataSize0, Data0, EOV | DataSize1, Data1, EOV | ...
+ *      or
+ *   NULL
+ *
+ * Error Result:
+ *   String
  */
 
 /* End Of Value */
@@ -23,6 +32,7 @@
 #define VP_NUMFMT_BUFSIZE 16
 #define VP_INITIAL_BUFSIZE 512
 #define VP_ERRMSG_SIZE 512
+#define VP_HEADER_SIZE 5
 
 #define VP_RETURN_IF_FAIL(expr)     \
     do {                            \
@@ -30,10 +40,10 @@
         if (vp_err) return vp_err;  \
     } while (0)
 
-/* buf:var|EOV|var|EOV|top:free buffer|buf+size */
+/* buf:|EOV|var|var|top:free buffer|buf+size */
 typedef struct vp_stack_t {
     size_t size; /* stack size */
-    char *buf;   /* stack bufffer */
+    char *buf;   /* stack buffer */
     char *top;   /* stack top */
 } vp_stack_t;
 
@@ -89,6 +99,36 @@ static const char *vp_stack_pop_str(vp_stack_t *stack, char **str);
 static const char *vp_stack_push_num(vp_stack_t *stack, const char *fmt, ...);
 static const char *vp_stack_push_str(vp_stack_t *stack, const char *str);
 
+#define vp_stack_used(stack) ((stack)->top - (stack)->buf)
+
+
+/* Encode a 32-bit integer into a 5-byte string. */
+static char *
+vp_encode_size(unsigned int size, char *buf)
+{
+    if (buf == NULL)
+        return NULL;
+    buf[0] = ((size >> 28) & 0x7f) | 0x80;
+    buf[1] = ((size >> 21) & 0x7f) | 0x80;
+    buf[2] = ((size >> 14) & 0x7f) | 0x80;
+    buf[3] = ((size >>  7) & 0x7f) | 0x80;
+    buf[4] = ( size        & 0x7f) | 0x80;
+    return buf;
+}
+
+/* Decode a 32-bit integer from a 5-byte string. */
+unsigned int
+vp_decode_size(const char *buf)
+{
+    if (buf == NULL)
+        return 0;
+    return ((unsigned int) (buf[0] & 0x7f) << 28)
+         + ((unsigned int) (buf[1] & 0x7f) << 21)
+         + ((unsigned int) (buf[2] & 0x7f) << 14)
+         + ((unsigned int) (buf[3] & 0x7f) <<  7)
+         + ((unsigned int) (buf[4] & 0x7f));
+}
+
 static void
 vp_stack_free(vp_stack_t *stack)
 {
@@ -111,9 +151,10 @@ vp_stack_from_args(vp_stack_t *stack, char *args)
     } else {
         stack->size = strlen(args); /* don't count end of NUL. */
         stack->buf = args;
-        stack->top = stack->buf + stack->size;
-        if (stack->top[-1] != VP_EOV)
+        stack->top = stack->buf;
+        if (stack->top[0] != VP_EOV)
             return "vp_stack_from_buf: no EOV";
+        stack->top++;
     }
     return NULL;
 }
@@ -122,10 +163,19 @@ vp_stack_from_args(vp_stack_t *stack, char *args)
 static const char *
 vp_stack_return(vp_stack_t *stack)
 {
-    /* make sure *top == '\0' because the previous value can not be
-     * cleared when no value is assigned. */
-    if (stack->top != NULL)
-        stack->top[0] = '\0';
+#if 0
+    size_t needsize;
+    const char *ret;
+
+    needsize = vp_stack_used(stack) + 1;
+    ret = vp_stack_reserve(stack, needsize);
+    if (ret != NULL)
+        return ret;
+
+    stack->top[0] = VP_EOV;
+    stack->top[1] = '\0';
+#endif
+    /* Clear the stack. */
     stack->top = stack->buf;
     return stack->buf;
 }
@@ -136,16 +186,21 @@ vp_stack_return_error(vp_stack_t *stack, const char *fmt, ...)
 {
     va_list ap;
     size_t needsize;
+    int ret;
 
-    needsize = (stack->top - stack->buf) + VP_ERRMSG_SIZE;
+    /* Initialize buffer */
+    stack->top = stack->buf;
+    needsize = VP_ERRMSG_SIZE;
     if (vp_stack_reserve(stack, needsize) != NULL)
         return fmt;
 
     va_start(ap, fmt);
-    stack->top += vsnprintf(stack->top,
-            stack->size - (stack->top - stack->buf), fmt, ap);
+    ret = vsnprintf(stack->top, stack->size, fmt, ap);
+    stack->top[ret] = '\0';
     va_end(ap);
-    return vp_stack_return(stack);
+    /* Clear the stack. */
+    stack->top = stack->buf;
+    return stack->buf;
 }
 
 /* ensure stack buffer is needsize or more bytes */
@@ -164,7 +219,7 @@ vp_stack_reserve(vp_stack_t *stack, size_t needsize)
         }
         if ((newbuf = (char *)realloc(stack->buf, newsize)) == NULL)
             return "vp_stack_reserve: NOMEM";
-        stack->top = newbuf + (stack->top - stack->buf);
+        stack->top = newbuf + vp_stack_used(stack);
         stack->buf = newbuf;
         stack->size = newsize;
     }
@@ -174,24 +229,19 @@ vp_stack_reserve(vp_stack_t *stack, size_t needsize)
 static const char *
 vp_stack_pop_num(vp_stack_t *stack, const char *fmt, void *ptr)
 {
-    char fmtbuf[VP_NUMFMT_BUFSIZE];
-    int n;
-    char *top, *bot;
+    char *str;
+    const char *ret;
 
-    if (stack->buf == stack->top)
-        return "vp_stack_pop_num: stack over flow";
+    if ((size_t)vp_stack_used(stack) == stack->size)
+        return "vp_stack_pop_num: stack empty";
 
-    top = stack->top - 1;
-    bot = stack->buf;
-    while (top != bot && top[-1] != VP_EOV)
-        --top;
+    ret = vp_stack_pop_str(stack, &str);
+    if (ret != NULL)
+        return ret;
 
-    snprintf(fmtbuf, VP_NUMFMT_BUFSIZE, "%s%%n", fmt);
-
-    if (sscanf(top, fmtbuf, ptr, &n) != 1 || top[n] != VP_EOV)
+    if (sscanf(str, fmt, ptr) != 1)
         return "vp_stack_pop_num: sscanf error";
 
-    stack->top = top;
     return NULL;
 }
 
@@ -199,19 +249,15 @@ vp_stack_pop_num(vp_stack_t *stack, const char *fmt, void *ptr)
 static const char *
 vp_stack_pop_str(vp_stack_t *stack, char **str)
 {
-    char *top, *bot;
+    unsigned int size;
 
-    if (stack->buf == stack->top)
-        return "vp_stack_pop_str: stack over flow";
+    if ((size_t)vp_stack_used(stack) == stack->size)
+        return "vp_stack_pop_str: stack empty";
 
-    top = stack->top - 1;
-    bot = stack->buf;
-    while (top != bot && top[-1] != VP_EOV)
-        --top;
-
-    *str = top;
-    stack->top[-1] = '\0';
-    stack->top = top;
+    size = vp_decode_size(stack->top);
+    *str = stack->top + VP_HEADER_SIZE;
+    stack->top += VP_HEADER_SIZE + size + 1;
+    stack->top[-1] = '\0';  /* Overwrite EOV. */
     return NULL;
 }
 
@@ -234,9 +280,15 @@ static const char *
 vp_stack_push_str(vp_stack_t *stack, const char *str)
 {
     size_t needsize;
+    unsigned int size;
 
-    needsize = (stack->top - stack->buf) + strlen(str) + sizeof(VP_EOV_STR);
+    size = strlen(str);
+    needsize = vp_stack_used(stack) + 1 + VP_HEADER_SIZE + size + 1;
     VP_RETURN_IF_FAIL(vp_stack_reserve(stack, needsize));
-    stack->top += sprintf(stack->top, "%s%c", str, VP_EOV);
+    stack->top[0] = VP_EOV; /* Set previous EOV. */
+    sprintf(stack->top + 1 + VP_HEADER_SIZE, "%s", str);
+    vp_encode_size(size, stack->top + 1);
+    stack->top += 1 + VP_HEADER_SIZE + size;
+    stack->top[0] = '\0';
     return NULL;
 }
