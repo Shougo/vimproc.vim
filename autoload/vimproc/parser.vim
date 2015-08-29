@@ -531,8 +531,8 @@ function! s:parse_block(script) "{{{
   while i < max
     if a:script[i] == '{'
       " Block.
-      let block = matchstr(a:script, '^{\zs.\{-1}\ze}', i)
-      let rest = a:script[matchend(a:script, '^{.\{-1}}', i) :]
+      let block = matchstr(a:script, '^{\zs.\{-}\ze}', i)
+      let rest = a:script[matchend(a:script, '^{.\{-}}', i) :]
       if block == ''
         let [script, i] = s:skip_else(script, a:script, i)
         continue
@@ -559,7 +559,10 @@ function! s:parse_block(script) "{{{
         endfor
       else
         " Normal block.
-        for b in split(block, ',', 1)
+        let blocks = (stridx(block, ',') < 0) ?
+              \ split(block, '\zs') :
+              \ split(block, ',', 1)
+        for b in vimproc#util#uniq(blocks)
           " Concat.
           let script .= head . escape(b, ' ') . foot . ' '
         endfor
