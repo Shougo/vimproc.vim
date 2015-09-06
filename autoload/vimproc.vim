@@ -102,6 +102,9 @@ function! s:define_signals()
     let s:signames[nr] = name
   endfor
 endfunction
+
+" End Of Value
+let s:EOV = "\xFE"
 " }}}
 
 let g:vimproc#dll_path =
@@ -137,7 +140,7 @@ if !filereadable(g:vimproc#dll_path) || !has('libcall') "{{{
 endif"}}}
 
 function! vimproc#version() "{{{
-  return str2nr(printf('%2d%02d', 8, 0))
+  return str2nr(printf('%2d%02d', 8, 1))
 endfunction"}}}
 function! vimproc#dll_version() "{{{
   let [dll_version] = s:libcall('vp_dlversion', [])
@@ -1187,13 +1190,11 @@ else
 endif
 
 function! s:libcall(func, args) "{{{
-  " End Of Value
-  let EOV = "\xFF"
-  let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), EOV) . EOV)
+  let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), s:EOV) . s:EOV)
   let stack_buf = libcall(g:vimproc#dll_path, a:func, args)
-  let result = s:split(stack_buf, EOV)
+  let result = s:split(stack_buf, s:EOV)
   if get(result, -1, 'error') != ''
-    if stack_buf[len(stack_buf) - 1] ==# EOV
+    if stack_buf[len(stack_buf) - 1] ==# s:EOV
       " Note: If &encoding equals "cp932" and output ends multibyte first byte,
       "       will fail split.
       return result
@@ -1208,13 +1209,11 @@ function! s:libcall(func, args) "{{{
 endfunction"}}}
 
 function! s:libcall_raw_read(func, args) "{{{
-  " End Of Value
-  let EOV = "\xFF"
-  let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), EOV) . EOV)
+  let args = empty(a:args) ? '' : (join(reverse(copy(a:args)), s:EOV) . s:EOV)
   let result = libcall(g:vimproc#dll_path, a:func, args)
-  " SUCCESS:: EOV | EOF[0|1] | Bin
+  " SUCCESS:: s:EOV | EOF[0|1] | Bin
   " ERROR  :: ErrStr
-  if result[0] !=# EOV
+  if result[0] !=# s:EOV
     let s:lasterr = [result]
     let msg = vimproc#util#iconv(string(result),
           \ vimproc#util#systemencoding(), &encoding)
@@ -1225,15 +1224,13 @@ function! s:libcall_raw_read(func, args) "{{{
 endfunction"}}}
 
 function! s:libcall_raw_write(func, args) "{{{
-  " End Of Value
-  let EOV = "\xFF"
   " Convert::
-  " [Fd, Bin, Timeout] => Bin | EOV | Timeout | EOV | Fd | EOV
-  let args = join((a:args[1:] + a:args[:0]), EOV) . EOV
+  " [Fd, Bin, Timeout] => Bin | s:EOV | Timeout | s:EOV | Fd | s:EOV
+  let args = join((a:args[1:] + a:args[:0]), s:EOV) . s:EOV
   let stack_buf = libcall(g:vimproc#dll_path, a:func, args)
-  let result = s:split(stack_buf, EOV)
+  let result = s:split(stack_buf, s:EOV)
   if get(result, -1, 'error') != ''
-    if stack_buf[len(stack_buf) - 1] ==# EOV
+    if stack_buf[len(stack_buf) - 1] ==# s:EOV
       " Note: If &encoding equals "cp932" and output ends multibyte first byte,
       "       will fail split.
       return result
