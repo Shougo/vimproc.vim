@@ -47,7 +47,7 @@
 #endif
 
 /* for ioctl() */
-#ifdef __APPLE__ 
+#ifdef __APPLE__
 # include <sys/ioctl.h>
 #endif
 
@@ -1250,6 +1250,6 @@ vp_get_signals(char *args)
 #undef VP_STACK_PUSH_ALTSIGNAME
 }
 
-/* 
+/*
  * vim:set sw=4 sts=4 et:
  */

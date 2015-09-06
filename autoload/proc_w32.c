@@ -1261,6 +1261,6 @@ vp_get_signals(char *args)
     return vp_stack_return(&_result);
 }
 
-/* 
+/*
  * vim:set sw=4 sts=4 et:
  */

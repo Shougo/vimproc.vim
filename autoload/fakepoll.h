@@ -67,8 +67,7 @@ int poll(struct pollfd *pollSet, int pollCount, int pollTimeout)
         writep = NULL;
         exceptp = NULL;
         maxFD = 0;
-    } 
-    else {
+    } else {
         pollEnd = pollSet + pollCount;
         readp = &readFDs;
         writep = &writeFDs;
@@ -77,7 +76,7 @@ int poll(struct pollfd *pollSet, int pollCount, int pollTimeout)
         FD_ZERO(readp);
         FD_ZERO(writep);
         FD_ZERO(exceptp);
-        
+
         /*  Find the biggest fd in the poll set */
         maxFD = 0;
         for (p = pollSet; p < pollEnd; p++) {
@@ -89,7 +88,7 @@ int poll(struct pollfd *pollSet, int pollCount, int pollTimeout)
             errno = EINVAL;
             return -1;
         }
-        
+
         /*  Transcribe flags from the poll set to the fd sets */
         for (p = pollSet; p < pollEnd; p++) {
             if (p->fd < 0) {
@@ -103,7 +102,7 @@ int poll(struct pollfd *pollSet, int pollCount, int pollTimeout)
             }
         }
     }
-        
+
     /*  poll timeout is in milliseconds. Convert to struct timeval. */
     /*  poll timeout == -1 : wait forever : select timeout of NULL */
     /*  poll timeout == 0  : return immediately : select timeout of zero */
@@ -114,16 +113,14 @@ int poll(struct pollfd *pollSet, int pollCount, int pollTimeout)
     } else {
         tvp = NULL;
     }
-    
-    
+
     selected = select(maxFD+1, readp, writep, exceptp, tvp);
 
 
     if (selected < 0) {
         /*  Error during select */
         result = -1;
-    } 
-    else if (selected > 0) {
+    } else if (selected > 0) {
         /*  Select found something */
         /*  Transcribe result from fd sets to poll set. */
         /*  Also count the number of selected fds. poll returns the  */
@@ -148,8 +145,7 @@ int poll(struct pollfd *pollSet, int pollCount, int pollTimeout)
             }
         }
         result = polled;
-    }
-    else {
+    } else {
         /*  selected == 0, select timed out before anything happened */
         /*  Clear all result bits and return zero. */
         for (p = pollSet; p < pollEnd; p++) {
