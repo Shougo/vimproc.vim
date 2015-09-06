@@ -383,13 +383,15 @@ vp_file_read(char *args)
         if (pfd.revents & VP_POLLIN) {
             n = read(fd, buf, cnt);
             if (n == -1) {
-                if (pfd.revents & POLLHUP) {
-                    /* eof */
-                    eof = 1;
-                    break;
+                if (pfd.revents & POLLERR
+                        || pfd.revents & POLLNVAL) {
+                    return vp_stack_return_error(&_result,
+                            "read() error: revents = %d, error = %s",
+                            pfd.revents, strerror(errno));
                 }
-                return vp_stack_return_error(&_result, "read() error: %s",
-                        strerror(errno));
+                /* eof */
+                eof = 1;
+                break;
             } else if (n == 0) {
                 /* eof */
                 eof = 1;
