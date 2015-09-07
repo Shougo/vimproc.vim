@@ -383,7 +383,15 @@ vp_file_read(char *args)
             n = read(fd, buf, cnt);
             if (n == -1) {
                 if (pfd.revents & POLLERR
-                        || pfd.revents & POLLNVAL) {
+                        || pfd.revents & POLLNVAL
+                        || pfd.revents & POLLWRNORM
+#ifndef __CYGWIN__
+                        /* Cygwin(after ver.2.0) fails pty read and returns
+                         * POLLIN.
+                         * I don't know why... */
+                        || pfd.revents & POLLIN
+#endif
+                        ) {
                     return vp_stack_return_error(&_result,
                             "read() error: revents = %d, error = %s",
                             pfd.revents, strerror(errno));
