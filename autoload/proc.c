@@ -127,7 +127,7 @@ const char *vp_get_signals(char *args); /* [signals] () */
 /* --- */
 
 #define VP_BUFSIZE      (65536)
-#define VP_READ_BUFSIZE (VP_BUFSIZE - 4)
+#define VP_READ_BUFSIZE (VP_BUFSIZE - (VP_HEADER_SIZE + 1) * 2 - 1)
 
 static vp_stack_t _result = VP_STACK_NULL;
 
@@ -351,7 +351,8 @@ vp_file_read(char *args)
     int timeout;
     int n;
     char *buf;
-    char *eof;
+    int eof = 0;
+    unsigned int size = 0;
     struct pollfd pfd = {0, POLLIN, 0};
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
@@ -366,14 +367,14 @@ vp_file_read(char *args)
     /* initialize buffer */
     buf = _result.top = _result.buf;
     *(buf++) = VP_EOV;
-    *(eof = buf++) = '0';
+    buf += VP_HEADER_SIZE;
 
     pfd.fd = fd;
     while (cnt > 0) {
         n = poll(&pfd, 1, timeout);
         if (n == -1) {
             /* eof or error */
-            *eof = '1';
+            eof = 1;
             break;
         } else if (n == 0) {
             /* timeout */
@@ -397,22 +398,23 @@ vp_file_read(char *args)
                             pfd.revents, strerror(errno));
                 }
                 /* eof */
-                *eof = '1';
+                eof = 1;
                 break;
             } else if (n == 0) {
                 /* eof */
-                *eof = '1';
+                eof = 1;
                 break;
             }
             /* decrease stack top for concatenate. */
             cnt -= n;
             buf += n;
+            size += n;
             /* try read more bytes without waiting */
             timeout = 0;
             continue;
         } else if (pfd.revents & (POLLERR | POLLHUP)) {
             /* eof or error */
-            *eof = '1';
+            eof = 1;
             break;
         } else if (pfd.revents & POLLNVAL) {
             return vp_stack_return_error(&_result, "poll() POLLNVAL: %d",
@@ -422,7 +424,9 @@ vp_file_read(char *args)
         return vp_stack_return_error(&_result, "poll() unknown status: %d",
                 pfd.revents);
     }
+    vp_encode_size(size, _result.top + 1);
     _result.top = buf;
+    vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 #undef VP_POLLIN
 }
@@ -443,9 +447,8 @@ vp_file_write(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
 
-    buf = stack.buf;
-    size = (stack.top - 1) - stack.buf;
-    buf[size] = 0;
+    size = vp_decode_size(stack.top);
+    buf = stack.top + VP_HEADER_SIZE;
 
     pfd.fd = fd;
     nleft = 0;

@@ -121,7 +121,7 @@ static BOOL ExitRemoteProcess(HANDLE hProcess, UINT_PTR uExitCode);
 /* --- */
 
 #define VP_BUFSIZE      (65536)
-#define VP_READ_BUFSIZE (VP_BUFSIZE - 4)
+#define VP_READ_BUFSIZE (VP_BUFSIZE - (VP_HEADER_SIZE + 1) * 2 - 1)
 
 static LPWSTR
 utf8_to_utf16(const char *str)
@@ -399,7 +399,8 @@ vp_file_read(char *args)
     DWORD ret;
     int n;
     char *buf;
-    char *eof;
+    int eof = 0;
+    unsigned int size = 0;
     HANDLE hFile;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
@@ -414,7 +415,7 @@ vp_file_read(char *args)
     /* initialize buffer */
     buf = _result.top = _result.buf;
     *(buf++) = VP_EOV;
-    *(eof = buf++) = '0';
+    buf += VP_HEADER_SIZE;
 
     hFile = (HANDLE)_get_osfhandle(fd);
     while (cnt > 0) {
@@ -432,16 +433,19 @@ vp_file_read(char *args)
                     strerror(errno));
         } else if (n == 0) {
             /* eof */
-            *eof = '1';
+            eof = 1;
             break;
         }
         /* decrease stack top for concatenate. */
         cnt -= n;
         buf += n;
+        size += n;
         /* try read more bytes without waiting */
         timeout = 0;
     }
+    vp_encode_size(size, _result.top + 1);
     _result.top = buf;
+    vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 }
 
@@ -462,9 +466,8 @@ vp_file_write(char *args)
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &timeout));
 
-    buf = stack.buf;
-    size = (stack.top - 1) - stack.buf;
-    buf[size] = 0;
+    size = vp_decode_size(stack.top);
+    buf = stack.top + VP_HEADER_SIZE;
 
     nleft = 0;
     hFile = (HANDLE)_get_osfhandle(fd);
@@ -651,7 +654,8 @@ vp_pipe_read(char *args)
     DWORD n;
     DWORD err;
     char *buf;
-    char *eof;
+    int eof = 0;
+    unsigned int size = 0;
     HANDLE hPipe;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
@@ -666,7 +670,7 @@ vp_pipe_read(char *args)
     /* initialize buffer */
     buf = _result.top = _result.buf;
     *(buf++) = VP_EOV;
-    *(eof = buf++) = '0';
+    buf += VP_HEADER_SIZE;
 
     hPipe = (HANDLE)_get_osfhandle(fd);
     while (cnt > 0) {
@@ -676,7 +680,7 @@ vp_pipe_read(char *args)
             if (err == 0 || err == ERROR_BROKEN_PIPE) {
                 /* error or eof */
                 if (err == ERROR_BROKEN_PIPE) {
-                    *eof = '1';
+                    eof = 1;
                 }
                 break;
             }
@@ -697,10 +701,13 @@ vp_pipe_read(char *args)
         /* decrease stack top for concatenate. */
         cnt -= n;
         buf += n;
+        size += n;
         /* try read more bytes without waiting */
         timeout = 0;
     }
+    vp_encode_size(size, _result.top + 1);
     _result.top = buf;
+    vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 }
 
@@ -932,7 +939,8 @@ vp_socket_read(char *args)
     struct timeval tv;
     int n;
     char *buf;
-    char *eof;
+    int eof = 0;
+    unsigned int size = 0;
     fd_set fdset;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
@@ -949,7 +957,7 @@ vp_socket_read(char *args)
     /* initialize buffer */
     buf = _result.top = _result.buf;
     *(buf++) = VP_EOV;
-    *(eof = buf++) = '0';
+    buf += VP_HEADER_SIZE;
 
     while (cnt > 0) {
         FD_ZERO(&fdset);
@@ -969,18 +977,21 @@ vp_socket_read(char *args)
                     strerror(errno));
         } else if (n == 0) {
             /* eof */
-            *eof = '1';
+            eof = 1;
             break;
         }
         /* decrease stack top for concatenate. */
         cnt -= n;
         buf += n;
+        size += n;
         /* try read more bytes without waiting */
         timeout = 0;
         tv.tv_sec = 0;
         tv.tv_usec = 0;
     }
+    vp_encode_size(size, _result.top + 1);
     _result.top = buf;
+    vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 }
 
@@ -1003,9 +1014,8 @@ vp_socket_write(char *args)
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
 
-    buf = stack.buf;
-    size = (stack.top - 1) - stack.buf;
-    buf[size] = 0;
+    size = vp_decode_size(stack.top);
+    buf = stack.top + VP_HEADER_SIZE;
 
     nleft = 0;
     while (nleft < size) {
