@@ -16,7 +16,7 @@
  * which is no value.
  *
  * Successful Result:
- *   EOV | DataSize0, Data0, EOV | DataSize1, Data1, EOV | ...
+ *   EOV | DataSize0, Data0, EOV | DataSize1, Data1, EOV | ... | NUL
  *      or
  *   NULL
  *
@@ -163,10 +163,10 @@ vp_stack_from_args(vp_stack_t *stack, char *args)
 static const char *
 vp_stack_return(vp_stack_t *stack)
 {
-#if 0
     size_t needsize;
     const char *ret;
 
+    /* add the last EOV and NUL */
     needsize = vp_stack_used(stack) + 1;
     ret = vp_stack_reserve(stack, needsize);
     if (ret != NULL)
@@ -174,7 +174,7 @@ vp_stack_return(vp_stack_t *stack)
 
     stack->top[0] = VP_EOV;
     stack->top[1] = '\0';
-#endif
+
     /* Clear the stack. */
     stack->top = stack->buf;
     return stack->buf;
