@@ -1239,7 +1239,7 @@ endfunction
 function! s:libcall(func, args) "{{{
   let stack_buf = libcall(g:vimproc#dll_path, a:func, s:encode_list(a:args))
   if empty(stack_buf)
-    return
+    return []
   endif
   let [result, err] = s:decode_list(stack_buf)
   if err
