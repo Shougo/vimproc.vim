@@ -17,15 +17,19 @@ else
         PLATFORM = unix
     endif
     ifeq ($(UNAME_S),FreeBSD)
+        MAKE = make
         PLATFORM = bsd
     endif
     ifeq ($(UNAME_S),DragonFly)
+        MAKE = make
         PLATFORM = bsd
     endif
     ifeq ($(UNAME_S),NetBSD)
+        MAKE = make
         PLATFORM = bsd
     endif
     ifeq ($(UNAME_S),OpenBSD)
+        MAKE = make
         PLATFORM = bsd
     endif
     ifeq ($(UNAME_S),Darwin)
