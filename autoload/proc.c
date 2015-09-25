@@ -296,49 +296,7 @@ fd_set_nonblock(int fd)
 #endif
 
 const char *
-vp_file_open(char *args)
-{
-    vp_stack_t stack;
-    char *path;
-    char *flags;
-    int mode;  /* used when flags have O_CREAT */
-    int oflag = 0;
-    int fd;
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
-    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &flags));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &mode));
-
-    oflag = str_to_oflag(flags);
-    if (oflag == -1)
-        return vp_stack_return_error(&_result, "open flag error.");
-
-    fd = open(path, oflag, mode);
-    if (fd == -1)
-        return vp_stack_return_error(&_result, "open() error: %s",
-                strerror(errno));
-    vp_stack_push_num(&_result, "%d", fd);
-    return vp_stack_return(&_result);
-}
-
-const char *
-vp_file_close(char *args)
-{
-    vp_stack_t stack;
-    int fd;
-
-    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
-    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
-
-    if (close(fd) == -1)
-        return vp_stack_return_error(&_result, "close() error: %s",
-                strerror(errno));
-    return NULL;
-}
-
-const char *
-vp_file_read(char *args)
+vp_fd_read(char *args, int ispty)
 {
 #ifdef __linux__
 # define VP_POLLIN (POLLIN | POLLHUP)
@@ -386,12 +344,9 @@ vp_file_read(char *args)
                 if (pfd.revents & POLLERR
                         || pfd.revents & POLLNVAL
                         || pfd.revents & POLLWRNORM
-#ifndef __CYGWIN__
                         /* Cygwin(after ver.2.0) fails pty read and returns
-                         * POLLIN.
-                         * I don't know why... */
-                        || pfd.revents & POLLIN
-#endif
+                         * POLLIN. */
+                        || (!ispty && pfd.revents & POLLIN)
                         ) {
                     return vp_stack_return_error(&_result,
                             "read() error: revents = %d, error = %s",
@@ -429,6 +384,54 @@ vp_file_read(char *args)
     vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 #undef VP_POLLIN
+}
+
+const char *
+vp_file_open(char *args)
+{
+    vp_stack_t stack;
+    char *path;
+    char *flags;
+    int mode;  /* used when flags have O_CREAT */
+    int oflag = 0;
+    int fd;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &path));
+    VP_RETURN_IF_FAIL(vp_stack_pop_str(&stack, &flags));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &mode));
+
+    oflag = str_to_oflag(flags);
+    if (oflag == -1)
+        return vp_stack_return_error(&_result, "open flag error.");
+
+    fd = open(path, oflag, mode);
+    if (fd == -1)
+        return vp_stack_return_error(&_result, "open() error: %s",
+                strerror(errno));
+    vp_stack_push_num(&_result, "%d", fd);
+    return vp_stack_return(&_result);
+}
+
+const char *
+vp_file_close(char *args)
+{
+    vp_stack_t stack;
+    int fd;
+
+    VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
+    VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
+
+    if (close(fd) == -1)
+        return vp_stack_return_error(&_result, "close() error: %s",
+                strerror(errno));
+    return NULL;
+}
+
+const char *
+vp_file_read(char *args)
+{
+    return vp_fd_read(args, 0);
 }
 
 const char *
@@ -663,7 +666,7 @@ vp_pipe_close(char *args)
 const char *
 vp_pipe_read(char *args)
 {
-    return vp_file_read(args);
+    return vp_fd_read(args, 0);
 }
 
 const char *
@@ -827,7 +830,7 @@ vp_pty_close(char *args)
 const char *
 vp_pty_read(char *args)
 {
-    return vp_file_read(args);
+    return vp_fd_read(args, 1);
 }
 
 const char *
@@ -998,7 +1001,7 @@ vp_socket_close(char *args)
 const char *
 vp_socket_read(char *args)
 {
-    return vp_file_read(args);
+    return vp_fd_read(args, 0);
 }
 
 const char *
