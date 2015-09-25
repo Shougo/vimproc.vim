@@ -9,11 +9,12 @@
 #include <errno.h>
 
 /*
- * Argument and Result are Stack. Each value consists of DataSize, Data,
+ * Function arguments and return values are stored in stack. Each value consists of DataSize, Data,
  * and EOV. DataSize is a 32-bit integer encoded into a 5-byte string.
  * Number should be stored as String.
- * The result which is not started with EOV is error message, except NULL
- * which is no value.
+ *
+ * Return values not started with EOV are error message, except NULL
+ * which indicates no result.
  *
  * Successful Result:
  *   EOV | DataSize0, Data0, EOV | DataSize1, Data1, EOV | ... | NUL
