@@ -303,7 +303,8 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) "{{{
     call subproc.kill(g:vimproc#SIGTERM)
 
     if v:exception !~ '^Vim:Interrupt'
-      throw v:exception
+      call s:print_error(v:throwpoint)
+      call s:print_error(v:exception)
     endif
   finally
     let output = join(outbuf, '')
