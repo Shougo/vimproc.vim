@@ -78,19 +78,19 @@ EXPORT const char *vp_dlversion(char *args);     /* [version] () */
 
 EXPORT const char *vp_file_open(char *args);   /* [fd] (path, flags, mode) */
 EXPORT const char *vp_file_close(char *args);  /* [] (fd) */
-EXPORT const char *vp_file_read(char *args);   /* [hd, eof] (fd, cnt, timeout) */
+EXPORT const char *vp_file_read(char *args);   /* [eof, hd] (fd, cnt, timeout) */
 EXPORT const char *vp_file_write(char *args);  /* [nleft] (fd, timeout, hd) */
 
 EXPORT const char *vp_pipe_open(char *args);   /* [pid, [fd] * npipe]
                                                   (npipe, argc, [argv]) */
 EXPORT const char *vp_pipe_close(char *args);  /* [] (fd) */
-EXPORT const char *vp_pipe_read(char *args);   /* [hd, eof] (fd, cnt, timeout) */
+EXPORT const char *vp_pipe_read(char *args);   /* [eof, hd] (fd, cnt, timeout) */
 EXPORT const char *vp_pipe_write(char *args);  /* [nleft] (fd, timeout, hd) */
 
 EXPORT const char *vp_pty_open(char *args);    /* [pid, fd, ttyname]
                                                   (width, height, argc, [argv]) */
 EXPORT const char *vp_pty_close(char *args);   /* [] (fd) */
-EXPORT const char *vp_pty_read(char *args);    /* [hd, eof] (fd, cnt, timeout) */
+EXPORT const char *vp_pty_read(char *args);    /* [eof, hd] (fd, cnt, timeout) */
 EXPORT const char *vp_pty_write(char *args);   /* [nleft] (fd, timeout, hd) */
 EXPORT const char *vp_pty_get_winsize(char *args); /* [width, height] (fd) */
 EXPORT const char *vp_pty_set_winsize(char *args); /* [] (fd, width, height) */
@@ -101,7 +101,7 @@ EXPORT const char *vp_close_handle(char *args); /* [] (fd) */
 
 EXPORT const char *vp_socket_open(char *args); /* [socket] (host, port) */
 EXPORT const char *vp_socket_close(char *args);/* [] (socket) */
-EXPORT const char *vp_socket_read(char *args); /* [hd, eof] (socket, cnt, timeout) */
+EXPORT const char *vp_socket_read(char *args); /* [eof, hd] (socket, cnt, timeout) */
 EXPORT const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 
 EXPORT const char *vp_host_exists(char *args); /* [int] (host) */
@@ -399,7 +399,7 @@ vp_file_read(char *args)
     DWORD ret;
     int n;
     char *buf;
-    int eof = 0;
+    char *eof;
     unsigned int size = 0;
     HANDLE hFile;
 
@@ -413,7 +413,10 @@ vp_file_read(char *args)
     }
 
     /* initialize buffer */
-    buf = _result.top = _result.buf;
+    _result.top = _result.buf;
+    vp_stack_push_num(&_result, "%d", 0);   /* set eof to 0 */
+    eof = _result.top - 1;
+    buf = _result.top;
     *(buf++) = VP_EOV;
     buf += VP_HEADER_SIZE;
 
@@ -433,7 +436,7 @@ vp_file_read(char *args)
                     strerror(errno));
         } else if (n == 0) {
             /* eof */
-            eof = 1;
+            *eof = '1';
             break;
         }
         /* decrease stack top for concatenate. */
@@ -445,7 +448,6 @@ vp_file_read(char *args)
     }
     vp_encode_size(size, _result.top + 1);
     _result.top = buf;
-    vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 }
 
@@ -654,7 +656,7 @@ vp_pipe_read(char *args)
     DWORD n;
     DWORD err;
     char *buf;
-    int eof = 0;
+    char *eof;
     unsigned int size = 0;
     HANDLE hPipe;
 
@@ -668,7 +670,10 @@ vp_pipe_read(char *args)
     }
 
     /* initialize buffer */
-    buf = _result.top = _result.buf;
+    _result.top = _result.buf;
+    vp_stack_push_num(&_result, "%d", 0);   /* set eof to 0 */
+    eof = _result.top - 1;
+    buf = _result.top;
     *(buf++) = VP_EOV;
     buf += VP_HEADER_SIZE;
 
@@ -680,7 +685,7 @@ vp_pipe_read(char *args)
             if (err == 0 || err == ERROR_BROKEN_PIPE) {
                 /* error or eof */
                 if (err == ERROR_BROKEN_PIPE) {
-                    eof = 1;
+                    *eof = '1';
                 }
                 break;
             }
@@ -707,7 +712,6 @@ vp_pipe_read(char *args)
     }
     vp_encode_size(size, _result.top + 1);
     _result.top = buf;
-    vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 }
 
@@ -939,7 +943,7 @@ vp_socket_read(char *args)
     struct timeval tv;
     int n;
     char *buf;
-    int eof = 0;
+    char *eof;
     unsigned int size = 0;
     fd_set fdset;
 
@@ -955,7 +959,10 @@ vp_socket_read(char *args)
     }
 
     /* initialize buffer */
-    buf = _result.top = _result.buf;
+    _result.top = _result.buf;
+    vp_stack_push_num(&_result, "%d", 0);   /* set eof to 0 */
+    eof = _result.top - 1;
+    buf = _result.top;
     *(buf++) = VP_EOV;
     buf += VP_HEADER_SIZE;
 
@@ -977,7 +984,7 @@ vp_socket_read(char *args)
                     strerror(errno));
         } else if (n == 0) {
             /* eof */
-            eof = 1;
+            *eof = '1';
             break;
         }
         /* decrease stack top for concatenate. */
@@ -991,7 +998,6 @@ vp_socket_read(char *args)
     }
     vp_encode_size(size, _result.top + 1);
     _result.top = buf;
-    vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 }
 
