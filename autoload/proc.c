@@ -296,7 +296,7 @@ fd_set_nonblock(int fd)
 #endif
 
 const char *
-vp_fd_read(char *args, int ispty)
+vp_fd_read(char *args, int is_pty_pipe)
 {
 #ifdef __linux__
 # define VP_POLLIN (POLLIN | POLLHUP)
@@ -346,7 +346,7 @@ vp_fd_read(char *args, int ispty)
                         || pfd.revents & POLLWRNORM
                         /* Cygwin(after ver.2.0) fails pty read and returns
                          * POLLIN. */
-                        || (!ispty && pfd.revents & POLLIN)
+                        || (!is_pty_pipe && pfd.revents & POLLIN)
                         ) {
                     return vp_stack_return_error(&_result,
                             "read() error: revents = %d, error = %s",
@@ -666,7 +666,7 @@ vp_pipe_close(char *args)
 const char *
 vp_pipe_read(char *args)
 {
-    return vp_fd_read(args, 0);
+    return vp_fd_read(args, 1);
 }
 
 const char *
