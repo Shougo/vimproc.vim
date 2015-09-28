@@ -1259,7 +1259,8 @@ endfunction"}}}
 
 " args[0]: fd, args[1]: count, args[2]: timeout
 function! s:libcall_raw_read(func, args) "{{{
-  return s:libcall(a:func, a:args)
+  let [err, hd] = s:libcall(a:func, a:args)
+  return [hd, err]
 endfunction "}}}
 
 " args[0]: fd, args[1]: data, args[2]: timeout

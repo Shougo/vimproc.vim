@@ -93,20 +93,20 @@ const char *vp_dlversion(char *args);   /* [version] () */
 
 const char *vp_file_open(char *args);   /* [fd] (path, flags, mode) */
 const char *vp_file_close(char *args);  /* [] (fd) */
-const char *vp_file_read(char *args);   /* [hd, eof] (fd, cnt, timeout) */
+const char *vp_file_read(char *args);   /* [eof, hd] (fd, cnt, timeout) */
 const char *vp_file_write(char *args);  /* [nleft] (fd, timeout, hd) */
 
 const char *vp_pipe_open(char *args);   /* [pid, [fd] * npipe]
                                            (npipe, hstdin, hstdout, hstderr, argc, [argv]) */
 const char *vp_pipe_close(char *args);  /* [] (fd) */
-const char *vp_pipe_read(char *args);   /* [hd, eof] (fd, cnt, timeout) */
+const char *vp_pipe_read(char *args);   /* [eof, hd] (fd, cnt, timeout) */
 const char *vp_pipe_write(char *args);  /* [nleft] (fd, timeout, hd) */
 
 const char *vp_pty_open(char *args);
 /* [pid, stdin, stdout, stderr]
    (npipe, width, height,hstdin, hstdout, hstderr, argc, [argv]) */
 const char *vp_pty_close(char *args);   /* [] (fd) */
-const char *vp_pty_read(char *args);    /* [hd, eof] (fd, cnt, timeout) */
+const char *vp_pty_read(char *args);    /* [eof, hd] (fd, cnt, timeout) */
 const char *vp_pty_write(char *args);   /* [nleft] (fd, timeout, hd) */
 const char *vp_pty_get_winsize(char *args); /* [width, height] (fd) */
 const char *vp_pty_set_winsize(char *args); /* [] (fd, width, height) */
@@ -116,7 +116,7 @@ const char *vp_waitpid(char *args);     /* [cond, status] (pid) */
 
 const char *vp_socket_open(char *args); /* [socket] (host, port) */
 const char *vp_socket_close(char *args);/* [] (socket) */
-const char *vp_socket_read(char *args); /* [hd, eof] (socket, cnt, timeout) */
+const char *vp_socket_read(char *args); /* [eof, hd] (socket, cnt, timeout) */
 const char *vp_socket_write(char *args);/* [nleft] (socket, hd, timeout) */
 
 const char *vp_host_exists(char *args); /* [int] (host) */
@@ -309,7 +309,7 @@ vp_fd_read(char *args, int is_pty_pipe)
     int timeout;
     int n;
     char *buf;
-    int eof = 0;
+    char *eof;
     unsigned int size = 0;
     struct pollfd pfd = {0, POLLIN, 0};
 
@@ -323,7 +323,10 @@ vp_fd_read(char *args, int is_pty_pipe)
     }
 
     /* initialize buffer */
-    buf = _result.top = _result.buf;
+    _result.top = _result.buf;
+    vp_stack_push_num(&_result, "%d", 0);   /* set eof to 0 */
+    eof = _result.top - 1;
+    buf = _result.top;
     *(buf++) = VP_EOV;
     buf += VP_HEADER_SIZE;
 
@@ -332,7 +335,7 @@ vp_fd_read(char *args, int is_pty_pipe)
         n = poll(&pfd, 1, timeout);
         if (n == -1) {
             /* eof or error */
-            eof = 1;
+            *eof = '1';
             break;
         } else if (n == 0) {
             /* timeout */
@@ -353,11 +356,11 @@ vp_fd_read(char *args, int is_pty_pipe)
                             pfd.revents, strerror(errno));
                 }
                 /* eof */
-                eof = 1;
+                *eof = '1';
                 break;
             } else if (n == 0) {
                 /* eof */
-                eof = 1;
+                *eof = '1';
                 break;
             }
             /* decrease stack top for concatenate. */
@@ -369,7 +372,7 @@ vp_fd_read(char *args, int is_pty_pipe)
             continue;
         } else if (pfd.revents & (POLLERR | POLLHUP)) {
             /* eof or error */
-            eof = 1;
+            *eof = '1';
             break;
         } else if (pfd.revents & POLLNVAL) {
             return vp_stack_return_error(&_result, "poll() POLLNVAL: %d",
@@ -381,7 +384,6 @@ vp_fd_read(char *args, int is_pty_pipe)
     }
     vp_encode_size(size, _result.top + 1);
     _result.top = buf;
-    vp_stack_push_num(&_result, "%d", eof);
     return vp_stack_return(&_result);
 #undef VP_POLLIN
 }
