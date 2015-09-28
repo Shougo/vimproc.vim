@@ -3,7 +3,7 @@ let s:assert = themis#helper('assert')
 
 function! s:suite.popen2()
   if !vimproc#util#is_windows() && !executable('ls')
-    echo 'ls command is not installed.'
+    call s:assert.skip('ls command is not installed.')
     return
   endif
 
@@ -94,14 +94,16 @@ function! s:suite.popen3()
   unlet sub
 endfunction
 
-function! s:suite.redirection()
+function! s:suite.redirection1()
   let output = vimproc#system('echo "foo" > test.txt | echo "bar"')
   call s:assert.equals(output, "bar\n")
   call s:assert.equals(readfile('test.txt'), ['foo'])
   if filereadable('test.txt')
     call delete('test.txt')
   endif
+endfunction
 
+function! s:suite.redirection2()
   let sub = vimproc#ptyopen('echo "foo" > test.txt | echo "bar"')
   let res = ''
   while !sub.stdout.eof
@@ -109,7 +111,6 @@ function! s:suite.redirection()
   endwhile
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
-  call s:assert.equals(output, "bar\n")
   call s:assert.equals(readfile('test.txt'), ['foo'])
   if filereadable('test.txt')
     call delete('test.txt')
