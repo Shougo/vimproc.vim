@@ -27,22 +27,24 @@ function! s:suite.system4()
   call s:assert.equals(vimproc#cmd#system(['ls']), system('ls'))
 endfunction
 
-function! s:suite.cmd_system()
-  call s:assert.equals(
-        \ vimproc#cmd#system(['echo', '"Foo"']),
-        \ system('echo "\"Foo\""'))
-endfunction
+if has('win32') || has('win64')
+  function! s:suite.cmd_system()
+    call s:assert.equals(
+          \ vimproc#cmd#system(['echo', '"Foo"']),
+          \ system('echo "Foo"'))
+  endfunction
+endif
 
 function! s:suite.system_passwd1()
   call s:assert.equals(
-        \ vimproc#system_passwd('echo -n "test"'),
-        \ system('echo -n "test"'))
+        \ vimproc#system_passwd('echo -n test'),
+        \ system('echo -n test'))
 endfunction
 
 function! s:suite.system_passwd2()
   call s:assert.equals(
         \ vimproc#system_passwd(['echo', '-n', 'test']),
-        \ system('echo -n "test"'))
+        \ system('echo -n test'))
 endfunction
 
 function! s:suite.system_and1()
