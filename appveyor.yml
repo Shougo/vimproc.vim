@@ -18,6 +18,6 @@ deploy:
   provider: GitHub
   description: vimproc
   auth_token:
-    secure: <token secret here>
+    secure: rKd6JLXUIl3vcA8d0S9w14bl+uvUlZLt0d1M8bmlOh+owQqr5c40+/4ITCNBpHG3
   on:
     appveyor_repo_tag: true
