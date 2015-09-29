@@ -1,0 +1,23 @@
+---
+version: '{build}'
+shallow_clone: true
+environment:
+  matrix:
+  - CPU: i386
+    ENV: /x86
+  - CPU: AMD64
+    ENV: /x64
+install:
+  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" %ENV%'
+build_script:
+  - nmake -f make_msvc.mak nodebug=1 CPU=%CPU%
+artifacts:
+  - path: autoload/vimproc_*.dll
+    name: vimproc.dll
+deploy:
+  provider: GitHub
+  description: vimproc
+  auth_token:
+    secure: <token secret here>
+  on:
+    appveyor_repo_tag: true
