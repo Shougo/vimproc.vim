@@ -5,12 +5,20 @@ environment:
   matrix:
   - CPU: i386
     ENV: /x86
+    BIT: 32
   - CPU: AMD64
     ENV: /x64
+    BIT: 64
 install:
   - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" %ENV%'
+  - curl http://files.kaoriya.net/vim/vim74-kaoriya-win%BIT%.zip -s -o vim.zip
+  - unzip -q vim.zip
+  - git clone -q https://github.com/thinca/vim-themis.git themis --depth=1
+  - set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim74-kaoriya-win%BIT%\vim.exe
 build_script:
   - nmake -f make_msvc.mak nodebug=1 CPU=%CPU%
+test_script:
+  - themis\bin\themis
 artifacts:
   - path: autoload/vimproc_*.dll
     name: vimproc.dll
