@@ -1216,7 +1216,7 @@ endfunction
 function! s:encode_list(arr)
   " End Of Value
   let EOV = "\xFF"
-  " encoded size0, data0, EOV, encoded size1, data1, EOV, ...
+  " EOV, encoded size0, data0, EOV, encoded size1, data1, EOV, ...
   return empty(a:arr) ? '' :
     \ (EOV . join(map(copy(a:arr), 's:encode_size(strlen(v:val)) . v:val'), EOV) . EOV)
 endfunction
