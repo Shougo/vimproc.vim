@@ -714,7 +714,10 @@ function! vimproc#kill(pid, sig) "{{{
   if a:sig == 0 && vimproc#util#is_windows()
     " Use waitpid().
     let cond = s:waitpid(a:pid)[0]
-    return cond ==# 'run'
+    if cond ==# 'error'
+      let s:last_errmsg = 'waitpid error'
+    endif
+    return cond !=# 'run'
   endif
 
   try

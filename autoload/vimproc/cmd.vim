@@ -74,15 +74,18 @@ function! s:cmd.system(cmd) "{{{
   call self.vimproc.stdin.write(input . "\n")
 
   " Wait until getting prompt.
-  let result = []
   let output = ''
-  while output !~ '.\+>$'
-    let out = split(output . self.vimproc.stdout.read(), '\r\n\|\n')
-    let output = get(out, -1, '')
-    let result += out[ : -2]
+  while 1
+    let output .= self.vimproc.stdout.read()
+    let lastnl = strridx(output, "\n")
+    if lastnl >= 0 &&
+	  \ output[lastnl + 1:] =~ '^\%([A-Z]:\\\|\\\\.\+\\.\+\\\).*>$'
+      break
+    endif
   endwhile
+  let result = split(output, '\r\n\|\n')[1:-2]
 
-  return join(result[1 :], "\n")
+  return join(result, "\n")
 endfunction"}}}
 
 call s:cmd.open()

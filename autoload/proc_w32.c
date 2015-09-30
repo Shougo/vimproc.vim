@@ -802,16 +802,26 @@ vp_waitpid(char *args)
     vp_stack_t stack;
     HANDLE handle;
     DWORD exitcode;
+    DWORD ret;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%p", &handle));
 
-    if (!GetExitCodeProcess(handle, &exitcode)) {
+    ret = WaitForSingleObject(handle, 0);
+    if (ret == WAIT_OBJECT_0) {
+        /* The process has been exited. */
+        if (!GetExitCodeProcess(handle, &exitcode)) {
+            return vp_stack_return_error(&_result,
+                    "GetExitCodeProcess() error: %s", lasterror());
+        }
+    } else if (ret == WAIT_TIMEOUT) {
+        exitcode = STILL_ACTIVE;
+    } else {
         return vp_stack_return_error(&_result,
-                "GetExitCodeProcess() error: %s", lasterror());
+                "WaitForSingleObject() error: %s", lasterror());
     }
 
-    vp_stack_push_str(&_result, (exitcode == STILL_ACTIVE) ? "run" : "exit");
+    vp_stack_push_str(&_result, (ret == WAIT_TIMEOUT) ? "run" : "exit");
     vp_stack_push_num(&_result, "%u", exitcode);
     return vp_stack_return(&_result);
 }
