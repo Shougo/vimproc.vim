@@ -8,7 +8,7 @@ function! s:suite.popen2()
   endif
 
   if vimproc#util#is_windows()
-    let cmd = ['DIR', '/B']
+    let cmd = ['cmd', '/c', 'DIR', '/B']
   else
     let cmd = ['ls']
   endif
@@ -36,7 +36,7 @@ function! s:suite.popen2()
   unlet sub
 
   if vimproc#util#is_windows()
-    let cmd = ['DIR', '/B', '/A']
+    let cmd = ['cmd', '/c', 'DIR', '/B', '/A']
   else
     let cmd = ['ls', '-la']
   endif
@@ -66,7 +66,7 @@ endfunction
 
 function! s:suite.popen3()
   if vimproc#util#is_windows()
-    let cmd = ['DIR', '/B']
+    let cmd = ['cmd', '/c', 'DIR', '/B']
   else
     let cmd = ['ls']
   endif
