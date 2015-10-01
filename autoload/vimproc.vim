@@ -1728,7 +1728,7 @@ endif
 
 " vimproc dll version check. "{{{
 try
-  if vimproc#dll_version() < vimproc#version()
+  if vimproc#dll_version() != vimproc#version()
     call s:print_error(printf('Your vimproc binary version is "%d",'.
           \ ' but vimproc version is "%d".',
           \ vimproc#dll_version(), vimproc#version()))
@@ -1736,7 +1736,7 @@ try
 catch
   call s:print_error(v:throwpoint)
   call s:print_error(v:exception)
-  call s:print_error('Your vimproc binary is too old!')
+  call s:print_error('Your vimproc binary is not compatible with this vimproc!')
   call s:print_error('Please re-compile it.')
 endtry
 "}}}
