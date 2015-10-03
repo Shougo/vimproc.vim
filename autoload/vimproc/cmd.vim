@@ -79,7 +79,7 @@ function! s:cmd.system(cmd) "{{{
     let output .= self.vimproc.stdout.read()
     let lastnl = strridx(output, "\n")
     if lastnl >= 0 &&
-	  \ output[lastnl + 1:] =~ '^\%([A-Z]:\\\|\\\\.\+\\.\+\\\).*>$'
+          \ output[lastnl + 1:] =~ '^\%([A-Z]:\\\|\\\\.\+\\.\+\\\).*>$'
       break
     endif
   endwhile
@@ -92,7 +92,8 @@ call s:cmd.open()
 
 function! vimproc#cmd#system(expr)
   let cmd = type(a:expr) == type('') ? a:expr :
-        \ join(map(a:expr, '"\"".v:val."\""'))
+        \ join(map(a:expr,
+        \   'match(v:val, "\\s") >= 0 ? "\"".v:val."\"" : v:val'))
   return s:cmd.system(cmd)
 endfunction
 
