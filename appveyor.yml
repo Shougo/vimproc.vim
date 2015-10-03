@@ -2,23 +2,29 @@
 version: '{build}'
 shallow_clone: true
 environment:
+  global:
+    MSYS2_BASEVER: 20150916
   matrix:
-  - CPU: i386
+  - COMPILER: msvc
+    CPU: i386
     ENV: /x86
     BIT: 32
-  - CPU: AMD64
+  - COMPILER: msvc
+    CPU: AMD64
     ENV: /x64
     BIT: 64
-install:
-  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" %ENV%'
-  - appveyor DownloadFile http://files.kaoriya.net/vim/vim74-kaoriya-win%BIT%.zip -FileName vim.zip
-  - 7z x vim.zip > nul
-  - git clone -q https://github.com/thinca/vim-themis.git themis --depth=1
-  - set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim74-kaoriya-win%BIT%\vim.exe
+  - COMPILER: cygwin
+  - COMPILER: mingw
+    BIT: 32
+  - COMPILER: msys2
+    MSYS2_ARCH: x86_64
+    MSYS2_DIR: msys64
+    MSYSTEM: MINGW64
+    BIT: 64
 build_script:
-  - nmake -f make_msvc.mak nodebug=1 CPU=%CPU%
+  - '%APPVEYOR_BUILD_FOLDER%\tools\appveyor.bat'
 test_script:
-  - themis\bin\themis
+  - '%APPVEYOR_BUILD_FOLDER%\tools\appveyor.bat test'
 artifacts:
   - path: autoload/vimproc_*.dll
     name: vimproc.dll
