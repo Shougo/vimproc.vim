@@ -11,8 +11,8 @@ environment:
     BIT: 64
 install:
   - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" %ENV%'
-  - curl http://files.kaoriya.net/vim/vim74-kaoriya-win%BIT%.zip -s -o vim.zip
-  - unzip -q vim.zip
+  - appveyor DownloadFile http://files.kaoriya.net/vim/vim74-kaoriya-win%BIT%.zip -FileName vim.zip
+  - 7z x vim.zip > nul
   - git clone -q https://github.com/thinca/vim-themis.git themis --depth=1
   - set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim74-kaoriya-win%BIT%\vim.exe
 build_script:
