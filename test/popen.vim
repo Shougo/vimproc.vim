@@ -97,6 +97,7 @@ endfunction
 function! s:suite.redirection1()
   let output = vimproc#system('echo "foo" > test.txt | echo "bar"')
   call s:assert.equals(output, "bar\n")
+  sleep 3
   call s:assert.equals(readfile('test.txt'), ['foo'])
   if filereadable('test.txt')
     call delete('test.txt')
@@ -111,6 +112,7 @@ function! s:suite.redirection2()
   endwhile
   " Newline conversion.
   let res = substitute(res, '\r\n', '\n', 'g')
+  sleep 3
   call s:assert.equals(readfile('test.txt'), ['foo'])
   if filereadable('test.txt')
     call delete('test.txt')
