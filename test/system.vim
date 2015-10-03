@@ -30,16 +30,22 @@ endfunction
 function! s:suite.cmd_system3()
   call s:assert.equals(
         \ vimproc#cmd#system(['echo', '"Foo"']),
-        \ system('echo "Foo"'))
+        \ "\"Foo\"\n")
 endfunction
 
 function! s:suite.system_passwd1()
+  if vimproc#util#is_windows()
+    call s:assert.skip('')
+  endif
   call s:assert.equals(
         \ vimproc#system_passwd('echo -n test'),
         \ system('echo -n test'))
 endfunction
 
 function! s:suite.system_passwd2()
+  if vimproc#util#is_windows()
+    call s:assert.skip('')
+  endif
   call s:assert.equals(
         \ vimproc#system_passwd(['echo', '-n', 'test']),
         \ system('echo -n test'))
