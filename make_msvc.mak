@@ -43,7 +43,7 @@ VIMPROC=vimproc_win32
 !endif
 
 SRCDIR = src
-BINDIR = src
+BINDIR = bin
 OUTDIR = $(SRCDIR)\obj$(CPU)
 
 OBJS = $(OUTDIR)/proc_w32.obj
