@@ -25,8 +25,8 @@ Not supported platforms:
 
 * Clone this repo
 * Build vimproc's native extensions (see Building for details)
-* Copy `bin/*` and `plugin/*` files to your 'runtimepath' directory (see
-  `:help runtimepath`).
+* Copy `autoload/*`, `bin/*` and `plugin/*` files to your 'runtimepath'
+  directory (see `:help runtimepath`).
 
 ### NeoBundle
 
