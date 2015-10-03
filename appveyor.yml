@@ -24,7 +24,7 @@ build_script:
 test_script:
   - '%APPVEYOR_BUILD_FOLDER%\tools\appveyor.bat test'
 artifacts:
-  - path: autoload/vimproc_*.dll
+  - path: bin/vimproc_*.dll
     name: vimproc.dll
 deploy:
   provider: GitHub

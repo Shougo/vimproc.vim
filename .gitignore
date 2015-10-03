@@ -1,10 +1,10 @@
-autoload/vimproc_*.so
-autoload/vimproc_*.dll
-autoload/vimproc_*.dll.old
-autoload/vimproc_*.dll.manifest
-autoload/vimproc_*.exp
-autoload/vimproc_*.lib
-autoload/*.pdb
+bin/vimproc_*.so
+bin/vimproc_*.dll
+bin/vimproc_*.dll.old
+bin/vimproc_*.dll.manifest
+bin/vimproc_*.exp
+bin/vimproc_*.lib
+bin/*.pdb
 doc/tags
 *.obj
 *.o

@@ -47,10 +47,10 @@ if ERRORLEVEL 1 (
   rem Build failed.
 
   rem Try to delete old DLLs.
-  if exist autoload\%vimproc_dllname%.old del autoload\%vimproc_dllname%.old
-  if exist autoload\%vimproc_dllname%     del autoload\%vimproc_dllname%
+  if exist bin\%vimproc_dllname%.old del bin\%vimproc_dllname%.old
+  if exist bin\%vimproc_dllname%     del bin\%vimproc_dllname%
   rem If the DLL couldn't delete (may be it is in use), rename it.
-  if exist autoload\%vimproc_dllname%     ren autoload\%vimproc_dllname% %vimproc_dllname%.old
+  if exist bin\%vimproc_dllname%     ren bin\%vimproc_dllname% %vimproc_dllname%.old
 
   mingw32-make -f make_mingw%vimproc_arch%.mak %1 %2 %3 %4 %5 %6 %7 %8 %9
 )
