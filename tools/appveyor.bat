@@ -100,14 +100,8 @@ goto :eof
 
 :cygwin_test
 @echo on
-bash -lc "git clone -q https://github.com/thinca/vim-themis.git themis --depth=1"
-bash -lc "themis/bin/themis test/fopen.vim"
-bash -lc "themis/bin/themis test/functions.vim"
-bash -lc "themis/bin/themis test/lexer.vim"
-bash -lc "themis/bin/themis test/parser.vim"
-bash -lc "themis/bin/themis test/popen.vim"
-bash -lc "themis/bin/themis test/socket.vim"
-bash -lc "themis/bin/themis test/system.vim"
+rem bash -lc "git clone -q https://github.com/thinca/vim-themis.git themis --depth=1"
+rem bash -lc "themis/bin/themis"
 
 @echo off
 goto :eof
