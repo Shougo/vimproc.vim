@@ -59,10 +59,10 @@ clean:
 	-IF EXIST $(OUTDIR)/nul RMDIR /s /q $(OUTDIR)
 	-DEL /F /Q $(BINDIR)\vimproc_win32.*
 	-DEL /F /Q $(BINDIR)\vimproc_win64.*
-	-DEL /F /Q $(BINDIR)\*.obj
-	-DEL /F /Q $(BINDIR)\*.pdb
+	-DEL /F /Q $(SRCDIR)\*.obj
+	-DEL /F /Q $(SRCDIR)\*.pdb
 
-$(SRCDIR)\$(VIMPROC).dll: $(OBJS)
+$(BINDIR)\$(VIMPROC).dll: $(OBJS)
 	$(link) /NOLOGO $(ldebug) $(dlllflags) $(conlibsdll) $(LFLAGS) \
 		/OUT:$@ $(OBJS) shell32.lib
 	IF EXIST $@.manifest \
