@@ -2,15 +2,29 @@
 version: '{build}'
 shallow_clone: true
 environment:
+  global:
+    MSYS2_BASEVER: 20150916
   matrix:
-  - CPU: i386
+  - COMPILER: msvc
+    CPU: i386
     ENV: /x86
-  - CPU: AMD64
+    BIT: 32
+  - COMPILER: msvc
+    CPU: AMD64
     ENV: /x64
-install:
-  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" %ENV%'
+    BIT: 64
+  - COMPILER: cygwin
+  - COMPILER: mingw
+    BIT: 32
+  - COMPILER: msys2
+    MSYS2_ARCH: x86_64
+    MSYS2_DIR: msys64
+    MSYSTEM: MINGW64
+    BIT: 64
 build_script:
-  - nmake -f make_msvc.mak nodebug=1 CPU=%CPU%
+  - '%APPVEYOR_BUILD_FOLDER%\tools\appveyor.bat'
+test_script:
+  - '%APPVEYOR_BUILD_FOLDER%\tools\appveyor.bat test'
 artifacts:
   - path: autoload/vimproc_*.dll
     name: vimproc.dll
@@ -21,3 +35,4 @@ deploy:
     secure: rKd6JLXUIl3vcA8d0S9w14bl+uvUlZLt0d1M8bmlOh+owQqr5c40+/4ITCNBpHG3
   on:
     appveyor_repo_tag: true
+    COMPILER: msvc

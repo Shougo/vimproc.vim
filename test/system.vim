@@ -17,31 +17,35 @@ function! s:suite.system2()
   call s:assert.equals(vimproc#system(['ls']), system('ls'))
 endfunction
 
-function! s:suite.system3()
+function! s:suite.cmd_system1()
   call s:check_ls()
   call s:assert.equals(vimproc#cmd#system('ls'), system('ls'))
 endfunction
 
-function! s:suite.system4()
+function! s:suite.cmd_system2()
   call s:check_ls()
   call s:assert.equals(vimproc#cmd#system(['ls']), system('ls'))
 endfunction
 
-if has('win32') || has('win64')
-  function! s:suite.cmd_system()
-    call s:assert.equals(
-          \ vimproc#cmd#system(['echo', '"Foo"']),
-          \ system('echo "Foo"'))
-  endfunction
-endif
+function! s:suite.cmd_system3()
+  call s:assert.equals(
+        \ vimproc#cmd#system(['echo', '"Foo"']),
+        \ "\"Foo\"\n")
+endfunction
 
 function! s:suite.system_passwd1()
+  if vimproc#util#is_windows()
+    call s:assert.skip('')
+  endif
   call s:assert.equals(
         \ vimproc#system_passwd('echo -n test'),
         \ system('echo -n test'))
 endfunction
 
 function! s:suite.system_passwd2()
+  if vimproc#util#is_windows()
+    call s:assert.skip('')
+  endif
   call s:assert.equals(
         \ vimproc#system_passwd(['echo', '-n', 'test']),
         \ system('echo -n test'))
