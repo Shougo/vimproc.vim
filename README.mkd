@@ -1,7 +1,7 @@
 # vimproc
 
 [![Travis Build Status](https://travis-ci.org/Shougo/vimproc.vim.svg?branch=master)](https://travis-ci.org/Shougo/vimproc.vim)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/<project-key>/branch/master?svg=true)](https://ci.appveyor.com/project/Shougo/vimproc-vim/branch/master)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/nutwxuj2poauar2b/branch/master?svg=true)](https://ci.appveyor.com/project/Shougo/vimproc-vim/branch/master)
 [![GitHub release](https://img.shields.io/github/release/Shougo/vimproc.vim.svg)](https://github.com/Shougo/vimproc.vim/releases)
 
 vimproc requires a native extension to be built, and will not work properly if
