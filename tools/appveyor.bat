@@ -62,10 +62,9 @@ call :install_vim
 @echo on
 PATH C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
 set CHERE_INVOKING=yes
-bash -lc ""
 :: Install and update necessary packages
-bash -lc "for i in {1..3}; do update-core && break || sleep 15; done"
-bash -lc "for i in {1..3}; do pacman --noconfirm -Su mingw-w64-%MSYS2_ARCH%-{gcc,make} make && break || sleep 15; done"
+rem bash -lc "for i in {1..3}; do update-core && break || sleep 15; done"
+rem bash -lc "for i in {1..3}; do pacman --noconfirm -Su mingw-w64-%MSYS2_ARCH%-{gcc,make} make && break || sleep 15; done"
 
 bash -lc "make"
 
