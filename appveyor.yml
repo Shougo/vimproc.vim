@@ -2,8 +2,6 @@
 version: '{build}'
 shallow_clone: true
 environment:
-  global:
-    MSYS2_BASEVER: 20150916
   matrix:
   - COMPILER: msvc
     CPU: i386

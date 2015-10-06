@@ -60,11 +60,7 @@ goto :eof
 :: Using MSYS2
 call :install_vim
 @echo on
-:: Install MSYS2
-appveyor DownloadFile "http://repo.msys2.org/distrib/%MSYS2_ARCH%/msys2-base-%MSYS2_ARCH%-%MSYS2_BASEVER%.tar.xz" -FileName "msys2.tar.xz"
-c:\cygwin\bin\xz -dc msys2.tar.xz | c:\cygwin\bin\tar xf -
-
-PATH %APPVEYOR_BUILD_FOLDER%\%MSYS2_DIR%\%MSYSTEM%\bin;%APPVEYOR_BUILD_FOLDER%\%MSYS2_DIR%\usr\bin;%PATH%
+PATH C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
 set CHERE_INVOKING=yes
 bash -lc ""
 :: Install and update necessary packages
