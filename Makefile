@@ -2,13 +2,14 @@ ifeq ($(OS),Windows_NT)
     # Need to figure out if Cygwin/Mingw is installed
     SYS := $(shell gcc -dumpmachine)
     ifeq ($(findstring cygwin, $(SYS)),cygwin)
-      PLATFORM = cygwin
+        PLATFORM = cygwin
     endif
-    ifeq ($(findstring mingw32, $(SYS)),mingw32)
-      PLATFORM = mingw32
-    endif
-    ifeq ($(findstring mingw64, $(SYS)),mingw64)
-      PLATFORM = mingw64
+    ifeq ($(findstring mingw, $(SYS)),mingw)
+        ifeq ($(findstring x86_64, $(SYS)),x86_64)
+            PLATFORM = mingw64
+        else
+            PLATFORM = mingw32
+        endif
     endif
 else
     # Grab the output of `uname -s` and switch to set the platform

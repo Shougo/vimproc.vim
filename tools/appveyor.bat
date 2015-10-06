@@ -71,7 +71,7 @@ bash -lc ""
 bash -lc "for i in {1..3}; do update-core && break || sleep 15; done"
 bash -lc "for i in {1..3}; do pacman --noconfirm -Su mingw-w64-%MSYS2_ARCH%-{gcc,libiconv} automake autoconf make dos2unix && break || sleep 15; done"
 
-bash -lc "make -f make_mingw%BIT%.mak"
+bash -lc "make"
 
 @echo off
 goto :eof
