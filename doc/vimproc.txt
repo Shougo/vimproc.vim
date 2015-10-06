@@ -169,6 +169,10 @@ Example for neobundle:
 	      \   }
 	      \ }
 <
+Windows Binaries:
+* Kaoriya Vim (http://www.kaoriya.net/software/vim/) comes bundled with a
+  precompiled version for vimproc in Windows environment
+* https://github.com/Shougo/vimproc.vim/releases
 
 ==============================================================================
 INTERFACE					*vimproc-interface*

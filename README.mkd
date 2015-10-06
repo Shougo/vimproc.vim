@@ -1,6 +1,8 @@
 # vimproc
 
-[![Build Status](https://travis-ci.org/Shougo/vimproc.vim.svg?branch=master)](https://travis-ci.org/Shougo/vimproc.vim)
+[![Travis Build Status](https://travis-ci.org/Shougo/vimproc.vim.svg?branch=master)](https://travis-ci.org/Shougo/vimproc.vim)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/<project-key>/branch/master?svg=true)](https://ci.appveyor.com/project/Shougo/vimproc-vim/branch/master)
+[![GitHub release](https://img.shields.io/github/release/Shougo/vimproc.vim.svg)](https://github.com/Shougo/vimproc.vim/releases)
 
 vimproc requires a native extension to be built, and will not work properly if
 that library (a `.so` or `.dll`) is missing.
@@ -132,5 +134,6 @@ Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
 
 ### Windows Binaries
 
-[Kaoriya Vim](http://www.kaoriya.net/software/vim/) comes bundled with a precompiled version
+* [Kaoriya Vim](http://www.kaoriya.net/software/vim/) comes bundled with a precompiled version
 for vimproc in Windows environment
+* https://github.com/Shougo/vimproc.vim/releases
