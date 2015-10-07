@@ -60,18 +60,13 @@ goto :eof
 :: Using MSYS2
 call :install_vim
 @echo on
-:: Install MSYS2
-appveyor DownloadFile "http://repo.msys2.org/distrib/%MSYS2_ARCH%/msys2-base-%MSYS2_ARCH%-%MSYS2_BASEVER%.tar.xz" -FileName "msys2.tar.xz"
-c:\cygwin\bin\xz -dc msys2.tar.xz | c:\cygwin\bin\tar xf -
-
-PATH %APPVEYOR_BUILD_FOLDER%\%MSYS2_DIR%\%MSYSTEM%\bin;%APPVEYOR_BUILD_FOLDER%\%MSYS2_DIR%\usr\bin;%PATH%
+PATH C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
 set CHERE_INVOKING=yes
-bash -lc ""
 :: Install and update necessary packages
-bash -lc "for i in {1..3}; do update-core && break || sleep 15; done"
-bash -lc "for i in {1..3}; do pacman --noconfirm -Su mingw-w64-%MSYS2_ARCH%-{gcc,libiconv} automake autoconf make dos2unix && break || sleep 15; done"
+rem bash -lc "for i in {1..3}; do update-core && break || sleep 15; done"
+rem bash -lc "for i in {1..3}; do pacman --noconfirm -Su mingw-w64-%MSYS2_ARCH%-{gcc,make} make && break || sleep 15; done"
 
-bash -lc "make -f make_mingw%BIT%.mak"
+bash -lc "make"
 
 @echo off
 goto :eof
