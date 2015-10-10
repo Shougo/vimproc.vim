@@ -10,7 +10,7 @@ CC=gcc
 endif
 endif
 
-TARGET=bin/vimproc_mac.so
+TARGET=lib/vimproc_mac.so
 SRC=src/proc.c
 ARCHS=
 CFLAGS+=-O2 -W -Wall -Wno-unused -Wno-unused-parameter -bundle -fPIC $(foreach ARCH,$(ARCHS),-arch $(ARCH))

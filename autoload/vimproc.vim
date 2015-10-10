@@ -71,7 +71,7 @@ endif
 
 call vimproc#util#set_default(
       \ 'g:vimproc#dll_path',
-      \ expand('<sfile>:p:h:h') . '/bin/' . s:vimproc_dll_basename,
+      \ expand('<sfile>:p:h:h') . '/lib/' . s:vimproc_dll_basename,
       \ 'g:vimproc_dll_path')
 unlet s:vimproc_dll_basename
 

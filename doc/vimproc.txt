@@ -380,13 +380,13 @@ VARIABLES 					*vimproc-variables*
 
 						*g:vimproc#dll_path*
 g:vimproc#dll_path	(default
-			Win32: "$VIMRUNTIME/bin/vimproc_win32.dll"
-			Win64: "$VIMRUNTIME/bin/vimproc_win64.dll"
-			Cygwin: "$VIMRUNTIME/bin/vimproc_cygwin.dll"
-			Mac: "$VIMRUNTIME/bin/vimproc_mac.so"
-			Linux32: "$VIMRUNTIME/bin/vimproc_linux32.so"
-			Linux64: "$VIMRUNTIME/bin/vimproc_linux64.so"
-			Others: "$VIMRUNTIME/bin/vimproc_unix.so")
+			Win32: "$VIMRUNTIME/lib/vimproc_win32.dll"
+			Win64: "$VIMRUNTIME/lib/vimproc_win64.dll"
+			Cygwin: "$VIMRUNTIME/lib/vimproc_cygwin.dll"
+			Mac: "$VIMRUNTIME/lib/vimproc_mac.so"
+			Linux32: "$VIMRUNTIME/lib/vimproc_linux32.so"
+			Linux64: "$VIMRUNTIME/lib/vimproc_linux64.so"
+			Others: "$VIMRUNTIME/lib/vimproc_unix.so")
 		This variable stores a dll name used by vimproc.  You must
 		compile this dll file.  If this dll does not exist, vimproc
 		will echo error.

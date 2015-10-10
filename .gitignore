@@ -1,10 +1,10 @@
-bin/vimproc_*.so
-bin/vimproc_*.dll
-bin/vimproc_*.dll.old
-bin/vimproc_*.dll.manifest
-bin/vimproc_*.exp
-bin/vimproc_*.lib
-bin/*.pdb
+lib/vimproc_*.so
+lib/vimproc_*.dll
+lib/vimproc_*.dll.old
+lib/vimproc_*.dll.manifest
+lib/vimproc_*.exp
+lib/vimproc_*.lib
+lib/*.pdb
 doc/tags
 *.obj
 *.o

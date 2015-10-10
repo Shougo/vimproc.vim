@@ -8,7 +8,7 @@
 CFLAGS+=-W -Wall -Wno-unused -Wno-unused-parameter -std=c99 -O2 -fPIC -pedantic
 LDFLAGS+=-shared
 
-TARGET=bin/vimproc_unix.so
+TARGET=lib/vimproc_unix.so
 SRC=src/proc.c src/ptytty.c
 INC=src/vimstack.c src/ptytty.h
 

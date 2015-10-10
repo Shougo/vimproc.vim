@@ -11,7 +11,7 @@ LDFLAGS+=-shared
 endif
 CPPFLAGS+=-D_XPG6 -D__EXTENSIONS__
 
-TARGET=bin/vimproc_unix.so
+TARGET=lib/vimproc_unix.so
 SRC=src/proc.c src/ptytty.c
 INC=src/vimstack.c src/ptytty.h
 
