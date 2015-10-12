@@ -168,7 +168,7 @@ vp_dlclose(char *args)
 const char *
 vp_dlversion(char *args)
 {
-    vp_stack_push_num(&_result, "%2d%02d", 9, 1);
+    vp_stack_push_num(&_result, "%2d%02d", 9, 2);
     return vp_stack_return(&_result);
 }
 

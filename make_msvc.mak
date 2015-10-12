@@ -42,7 +42,8 @@ VIMPROC=vimproc_win64
 VIMPROC=vimproc_win32
 !endif
 
-SRCDIR = autoload
+SRCDIR = src
+LIBDIR = lib
 OUTDIR = $(SRCDIR)\obj$(CPU)
 
 OBJS = $(OUTDIR)/proc_w32.obj
@@ -52,16 +53,16 @@ CFLAGS = $(CFLAGS) $(DEFINES) /wd4100 /wd4127 /O2
 
 # RULES
 
-build: $(SRCDIR)\$(VIMPROC).dll
+build: $(LIBDIR)\$(VIMPROC).dll
 
 clean:
 	-IF EXIST $(OUTDIR)/nul RMDIR /s /q $(OUTDIR)
-	-DEL /F /Q $(SRCDIR)\vimproc_win32.*
-	-DEL /F /Q $(SRCDIR)\vimproc_win64.*
+	-DEL /F /Q $(LIBDIR)\vimproc_win32.*
+	-DEL /F /Q $(LIBDIR)\vimproc_win64.*
 	-DEL /F /Q $(SRCDIR)\*.obj
 	-DEL /F /Q $(SRCDIR)\*.pdb
 
-$(SRCDIR)\$(VIMPROC).dll: $(OBJS)
+$(LIBDIR)\$(VIMPROC).dll: $(OBJS)
 	$(link) /NOLOGO $(ldebug) $(dlllflags) $(conlibsdll) $(LFLAGS) \
 		/OUT:$@ $(OBJS) shell32.lib
 	IF EXIST $@.manifest \
