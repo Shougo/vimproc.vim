@@ -700,6 +700,10 @@ function! vimproc#ptyopen(commands, ...) "{{{
 endfunction"}}}
 
 function! vimproc#socket_open(host, port) "{{{
+  if !vimproc#host_exists(a:host)
+    throw printf('vimproc: host "%s" does not exist', a:host)
+  endif
+
   let fd = s:vp_socket_open(a:host, a:port)
   return s:fdopen(fd, 'vp_socket_close', 'vp_socket_read', 'vp_socket_write')
 endfunction"}}}
