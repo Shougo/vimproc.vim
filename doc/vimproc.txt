@@ -39,28 +39,26 @@ FAQ			|vimproc-faq|
 ==============================================================================
 INTRODUCTION					*vimproc-introduction*
 
-*vimproc* is great asynchronous execution library for Vim.  It is fork of
+*vimproc* is a great asynchronous execution library for Vim.  It is a fork of
 proc.vim by Yukihiro Nakadaira.  I added some features and fixed some bugs and
-I'm maintaining it now.  Instead of external shell (example: 'shell'),
-|vimproc| uses external dll file.
+I'm maintaining it now.  Instead of an external shell (example: 'shell'),
+|vimproc| uses an external DLL file.
 
 
 ==============================================================================
 INSTALL						*vimproc-install*
 
-In first, you must get vimproc from git repository.
+First, download vimproc by cloning the Git repository:
 
 http://github.com/Shougo/vimproc.vim
 
-Next, make external dll "vimproc_xxx.so (or vimproc_win32.dll,
-vimproc_cygwin.dll)".  Because vimproc depends on "vimproc_xxx.so (or
-vimproc_win32.dll, vimproc_cygwin.dll)"'s function, vimproc echoes error
-message when "vimproc_xxx.so (vimproc_xxx.dll)" doesn't exist.
+Next, you have to compile the external DLL "vimproc_xxx.so" (or
+"vimproc_win32.dll" for Windows, "vimproc_cygwin.dll" for Windows/Cygwin).
+Because vimproc depends on the functions of the DLL, vimproc will show an
+error message if the compiled DLL doesn't exist.
 
-You can install the dll using |VimProcInstall|. If you are having any trouble
+You can install the DLL using |VimProcInstall|. If you are having any trouble
 or want to build manually then read on.
-
-Note: The vimproc_cygwin.dll compiled in Cygwin won't work with Windows Vim.
 
 Supported platforms:
 * Windows 32/64bit (Compiled by MinGW or Visual Studio)
@@ -71,39 +69,34 @@ Supported platforms:
 * BSD (but cannot check)
 * Android (experimental)
 
-Note: You must use GNU make to build vimproc.
-
-Note: In Windows, using MinGW is recommended.
-
-Note: In Windows, to build it by Visual Studio, you must install Windows SDK.
-
-Not supported platforms:
+Unsupported platforms:
 * Other UNIX platforms
 
 Build Steps:
 
 Note: You must use GNU make to build vimproc.
+Note: You must execute the command from the root of the vimproc repository
 
-Linux
+Linux						*vimproc-linux*
 >
 	$ make
 <
-Mac OS X
+Mac OS X					*vimproc-macosx*
 >
 	$ make
 <
 Note: If you want to build for multiple architectures, you can use $ARCHS and
 $CC variables.
 
-Build for i386 and x86-64:
+Build for i386 and x86-64:			*vimproc-multiarch*
 >
 	$ make ARCHS='i386 x86_64'
 <
-FreeBSD
+FreeBSD						*vimproc-freebsd*
 >
 	$ gmake
 <
-Solaris
+Solaris						*vimproc-solaris*
 >
 	$ gmake
 <
@@ -111,11 +104,11 @@ Note: If you want to use Sun Compiler, you can use $SUNCC variable.
 >
 	$ gmake SUNCC=cc
 <
-Windows
+Windows						*vimproc-windows*
 
 Note: In Windows, using MinGW is recommended.
-Note: If you have not "gcc" or "x86_64-w64-mingw32-gcc" binary, you must
-change $CC value.
+Note: If you do not have the "gcc" or "x86_64-w64-mingw32-gcc" binary in your
+%PATH, you must change CC variable accordingly.
 
 Windows using MinGW (32bit Vim):
 >
@@ -148,12 +141,11 @@ architecture explicitly. E.g.:
 	32bit: nmake -f make_msvc.mak nodebug=1 CPU=i386
 	64bit: nmake -f make_msvc.mak nodebug=1 CPU=AMD64
 <
-* Cygwin:
+* Cygwin:					*vimproc-cygwin*
 >
 	$ make -f make_cygwin.mak
 <
 Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
-
 
 If you use |neobundle.vim|, you can update and build vimproc automatically.
 http://github.com/Shougo/neobundle.vim
@@ -190,7 +182,7 @@ COMMANDS 					*vimproc-commands*
 			buffer.  This command replaces |:read|.
 
 :VimProcInstall {args}				        *:VimProcInstall*
-			Tries to build the necessary dll using `gmake`/`make`.
+			Tries to build the necessary DLL using `gmake`/`make`.
 			You can supply extra arguments to `make`, for example
 			to compile using clang `:VimProcInstall CC=clang`.
 
@@ -202,7 +194,7 @@ vimproc#version()				*vimproc#version()*
 		5.1 (5.01) is 501.  It has the same format as |v:version|.
 
 vimproc#dll_version()				*vimproc#dll_version()*
-		Same to |vimproc#version()|, but it returns vimproc dll
+		Same to |vimproc#version()|, but it returns vimproc DLL
 		version.
 
 vimproc#open({filename})			*vimproc#open()*
@@ -387,8 +379,8 @@ g:vimproc#dll_path	(default
 			Linux32: "$VIMRUNTIME/lib/vimproc_linux32.so"
 			Linux64: "$VIMRUNTIME/lib/vimproc_linux64.so"
 			Others: "$VIMRUNTIME/lib/vimproc_unix.so")
-		This variable stores a dll name used by vimproc.  You must
-		compile this dll file.  If this dll does not exist, vimproc
+		This variable stores a DLL name used by vimproc.  You must
+		compile this DLL file.  If this DLL does not exist, vimproc
 		will echo error.
 						*g:vimproc_dll_path*
 		Note: |g:vimproc_dll_path| is obsolete name.
