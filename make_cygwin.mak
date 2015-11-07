@@ -6,7 +6,7 @@ LDFLAGS+=-lutil
 all: $(TARGET)
 
 $(TARGET): $(SRC) src/vimstack.c
-	gcc $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
 
 clean:
 	rm -f $(TARGET)
