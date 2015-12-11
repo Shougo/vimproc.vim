@@ -4,8 +4,10 @@
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/nutwxuj2poauar2b/branch/master?svg=true)](https://ci.appveyor.com/project/Shougo/vimproc-vim/branch/master)
 [![GitHub release](https://img.shields.io/github/release/Shougo/vimproc.vim.svg)](https://github.com/Shougo/vimproc.vim/releases)
 
-vimproc requires a native extension to be built, and will not work properly if
-that library (a `.so` or `.dll`) is missing.
+vimproc is a great asynchronous execution library for Vim.  It is a fork of
+proc.vim by Yukihiro Nakadaira.  I added some features and fixed some bugs and
+I'm maintaining it now.  Instead of an external shell (example: 'shell'),
+vimproc uses an external DLL file.
 
 Supported platforms:
 * Windows 32/64bit (Compiled by MinGW or Visual Studio)
