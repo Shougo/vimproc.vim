@@ -63,7 +63,7 @@ elseif glob('/lib*/ld-linux*.so.2',1) != ''
 elseif system('uname -s') =~? '^.\+BSD\n$'
   let s:vimproc_dll_basename = system(
         \ 'uname -sm | tr "[:upper:]" "[:lower:]"'
-        \ .' | sed -e "s/ /_/" | xargs -I "{}" echo vimproc_{}.so')[0 : -2]
+        \ .' | sed -e "s/ /_/" | xargs -I "{}" echo "vimproc_{}.so"')[0 : -2]
 else
   let s:vimproc_dll_basename = 'vimproc_unix.so'
 endif
