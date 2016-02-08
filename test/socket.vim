@@ -1,7 +1,7 @@
 let s:suite = themis#suite('socket')
 let s:assert = themis#helper('assert')
 
-function! s:suite.socket()
+function! s:suite.socket() abort
   call s:assert.true(vimproc#host_exists(
         \ 'www.yahoo.com'))
   call s:assert.true(vimproc#host_exists(

@@ -29,7 +29,7 @@ set cpo&vim
 " }}}
 
 " For vimshell parser.
-function! vimproc#parser#parse_pipe(statement) "{{{
+function! vimproc#parser#parse_pipe(statement) abort "{{{
   let commands = []
   for cmdline in vimproc#parser#split_pipe(a:statement)
     " Split args.
@@ -64,7 +64,7 @@ function! vimproc#parser#parse_pipe(statement) "{{{
 
   return commands
 endfunction"}}}
-function! s:parse_cmdline(cmdline) "{{{
+function! s:parse_cmdline(cmdline) abort "{{{
   let cmdline = a:cmdline
 
   " Expand block.
@@ -94,7 +94,7 @@ function! s:parse_cmdline(cmdline) "{{{
 
   return s:parse_tilde(cmdline)
 endfunction"}}}
-function! vimproc#parser#parse_statements(script) "{{{
+function! vimproc#parser#parse_statements(script) abort "{{{
   if type(a:script) == type('')  && a:script =~ '^\s*:'
     return [ {
           \ 'statement' : a:script,
@@ -198,11 +198,11 @@ function! vimproc#parser#parse_statements(script) "{{{
   return statements
 endfunction"}}}
 
-function! vimproc#parser#split_statements(script) "{{{
+function! vimproc#parser#split_statements(script) abort "{{{
   return map(vimproc#parser#parse_statements(a:script),
         \ 'v:val.statement')
 endfunction"}}}
-function! vimproc#parser#split_args(script) "{{{
+function! vimproc#parser#split_args(script) abort "{{{
   let script = type(a:script) == type([]) ?
         \ a:script : split(a:script, '\zs')
   let max = len(script)
@@ -266,7 +266,7 @@ function! vimproc#parser#split_args(script) "{{{
 
   return args
 endfunction"}}}
-function! vimproc#parser#split_args_through(script) "{{{
+function! vimproc#parser#split_args_through(script) abort "{{{
   let script = type(a:script) == type([]) ?
         \ a:script : split(a:script, '\zs')
   let max = len(script)
@@ -326,7 +326,7 @@ function! vimproc#parser#split_args_through(script) "{{{
 
   return args
 endfunction"}}}
-function! vimproc#parser#split_pipe(script) "{{{
+function! vimproc#parser#split_pipe(script) abort "{{{
   let script = type(a:script) == type([]) ?
         \ a:script : split(a:script, '\zs')
   let max = len(script)
@@ -368,7 +368,7 @@ function! vimproc#parser#split_pipe(script) "{{{
 
   return commands
 endfunction"}}}
-function! vimproc#parser#split_commands(script) "{{{
+function! vimproc#parser#split_commands(script) abort "{{{
   let script = type(a:script) == type([]) ?
         \ a:script : split(a:script, '\zs')
   let max = len(script)
@@ -407,7 +407,7 @@ function! vimproc#parser#split_commands(script) "{{{
 
   return commands
 endfunction"}}}
-function! vimproc#parser#expand_wildcard(wildcard) "{{{
+function! vimproc#parser#expand_wildcard(wildcard) abort "{{{
   " Check wildcard.
   let i = 0
   let max = len(a:wildcard)
@@ -523,7 +523,7 @@ function! vimproc#parser#expand_wildcard(wildcard) "{{{
 endfunction"}}}
 
 " Parse helper.
-function! s:parse_block(script) "{{{
+function! s:parse_block(script) abort "{{{
   let script = ''
 
   let i = 0
@@ -577,7 +577,7 @@ function! s:parse_block(script) "{{{
 
   return script
 endfunction"}}}
-function! s:parse_tilde(script) "{{{
+function! s:parse_tilde(script) abort "{{{
   let script = ''
 
   let i = 0
@@ -601,7 +601,7 @@ function! s:parse_tilde(script) "{{{
 
   return script
 endfunction"}}}
-function! s:parse_equal(script) "{{{
+function! s:parse_equal(script) abort "{{{
   let script = ''
 
   let i = 0
@@ -633,7 +633,7 @@ function! s:parse_equal(script) "{{{
 
   return script
 endfunction"}}}
-function! s:parse_variables(script) "{{{
+function! s:parse_variables(script) abort "{{{
   let script = ''
 
   let i = 0
@@ -673,7 +673,7 @@ function! s:parse_variables(script) "{{{
 
   return script
 endfunction"}}}
-function! s:parse_wildcard(script) "{{{
+function! s:parse_wildcard(script) abort "{{{
   let script = ''
   for arg in vimproc#parser#split_args_through(a:script)
     let script .= join(vimproc#parser#expand_wildcard(arg)) . ' '
@@ -681,7 +681,7 @@ function! s:parse_wildcard(script) "{{{
 
   return script
 endfunction"}}}
-function! s:parse_redirection(script) "{{{
+function! s:parse_redirection(script) abort "{{{
   let script = ''
   let fd = { 'stdin' : '', 'stdout' : '', 'stderr' : '' }
 
@@ -744,7 +744,7 @@ function! s:parse_redirection(script) "{{{
   return [fd, script]
 endfunction"}}}
 
-function! s:parse_single_quote(script, i) "{{{
+function! s:parse_single_quote(script, i) abort "{{{
   if a:script[a:i] != "'"
     return ['', a:i]
   endif
@@ -770,7 +770,7 @@ function! s:parse_single_quote(script, i) "{{{
 
   throw 'Exception: Quote ('') is not found.'
 endfunction"}}}
-function! s:parse_double_quote(script, i) "{{{
+function! s:parse_double_quote(script, i) abort "{{{
   if a:script[a:i] != '"'
     return ['', a:i]
   endif
@@ -832,7 +832,7 @@ function! s:parse_double_quote(script, i) "{{{
 
   throw 'Exception: Quote (") is not found.'
 endfunction"}}}
-function! s:parse_back_quote(script, i) "{{{
+function! s:parse_back_quote(script, i) abort "{{{
   if a:script[a:i] != '`'
     return ['', a:i]
   endif
@@ -881,7 +881,7 @@ function! s:parse_back_quote(script, i) "{{{
 endfunction"}}}
 
 " Skip helper.
-function! s:skip_single_quote(script, i) "{{{
+function! s:skip_single_quote(script, i) abort "{{{
   let max = len(a:script)
   let string = ''
   let i = a:i
@@ -921,7 +921,7 @@ function! s:skip_single_quote(script, i) "{{{
 
   return [string, i]
 endfunction"}}}
-function! s:skip_double_quote(script, i) "{{{
+function! s:skip_double_quote(script, i) abort "{{{
   let max = len(a:script)
   let string = ''
   let i = a:i
@@ -959,7 +959,7 @@ function! s:skip_double_quote(script, i) "{{{
 
   return [string, i]
 endfunction"}}}
-function! s:skip_back_quote(script, i) "{{{
+function! s:skip_back_quote(script, i) abort "{{{
   let max = len(a:script)
   let string = ''
   let i = a:i
@@ -987,7 +987,7 @@ function! s:skip_back_quote(script, i) "{{{
 
   return [string, i]
 endfunction"}}}
-function! s:skip_else(args, script, i) "{{{
+function! s:skip_else(args, script, i) abort "{{{
   if a:script[a:i] == "'"
     " Single quote.
     let [string, i] = s:skip_single_quote(a:script, a:i)

@@ -29,7 +29,7 @@ set cpo&vim
 " }}}
 
 if !vimproc#util#is_windows()
-  function! vimproc#cmd#system(expr)
+  function! vimproc#cmd#system(expr) abort
     return vimproc#system(a:expr)
   endfunction
   let &cpo = s:save_cpo
@@ -45,7 +45,7 @@ augroup vimproc
 augroup END
 
 
-function! s:cmd.open() "{{{
+function! s:cmd.open() abort "{{{
   let cmd = 'cmd.exe'
   let self.vimproc = vimproc#popen3(cmd)
   let self.cwd = getcwd()
@@ -57,11 +57,11 @@ function! s:cmd.open() "{{{
   endwhile
 endfunction"}}}
 
-function! s:cmd.close() "{{{
+function! s:cmd.close() abort "{{{
   call self.vimproc.waitpid()
 endfunction"}}}
 
-function! s:cmd.system(cmd) "{{{
+function! s:cmd.system(cmd) abort "{{{
   " Execute cmd.
   if self.cwd !=# getcwd()
     " Execute cd.
@@ -90,7 +90,7 @@ endfunction"}}}
 
 call s:cmd.open()
 
-function! vimproc#cmd#system(expr)
+function! vimproc#cmd#system(expr) abort
   let cmd = type(a:expr) == type('') ? a:expr :
         \ join(map(a:expr,
         \   'match(v:val, "\\s") >= 0 ? "\"".v:val."\"" : v:val'))

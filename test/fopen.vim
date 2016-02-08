@@ -5,17 +5,17 @@ call themis#helper('command').with(s:)
 let s:filename = 'test.txt'
 let s:contents = ['foo', 'bar']
 
-function! s:suite.before_each()
+function! s:suite.before_each() abort
   call writefile(s:contents, s:filename, 'b')
 endfunction
 
-function! s:suite.after_each()
+function! s:suite.after_each() abort
   if filereadable(s:filename)
     call delete(s:filename)
   endif
 endfunction
 
-function! s:suite.read()
+function! s:suite.read() abort
   let file = vimproc#fopen(s:filename)
   let res = file.read()
 
@@ -30,7 +30,7 @@ function! s:suite.read()
         \ split(res, '\r\n\|\r\|\n'))
 endfunction
 
-function! s:suite.read_lines()
+function! s:suite.read_lines() abort
   let file = vimproc#fopen(s:filename, 'r')
   let res = file.read_lines()
 
@@ -44,7 +44,7 @@ function! s:suite.read_lines()
         \ readfile(s:filename, 'b'), res)
 endfunction
 
-function! s:suite.read_line()
+function! s:suite.read_line() abort
   let file = vimproc#fopen(s:filename, 'r', 0)
   let res = []
   while !file.eof
@@ -60,7 +60,7 @@ function! s:suite.read_line()
   call s:assert.equals(readfile(s:filename), res)
 endfunction
 
-function! s:suite.write()
+function! s:suite.write() abort
   let file = vimproc#fopen(s:filename, 'w')
   let res = "hello\nvimproc\n.vim"
 
@@ -76,7 +76,7 @@ function! s:suite.write()
         \ split(res, '\r\n\|\r\|\n'))
 endfunction
 
-function! s:suite.append()
+function! s:suite.append() abort
   let file = vimproc#fopen(s:filename, 'a')
   let res = "\nhello\nvimproc\n.vim"
 
@@ -92,7 +92,7 @@ function! s:suite.append()
         \ s:contents + split(res, '\r\n\|\r\|\n'))
 endfunction
 
-function! s:suite.read_write()
+function! s:suite.read_write() abort
   let file = vimproc#fopen(s:filename, 'r+')
   let res = file.read()
 
@@ -113,7 +113,7 @@ function! s:suite.read_write()
         \ s:contents + split(res, '\r\n\|\r\|\n'))
 endfunction
 
-function! s:suite.with_oflag()
+function! s:suite.with_oflag() abort
   let file = vimproc#fopen(s:filename, 'O_RDONLY')
   let res = file.read()
 
@@ -156,7 +156,7 @@ function! s:suite.with_oflag()
         \ split(res . res2, '\r\n\|\r\|\n'))
 endfunction
 
-function! s:suite.invalid_fmode()
+function! s:suite.invalid_fmode() abort
   let file = vimproc#fopen(s:filename, 'r')
 
   Throws /write() error/ file.write('foo')

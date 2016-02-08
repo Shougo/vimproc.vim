@@ -35,7 +35,7 @@ let g:vimproc#lexer#token_type = {
       \ }
 " }}}
 
-function! vimproc#lexer#init_lexer(text)
+function! vimproc#lexer#init_lexer(text) abort
   let lexer = deepcopy(s:lexer)
   let lexer.reader = vimproc#lexer#init_reader(a:text)
 
@@ -43,7 +43,7 @@ function! vimproc#lexer#init_lexer(text)
 endfunction
 
 let s:lexer = {}
-function! s:lexer.advance()
+function! s:lexer.advance() abort
   call self.skip_spaces()
 
   let c = self.reader.read()
@@ -62,7 +62,7 @@ function! s:lexer.advance()
   return 1
 endfunction
 
-function! s:lexer.lex_digit()
+function! s:lexer.lex_digit() abort
   let self.val = 0
   while 1
     let c = self.reader.read()
@@ -77,7 +77,7 @@ function! s:lexer.lex_digit()
   endwhile
 endfunction
 
-function! s:lexer.skip_spaces()
+function! s:lexer.skip_spaces() abort
   while 1
     let c = self.reader.read()
     if c < 0
@@ -89,15 +89,15 @@ function! s:lexer.skip_spaces()
   endwhile
 endfunction
 
-function! s:lexer.token()
+function! s:lexer.token() abort
   return self.tok
 endfunction
 
-function! s:lexer.value()
+function! s:lexer.value() abort
   return self.val
 endfunction
 
-function! vimproc#lexer#init_reader(text)
+function! vimproc#lexer#init_reader(text) abort
   let reader = deepcopy(s:reader)
   let reader.text = split(a:text, '\zs')
   let reader.pos = 0
@@ -107,7 +107,7 @@ endfunction
 
 let s:reader = {}
 
-function! s:reader.read()
+function! s:reader.read() abort
   if self.pos >= len(self.text)
     " Buffer over.
     return -1
@@ -119,7 +119,7 @@ function! s:reader.read()
   return c
 endfunction
 
-function! s:reader.unread()
+function! s:reader.unread() abort
   let self.pos -= 1
 endfunction
 

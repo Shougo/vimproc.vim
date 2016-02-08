@@ -40,7 +40,7 @@ command! -nargs=+ -complete=shellcmd VimProcBang call s:bang(<q-args>)
 command! -nargs=+ -complete=shellcmd VimProcRead call s:read(<q-args>)
 
 " Command functions:
-function! s:install(args) "{{{
+function! s:install(args) abort "{{{
   let savemp = &makeprg
   let savecwd = getcwd()
 
@@ -62,7 +62,7 @@ function! s:install(args) "{{{
      let &makeprg = savemp
   endtry
 endfunction"}}}
-function! s:bang(cmdline) "{{{
+function! s:bang(cmdline) abort "{{{
   " Expand % and #.
   let cmdline = join(map(vimproc#parser#split_args_through(
         \ vimproc#util#iconv(a:cmdline,
@@ -103,7 +103,7 @@ function! s:bang(cmdline) "{{{
 
   call subproc.waitpid()
 endfunction"}}}
-function! s:read(cmdline) "{{{
+function! s:read(cmdline) abort "{{{
   " Expand % and #.
   let cmdline = join(map(vimproc#parser#split_args_through(
         \ vimproc#util#iconv(a:cmdline,

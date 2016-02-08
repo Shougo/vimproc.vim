@@ -1,39 +1,39 @@
 let s:suite = themis#suite('system')
 let s:assert = themis#helper('assert')
 
-function! s:check_ls()
+function! s:check_ls() abort
   if !executable('ls')
     call s:assert.skip('ls command is not installed.')
   endif
 endfunction
 
-function! s:suite.system1()
+function! s:suite.system1() abort
   call s:check_ls()
   call s:assert.equals(vimproc#system('ls'), system('ls'))
 endfunction
 
-function! s:suite.system2()
+function! s:suite.system2() abort
   call s:check_ls()
   call s:assert.equals(vimproc#system(['ls']), system('ls'))
 endfunction
 
-function! s:suite.cmd_system1()
+function! s:suite.cmd_system1() abort
   call s:check_ls()
   call s:assert.equals(vimproc#cmd#system('ls'), system('ls'))
 endfunction
 
-function! s:suite.cmd_system2()
+function! s:suite.cmd_system2() abort
   call s:check_ls()
   call s:assert.equals(vimproc#cmd#system(['ls']), system('ls'))
 endfunction
 
-function! s:suite.cmd_system3()
+function! s:suite.cmd_system3() abort
   call s:assert.equals(
         \ vimproc#cmd#system(['echo', '"Foo"']),
         \ "\"Foo\"\n")
 endfunction
 
-function! s:suite.system_passwd1()
+function! s:suite.system_passwd1() abort
   if vimproc#util#is_windows()
     call s:assert.skip('')
   endif
@@ -42,7 +42,7 @@ function! s:suite.system_passwd1()
         \ system('echo -n test'))
 endfunction
 
-function! s:suite.system_passwd2()
+function! s:suite.system_passwd2() abort
   if vimproc#util#is_windows()
     call s:assert.skip('')
   endif
@@ -51,7 +51,7 @@ function! s:suite.system_passwd2()
         \ system('echo -n test'))
 endfunction
 
-function! s:suite.system_and1()
+function! s:suite.system_and1() abort
   if vimproc#util#is_windows()
     call s:assert.skip('')
   endif
@@ -59,7 +59,7 @@ function! s:suite.system_and1()
   call s:assert.equals(vimproc#system('ls&'), '')
 endfunction
 
-function! s:suite.system_and2()
+function! s:suite.system_and2() abort
   if vimproc#util#is_windows()
     call s:assert.skip('')
   endif
@@ -68,17 +68,17 @@ function! s:suite.system_and2()
         \ vimproc#system_bg('ls'))
 endfunction
 
-function! s:suite.system_bg1()
+function! s:suite.system_bg1() abort
   call s:check_ls()
   call s:assert.equals(vimproc#system_bg('ls'), '')
 endfunction
 
-function! s:suite.system_bg2()
+function! s:suite.system_bg2() abort
   call s:check_ls()
   call s:assert.equals(vimproc#system_bg(['ls']), '')
 endfunction
 
-function! s:suite.password_pattern()
+function! s:suite.password_pattern() abort
   call s:assert.match(
         \ 'Enter passphrase for key ''.ssh/id_rsa''',
         \ g:vimproc_password_pattern)

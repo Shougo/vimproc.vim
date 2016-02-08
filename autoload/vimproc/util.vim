@@ -34,12 +34,12 @@ let s:is_mac = !s:is_windows && !s:is_cygwin
       \   (!isdirectory('/proc') && executable('sw_vers')))
 
 " iconv() wrapper for safety.
-function! vimproc#util#has_iconv() "{{{
+function! vimproc#util#has_iconv() abort "{{{
   " On Windows, some encodings can be converted by iconv() even if
   " libiconv.dll is not available.
   return (has('iconv') || (s:is_windows && exists('*iconv')))
 endfunction"}}}
-function! vimproc#util#iconv(expr, from, to) "{{{
+function! vimproc#util#iconv(expr, from, to) abort "{{{
   if !vimproc#util#has_iconv()
         \ || a:expr == '' || a:from == ''
         \ || a:to == '' || a:from ==# a:to
@@ -49,53 +49,53 @@ function! vimproc#util#iconv(expr, from, to) "{{{
   let result = iconv(a:expr, a:from, a:to)
   return result != '' ? result : a:expr
 endfunction"}}}
-function! vimproc#util#systemencoding() "{{{
+function! vimproc#util#systemencoding() abort "{{{
   return s:is_windows ? 'utf-8' : 'char'
 endfunction"}}}
-function! vimproc#util#termencoding() "{{{
+function! vimproc#util#termencoding() abort "{{{
   return 'char'
 endfunction"}}}
-function! vimproc#util#stdinencoding() "{{{
+function! vimproc#util#stdinencoding() abort "{{{
   return exists('g:stdinencoding') && type(g:stdinencoding) == type("") ?
         \ g:stdinencoding : vimproc#util#termencoding()
 endfunction"}}}
-function! vimproc#util#stdoutencoding() "{{{
+function! vimproc#util#stdoutencoding() abort "{{{
   return exists('g:stdoutencoding') && type(g:stdoutencoding) == type("") ?
         \ g:stdoutencoding : vimproc#util#termencoding()
 endfunction"}}}
-function! vimproc#util#stderrencoding() "{{{
+function! vimproc#util#stderrencoding() abort "{{{
   return exists('g:stderrencoding') && type(g:stderrencoding) == type("") ?
         \ g:stderrencoding : vimproc#util#termencoding()
 endfunction"}}}
-function! vimproc#util#expand(path) "{{{
+function! vimproc#util#expand(path) abort "{{{
   return vimproc#util#substitute_path_separator(
         \ (a:path =~ '^\~') ? fnamemodify(a:path, ':p') :
         \ (a:path =~ '^\$\h\w*') ? substitute(a:path,
         \               '^\$\h\w*', '\=eval(submatch(0))', '') :
         \ a:path)
 endfunction"}}}
-function! vimproc#util#is_windows() "{{{
+function! vimproc#util#is_windows() abort "{{{
   return s:is_windows
 endfunction"}}}
-function! vimproc#util#is_mac() "{{{
+function! vimproc#util#is_mac() abort "{{{
   return s:is_mac
 endfunction"}}}
-function! vimproc#util#is_cygwin() "{{{
+function! vimproc#util#is_cygwin() abort "{{{
   return s:is_cygwin
 endfunction"}}}
-function! vimproc#util#has_lua() "{{{
+function! vimproc#util#has_lua() abort "{{{
   " Note: Disabled if_lua feature if less than 7.3.885.
   " Because if_lua has double free problem.
   return has('lua') && (v:version > 703 || v:version == 703 && has('patch885'))
 endfunction"}}}
-function! vimproc#util#substitute_path_separator(path) "{{{
+function! vimproc#util#substitute_path_separator(path) abort "{{{
   return s:is_windows ? substitute(a:path, '\\', '/', 'g') : a:path
 endfunction"}}}
-function! vimproc#util#cd(path)  "{{{
+function! vimproc#util#cd(path) abort  "{{{
   execute (haslocaldir() ? 'lcd' : 'cd') fnameescape(a:path)
 endfunction"}}}
 
-function! vimproc#util#uniq(list, ...) "{{{
+function! vimproc#util#uniq(list, ...) abort "{{{
   let list = a:0 ? map(copy(a:list), printf('[v:val, %s]', a:1)) : copy(a:list)
   let i = 0
   let seen = {}
@@ -110,7 +110,7 @@ function! vimproc#util#uniq(list, ...) "{{{
   endwhile
   return a:0 ? map(list, 'v:val[0]') : list
 endfunction"}}}
-function! vimproc#util#set_default(var, val, ...)  "{{{
+function! vimproc#util#set_default(var, val, ...) abort  "{{{
   if !exists(a:var) || type({a:var}) != type(a:val)
     let alternate_var = get(a:000, 0, '')
 

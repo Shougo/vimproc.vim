@@ -1,7 +1,7 @@
 let s:suite = themis#suite('popen')
 let s:assert = themis#helper('assert')
 
-function! s:suite.popen2()
+function! s:suite.popen2() abort
   if !vimproc#util#is_windows() && !executable('ls')
     call s:assert.skip('ls command is not installed.')
     return
@@ -64,7 +64,7 @@ function! s:suite.popen2()
   unlet sub
 endfunction
 
-function! s:suite.popen3()
+function! s:suite.popen3() abort
   if vimproc#util#is_windows()
     let cmd = ['cmd', '/c', 'DIR', '/B']
   else
@@ -94,7 +94,7 @@ function! s:suite.popen3()
   unlet sub
 endfunction
 
-function! s:suite.redirection1()
+function! s:suite.redirection1() abort
   let output = vimproc#system('echo "foo" > test.txt | echo "bar"')
   call s:assert.equals(output, "bar\n")
   sleep 3
@@ -104,7 +104,7 @@ function! s:suite.redirection1()
   endif
 endfunction
 
-function! s:suite.redirection2()
+function! s:suite.redirection2() abort
   let sub = vimproc#ptyopen('echo "foo" > test.txt | echo "bar"')
   let res = ''
   while !sub.stdout.eof

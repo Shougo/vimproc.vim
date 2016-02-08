@@ -1,7 +1,7 @@
 let s:suite = themis#suite('parser')
 let s:assert = themis#helper('assert')
 
-function! s:suite.escape()
+function! s:suite.escape() abort
   call s:assert.equals(
         \ vimproc#parser#split_args('echo "\""'),
         \ ['echo', '"'])
@@ -12,7 +12,7 @@ function! s:suite.escape()
   call s:assert.equals(vimproc#shellescape('ho''ge'), "'ho''ge'")
 endfunction
 
-function! s:suite.comment()
+function! s:suite.comment() abort
   call s:assert.equals(
         \ vimproc#parser#split_args('echo file#1.txt'),
         \ ['echo', 'file#1.txt'])
@@ -21,7 +21,7 @@ function! s:suite.comment()
         \ ['echo', 'file'])
 endfunction
 
-function! s:suite.quote()
+function! s:suite.quote() abort
   let is_catched = 0
   try
     call vimproc#parser#split_args('echo "\"')
@@ -31,7 +31,7 @@ function! s:suite.quote()
   call s:assert.equals(is_catched, 1)
 endfunction
 
-function! s:suite.join()
+function! s:suite.join() abort
   let is_catched = 0
   try
     call vimproc#parser#split_args('echo \')
@@ -41,7 +41,7 @@ function! s:suite.join()
   call s:assert.equals(is_catched, 1)
 endfunction
 
-function! s:suite.parse_statements()
+function! s:suite.parse_statements() abort
   let statements =
         \ vimproc#parser#split_statements(
         \ '"/usr/bin/clang++" --std=c++0x `pkg-config'.
@@ -54,7 +54,7 @@ function! s:suite.parse_statements()
         \ ])
 endfunction
 
-function! s:suite.backquote()
+function! s:suite.backquote() abort
   call s:assert.equals(
         \ vimproc#parser#split_args('echo `echo "hoge" "piyo" "hogera"`'),
         \ [ 'echo', 'hoge', 'piyo', 'hogera' ])
@@ -64,7 +64,7 @@ function! s:suite.backquote()
         \ [ 'echo', system('curl -fs https://gist.github.com/raw/4349265/sudden-vim.py')])
 endfunction
 
-function! s:suite.slash_convertion()
+function! s:suite.slash_convertion() abort
   " For Vital.DateTime
   call s:assert.equals(vimproc#parser#split_args(
         \ printf('reg query "%s" /v Bias',
@@ -74,7 +74,7 @@ function! s:suite.slash_convertion()
         \  '/v', 'Bias'])
 endfunction
 
-function! s:suite.block_convertion()
+function! s:suite.block_convertion() abort
   call s:assert.equals(vimproc#parser#parse_pipe(
         \ 'grep -inH --exclude-dir={foo} -R vim .')[0].args,
         \ ['grep', '-inH',
@@ -87,7 +87,7 @@ function! s:suite.block_convertion()
         \  '-R', 'vim', '.'])
 endfunction
 
-function! s:suite.parse_redirection()
+function! s:suite.parse_redirection() abort
   call s:assert.equals(vimproc#parser#parse_pipe(
         \ 'echo "foo" > hoge\piyo'),
         \ [{ 'args' : ['echo', 'foo'], 'fd' :
