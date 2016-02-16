@@ -176,6 +176,7 @@ COMMANDS 					*vimproc-commands*
 :VimProcBang {path}					*:VimProcBang*
 			Executes {path} command and echo result.  This
 			command replaces |:!|.
+			Note: It is not asynchronous.
 
 :VimProcRead {path}					*:VimProcRead*
 			Executes {path} command and paste result in current
