@@ -47,6 +47,13 @@ if &encoding =~# '^euc-jp'
 endif
 "}}}
 
+" Version info "{{{
+let s:MAJOR_VERSION = 9
+let s:MINOR_VERSION = 2
+let s:VERSION_NUMBER = str2nr(printf('%2d%02d', s:MAJOR_VERSION, s:MINOR_VERSION))
+let s:VERSION_STRING = printf('%d.%d', s:MAJOR_VERSION, s:MINOR_VERSION)
+"}}}
+
 " Global options definition. "{{{
 " Set the default of g:vimproc_dll_path by judging OS "{{{
 if vimproc#util#is_windows()
@@ -141,7 +148,7 @@ if !filereadable(g:vimproc#dll_path) || !has('libcall') "{{{
 endif"}}}
 
 function! vimproc#version() abort "{{{
-  return str2nr(printf('%2d%02d', 9, 2))
+  return s:VERSION_NUMBER
 endfunction"}}}
 function! vimproc#dll_version() abort "{{{
   let [dll_version] = s:libcall('vp_dlversion', [])
