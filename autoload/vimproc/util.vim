@@ -118,6 +118,16 @@ function! vimproc#util#set_default(var, val, ...) abort  "{{{
           \ {alternate_var} : a:val
   endif
 endfunction"}}}
+function! vimproc#util#try_download_windows_dll(version) abort  "{{{
+  if executable('curl')
+    let fname = printf('vimproc_win%s.dll', has('win64') ? '64' : '32')
+    let url = printf('https://github.com/Shougo/vimproc.vim/releases/download/ver.%s/%s', a:version, fname)
+    let cmd = printf('curl --insecure --silent --location --output %s %s',
+          \ shellescape(g:vimproc#dll_path),
+          \ shellescape(url))
+    call system(cmd)
+  endif
+endfunction"}}}
 
 
 " Global options definition. "{{{

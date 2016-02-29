@@ -123,6 +123,10 @@ let g:vimproc#dll_path =
 " Backward compatibility.
 let g:vimproc_password_pattern = g:vimproc#password_pattern
 
+if !filereadable(g:vimproc#dll_path) && vimproc#util#is_windows()
+  call vimproc#util#try_download_windows_dll(s:VERSION_STRING)
+endif
+
 if !filereadable(g:vimproc#dll_path) || !has('libcall') "{{{
   function! vimproc#get_last_status() abort
     return v:shell_error
