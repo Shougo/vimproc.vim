@@ -118,6 +118,22 @@ function! vimproc#util#set_default(var, val, ...) abort  "{{{
           \ {alternate_var} : a:val
   endif
 endfunction"}}}
+function! vimproc#util#try_update_windows_dll(version) abort  "{{{
+  let old_path = g:vimproc#dll_path . '.old'
+  if filereadable(old_path)
+    if delete(old_path) == -1
+      return 0
+    endif
+  endif
+  if filereadable(g:vimproc#dll_path)
+    if delete(g:vimproc#dll_path) == -1
+      if rename(g:vimproc#dll_path, old_path)
+        return 0
+      endif
+    endif
+  endif
+  return vimproc#util#try_download_windows_dll(a:version)
+endfunction"}}}
 function! vimproc#util#try_download_windows_dll(version) abort  "{{{
   if executable('curl')
     let fname = printf('vimproc_win%s.dll', has('win64') ? '64' : '32')
@@ -126,7 +142,9 @@ function! vimproc#util#try_download_windows_dll(version) abort  "{{{
           \ shellescape(g:vimproc#dll_path),
           \ shellescape(url))
     call system(cmd)
+    return filereadable(g:vimproc#dll_path)
   endif
+  return 0
 endfunction"}}}
 
 

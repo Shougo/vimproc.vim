@@ -1747,6 +1747,12 @@ try
     call s:print_error(printf('Your vimproc binary version is "%d",'.
           \ ' but vimproc version is "%d".',
           \ vimproc#dll_version(), vimproc#version()))
+    if vimproc#util#is_windows()
+      if vimproc#util#try_update_windows_dll(s:VERSION_STRING)
+        call s:print_error('DLL automatically update succeeded.')
+        call s:print_error('Please restart Vim.')
+      endif
+    endif
   endif
 catch
   call s:print_error(v:throwpoint)
