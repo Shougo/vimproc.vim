@@ -135,9 +135,17 @@ function! vimproc#util#try_update_windows_dll(version) abort  "{{{
   return vimproc#util#try_download_windows_dll(a:version)
 endfunction"}}}
 function! vimproc#util#try_download_windows_dll(version) abort  "{{{
-  if executable('curl')
-    let fname = printf('vimproc_win%s.dll', has('win64') ? '64' : '32')
-    let url = printf('https://github.com/Shougo/vimproc.vim/releases/download/ver.%s/%s', a:version, fname)
+  let fname = printf('vimproc_win%s.dll', has('win64') ? '64' : '32')
+  let url = printf('https://github.com/Shougo/vimproc.vim/releases/download/ver.%s/%s', a:version, fname)
+
+  if executable('powershell')
+    let pscmd = printf("(New-Object Net.WebClient).DownloadFile('%s', '%s')",
+          \ url, g:vimproc#dll_path)
+    let cmd = printf('powershell -Command %s', shellescape(pscmd))
+    call system(cmd)
+    return filereadable(g:vimproc#dll_path)
+
+  elseif executable('curl')
     let cmd = printf('curl --insecure --silent --location --output %s %s',
           \ shellescape(g:vimproc#dll_path),
           \ shellescape(url))
