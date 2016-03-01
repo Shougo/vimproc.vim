@@ -141,18 +141,21 @@ function! vimproc#util#try_download_windows_dll(version) abort  "{{{
   if executable('powershell')
     let pscmd = printf("(New-Object Net.WebClient).DownloadFile('%s', '%s')",
           \ url, g:vimproc#dll_path)
-    let cmd = printf('powershell -Command %s', shellescape(pscmd))
+    let cmd = printf('powershell -Command %s', s:win_escape(pscmd))
     call system(cmd)
     return filereadable(g:vimproc#dll_path)
 
   elseif executable('curl')
     let cmd = printf('curl --insecure --silent --location --output %s %s',
-          \ shellescape(g:vimproc#dll_path),
-          \ shellescape(url))
+          \ s:win_escape(g:vimproc#dll_path),
+          \ s:win_escape(url))
     call system(cmd)
     return filereadable(g:vimproc#dll_path)
   endif
   return 0
+endfunction"}}}
+function! s:win_escape(str) abort  "{{{
+  return '"' . substitute(a:str, '"', '""', 'g') . '"'
 endfunction"}}}
 
 
