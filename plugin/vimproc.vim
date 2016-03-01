@@ -30,92 +30,19 @@ elseif v:version < 702
   finish
 endif
 
+let g:loaded_vimproc = 1
+
 " Saving 'cpoptions' {{{
 let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-command! -nargs=* VimProcInstall call s:install(<q-args>)
-command! -nargs=+ -complete=shellcmd VimProcBang call s:bang(<q-args>)
-command! -nargs=+ -complete=shellcmd VimProcRead call s:read(<q-args>)
-
-" Command functions:
-function! s:install(args) abort "{{{
-  let savemp = &makeprg
-  let savecwd = getcwd()
-
-  try
-    if executable('gmake')
-      let &makeprg = 'gmake'
-    elseif executable('make')
-      let &makeprg = 'make'
-    elseif executable('nmake')
-      let &makeprg = 'nmake -f make_msvc.mak nodebug=1'
-    endif
-
-    " Change to the correct directory and run make
-    execute 'lcd' fnameescape(fnamemodify(g:vimproc#dll_path, ':h:h'))
-    execute 'make' a:args
-  finally
-     " Restore working directory and makeprg
-     execute 'lcd' fnameescape(savecwd)
-     let &makeprg = savemp
-  endtry
-endfunction"}}}
-function! s:bang(cmdline) abort "{{{
-  " Expand % and #.
-  let cmdline = join(map(vimproc#parser#split_args_through(
-        \ vimproc#util#iconv(a:cmdline,
-        \   vimproc#util#termencoding(), &encoding)),
-        \ 'substitute(expand(v:val), "\n", " ", "g")'))
-
-  " Open pipe.
-  let subproc = vimproc#pgroup_open(cmdline, 1)
-
-  call subproc.stdin.close()
-
-  while !subproc.stdout.eof || !subproc.stderr.eof
-    if !subproc.stdout.eof
-      let output = subproc.stdout.read(10000, 0)
-      if output != ''
-        let output = vimproc#util#iconv(output,
-              \ vimproc#util#stdoutencoding(), &encoding)
-
-        echon output
-        sleep 1m
-      endif
-    endif
-
-    if !subproc.stderr.eof
-      let output = subproc.stderr.read(10000, 0)
-      if output != ''
-        let output = vimproc#util#iconv(output,
-              \ vimproc#util#stderrencoding(), &encoding)
-        echohl WarningMsg | echon output | echohl None
-
-        sleep 1m
-      endif
-    endif
-  endwhile
-
-  call subproc.stdout.close()
-  call subproc.stderr.close()
-
-  call subproc.waitpid()
-endfunction"}}}
-function! s:read(cmdline) abort "{{{
-  " Expand % and #.
-  let cmdline = join(map(vimproc#parser#split_args_through(
-        \ vimproc#util#iconv(a:cmdline,
-        \   vimproc#util#termencoding(), &encoding)),
-        \ 'substitute(expand(v:val), "\n", " ", "g")'))
-
-  " Expand args.
-  call append('.', split(vimproc#util#iconv(vimproc#system(cmdline),
-        \ vimproc#util#stdoutencoding(), &encoding), '\r\n\|\n'))
-endfunction"}}}
-
-let g:loaded_vimproc = 1
+command! -nargs=* VimProcInstall
+      \ call vimproc#commands#_install(<q-args>)
+command! -nargs=+ -complete=shellcmd VimProcBang
+      \ call vimproc#commands#_bang(<q-args>)
+command! -nargs=+ -complete=shellcmd VimProcRead
+      \ call vimproc#commands#_read(<q-args>)
 
 " Restore 'cpoptions' {{{
 let &cpo = s:save_cpo
