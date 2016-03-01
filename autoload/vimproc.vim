@@ -83,6 +83,8 @@ call vimproc#util#set_default(
 unlet s:vimproc_dll_basename
 
 call vimproc#util#set_default(
+      \'g:vimproc#download_windows_dll', 0)
+call vimproc#util#set_default(
       \ 'g:vimproc#password_pattern',
       \ '\%(Enter \|Repeat \|[Oo]ld \|[Nn]ew \|login ' .
       \'\|Kerberos \|EncFS \|CVS \|UNIX \| SMB \|LDAP \|\[sudo] ' .
@@ -123,7 +125,8 @@ let g:vimproc#dll_path =
 " Backward compatibility.
 let g:vimproc_password_pattern = g:vimproc#password_pattern
 
-if !filereadable(g:vimproc#dll_path) && vimproc#util#is_windows()
+if g:vimproc#download_windows_dll && !filereadable(g:vimproc#dll_path)
+      \ && vimproc#util#is_windows()
   call vimproc#util#try_download_windows_dll(s:VERSION_STRING)
 endif
 
@@ -1747,7 +1750,7 @@ try
     call s:print_error(printf('Your vimproc binary version is "%d",'.
           \ ' but vimproc version is "%d".',
           \ vimproc#dll_version(), vimproc#version()))
-    if vimproc#util#is_windows()
+    if g:vimproc#download_windows_dll && vimproc#util#is_windows()
       if vimproc#util#try_update_windows_dll(s:VERSION_STRING)
         call s:print_error('DLL automatically update succeeded.')
         call s:print_error('Please restart Vim.')
