@@ -941,7 +941,7 @@ function! s:read_lines(...) dict "{{{
 
   let out = call(self.read, a:000, self)
   if out !=# ''
-    let outs = split(out, '\r*\n', 1)
+    let outs = split(out, '\r*\n\|\r', 1)
     let res .= outs[0]
     if len(outs) > 1
       let lines += [substitute(res, '\r*$', '', '')] + outs[1:-2]
