@@ -59,6 +59,24 @@ cd ~/.vim/bundle/vimproc.vim
 make
 ```
 
+### dein.vim
+
+You can leverage dein.vim to install and manage vimproc.vim.
+
+```
+call dein#add('Shougo/vimproc.vim', {
+\ 'build' : {
+\     'windows' : 'tools\\update-dll-mingw',
+\     'cygwin' : 'make -f make_cygwin.mak',
+\     'mac' : 'make',
+\     'linux' : 'make',
+\     'unix' : 'gmake',
+\    },
+\ })
+```
+
+Note: It is important to let dein build vimproc.
+
 ## Building
 
 Note: You must use GNU make to build vimproc.
