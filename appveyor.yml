@@ -2,6 +2,9 @@
 version: '{build}'
 shallow_clone: true
 environment:
+  global:
+    AUTH_TOKEN:
+      secure: rKd6JLXUIl3vcA8d0S9w14bl+uvUlZLt0d1M8bmlOh+owQqr5c40+/4ITCNBpHG3
   matrix:
   - COMPILER: msvc
     CPU: i386
