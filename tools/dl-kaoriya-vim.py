@@ -25,6 +25,9 @@ parser.add_argument('-n', '--filename', type=str, action='store',
 parser.add_argument('-a', '--arch', type=str, action='store',
         choices=['all', 'win32', 'win64'], default='all',
         help='architecture to download')
+parser.add_argument('--auth', type=str, action='store',
+        default=os.getenv('AUTH_TOKEN'),
+        metavar="TOKEN", help='GitHub API token (Environment variable AUTH_TOKEN can be also used.)')
 args = parser.parse_args()
 
 if args.filename and args.arch == 'all':
@@ -32,10 +35,18 @@ if args.filename and args.arch == 'all':
 
 # Get information of GitHub release
 # see: https://developer.github.com/v3/repos/releases/
+if args.auth:
+    # Unauthenticated requests are limited up to 60 requests per hour.
+    # Authenticated requests are allowed up to 5,000 requests per hour.
+    # See: https://developer.github.com/v3/#rate-limiting
+    request = urllib.request.Request(gh_release_url)
+    request.add_header("Authorization", "token " + args.auth)
+else:
+    request = gh_release_url
 try:
-    response = urllib.request.urlopen(gh_release_url)
-except urllib.error.HTTPError:
-    print('GitHub release not found.', out=sys.stderr)
+    response = urllib.request.urlopen(request)
+except urllib.error.HTTPError as err:
+    print('GitHub release not found. (%s)' % err.reason, file=sys.stderr)
     exit(1)
 
 rel_info = json.load(io.StringIO(str(response.read(), 'utf-8')))
