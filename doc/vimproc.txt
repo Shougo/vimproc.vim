@@ -147,10 +147,16 @@ architecture explicitly. E.g.:
 <
 Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
 
-If you use |neobundle.vim|, you can update and build vimproc automatically.
+If you use |dein.vim| or |neobundle.vim|, you can update and build vimproc
+automatically.
+http://github.com/Shougo/dein.vim
 http://github.com/Shougo/neobundle.vim
 
-Example for neobundle:
+Example for dein.vim:
+>
+	call dein#add('Shougo/vimproc.vim', {'build': 'make'})
+<
+Example for neobundle.vim:
 >
 	NeoBundle 'Shougo/vimproc.vim', {
 	      \   'build' : {
