@@ -36,7 +36,7 @@ If you use [dein.vim](http://github.com/Shougo/dein.vim), you can
 update and build vimproc automatically. This is the recommended package manager.
 
 ```vim
-call dein#add('Shougo/vimproc.vim', {'build' : 'make'}
+call dein#add('Shougo/vimproc.vim', {'build' : 'make'})
 ```
 
 ### NeoBundle
