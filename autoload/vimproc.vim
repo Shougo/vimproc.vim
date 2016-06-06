@@ -237,9 +237,16 @@ function! s:system(cmdline, is_passwd, input, timeout, is_pty) abort "{{{
   endif
 
   " Open pipe.
-  let subproc = (type(a:cmdline[0]) == type('')) ? vimproc#popen3(a:cmdline) :
-        \ a:is_pty ? vimproc#ptyopen(a:cmdline):
-        \ vimproc#pgroup_open(a:cmdline)
+  try
+    let subproc = (type(a:cmdline[0]) == type('')) ? vimproc#popen3(a:cmdline) :
+          \ a:is_pty ? vimproc#ptyopen(a:cmdline):
+          \ vimproc#pgroup_open(a:cmdline)
+  catch
+    call s:print_error(v:exception)
+    let s:last_status = 1
+    let s:last_errmsg = v:exception
+    return ''
+  endtry
 
   let outbuf = []
   let errbuf = []
