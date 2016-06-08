@@ -14,7 +14,7 @@ LIBS=-lutil
 all: $(TARGET)
 
 $(TARGET): $(SRC) src/vimstack.c
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(SRC) $(LIBS)
 
 clean:
 	rm -f $(TARGET)
