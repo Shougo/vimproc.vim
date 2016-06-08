@@ -9,12 +9,12 @@ TARGET=lib/vimproc_$(SUFFIX).so
 
 SRC=src/proc.c
 CFLAGS+=-W -O2 -Wall -Wno-unused -Wno-unused-parameter -std=gnu99 -pedantic -shared -fPIC
-LDFLAGS+=-lutil
+LIBS=-lutil
 
 all: $(TARGET)
 
 $(TARGET): $(SRC) src/vimstack.c
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LIBS)
 
 clean:
 	rm -f $(TARGET)
