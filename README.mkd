@@ -39,6 +39,14 @@ update and build vimproc automatically. This is the recommended package manager.
 call dein#add('Shougo/vimproc.vim', {'build' : 'make'})
 ```
 
+### Vim-Plug
+
+If you use [vim-plug](https://github.com/junegunn/vim-plug), you can update and build vimproc automatically.
+
+```vim
+Plug 'Shougo/vimproc.vim', {'do' : 'make'}
+```
+
 ### NeoBundle
 
 If you use [neobundle.vim](http://github.com/Shougo/neobundle.vim), you can
