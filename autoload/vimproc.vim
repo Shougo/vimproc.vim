@@ -1481,6 +1481,9 @@ function! s:read_pgroup(...) dict "{{{
       " Caching status.
       let self.proc.cond = cond
       let self.proc.status = status
+      if has_key(self.proc.current_proc, 'pipe_status')
+        let self.proc.pipe_status = self.proc.current_proc.pipe_status
+      endif
     else
       " Initialize next statement.
 
@@ -1698,12 +1701,15 @@ function! s:vp_waitpid(...) dict
   endif
 
   if has_key(self, 'pid_list')
-    for pid in self.pid_list[: -2]
-      call s:waitpid(pid, nohang)
-    endfor
+    if !has_key(self, 'pipe_status')
+      let self.pipe_status = repeat([['run', 0]], len(self.pid_list))
+    endif
+    let self.pipe_status[:] = map(self.pipe_status[:-2],
+          \ 'v:val[0] !=# "run" ? v:val : s:waitpid(self.pid_list[v:key], nohang)')
+          \ + [[cond, status]]
   endif
 
-  return [cond, str2nr(status)]
+  return [cond, status]
 endfunction
 
 function! s:vp_pgroup_waitpid() dict
