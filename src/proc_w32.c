@@ -659,6 +659,7 @@ vp_pipe_read(char *args)
     char *eof;
     unsigned int size = 0;
     HANDLE hPipe;
+    DWORD tcstart;
 
     VP_RETURN_IF_FAIL(vp_stack_from_args(&stack, args));
     VP_RETURN_IF_FAIL(vp_stack_pop_num(&stack, "%d", &fd));
@@ -678,6 +679,7 @@ vp_pipe_read(char *args)
     buf += VP_HEADER_SIZE;
 
     hPipe = (HANDLE)_get_osfhandle(fd);
+    tcstart = GetTickCount();
     while (cnt > 0) {
         if (!PeekNamedPipe(hPipe, NULL, 0, NULL, &n, NULL)) {
             /* can be ERROR_HANDLE_EOF? */
@@ -692,7 +694,7 @@ vp_pipe_read(char *args)
             return vp_stack_return_error(&_result, "PeekNamedPipe() error: %08X %s",
                     err, lasterror());
         } else if (n == 0) {
-            if (timeout-- <= 0) {
+            if (GetTickCount() - tcstart >= timeout) {
                 break;
             }
             Sleep(1);
