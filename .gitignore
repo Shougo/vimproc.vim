@@ -6,3 +6,5 @@ doc/tags
 *.dll
 *.swp
 *~
+autoload/vimproc_linux*.so
+autoload/vimproc_win*.dll
