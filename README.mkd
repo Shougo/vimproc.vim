@@ -59,8 +59,8 @@ NeoBundle 'Shougo/vimproc.vim', {
 \     'cygwin' : 'make -f make_cygwin.mak',
 \     'mac' : 'make',
 \     'linux' : 'make',
-\     'unix' : 'gmake',
-\    },
+\     'unix' : 'gmake'
+\    }
 \ }
 ```
 
