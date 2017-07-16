@@ -27,7 +27,7 @@ nmake -f make_msvc.mak nodebug=1 CPU=%CPU%
 goto :eof
 
 :msvc_test
-set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim74-kaoriya-win%BIT%\vim.exe
+set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim%VIMVER%-kaoriya-win%BIT%\vim.exe
 @echo on
 themis\bin\themis
 
@@ -47,7 +47,7 @@ make -f make_mingw32.mak
 goto :eof
 
 :mingw_test
-set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim74-kaoriya-win%BIT%\vim.exe
+set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim%VIMVER%-kaoriya-win%BIT%\vim.exe
 @echo on
 themis\bin\themis
 
@@ -72,7 +72,7 @@ bash -lc "make"
 goto :eof
 
 :msys2_test
-set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim74-kaoriya-win%BIT%\vim.exe
+set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim%VIMVER%-kaoriya-win%BIT%\vim.exe
 @echo on
 themis\bin\themis
 
