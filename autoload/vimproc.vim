@@ -49,7 +49,7 @@ endif
 
 " Version info "{{{
 let s:MAJOR_VERSION = 9
-let s:MINOR_VERSION = 2
+let s:MINOR_VERSION = 3
 let s:VERSION_NUMBER = str2nr(printf('%2d%02d', s:MAJOR_VERSION, s:MINOR_VERSION))
 let s:VERSION_STRING = printf('%d.%d', s:MAJOR_VERSION, s:MINOR_VERSION)
 "}}}
