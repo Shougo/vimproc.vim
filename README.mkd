@@ -46,6 +46,21 @@ If you use [vim-plug](https://github.com/junegunn/vim-plug), you can update and 
 ```vim
 Plug 'Shougo/vimproc.vim', {'do' : 'make'}
 ```
+### Vundle
+
+If you use [Vundle](https://github.com/VundleVim/Vundle.vim), add the following to your `.vimrc`.
+
+```vim
+Plugin 'Shougo/vimproc.vim
+```
+Then compile the plugin manually where it was installed.
+
+i.e. on Linux & Mac
+```bash
+$ cd ~/.vim/bundle/vimproc.vim && make
+```
+
+See [bulding](https://github.com/Shougo/vimproc.vim#building)
 
 ### NeoBundle
 
