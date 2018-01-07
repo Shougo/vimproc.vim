@@ -51,7 +51,7 @@ Plug 'Shougo/vimproc.vim', {'do' : 'make'}
 If you use [Vundle](https://github.com/VundleVim/Vundle.vim), add the following to your `.vimrc`.
 
 ```vim
-Plugin 'Shougo/vimproc.vim
+Plugin 'Shougo/vimproc.vim'
 ```
 Then compile the plugin manually where it was installed.
 
