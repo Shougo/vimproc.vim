@@ -60,7 +60,7 @@ i.e. on Linux & Mac
 $ cd ~/.vim/bundle/vimproc.vim && make
 ```
 
-See [bulding](https://github.com/Shougo/vimproc.vim#building)
+See [building](https://github.com/Shougo/vimproc.vim#building)
 
 ### NeoBundle
 
