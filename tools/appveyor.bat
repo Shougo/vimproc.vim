@@ -84,6 +84,10 @@ goto :eof
 :: ----------------------------------------------------------------------
 :: Using Cygwin
 @echo on
+goto cygwin%BIT%
+
+:cygwin32
+@echo on
 c:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P vim
 PATH c:\cygwin\bin;%PATH%
 set CHERE_INVOKING=yes
@@ -92,6 +96,18 @@ bash -lc "make"
 
 @echo off
 goto :eof
+
+:cygwin64
+@echo on
+c:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P vim
+PATH c:\cygwin64\bin;%PATH%
+set CHERE_INVOKING=yes
+bash -lc ""
+bash -lc "make"
+
+@echo off
+goto :eof
+
 
 :cygwin_test
 @echo on
