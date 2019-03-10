@@ -16,8 +16,9 @@ environment:
     ENV: /x64
     BIT: 64
   - COMPILER: cygwin
-  #- COMPILER: mingw
-  #  BIT: 32
+    BIT: 32
+  - COMPILER: cygwin
+    BIT: 64
   - COMPILER: msys2
     MSYS2_ARCH: i686
     MSYS2_DIR: msys64
