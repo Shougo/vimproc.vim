@@ -34,7 +34,7 @@
 #endif
 
 /* for forkpty() / login_tty() */
-#if (defined __linux__ || defined __CYGWIN__) && !defined __ANDROID__
+#if (defined __linux__ || defined __CYGWIN__ || defined __gnu_hurd__) && !defined __ANDROID__
 # include <pty.h>
 # include <utmp.h>
 #elif defined __APPLE__ || defined __NetBSD__ || defined __OpenBSD__
