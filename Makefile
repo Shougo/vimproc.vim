@@ -28,6 +28,10 @@ else
     ifeq ($(UNAME_S),Linux)
         PLATFORM = unix
     endif
+    ifeq ($(UNAME_S),GNU)
+        # GNU/Hurd
+        PLATFORM = unix
+    endif
     ifeq ($(UNAME_S),FreeBSD)
         MAKE = make # BSD Make
         PLATFORM = bsd
