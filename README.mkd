@@ -104,6 +104,8 @@ or want to build manually then read on.
 
 ### Mac OS X
 
+Note: Users of MacOS 10.15 (Catalina) cannot directly use this library with the system-provided vi. (SIP prevents binaries in the write-only `/usr/bin` directory from calling `dlopen` on unsigned libraries like `vimproc_mac.so`.) The simplest solution is to build or install another version of vi in a non-SIP protected location. For example, using homebrew, `brew install vim` (or `nvim`) will install an unrestricted executable in `/usr/local/bin`. (Don't forget to set up aliases or `$PATH` so that you don't accidentally invoke the system `vi`.)
+
     $ make
 
 Note: If you want to build for multiple architectures, you can use `ARCHS` and `CC` variables.
