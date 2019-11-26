@@ -33,7 +33,7 @@ else
         PLATFORM = unix
     endif
     ifeq ($(UNAME_S),FreeBSD)
-        MAKE = make # BSD Make
+        MAKE = gmake # BSD Make
         PLATFORM = bsd
     endif
     ifeq ($(UNAME_S),DragonFly)
