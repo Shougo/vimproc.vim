@@ -62,7 +62,7 @@ or want to build manually then read on.
 
 Supported platforms:
 * Windows 32/64bit (Compiled by MinGW or Visual Studio)
-* Mac OS X (10.5 or later)
+* macOS (10.5 or later)
 * Linux
 * Cygwin
 * Solaris
@@ -81,7 +81,7 @@ Linux						*vimproc-linux*
 >
 	$ make
 <
-Mac OS X					*vimproc-macosx*
+macOS					*vimproc-macos* *vimproc-macosx*
 >
 	$ make
 <
@@ -145,7 +145,7 @@ architecture explicitly. E.g.:
 <
 * Cygwin:					*vimproc-cygwin*
 >
-	$ make -f make_cygwin.mak
+	$ make
 <
 Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
 
