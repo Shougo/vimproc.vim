@@ -95,7 +95,9 @@ Build for i386 and x86-64:			*vimproc-multiarch*
 FreeBSD						*vimproc-freebsd*
 >
 	$ gmake
-<
+Or >
+	$ make -f make_bsd.mak
+
 Solaris						*vimproc-solaris*
 >
 	$ gmake

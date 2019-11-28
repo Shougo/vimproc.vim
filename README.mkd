@@ -118,6 +118,10 @@ Build for i386 and x86-64:
 
     $ gmake
 
+Or
+
+    $ make -f make_bsd.mak
+
 ### Solaris
 
     $ gmake
