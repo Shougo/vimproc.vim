@@ -11,7 +11,7 @@ vimproc uses an external DLL file.
 
 Supported platforms:
 * Windows 32/64bit (Compiled by MinGW or Visual Studio)
-* Mac OS X (10.5 or later)
+* macOS (10.5 or later)
 * Linux
 * Cygwin
 * Solaris
@@ -102,9 +102,9 @@ or want to build manually then read on.
 
     $ make
 
-### Mac OS X
+### macOS
 
-Note: Users of MacOS 10.15 (Catalina) cannot directly use this library with the system-provided vi. (SIP prevents binaries in the write-only `/usr/bin` directory from calling `dlopen` on unsigned libraries like `vimproc_mac.so`.) The simplest solution is to build or install another version of vi in a non-SIP protected location. For example, using homebrew, `brew install vim` (or `nvim`) will install an unrestricted executable in `/usr/local/bin`. (Don't forget to set up aliases or `$PATH` so that you don't accidentally invoke the system `vi`.)
+Note: Users of macOS 10.15 (Catalina) cannot directly use this library with the system-provided vi. (SIP prevents binaries in the write-only `/usr/bin` directory from calling `dlopen` on unsigned libraries like `vimproc_mac.so`.) The simplest solution is to build or install another version of vi in a non-SIP protected location. For example, using homebrew, `brew install vim` (or `nvim`) will install an unrestricted executable in `/usr/local/bin`. (Don't forget to set up aliases or `$PATH` so that you don't accidentally invoke the system `vi`.)
 
     $ make
 
@@ -118,7 +118,7 @@ Build for i386 and x86-64:
 
     $ gmake
 
-Or
+If you want to use BSD make, use the platform specific makefile:
 
     $ make -f make_bsd.mak
 
@@ -168,7 +168,7 @@ architecture explicitly. E.g.:
 
 Cygwin:
 
-    $ make -f make_cygwin.mak
+    $ make
 
 Note: The `vimproc_cygwin.dll` compiled in Cygwin won't work with Windows Vim.
 
