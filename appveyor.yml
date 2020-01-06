@@ -5,7 +5,6 @@ environment:
   global:
     AUTH_TOKEN:
       secure: rKd6JLXUIl3vcA8d0S9w14bl+uvUlZLt0d1M8bmlOh+owQqr5c40+/4ITCNBpHG3
-    VIMVER: 81
   matrix:
   - COMPILER: msvc
     CPU: i386
