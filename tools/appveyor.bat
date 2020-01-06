@@ -27,7 +27,7 @@ nmake -f make_msvc.mak nodebug=1 CPU=%CPU%
 goto :eof
 
 :msvc_test
-set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim%VIMVER%-kaoriya-win%BIT%\vim.exe
+set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim-kaoriya\vim.exe
 @echo on
 themis\bin\themis
 
@@ -47,7 +47,7 @@ make -f make_mingw32.mak
 goto :eof
 
 :mingw_test
-set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim%VIMVER%-kaoriya-win%BIT%\vim.exe
+set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim-kaoriya\vim.exe
 @echo on
 themis\bin\themis
 
@@ -72,7 +72,7 @@ bash -lc "make"
 goto :eof
 
 :msys2_test
-set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim%VIMVER%-kaoriya-win%BIT%\vim.exe
+set THEMIS_VIM=%APPVEYOR_BUILD_FOLDER%\vim-kaoriya\vim.exe
 @echo on
 themis\bin\themis
 
@@ -125,5 +125,6 @@ echo Downloading Vim
 py tools\dl-kaoriya-vim.py --arch win%BIT% --filename vim.zip
 echo Installing Vim
 7z x vim.zip > nul
+move vim??-kaoriya-win%BIT% vim-kaoriya
 git clone -q https://github.com/thinca/vim-themis.git themis --depth=1
 exit /b
