@@ -96,7 +96,6 @@ if exist "%~dp0vswhere.exe" (
     REM  Microsoft Visual C++ 2008 Express installed
     set msvc_ver=9
     call "%ProgramFiles(x86)%\Microsoft Visual Studio 9.0\VC\bin\vcvars%vimproc_arch%.bat"
-    nmake -f make_msvc.mak nodebug=1 CPU=%PROCESSOR_ARCHITECTURE% 
 ) else if exist "%ProgramFiles(x86)%\Microsoft Visual Studio 8\VC\bin\vcvars%vimproc_arch%.bat" (
     REM  Microsoft Visual C++ 2005 Express installed
     set msvc_ver=8
