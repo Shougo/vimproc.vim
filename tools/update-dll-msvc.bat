@@ -28,9 +28,9 @@ if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
 
 set vimproc_dllname=vimproc_win%vimproc_arch%.dll
 
-if exist "%~dp0vswhere.exe" (
+if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
     REM  found the lasted version of Visual C compiler
-    for /f "usebackq tokens=*" %%i in (`"%~dp0vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
+    for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
         set InstallDir=%%i
 
         if exist "%InstallDir%\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt" (
