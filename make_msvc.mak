@@ -1,29 +1,26 @@
 # WINDOWS BUILD SETTINGS.
-# For MSVC 11 you need to specify where the Win32.mak file is, e.g.:
-#	SDK_INCLUDE_DIR=C:\Program Files\Microsoft SDKs\Windows\v7.1\Include
-# for build win64 version:
-# nmake -f make_msvc.mak CPU=AMD64
 
 WINVER = 0x0500
 APPVER = 5.0
 TARGET = WINNT
 _WIN32_IE = 0x0500
-# CPU = AMD64
 
-# Win32.mak requires that CPU be set appropriately.
-# To cross-compile for Win64, set CPU=AMD64 or CPU=IA64.
-!ifndef CPU
-CPU = $(PROCESSOR_ARCHITECTURE)
-! if ("$(CPU)" == "x86") || ("$(CPU)" == "X86")
+!ifdef CPU
+! if "$(CPU)" == "I386"
 CPU = i386
 ! endif
-!endif
-
-# Get all sorts of useful, standard macros from the Platform SDK.
-!ifdef SDK_INCLUDE_DIR
-!include $(SDK_INCLUDE_DIR)\Win32.mak
-!else
-!include <Win32.mak>
+!else  # !CPU
+CPU = i386
+! if !defined(PLATFORM) && defined(TARGET_CPU)
+PLATFORM = $(TARGET_CPU)
+! endif
+! ifdef PLATFORM
+!  if ("$(PLATFORM)" == "x64") || ("$(PLATFORM)" == "X64")
+CPU = AMD64
+!  elseif ("$(PLATFORM)" != "x86") && ("$(PLATFORM)" != "X86")
+!   error *** ERROR Unknown target platform "$(PLATFORM)". Make aborted.
+!  endif
+! endif
 !endif
 
 # CONTROL BUILD MODE
@@ -48,8 +45,10 @@ OUTDIR = $(SRCDIR)\obj$(CPU)
 
 OBJS = $(OUTDIR)/proc_w32.obj
 
+LINK = link
+LFLAGS = /nologo /dll
 DEFINES = -D_CRT_SECURE_NO_WARNINGS=1 -D_BIND_TO_CURRENT_VCLIBS_VERSION=1
-CFLAGS = $(CFLAGS) $(DEFINES) /wd4100 /wd4127 /O2
+CFLAGS = /nologo $(CFLAGS) $(DEFINES) /wd4100 /wd4127 /O2 /LD /c
 
 # RULES
 
@@ -57,20 +56,15 @@ build: $(LIBDIR)\$(VIMPROC).dll
 
 clean:
 	-IF EXIST $(OUTDIR)/nul RMDIR /s /q $(OUTDIR)
-	-DEL /F /Q $(LIBDIR)\vimproc_win32.*
-	-DEL /F /Q $(LIBDIR)\vimproc_win64.*
-	-DEL /F /Q $(SRCDIR)\*.obj
-	-DEL /F /Q $(SRCDIR)\*.pdb
+	-DEL /F /Q $(LIBDIR)\$(VIMPROC).*
 
 $(LIBDIR)\$(VIMPROC).dll: $(OBJS)
-	$(link) /NOLOGO $(ldebug) $(dlllflags) $(conlibsdll) $(LFLAGS) \
-		/OUT:$@ $(OBJS) shell32.lib
+	$(LINK) $(LFLAGS) /OUT:$@ $(OBJS) shell32.lib ws2_32.lib
 	IF EXIST $@.manifest \
 		mt -nologo -manifest $@.manifest -outputresource:$@;2
 
 {$(SRCDIR)}.c{$(OUTDIR)}.obj::
-	$(cc) $(cdebug) $(cflags) $(cvarsdll) $(CFLAGS) -Fd$(SRCDIR)\ \
-		-Fo$(OUTDIR)\ $<
+	$(CC) $(CFLAGS) -Fo$(OUTDIR)\ $<
 
 $(OUTDIR):
 	IF NOT EXIST $(OUTDIR)/nul  MKDIR $(OUTDIR)

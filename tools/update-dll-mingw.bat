@@ -42,15 +42,10 @@ if ERRORLEVEL 1 (
   goto :EOF
 )
 
+rem Try to delete old DLLs.
+if exist lib\%vimproc_dllname%.old del lib\%vimproc_dllname%.old
+if exist lib\%vimproc_dllname%     del lib\%vimproc_dllname%
+rem If the DLL couldn't delete (may be it is in use), rename it.
+if exist lib\%vimproc_dllname%     ren lib\%vimproc_dllname% %vimproc_dllname%.old
+
 mingw32-make -f make_mingw%vimproc_arch%.mak %1 %2 %3 %4 %5 %6 %7 %8 %9
-if ERRORLEVEL 1 (
-  rem Build failed.
-
-  rem Try to delete old DLLs.
-  if exist lib\%vimproc_dllname%.old del lib\%vimproc_dllname%.old
-  if exist lib\%vimproc_dllname%     del lib\%vimproc_dllname%
-  rem If the DLL couldn't delete (may be it is in use), rename it.
-  if exist lib\%vimproc_dllname%     ren lib\%vimproc_dllname% %vimproc_dllname%.old
-
-  mingw32-make -f make_mingw%vimproc_arch%.mak %1 %2 %3 %4 %5 %6 %7 %8 %9
-)

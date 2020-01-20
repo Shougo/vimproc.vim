@@ -21,7 +21,7 @@ call :install_vim
 call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" %ENV%
 
 @echo on
-nmake -f make_msvc.mak nodebug=1 CPU=%CPU%
+nmake -f make_msvc.mak CPU=%CPU% cflags=/MD
 
 @echo off
 goto :eof
