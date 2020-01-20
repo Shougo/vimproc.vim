@@ -37,28 +37,18 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
     for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
         set InstallDir=%%i
 
-        if exist "!InstallDir!\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt" (
-            set /p msvc_ver=<"!InstallDir!\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt"
-
-            rem Trim
-            set msvc_ver=!msvc_ver: =!
-        )
-
         if exist "!InstallDir!\VC\Auxiliary\Build\vcvars%vimproc_arch%.bat" (
             call "!InstallDir!\VC\Auxiliary\Build\vcvars%vimproc_arch%.bat"
         )
     )
 ) else if defined VS140COMNTOOLS (
     REM  Microsoft Visual Studio 2015 installed
-    set msvc_ver=14
     call "%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat" %msvc_arch%
 ) else if defined VS120COMNTOOLS (
     REM  Microsoft Visual Studio 2013 installed
-    set msvc_ver=12
     call "%VS120COMNTOOLS%\..\..\VC\vcvarsall.bat" %msvc_arch%
 ) else if defined VS110COMNTOOLS (
     REM  Microsoft Visual Studio 2012 installed
-    set msvc_ver=11
     call "%VS110COMNTOOLS%\..\..\VC\vcvarsall.bat" %msvc_arch%
 )
 
