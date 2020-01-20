@@ -68,11 +68,7 @@ if errorlevel 1 (
     goto :eof
 )
 
-if %msvc_ver% geq 11 (
-    nmake -f make_msvc.mak nodebug=1 CPU=%cpu_arch% "SDK_INCLUDE_DIR=%ProgramFiles(x86)%\Microsoft SDKs\Windows\v7.1A\Include"
-) else (
-    nmake -f make_msvc.mak nodebug=1 CPU=%cpu_arch% 
-)
+nmake -f make_msvc.mak CPU=%cpu_arch%
 
 if errorlevel 1 (
     rem Build failed.
@@ -83,10 +79,5 @@ if errorlevel 1 (
     rem If the DLL couldn't delete (may be it is in use), rename it.
     if exist lib\%vimproc_dllname%     ren lib\%vimproc_dllname% %vimproc_dllname%.old
 
-    if %msvc_ver% geq 11 (
-        nmake -f make_msvc.mak nodebug=1 CPU=%cpu_arch% "SDK_INCLUDE_DIR=%ProgramFiles(x86)%\Microsoft SDKs\Windows\v7.1A\Include"
-    ) else (
-        nmake -f make_msvc.mak nodebug=1 CPU=%cpu_arch% 
-    )
+    nmake -f make_msvc.mak CPU=%cpu_arch%
 )
-
