@@ -68,16 +68,10 @@ if errorlevel 1 (
     goto :eof
 )
 
+rem Try to delete old DLLs.
+if exist lib\%vimproc_dllname%.old del lib\%vimproc_dllname%.old
+if exist lib\%vimproc_dllname%     del lib\%vimproc_dllname%
+rem If the DLL couldn't delete (may be it is in use), rename it.
+if exist lib\%vimproc_dllname%     ren lib\%vimproc_dllname% %vimproc_dllname%.old
+
 nmake -f make_msvc.mak CPU=%cpu_arch%
-
-if errorlevel 1 (
-    rem Build failed.
-
-    rem Try to delete old DLLs.
-    if exist lib\%vimproc_dllname%.old del lib\%vimproc_dllname%.old
-    if exist lib\%vimproc_dllname%     del lib\%vimproc_dllname%
-    rem If the DLL couldn't delete (may be it is in use), rename it.
-    if exist lib\%vimproc_dllname%     ren lib\%vimproc_dllname% %vimproc_dllname%.old
-
-    nmake -f make_msvc.mak CPU=%cpu_arch%
-)
