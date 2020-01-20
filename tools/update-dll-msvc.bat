@@ -1,7 +1,7 @@
 @echo off
 rem Update the DLL using MSVC.
 rem If the old DLL is in use, rename it to avoid compilation error.
-rem current support version of Visual C compiler is 2010 and upper version
+rem current support version of Visual C compiler is 2012 or upper version
 rem
 rem usage: update-dll-msvc
 rem
@@ -19,9 +19,6 @@ rem \    },
 rem \ }
 
 setlocal enabledelayedexpansion
-
-rem detect the cpu architecture is 32 bit or 64 bit processor
-reg query "HKLM\Hardware\Description\System\CentralProcessor\0" /v "Identifier" | find /i "x86" > NUL && set cpu_arch=i386 || set cpu_arch=AMD64
 
 rem --------------------------------------------------------------------------------------------
 rem  See https://docs.microsoft.com/zh-cn/archive/blogs/david.wang/howto-detect-process-bitness
@@ -47,7 +44,8 @@ rem  WOW64 = 32bit Program on 64bit OS
 rem --------------------------------------------------------------------------------------------
 set vimproc_arch=64
 set msvc_arch=x86_amd64
-if "%PROCESSOR_ARCHITECTURE%"=="x86" (if not defined PROCESSOR_ARCHITEW6432 set "vimproc_arch=32" & set "msvc_arch=x86")
+set cpu_arch=AMD64
+if "%PROCESSOR_ARCHITECTURE%"=="x86" (if not defined PROCESSOR_ARCHITEW6432 set "vimproc_arch=32" & set "msvc_arch=x86" & set "cpu_arch=i386")
 
 set vimproc_dllname=vimproc_win%vimproc_arch%.dll
 
@@ -56,14 +54,8 @@ rem Determine which registry keys to look at based on architecture type.
 rem --------------------------------------------------------------------------------------------
 if "%vimproc_arch%"=="64" (
     set VCRegKeyPath=HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\SxS\VC7
-    set VSRegKeyPath=HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\SxS\VS7
-    rem Visual Studio 2010 Express edition need to work with Windows SDK 7.1 if the msvc_arch is x86_amd64
-    set WinSDKRegKeyPath=HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v7.1
-)    else (
+) else (
     set VCRegKeyPath=HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7
-    set VSRegKeyPath=HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7
-    rem Visual Studio 2010 Express edition need to work with Windows SDK 7.1 if the msvc_arch is x86_amd64
-    set WinSDKRegKeyPath=HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1
 )
 
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
@@ -118,47 +110,6 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
         set msvc_ver=11
         call "!VCRoot!vcvarsall.bat" %msvc_arch%
         goto Start_Build
-    )
-
-    rem --------------------------------------------------------------------------------------------
-    rem Visual Studio 10.0
-    rem --------------------------------------------------------------------------------------------
-    for /f "tokens=2*" %%a in ('reg query "%VSRegKeyPath%" /v 10.0 /reg:32 2^>nul') do (
-        set VSRoot=%%~b
-        set msvc_ver=10
-        call "!VSRoot!VC\vcvarsall.bat" %msvc_arch%
-        goto Start_Build
-    )
-
-    for /f "tokens=2*" %%a in ('reg query "%VCRegKeyPath%" /v 10.0 /reg:32 2^>nul') do (
-        set VCRoot=%%~b
-        set msvc_ver=10
-        rem Don't use VS100COMNTOOLS to check whether is Visual Studio 2010 Express edition,
-        rem because the environment variable VS100COMNTOOLS will also be defined if only install
-        rem Express edition.
-        if "x!VSRoot!"=="x" (
-            rem Visual Studio 2010 Express Edition
-            if %msvc_arch%=="x86" (
-                call "!VCRoot!vcvarsall.bat" %msvc_arch%
-                goto Start_Build
-            ) else (
-                rem vcvarsx86_amd64.bat is missing from VC++ 2010 Express / Windows SDK 7.1
-                for /f "tokens=2*" %%a in ('reg query "%WinSDKRegKeyPath%" /v InstallationFolder /reg:32 2^>nul') do (
-                    set WindowsSDKDir=%%~b
-                )
-                if exist "!WindowsSDKDir!bin\SetEnv.cmd" (
-                    call "!WindowsSDKDir!bin\SetEnv.cmd" /Release /x64
-                ) else (
-                    rem no Windows SDK 7.1 installed but also request to build with x86_amd64 architecture option
-                    echo "vcvarsx86_amd64.bat is missing from VC++ 2010 Express / Windows SDK 7.1" 
-                )
-                goto Start_Build
-            )
-        ) else (
-            rem Visual Studio 2010 IDE Edition
-            call "!VCRoot!vcvarsall.bat" %msvc_arch%
-            goto Start_Build
-        )
     )
 )
 
