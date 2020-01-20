@@ -56,10 +56,7 @@ build: $(LIBDIR)\$(VIMPROC).dll
 
 clean:
 	-IF EXIST $(OUTDIR)/nul RMDIR /s /q $(OUTDIR)
-	-DEL /F /Q $(LIBDIR)\vimproc_win32.*
-	-DEL /F /Q $(LIBDIR)\vimproc_win64.*
-	-DEL /F /Q $(SRCDIR)\*.obj
-	-DEL /F /Q $(SRCDIR)\*.pdb
+	-DEL /F /Q $(LIBDIR)\$(VIMPROC).*
 
 $(LIBDIR)\$(VIMPROC).dll: $(OBJS)
 	$(LINK) $(LFLAGS) /OUT:$@ $(OBJS) shell32.lib ws2_32.lib
