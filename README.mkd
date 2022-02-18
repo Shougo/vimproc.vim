@@ -1,8 +1,7 @@
 # vimproc
 
-[![Travis Build Status](https://travis-ci.org/Shougo/vimproc.vim.svg?branch=master)](https://travis-ci.org/Shougo/vimproc.vim)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/nutwxuj2poauar2b/branch/master?svg=true)](https://ci.appveyor.com/project/Shougo/vimproc-vim/branch/master)
-[![GitHub release](https://img.shields.io/github/release/Shougo/vimproc.vim.svg)](https://github.com/Shougo/vimproc.vim/releases)
+[![GitHub Build Status](https://github.com/Shougo/vimproc.vim/workflows/GitHub%20CI/badge.svg)](https://github.com/Shougo/vimproc.vim/actions?query=workflow%3A%22GitHub+CI%22)
+[![GitHub Release](https://img.shields.io/github/release/Shougo/vimproc.vim.svg)](https://github.com/Shougo/vimproc.vim/releases)
 
 vimproc is a great asynchronous execution library for Vim.  It is a fork of
 proc.vim by Yukihiro Nakadaira.  I added some features and fixed some bugs and
