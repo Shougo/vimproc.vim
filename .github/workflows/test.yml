@@ -67,6 +67,7 @@ jobs:
         compiler:
           - msvc
           - msys2
+          - cygwin
         arch:
           - amd64
           - x86
@@ -87,6 +88,12 @@ jobs:
             compiler: msys2
             arch: x86
             msystem: MINGW32
+          - os: windows-latest
+            compiler: cygwin
+            arch: amd64
+          - os: windows-latest
+            compiler: cygwin
+            arch: x86
 
     steps:
       - name: Initialize
@@ -103,14 +110,18 @@ jobs:
           msystem: ${{ matrix.msystem }}
           release: false
 
+      - uses: cygwin/cygwin-install-action@master
+        if: matrix.compiler == 'cygwin'
+        with:
+          platform: ${{ matrix.arch }}
+          packages: gcc-core,make,vim
+
       - name: Set up Vim
         id: vim
+        if: matrix.compiler != 'cygwin'
         uses: thinca/action-setup-vim@v1
         with:
           arch: ${{ matrix.arch }}
-
-      - name: Check Vim version
-        run: ${{ steps.vim.outputs.executable_path }} --version
 
       - name: Set up vim-themis
         uses: actions/checkout@v2
@@ -130,15 +141,32 @@ jobs:
         shell: msys2 {0}
         run: mingw32-make
 
+      - name: Build (Cygwin)
+        if: matrix.compiler == 'cygwin'
+        shell: bash
+        run: make
+
       - name: Test
+        if: matrix.compiler != 'cygwin'
         env:
           THEMIS_VIM: ${{ steps.vim.outputs.executable_path }}
         shell: cmd
         timeout-minutes: 3
-        run: vim-themis\bin\themis
+        run: |
+          %THEMIS_VIM% --version
+          vim-themis\bin\themis
+
+      - name: Test (Cygwin)
+        if: matrix.compiler == 'cygwin'
+        env:
+          THEMIS_VIM: vim
+        shell: bash
+        timeout-minutes: 3
+        # Don't use mutliline strings here: which include CR at the end of each line so cause script errors.
+        run: ${THEMIS_VIM} --version && ./vim-themis/bin/themis
 
       - uses: actions/upload-artifact@v2
-        if: startsWith(github.ref, 'refs/tags/') && matrix.compiler == 'msvc'
+        if: startsWith(github.ref, 'refs/tags/') && (matrix.compiler == 'msvc' || matrix.compiler == 'cygwin')
         with:
           name: lib
           path: lib/vimproc_*.dll
