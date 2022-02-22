@@ -61,7 +61,7 @@ if vimproc#util#is_windows()
         \ 'vimproc_win64.dll' : 'vimproc_win32.dll'
 elseif vimproc#util#is_cygwin()
   let s:vimproc_dll_basename = 'vimproc_cygwin.dll'
-  if system('uname -m') =~? '^x86_64$'
+  if system('uname -m') =~? 'x86_64'
     let s:vimproc_dll_basename = 'vimproc_cygwin64.dll'
   endif
 elseif vimproc#util#is_mac()
@@ -70,7 +70,7 @@ elseif glob('/lib*/ld-linux*64.so.2',1) != ''
   let s:vimproc_dll_basename = 'vimproc_linux64.so'
 elseif glob('/lib*/ld-linux*.so.2',1) != ''
   let s:vimproc_dll_basename = 'vimproc_linux32.so'
-elseif system('uname -s') =~? '^.\+BSD\n$'
+elseif system('uname -s') =~? 'BSD'
   let s:vimproc_dll_basename = system(
         \ 'uname -sm | tr "[:upper:]" "[:lower:]"'
         \ .' | sed -e "s/ /_/" | xargs -I "{}" echo "vimproc_{}.so"')[0 : -2]

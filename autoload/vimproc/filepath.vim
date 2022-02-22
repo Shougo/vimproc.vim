@@ -10,11 +10,6 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:path_sep_pattern = (exists('+shellslash') ? '[\\/]' : '/') . '\+'
-let s:is_windows = has('win16') || has('win32') || has('win64')
-let s:is_cygwin = has('win32unix')
-let s:is_mac = !s:is_windows && !s:is_cygwin
-      \ && (has('mac') || has('macunix') || has('gui_macvim') ||
-      \   (!executable('xdg-open') && system('uname') =~? '^darwin'))
 
 " Get the directory separator.
 function! s:separator() abort
@@ -22,7 +17,7 @@ function! s:separator() abort
 endfunction
 
 " Get the path separator.
-let s:path_separator = s:is_windows ? ';' : ':'
+let s:path_separator = vimproc#util#is_windows() ? ';' : ':'
 function! s:path_separator() abort
   return s:path_separator
 endfunction
@@ -30,7 +25,7 @@ endfunction
 " Get the path extensions
 function! s:path_extensions() abort
   if !exists('s:path_extensions')
-    if s:is_windows
+    if vimproc#util#is_windows()
       if exists('$PATHEXT')
         let pathext = $PATHEXT
       else
@@ -38,7 +33,7 @@ function! s:path_extensions() abort
         let pathext = matchstr(system('set pathext'), '^pathext=\zs.*\ze\n', 'i')
       endif
       let s:path_extensions = split(tolower(pathext), s:path_separator)
-    elseif s:is_cygwin
+    elseif vimproc#util#is_cygwin()
       " cygwin is not use $PATHEXT
       let s:path_extensions = ['', '.exe']
     else
@@ -58,7 +53,7 @@ function! s:which(command, ...) abort
   let maxcount = (a:0 >= 2 && type(a:2) == type(0)) ? a:2 : 1
   if maxcount == 1 && exists('*exepath')
     let full = exepath(a:command)
-    if s:is_windows && (full =~? '\.lnk$') && (getftype(full) ==# 'file')
+    if vimproc#util#is_windows() && (full =~? '\.lnk$') && (getftype(full) ==# 'file')
       return resolve(full)
     endif
     return full
@@ -80,7 +75,7 @@ function! s:which(command, ...) abort
     let head = dir ==# '' ? '' : dir . dirsep
     for ext in pathext
       let full = fnamemodify(head . a:command . ext, ':p')
-      if s:is_windows && (full =~? '\.lnk$') && (getftype(full) ==# 'file')
+      if vimproc#util#is_windows() && (full =~? '\.lnk$') && (getftype(full) ==# 'file')
         let full = resolve(full)
       endif
 
@@ -126,7 +121,7 @@ function! s:join(...) abort
 endfunction
 
 " Check if the path is absolute path.
-if s:is_windows
+if vimproc#util#is_windows()
   function! s:is_absolute(path) abort
     return a:path =~? '^[a-z]:[/\]'
   endfunction
