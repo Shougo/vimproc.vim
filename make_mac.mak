@@ -12,7 +12,7 @@ endif
 
 TARGET=lib/vimproc_mac.so
 SRC=src/proc.c
-ARCHS=
+ARCHS=x86_64 arm64e
 CFLAGS+=-O2 -W -Wall -Wno-unused -Wno-unused-parameter -bundle -fPIC $(foreach ARCH,$(ARCHS),-arch $(ARCH))
 LDFLAGS=
 
