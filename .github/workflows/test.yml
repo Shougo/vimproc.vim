@@ -31,7 +31,7 @@ jobs:
             vim: v8.2.0000
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up Vim
         id: vim
@@ -44,7 +44,7 @@ jobs:
         run: ${{ steps.vim.outputs.executable_path }} --version
 
       - name: Set up vim-themis
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: thinca/vim-themis
           path: vim-themis
@@ -102,7 +102,7 @@ jobs:
           git config --global core.autocrlf input
           echo "VCVARSALL=$(vswhere -products \* -latest -property installationPath)\\VC\\Auxiliary\\Build\\vcvarsall.bat" >>$GITHUB_ENV
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: msys2/setup-msys2@v2
         if: matrix.compiler == 'msys2'
@@ -124,7 +124,7 @@ jobs:
           arch: ${{ matrix.arch }}
 
       - name: Set up vim-themis
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: thinca/vim-themis
           path: vim-themis
