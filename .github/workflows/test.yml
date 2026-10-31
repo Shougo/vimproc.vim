@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   unixlike:
     runs-on: ${{ matrix.os }}
@@ -32,6 +35,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Set up Vim
         id: vim
@@ -46,6 +51,7 @@ jobs:
       - name: Set up vim-themis
         uses: actions/checkout@v6.1.0
         with:
+          persist-credentials: false
           repository: thinca/vim-themis
           path: vim-themis
 
@@ -103,6 +109,8 @@ jobs:
           echo "VCVARSALL=$(vswhere -products \* -latest -property installationPath)\\VC\\Auxiliary\\Build\\vcvarsall.bat" >>$GITHUB_ENV
 
       - uses: actions/checkout@v6.1.0
+        with:
+          persist-credentials: false
 
       - uses: msys2/setup-msys2@v2.33.0
         if: matrix.compiler == 'msys2'
@@ -126,6 +134,7 @@ jobs:
       - name: Set up vim-themis
         uses: actions/checkout@v6.1.0
         with:
+          persist-credentials: false
           repository: thinca/vim-themis
           path: vim-themis
 
@@ -173,6 +182,10 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
+
+    # It makes the release.
+    permissions:
+      contents: write
 
     needs:
       - unixlike
