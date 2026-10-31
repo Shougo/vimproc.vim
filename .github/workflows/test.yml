@@ -174,10 +174,12 @@ jobs:
         # Don't use mutliline strings here: which include CR at the end of each line so cause script errors.
         run: ${THEMIS_VIM} --version && ./vim-themis/bin/themis
 
+      # An artifact is written by one job only (upload-artifact v4 and later):
+      # one per job, merged by the release.
       - uses: actions/upload-artifact@v7.0.2
         if: startsWith(github.ref, 'refs/tags/') && (matrix.compiler == 'msvc' || matrix.compiler == 'cygwin')
         with:
-          name: lib
+          name: lib-${{ matrix.compiler }}-${{ matrix.arch }}
           path: lib/vimproc_*.dll
 
   release:
@@ -195,6 +197,10 @@ jobs:
 
     steps:
       - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: lib-*
+          merge-multiple: true
+          path: lib
 
       - name: Release
         uses: softprops/action-gh-release@v3.0.3
