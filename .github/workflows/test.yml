@@ -34,13 +34,13 @@ jobs:
             vim: v8.2.0000
 
     steps:
-      - uses: actions/checkout@v6.1.0
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Vim
         id: vim
-        uses: thinca/action-setup-vim@v1.2.11
+        uses: thinca/action-setup-vim@v3.0.3
         with:
           vim_version: ${{ matrix.vim }}
           download: never
@@ -49,7 +49,7 @@ jobs:
         run: ${{ steps.vim.outputs.executable_path }} --version
 
       - name: Set up vim-themis
-        uses: actions/checkout@v6.1.0
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           repository: thinca/vim-themis
@@ -108,7 +108,7 @@ jobs:
           git config --global core.autocrlf input
           echo "VCVARSALL=$(vswhere -products \* -latest -property installationPath)\\VC\\Auxiliary\\Build\\vcvarsall.bat" >>$GITHUB_ENV
 
-      - uses: actions/checkout@v6.1.0
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -127,12 +127,12 @@ jobs:
       - name: Set up Vim
         id: vim
         if: matrix.compiler != 'cygwin'
-        uses: thinca/action-setup-vim@v1.2.11
+        uses: thinca/action-setup-vim@v3.0.3
         with:
           arch: ${{ matrix.arch }}
 
       - name: Set up vim-themis
-        uses: actions/checkout@v6.1.0
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           repository: thinca/vim-themis
@@ -174,7 +174,7 @@ jobs:
         # Don't use mutliline strings here: which include CR at the end of each line so cause script errors.
         run: ${THEMIS_VIM} --version && ./vim-themis/bin/themis
 
-      - uses: actions/upload-artifact@v2.3.1
+      - uses: actions/upload-artifact@v7.0.2
         if: startsWith(github.ref, 'refs/tags/') && (matrix.compiler == 'msvc' || matrix.compiler == 'cygwin')
         with:
           name: lib
@@ -194,7 +194,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
 
     steps:
-      - uses: actions/download-artifact@v4.1.7
+      - uses: actions/download-artifact@v8.0.2
 
       - name: Release
         uses: softprops/action-gh-release@v3.0.3
